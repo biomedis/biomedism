@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.web.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="300.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.Dialogs.AboutController">
+   <center>
+      <WebView fx:id="webView" prefHeight="200.0" prefWidth="400.0" BorderPane.alignment="CENTER" />
+   </center>
+</BorderPane>

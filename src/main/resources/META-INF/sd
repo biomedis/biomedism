@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1" xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+http://www.oracle.com/webfolder/technetwork/jsc/xml/ns/persistence/persistence_2_1.xsd">
+
+    <persistence-unit name="DB_UNIT" transaction-type="RESOURCE_LOCAL">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+        <class>ru.biomedis.biomedismair3.entity.Language</class>
+        <class>ru.biomedis.biomedismair3.entity.Strings</class>
+        <class>ru.biomedis.biomedismair3.entity.TherapyComplex</class>
+        <class>ru.biomedis.biomedismair3.entity.Section</class>
+        <class>ru.biomedis.biomedismair3.entity.Profile</class>
+        <class>ru.biomedis.biomedismair3.entity.Program</class>
+        <class>ru.biomedis.biomedismair3.entity.Therapy</class>
+        <class>ru.biomedis.biomedismair3.entity.Complex</class>
+        <class>ru.biomedis.biomedismair3.entity.LocalizedString</class>
+        <class>ru.biomedis.biomedismair3.entity.TherapyProgram</class>
+        <properties>
+
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:./mAirDB"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+
+
+            <property name="eclipselink.target-database" value="org.eclipse.persistence.platform.database.H2Platform"/>
+            <property name="eclipselink.ddl-generation" value="create-tables" />
+            <property name="eclipselink.ddl-generation.output-mode"  value="database" />
+
+
+            <property name="eclipselink.logging.logger" value="JavaLogger"/>
+            <property name="eclipselink.logging.level.sql" value="INFO"/>
+
+        </properties>
+    </persistence-unit>
+
+    <persistence-unit name="DB_TEST_UNIT" transaction-type="RESOURCE_LOCAL">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <class>ru.biomedis.biomedismair3.entity.Language</class>
+        <class>ru.biomedis.biomedismair3.entity.Strings</class>
+        <class>ru.biomedis.biomedismair3.entity.TherapyComplex</class>
+        <class>ru.biomedis.biomedismair3.entity.Section</class>
+        <class>ru.biomedis.biomedismair3.entity.Profile</class>
+        <class>ru.biomedis.biomedismair3.entity.Program</class>
+        <class>ru.biomedis.biomedismair3.entity.Therapy</class>
+        <class>ru.biomedis.biomedismair3.entity.Complex</class>
+        <class>ru.biomedis.biomedismair3.entity.LocalizedString</class>
+        <class>ru.biomedis.biomedismair3.entity.TherapyProgram</class>
+        <properties>
+
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:./mAirDB_TEST"/>
+            <property name="javax.persistence.jdbc.password" value=""/>
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+
+
+            <property name="eclipselink.target-database" value="org.eclipse.persistence.platform.database.H2Platform"/>
+            <property name="eclipselink.ddl-generation" value="create-tables" />
+            <property name="eclipselink.ddl-generation.output-mode"  value="database" />
+
+
+            <property name="eclipselink.logging.logger" value="JavaLogger"/>
+            <property name="eclipselink.logging.level.sql" value="INFO"/>
+
+        </properties>
+    </persistence-unit>
+</persistence>

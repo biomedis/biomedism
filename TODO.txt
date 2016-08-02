@@ -1,0 +1,5 @@
+пользователь должен установить lame кодке!! http://lame.buanzo.org/
+libmp3lame.dll в system32 ну или качать нормальный пак
+
+
+java -Dfile.encoding=UTF-8 -jar your-jar-file.jar

@@ -1,0 +1,96 @@
+2016-03-15 18:37:04 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Таблица "LANGUAGE" не найдена
+Table "LANGUAGE" not found; SQL statement:
+SELECT ID FROM LANGUAGE WHERE ID <> ID [42102-188]
+2016-03-15 18:37:04 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Таблица "STRINGS" не найдена
+Table "STRINGS" not found; SQL statement:
+SELECT ID FROM STRINGS WHERE ID <> ID [42102-188]
+2016-03-15 18:37:04 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Таблица "THERAPYCOMPLEX" не найдена
+Table "THERAPYCOMPLEX" not found; SQL statement:
+SELECT ID FROM THERAPYCOMPLEX WHERE ID <> ID [42102-188]
+2016-03-15 18:37:04 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Таблица "SECTION" не найдена
+Table "SECTION" not found; SQL statement:
+SELECT ID FROM SECTION WHERE ID <> ID [42102-188]
+2016-03-15 18:37:04 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Таблица "PROFILE" не найдена
+Table "PROFILE" not found; SQL statement:
+SELECT ID FROM PROFILE WHERE ID <> ID [42102-188]
+2016-03-15 18:37:04 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Таблица "PROGRAM" не найдена
+Table "PROGRAM" not found; SQL statement:
+SELECT ID FROM PROGRAM WHERE ID <> ID [42102-188]
+2016-03-15 18:37:04 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Таблица "COMPLEX" не найдена
+Table "COMPLEX" not found; SQL statement:
+SELECT ID FROM COMPLEX WHERE ID <> ID [42102-188]
+2016-03-15 18:37:04 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Таблица "LOCALIZEDSTRING" не найдена
+Table "LOCALIZEDSTRING" not found; SQL statement:
+SELECT ID FROM LOCALIZEDSTRING WHERE ID <> ID [42102-188]
+2016-03-15 18:37:04 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Таблица "THERAPYPROGRAM" не найдена
+Table "THERAPYPROGRAM" not found; SQL statement:
+SELECT ID FROM THERAPYPROGRAM WHERE ID <> ID [42102-188]
+2016-03-15 18:37:04 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Таблица "PROGRAMOPTIONS" не найдена
+Table "PROGRAMOPTIONS" not found; SQL statement:
+SELECT ID FROM PROGRAMOPTIONS WHERE ID <> ID [42102-188]
+2016-03-15 18:37:04 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Таблица "SEQUENCE" не найдена
+Table "SEQUENCE" not found; SQL statement:
+SELECT SEQ_NAME FROM SEQUENCE WHERE SEQ_NAME <> SEQ_NAME [42102-188]
+2016-06-17 14:09:16 database: wrong user or password; user: "SA"
+org.h2.message.DbException: Неверное имя пользователя или пароль
+Wrong user name or password [28000-188]
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.message.DbException.get(DbException.java:155)
+	at org.h2.message.DbException.get(DbException.java:144)
+	at org.h2.engine.Engine.openSession(Engine.java:106)
+	at org.h2.engine.Engine.openSession(Engine.java:175)
+	at org.h2.engine.Engine.createSessionAndValidate(Engine.java:153)
+	at org.h2.engine.Engine.createSession(Engine.java:136)
+	at org.h2.engine.Engine.createSession(Engine.java:28)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:349)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:107)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:91)
+	at org.h2.Driver.connect(Driver.java:72)
+	at org.h2.server.web.WebServer.getConnection(WebServer.java:735)
+	at org.h2.server.web.WebApp.login(WebApp.java:955)
+	at org.h2.server.web.WebApp.process(WebApp.java:211)
+	at org.h2.server.web.WebApp.processRequest(WebApp.java:170)
+	at org.h2.server.web.WebThread.process(WebThread.java:133)
+	at org.h2.server.web.WebThread.run(WebThread.java:89)
+	at java.lang.Thread.run(Unknown Source)
+Caused by: org.h2.jdbc.JdbcSQLException: Неверное имя пользователя или пароль
+Wrong user name or password [28000-188]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	... 19 more
+2016-06-17 14:09:25 database: wrong user or password; user: "SA"
+org.h2.message.DbException: Неверное имя пользователя или пароль
+Wrong user name or password [28000-188]
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.message.DbException.get(DbException.java:155)
+	at org.h2.message.DbException.get(DbException.java:144)
+	at org.h2.engine.Engine.openSession(Engine.java:106)
+	at org.h2.engine.Engine.openSession(Engine.java:175)
+	at org.h2.engine.Engine.createSessionAndValidate(Engine.java:153)
+	at org.h2.engine.Engine.createSession(Engine.java:136)
+	at org.h2.engine.Engine.createSession(Engine.java:28)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:349)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:107)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:91)
+	at org.h2.Driver.connect(Driver.java:72)
+	at org.h2.server.web.WebServer.getConnection(WebServer.java:735)
+	at org.h2.server.web.WebApp.login(WebApp.java:955)
+	at org.h2.server.web.WebApp.process(WebApp.java:211)
+	at org.h2.server.web.WebApp.processRequest(WebApp.java:170)
+	at org.h2.server.web.WebThread.process(WebThread.java:133)
+	at org.h2.server.web.WebThread.run(WebThread.java:89)
+	at java.lang.Thread.run(Unknown Source)
+Caused by: org.h2.jdbc.JdbcSQLException: Неверное имя пользователя или пароль
+Wrong user name or password [28000-188]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	... 19 more

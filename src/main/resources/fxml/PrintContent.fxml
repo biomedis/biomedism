@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.web.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.Dialogs.PrintController" fx:id="root">
+   <center>
+      <WebView fx:id="webView" prefHeight="490.0" prefWidth="590.0" BorderPane.alignment="CENTER" />
+   </center>
+   <top>
+      <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onPrint" text="%app.menu.print" BorderPane.alignment="CENTER" />
+   </top>
+</BorderPane>

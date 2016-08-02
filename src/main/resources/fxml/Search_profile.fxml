@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<GridPane fx:id="root" alignment="center" hgap="10" prefHeight="200.0" prefWidth="400.0" styleClass="root" vgap="10" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.Dialogs.SearchProfile">
+
+    <padding>
+        <Insets bottom="8" left="8" right="8" top="8" />
+    </padding>
+   <rowConstraints>
+      <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="NEVER" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="NEVER" />
+   </rowConstraints>
+   <children>
+      <HBox spacing="8.0" GridPane.hgrow="ALWAYS">
+         <children>
+            <TextField fx:id="searchPattern" onAction="#onSearch" promptText="%app.prompt_search" HBox.hgrow="ALWAYS" />
+            <Button fx:id="search" mnemonicParsing="false" onAction="#onSearch" text="%app.search" />
+         </children>
+      </HBox>
+      <ListView fx:id="searchResult" prefHeight="200.0" prefWidth="200.0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" />
+      <Button fx:id="setProfile" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onSetProfile" text="%app.ui.select_profile" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" />
+   </children>
+
+
+
+</GridPane>

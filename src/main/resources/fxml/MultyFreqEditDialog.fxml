@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<GridPane fx:id="rootNode" alignment="center" hgap="10" minWidth="500.0" prefWidth="500.0" styleClass="root" vgap="10" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.Dialogs.MultyFreqEditDialogController">
+
+    <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
+
+    <HBox alignment="bottom_right" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="3">
+        <Button fx:id="saveBtn" onAction="#onSave" text="%ui.section_dialog.accept" />
+    </HBox>
+   <ListView fx:id="freqList" minHeight="200.0" prefHeight="200.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" />
+   <VBox prefHeight="200.0" prefWidth="300.0" GridPane.rowIndex="1">
+      <children>
+         <VBox alignment="CENTER_RIGHT" minWidth="230.0" spacing="8.0">
+            <children>
+               <VBox spacing="5.0">
+                  <children>
+
+                     <HBox maxWidth="1.7976931348623157E308" minWidth="120.0" spacing="8.0">
+                        <children>
+                           <TextField fx:id="addField" maxWidth="1.7976931348623157E308" promptText="%app.ui.input_freq" HBox.hgrow="ALWAYS" />
+                           <Button fx:id="addBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onAdd" text="%app.add" />
+                        </children>
+                     </HBox>
+                  </children>
+                  <VBox.margin>
+                     <Insets bottom="8.0" />
+                  </VBox.margin>
+               </VBox>
+               <Button fx:id="editBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onEdit" text="%app.edit" />
+               <Button fx:id="delBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onDelete" text="%app.delete" />
+            </children>
+            <VBox.margin>
+               <Insets top="8.0" />
+            </VBox.margin>
+            <opaqueInsets>
+               <Insets />
+            </opaqueInsets>
+         </VBox>
+      </children>
+   </VBox>
+    <columnConstraints>
+        <ColumnConstraints />
+        <ColumnConstraints fillWidth="false" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints />
+      <RowConstraints maxHeight="250.0" minHeight="200.0" prefHeight="30.0" />
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+    </rowConstraints>
+
+
+
+</GridPane>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.*?>
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<GridPane fx:id="rootNode" alignment="center" hgap="10" styleClass="root" vgap="10" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.Dialogs.ProgramDialogController">
+
+    <padding><Insets bottom="8.0" left="8.0" right="8.0" top="8.0" /></padding>
+   <children>
+       <TextField fx:id="nameFld" promptText="%ui.section_dialog.name" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" />
+   
+       <HBox alignment="bottom_right" spacing="10" GridPane.columnIndex="1" GridPane.rowIndex="5">
+      <children>
+              <Button fx:id="saveBtn" onAction="#onSave" text="%ui.section_dialog.accept" />
+      </children>
+       </HBox>
+       <TextArea fx:id="descriptionFld" maxWidth="1.7976931348623157E308" prefHeight="100.0" prefWidth="200.0" promptText="%ui.section_dialog.description" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" />
+      <ListView fx:id="freqList" minHeight="255.0" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.rowSpan="3" />
+      <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="3">
+         <children>
+            <VBox alignment="CENTER_RIGHT" minWidth="230.0" spacing="8.0">
+               <children>
+                  <VBox spacing="5.0">
+                     <children>
+                        <Label maxWidth="1.7976931348623157E308" minHeight="40.0" prefHeight="40.0" text="%app.ui.add_freq_comment" wrapText="true" VBox.vgrow="NEVER" />
+   
+                        <HBox maxWidth="1.7976931348623157E308" spacing="8.0">
+                           <children>
+                              <TextField fx:id="addField" maxWidth="1.7976931348623157E308" promptText="%app.ui.input_freq" HBox.hgrow="ALWAYS" />
+                              <Button fx:id="addBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onAdd" text="%app.add" />
+                           </children>
+                        </HBox>
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="8.0" />
+                     </VBox.margin>
+                  </VBox>
+                  <Button fx:id="editBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onEdit" text="%app.edit" />
+                  <Button fx:id="delBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onDelete" text="%app.delete" />
+                  <Separator prefWidth="200.0" />
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <TextArea fx:id="freqsString" maxWidth="1.7976931348623157E308" minHeight="97.0" promptText="%app.ui.freq_by_string" wrapText="true" />
+                     </children>
+                  </HBox>
+               </children>
+               <VBox.margin>
+                  <Insets top="8.0" />
+               </VBox.margin>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </VBox>
+         </children>
+      </VBox>
+   </children>
+    <columnConstraints>
+        <ColumnConstraints minWidth="250.0" prefWidth="250.0" />
+        <ColumnConstraints prefWidth="200.0" />
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+      <RowConstraints maxHeight="250.0" minHeight="200.0" prefHeight="30.0" />
+        <RowConstraints />
+        <RowConstraints />
+        <RowConstraints />
+    </rowConstraints>
+
+
+
+</GridPane>

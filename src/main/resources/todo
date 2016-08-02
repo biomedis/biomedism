@@ -1,0 +1,3 @@
+String osEncoding=System.getProperty("file.encoding");
+String rightString= new String(badString.getBytes("windows-1251"),"utf-8");
+прибор не воспринимает точки в названиях файлов итп при построении списка он обрежит название по первой точке

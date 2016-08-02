@@ -1,0 +1,23 @@
+.searchButton
+{
+    -fx-background-image: url("../images/users_search.png");
+    -fx-background-size: 24 24;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position:center;
+}
+
+/*
+.button {
+    -fx-font-weight: bold;
+}
+
+.borders{ -fx-border-color: grey; -fx-border-style: solid; -fx-border-width: 2; -fx-border-radius: 5px; }
+
+
+.root
+{
+    -fx-base: rgb(136, 0, 255);
+    -fx-background: rgba(255, 234, 0, 1);
+    -fx-accent: rgba(1, 0, 201, 1);
+}
+*/
