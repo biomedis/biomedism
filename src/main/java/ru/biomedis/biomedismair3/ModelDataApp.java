@@ -1458,7 +1458,9 @@ else {
     public List<TherapyComplex> getLastTherapyComplexes(int n) {
         Query query = this.emf.createEntityManager().createQuery("Select p From TherapyComplex p   order by p.id desc");
         query.setMaxResults(n);
-        return query.getResultList();
+        List resultList = query.getResultList();
+        Collections.reverse(resultList);
+        return resultList;
     }
     public boolean isNeedGenerateFilesInProfile(Profile profile)
     {
