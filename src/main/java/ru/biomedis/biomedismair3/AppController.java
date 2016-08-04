@@ -4521,7 +4521,7 @@ private void setInfoMessage(String message)
         {
 
             try {
-                TherapyComplex therapyComplex = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), data.getNewName(), data.getNewDescription(), 300, true,0);
+                TherapyComplex therapyComplex = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), data.getNewName(), data.getNewDescription(), 300, true,1);
                 //therapyComplexItems.clear();
                 therapyComplexItems.add(therapyComplex);
                 tableComplex.getItems().add(therapyComplexItems.get(therapyComplexItems.size()-1));
@@ -5737,6 +5737,9 @@ class ForceCopyProfile
 
         File dir= dirChooser.showDialog(getApp().getMainWindow());
         if(dir==null)return;
+        if(!dir.exists()) {
+            showWarningDialog(res.getString("app.upload_to_dir"),  res.getString("app.ui.dir_not_exist"), "", getApp().getMainWindow(), Modality.WINDOW_MODAL);
+            return;}
 
         int cnt = dir.list().length;
         if(cnt!=0)
@@ -6462,7 +6465,7 @@ class ForceCopyProfile
                     if(ind==-1) ind= complexFileDataMapEntry.getKey().getName().length()-1;
                     if(ind2==-1) ind2= 0;
 
-                    th=  getModel().createTherapyComplex(profile, complexFileDataMapEntry.getKey().getName().substring(ind2+1,ind), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(), complexFileDataMapEntry.getKey().isMullty(),0);
+                    th=  getModel().createTherapyComplex(profile, complexFileDataMapEntry.getKey().getName().substring(ind2+1,ind), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(), complexFileDataMapEntry.getKey().isMullty(),1);
 
 
 
@@ -6526,7 +6529,7 @@ class ForceCopyProfile
                 for (Map.Entry<ComplexFileData, Map<Long, ProgramFileData>> complexFileDataMapEntry : data.entrySet())
                 {
 
-                    th=  getModel().createTherapyComplex(profile, complexFileDataMapEntry.getKey().getName(), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(), complexFileDataMapEntry.getKey().isMullty(),0);
+                    th=  getModel().createTherapyComplex(profile, complexFileDataMapEntry.getKey().getName(), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(), complexFileDataMapEntry.getKey().isMullty(),1);
 
 
 
@@ -6702,14 +6705,14 @@ return  true;
 
 
 
-                        getModel().createTherapyComplex(profile, name, "", 300, true,0);
+                        getModel().createTherapyComplex(profile, name, "", 300, true,1);
 
 
                     }else
                     {
                         Long next = programms.keySet().iterator().next();
 
-                        TherapyComplex th = getModel().createTherapyComplex(profile, name, "", (int) programms.get(next).getTimeForFreq(), true,0);
+                        TherapyComplex th = getModel().createTherapyComplex(profile, name, "", (int) programms.get(next).getTimeForFreq(), true,1);
 
 
                         for (Map.Entry<Long, ProgramFileData> entry : programms.entrySet())
@@ -7143,6 +7146,11 @@ return  true;
                 final File dir = dirChooser.showDialog(getApp().getMainWindow());
                 if(dir != null)
                 {
+                    if(!dir.exists()) {
+                        showWarningDialog(res.getString("app.upload_to_dir"),  res.getString("app.ui.dir_not_exist"), "", getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                        return;}
+
+
                     try {
                         //максимальное значение нумерации комплексов в папке.
                          int e = 0;

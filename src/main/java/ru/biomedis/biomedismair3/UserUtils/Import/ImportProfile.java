@@ -129,7 +129,7 @@ public class ImportProfile {
 
             for (Complex complex : listComplex) {
 
-                complex.complex =  mda.createTherapyComplex(profile.profile,complex.name,complex.descr,complex.timeForFreq,complex.mullty,0);
+                complex.complex =  mda.createTherapyComplex(profile.profile,complex.name,complex.descr,complex.timeForFreq,complex.mullty,1);
             }
 
             for (Program program : listProgram) {

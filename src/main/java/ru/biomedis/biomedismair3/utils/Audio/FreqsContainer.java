@@ -10,25 +10,27 @@ import java.util.List;
 public class FreqsContainer
 {
 
-   private  List<Freq> fList=new ArrayList<>();//список элементов в которых или 1 частота или несколько(тогда они паралельны)
+    private  List<Freq> fList=new ArrayList<>();//список элементов в которых или 1 частота или несколько(тогда они паралельны)
     private   int timeForFreq=0;//время на частоту
     private  int sampleRate;
-    private long lengthInSample=0;//колличество сэмплов на частоту
+    private long lengthInSample=0;//колличество сэмплов на частоту(за время ее воспроизведения)
     private boolean mullty=false;
-   private int sampleSiseInBits=0;
+    private int sampleSiseInBits=0;
+    private int bundlesLength=1;
 
-
-    public FreqsContainer(String freqs,int timeForFreq, int sampleRate,boolean mullty,int sampleSiseInBits) {
+    public FreqsContainer(String freqs,int timeForFreq, int sampleRate,boolean mullty,int bundlesLength,int sampleSiseInBits) {
         this.timeForFreq = timeForFreq;
         this.sampleRate = sampleRate;
         this.lengthInSample=timeForFreq*sampleRate;
         this.sampleSiseInBits=sampleSiseInBits;
+        this.bundlesLength=bundlesLength;
         String[] split=null;
 
 
 
-        if(mullty)
+        if( mullty  )
         {
+            //чисто паралельные частоты
             List<Double> fl=new ArrayList<>();
             split = freqs.split(";");
 
@@ -42,11 +44,30 @@ public class FreqsContainer
                 }else fl.addAll(Arrays.asList(Double.parseDouble(s)));
 
             }
+            if(bundlesLength >1)
+            {
+                //пачки частот
+                int bundlesCount=(int)Math.ceil((float)fl.size()/(float)bundlesLength);
+                int cEnd=0;
+                int cEndT=0;
+                for(int i=0;i<bundlesCount;i++)
+                {
+                    cEndT = (i+1)*bundlesLength;
+                    if(cEndT<=fl.size())cEnd=cEndT;
+                    else cEnd=fl.size()-1;
+                    //разбиваем по пачкам
 
-            addFreq(fl);
+                    addFreq(fl.subList(i*bundlesLength,cEnd));
+                }
+
+
+            }else addFreq(fl);
+
+
 
         }else
         {
+            //последовательные частоты
             split = freqs.split(";");
 
             for (String s : split)
@@ -85,7 +106,11 @@ public class FreqsContainer
     {
         Freq freq = new Freq(freqs);
         if(!isMullty())freq.setEndPosition((fList.size()+1) * lengthInSample - 1);//позиция считается от нуля
-        else freq.setEndPosition(lengthInSample - 1);
+        else{
+            if(bundlesLength>1)freq.setEndPosition((fList.size()+1) * lengthInSample - 1);
+             else  freq.setEndPosition(lengthInSample - 1);
+        }
+
         fList.add(freq);
 
     }

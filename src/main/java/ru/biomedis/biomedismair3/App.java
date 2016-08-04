@@ -382,7 +382,7 @@ https://gist.github.com/DemkaAge/8999236
             EntityManager em = emf.createEntityManager();
             em.getTransaction().begin();
             try{
-                em.createNativeQuery("ALTER TABLE THERAPYCOMPLEX ADD BUNDLESLENGTH INT").executeUpdate();
+                em.createNativeQuery("ALTER TABLE THERAPYCOMPLEX ADD BUNDLESLENGTH INT DEFAULT 1").executeUpdate();
                 em.getTransaction().commit();
                 logger.info("Столбец  BUNDLESLENGTH создан.");
             }catch (Exception ex){
