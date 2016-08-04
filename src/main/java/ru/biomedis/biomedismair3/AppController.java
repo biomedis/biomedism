@@ -918,7 +918,7 @@ public class AppController  extends BaseController {
                         Complex c = (Complex) sectionTree.getSelectionModel().getSelectedItem().getValue();
 
                         try {
-                            TherapyComplex th = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), c, 300, true);
+                            TherapyComplex th = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), c, 300, true,0);
 
                             //therapyComplexItems.clear();
                             //therapyComplexItems содержит отслеживаемый список, элементы которого добавляются в таблицу. Его не нужно очищать
@@ -4444,7 +4444,7 @@ private void setInfoMessage(String message)
         {
 
             try {
-                TherapyComplex therapyComplex = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), data.getNewName(), data.getNewDescription(), 300, true);
+                TherapyComplex therapyComplex = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), data.getNewName(), data.getNewDescription(), 300, true,0);
                 //therapyComplexItems.clear();
                 therapyComplexItems.add(therapyComplex);
                 tableComplex.getItems().add(therapyComplexItems.get(therapyComplexItems.size()-1));
@@ -6385,7 +6385,7 @@ class ForceCopyProfile
                     if(ind==-1) ind= complexFileDataMapEntry.getKey().getName().length()-1;
                     if(ind2==-1) ind2= 0;
 
-                    th=  getModel().createTherapyComplex(profile, complexFileDataMapEntry.getKey().getName().substring(ind2+1,ind), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(), complexFileDataMapEntry.getKey().isMullty());
+                    th=  getModel().createTherapyComplex(profile, complexFileDataMapEntry.getKey().getName().substring(ind2+1,ind), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(), complexFileDataMapEntry.getKey().isMullty(),0);
 
 
 
@@ -6449,7 +6449,7 @@ class ForceCopyProfile
                 for (Map.Entry<ComplexFileData, Map<Long, ProgramFileData>> complexFileDataMapEntry : data.entrySet())
                 {
 
-                    th=  getModel().createTherapyComplex(profile, complexFileDataMapEntry.getKey().getName(), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(), complexFileDataMapEntry.getKey().isMullty());
+                    th=  getModel().createTherapyComplex(profile, complexFileDataMapEntry.getKey().getName(), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(), complexFileDataMapEntry.getKey().isMullty(),0);
 
 
 
@@ -6625,14 +6625,14 @@ return  true;
 
 
 
-                        getModel().createTherapyComplex(profile, name, "", 300, true);
+                        getModel().createTherapyComplex(profile, name, "", 300, true,0);
 
 
                     }else
                     {
                         Long next = programms.keySet().iterator().next();
 
-                        TherapyComplex th = getModel().createTherapyComplex(profile, name, "", (int) programms.get(next).getTimeForFreq(), true);
+                        TherapyComplex th = getModel().createTherapyComplex(profile, name, "", (int) programms.get(next).getTimeForFreq(), true,0);
 
 
                         for (Map.Entry<Long, ProgramFileData> entry : programms.entrySet())

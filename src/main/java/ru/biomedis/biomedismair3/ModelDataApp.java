@@ -315,6 +315,20 @@ public class ModelDataApp {
         return optionsDAO.findOptionsEntities();
     }
 
+
+    /**
+     * Получает опцию из базы
+     * @param name
+     * @return
+     */
+    public ProgramOptions findOptionInBase(String name){
+        Query query=emf.createEntityManager().createQuery("Select o From ProgramOptions o Where o.name = :name").setMaxResults(1);
+        query.setParameter("name",name);
+        return (ProgramOptions )query.getSingleResult();
+
+
+    }
+
     private void updateOption(String name,String value) throws Exception {
 
         if(optionsMap.containsKey(name))
@@ -1125,15 +1139,20 @@ public class ModelDataApp {
     }
       /******************************************/
       /************ Терапия Комплексы ***/
-      
-      
-      /**
-       * Создаст терапевтический комплекс, с именем name
-       * @param profile
-       * @param name
-       * @return 
-       */
-      public TherapyComplex createTherapyComplex(Profile profile,String name,String description,int timeForFreq,boolean mulltyFreq) throws Exception
+
+
+    /**
+     * Создаст терапевтический комплекс, с именем name
+     * @param profile профиль
+     * @param name имя тер.комплекса
+     * @param description описание
+     * @param timeForFreq время на частоту
+     * @param mulltyFreq мультичастотный режим генерации
+     * @param bundlesLength колличество частот в пачке для мультичастотного режима(<2 пачки не образуются)
+     * @return
+     * @throws Exception
+     */
+      public TherapyComplex createTherapyComplex(Profile profile,String name,String description,int timeForFreq,boolean mulltyFreq, int bundlesLength) throws Exception
       {
           TherapyComplex tc=new TherapyComplex();
           tc.setDescription(description);
@@ -1141,6 +1160,7 @@ public class ModelDataApp {
           tc.setTimeForFrequency(timeForFreq);
           tc.setName(name);
           tc.setMulltyFreq(mulltyFreq);
+          tc.setBundlesLength(bundlesLength);
 
          // tc.setChanged(true);
         
@@ -1172,13 +1192,17 @@ public class ModelDataApp {
         return query.getResultList();
     }
 
-      /**
-       * Создаст терапевтический комплекс из комплекса complex
-       * @param profile
-       * @param complex
-       * @return 
-       */
-      public TherapyComplex createTherapyComplex(Profile profile,Complex complex,int timeForFreq,boolean mulltyFreq) throws Exception
+    /**
+     *  Создаст терапевтический комплекс из комплекса complex
+     * @param profile профиль
+     * @param complex комплекс из которого создается тер.комплекс
+     * @param timeForFreq время на частоту
+     * @param mulltyFreq мультичастотный режим генерации
+     * @param bundlesLength колличество частот в пачке для мультичастотного режима(<2 пачки не образуются)
+     * @return
+     * @throws Exception
+     */
+      public TherapyComplex createTherapyComplex(Profile profile,Complex complex,int timeForFreq,boolean mulltyFreq, int bundlesLength) throws Exception
       {
          
           TherapyComplex tc=new TherapyComplex();
@@ -1186,7 +1210,7 @@ public class ModelDataApp {
           tc.setTimeForFrequency(timeForFreq);
           tc.setName(getSmartString(complex.getName()));
           tc.setMulltyFreq(mulltyFreq);
-
+          tc.setBundlesLength(bundlesLength);
           //tc.setChanged(true);//только изменения в существующих комплексах должно приводить к регенерации
 
 

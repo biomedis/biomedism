@@ -12,14 +12,19 @@ import ru.biomedis.biomedismair3.DBImport.AddonsDBImport;
 import ru.biomedis.biomedismair3.DBImport.NewDBImport;
 import ru.biomedis.biomedismair3.DBImport.OldDBImport;
 import ru.biomedis.biomedismair3.Tests.TestsFramework.TestsManager;
+import ru.biomedis.biomedismair3.entity.ProgramOptions;
 import ru.biomedis.biomedismair3.utils.UTF8Control;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 import java.io.File;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import static ru.biomedis.biomedismair3.Log.logger;
 
@@ -64,9 +69,33 @@ public class App extends Application {
         return model;
     }
       
+        private int updateVersion=0;//версия установленного обновления
 
-      
-       public void closePersisenceContext() {/*if(model!=null) model.flush();*/  emf.close();  emf=null;}     
+    public int getUpdateVersion() {
+        return updateVersion;
+    }
+
+    private void setUpdateVersion(ProgramOptions programOptions,int updateVersion) {
+        this.updateVersion = updateVersion;
+
+        programOptions.setValue(updateVersion+"");
+        EntityManager em = null;
+        try {
+            em = emf.createEntityManager();
+            em.getTransaction().begin();
+            em.merge(programOptions);
+            em.getTransaction().commit();
+        } catch (Exception ex) {
+           logger.error("Ошибка обновления опции updateVersion",ex);
+        } finally {
+            if (em != null) {
+                em.close();
+            }
+        }
+
+    }
+
+    public void closePersisenceContext() {/*if(model!=null) model.flush();*/  emf.close();  emf=null;}
        public void openPersisenceContext()
        { 
            String puName="DB_UNIT";
@@ -92,18 +121,19 @@ public class App extends Application {
 
             openPersisenceContext();//откроем контекст работы с БД
 
+            ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
+
+             //обновим согласно полученной версии
+            if(getUpdateVersion()==0) update1(updateOption);
 
 
 
 
 
 
-       
 
 
-
-         
-           String version= System.getProperty("java.version");
+        String version= System.getProperty("java.version");
             String[] split = version.split("\\.");
             String[] split1 = split[2].split("_");
 
@@ -289,10 +319,92 @@ https://gist.github.com/DemkaAge/8999236
         
     }
 
+    /**
+     * Получает значение версии обновления. Если ее вообще нет создасто нулевую
+     * Установит значение в  this.updateVersion
+     * @return вернет созданную или полученную опцию
+     */
+    private ProgramOptions selectUpdateVersion()
+    {
+        ProgramOptions updateVersion=null;
+        EntityManager em = emf.createEntityManager();
+        Query query=em.createQuery("Select o From ProgramOptions o Where o.name = :name").setMaxResults(1);
+        query.setParameter("name","updateVersion");
+        try{
+            updateVersion  =(ProgramOptions )query.getSingleResult();
+            this.updateVersion=Integer.parseInt(updateVersion.getValue());
+        }catch (javax.persistence.NoResultException e)
+        {
+            updateVersion=new ProgramOptions();
+            updateVersion.setName("updateVersion");
+            updateVersion.setValue("0");
+            em = null;
+            try {
+                em = emf.createEntityManager();
+                em.getTransaction().begin();
+                em.persist(updateVersion);
+                em.getTransaction().commit();
+
+            } finally {
+                if (em != null) {
+                    em.close();
+                }
+            }
+
+            this.updateVersion=0;
+
+        }
 
 
-    
-     @Override
+
+
+        return updateVersion;
+
+    }
+
+
+
+    /**
+     * Обновление1 - добавлены пачки частот в мультичестотный режим. Исправлены ошибки.
+     * Добавлена возможность импорта переводов базы  и экспорта всей бызы для перевода
+     */
+    private void update1( ProgramOptions updateOption) {
+
+        logger.info("ОБНОВЛЕНИЕ 1.");
+        try
+        {
+            logger.info("Проверка наличия столбца BUNDLESLENGTH  в THERAPYCOMPLEX ");
+            Object singleResult = emf.createEntityManager().createNativeQuery("SELECT BUNDLESLENGTH FROM THERAPYCOMPLEX LIMIT 1").getSingleResult();
+            logger.info("Столбец  BUNDLESLENGTH  найден.");
+        }catch (Exception e){
+            logger.info("Столбец  BUNDLESLENGTH не найден.");
+            logger.info("Создается  столбец BUNDLESLENGTH  в THERAPYCOMPLEX ");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            try{
+                em.createNativeQuery("ALTER TABLE THERAPYCOMPLEX ADD BUNDLESLENGTH INT").executeUpdate();
+                em.getTransaction().commit();
+                logger.info("Столбец  BUNDLESLENGTH создан.");
+            }catch (Exception ex){
+                throw new RuntimeException("Не удалось выполнить ALTER TABLE THERAPYCOMPLEX ADD BUNDLESLENGTH INT ");
+            }finally {
+                if(em!=null) em.close();
+            }
+
+
+        }
+
+
+
+
+
+        setUpdateVersion(updateOption,1);//установим новую версию обновления
+
+        logger.info("ОБНОВЛЕНИЕ 1 ЗАВЕРШЕНО.");
+    }
+
+
+    @Override
     public void stop() throws Exception {       
         closePersisenceContext();        
         super.stop(); //To change body of generated methods, choose Tools | Templates.

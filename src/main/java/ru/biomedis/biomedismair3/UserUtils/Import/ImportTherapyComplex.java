@@ -130,7 +130,7 @@ public class ImportTherapyComplex
         try {
             Iterator<Complex> it1;
             ImportTherapyComplex.Complex complex;
-            for(it1 = this.complexes.iterator(); it1.hasNext(); complex.complex = mda.createTherapyComplex(profile, complex.name, complex.descr, complex.timeForFreq, complex.mullty)) {
+            for(it1 = this.complexes.iterator(); it1.hasNext(); complex.complex = mda.createTherapyComplex(profile, complex.name, complex.descr, complex.timeForFreq, complex.mullty,0)) {
                 complex =it1.next();
             }
 

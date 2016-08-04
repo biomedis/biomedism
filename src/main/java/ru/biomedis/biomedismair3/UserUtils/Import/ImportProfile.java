@@ -4,7 +4,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import ru.biomedis.biomedismair3.ModelDataApp;
-import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -130,7 +129,7 @@ public class ImportProfile {
 
             for (Complex complex : listComplex) {
 
-                complex.complex =  mda.createTherapyComplex(profile.profile,complex.name,complex.descr,complex.timeForFreq,complex.mullty);
+                complex.complex =  mda.createTherapyComplex(profile.profile,complex.name,complex.descr,complex.timeForFreq,complex.mullty,0);
             }
 
             for (Program program : listProgram) {
