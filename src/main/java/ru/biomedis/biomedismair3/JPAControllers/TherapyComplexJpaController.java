@@ -7,13 +7,13 @@ package ru.biomedis.biomedismair3.JPAControllers;
 
 import ru.biomedis.biomedismair3.JPAControllers.exceptions.NonexistentEntityException;
 import ru.biomedis.biomedismair3.entity.Profile;
-
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.io.Serializable;
@@ -118,8 +118,14 @@ public class TherapyComplexJpaController implements Serializable {
     private List<TherapyComplex> findTherapyComplexEntities(boolean all, int maxResults, int firstResult) {
         EntityManager em = getEntityManager();
         try {
-            CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
+
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery cq = cb.createQuery();
+            Root<TherapyComplex> c = cq.from(TherapyComplex.class);
             cq.select(cq.from(TherapyComplex.class));
+            cq.orderBy(cb.asc(c.get("id")));
+
+
             Query q = em.createQuery(cq);
             if (!all) {
                 q.setMaxResults(maxResults);

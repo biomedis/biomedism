@@ -1109,7 +1109,7 @@ public class ModelDataApp {
      public List<TherapyComplex> findTherapyComplexes(Profile profile)
      {
          
-        Query query = emf.createEntityManager().createQuery("Select t from TherapyComplex t where t.profile=:tc");
+        Query query = emf.createEntityManager().createQuery("Select t from TherapyComplex t where t.profile=:tc order by t.id");
         query.setParameter("tc", profile);
          return query.getResultList();
      }
@@ -1231,6 +1231,10 @@ public class ModelDataApp {
       }
 
 
+
+
+
+
     public int getTimeTherapyComplex(TherapyComplex th)
     {
 
@@ -1238,8 +1242,33 @@ public class ModelDataApp {
         Query query=null;
         List<String> results=null;
         //если все частоты мульти, подсчитаем все без мп3 и умножим на время частоты, mp3 считает ся ниже отдельно
-        if(th.isMulltyFreq()) res = (int)(th.getTimeForFrequency() * countTherapyPrograms(th,false));
-else {
+        if(th.isMulltyFreq())
+        {
+
+            //посчитаем пачки частот для всех программ комплекса
+            int freqBundlesCount=0;//сколько пачек получем из частот программ
+
+
+
+            if(   th.getBundlesLength()>=2){
+
+
+                for (TherapyProgram tp : findTherapyPrograms(th))
+                {
+                    int numFreqsForce = tp.getNumFreqsForce();
+                    freqBundlesCount+=(int)Math.ceil((float)numFreqsForce/(float)th.getBundlesLength());
+
+                }
+
+
+                res = (int)(th.getTimeForFrequency() * freqBundlesCount);
+            }else {
+                res = (int)(th.getTimeForFrequency() * countTherapyPrograms(th,false));
+            }
+
+
+        }
+        else {
              query = emf.createEntityManager().createQuery("Select t.frequencies from TherapyProgram t where t.therapyComplex = :tc and t.mp3 <> true");
             query.setParameter("tc", th);
             results = query.getResultList();
@@ -1514,7 +1543,7 @@ else {
     {
 
         //просмотрим есть ли изменения в программах комплексов профиля
-        Query query2 = emf.createEntityManager().createQuery("Select c From TherapyProgram c WHERE c.therapyComplex.profile.id=:profile and c.mp3=true");
+        Query query2 = emf.createEntityManager().createQuery("Select c From TherapyProgram c WHERE c.therapyComplex.profile.id=:profile and c.mp3=true order by c.position asc");
         query2.setParameter("profile", profile.getId());
         return query2.getResultList();
 
@@ -1522,7 +1551,7 @@ else {
     }
 
     public List<TherapyProgram> mp3ProgramInComplex(TherapyComplex tc) {
-        Query query2 = this.emf.createEntityManager().createQuery("Select c From TherapyProgram c WHERE c.therapyComplex.id=:tc and c.mp3=true");
+        Query query2 = this.emf.createEntityManager().createQuery("Select c From TherapyProgram c WHERE c.therapyComplex.id=:tc and c.mp3=true  order by c.position asc");
         query2.setParameter("tc", tc.getId());
         return query2.getResultList();
     }
@@ -1608,7 +1637,7 @@ else {
      */
     public List<Integer> getAllTherapyComplexID(Profile p)
     {
-        Query query = emf.createEntityManager().createQuery("Select c.id From TherapyComplex c WHERE c.profile=:profile");
+        Query query = emf.createEntityManager().createQuery("Select c.id From TherapyComplex c WHERE c.profile=:profile order by c.id asc");
         query.setParameter("profile", p);
         return query.getResultList();
 
@@ -1630,7 +1659,7 @@ else {
      */
     public List<Integer> getAllTherapyProgramID(Profile p)
     {
-        Query query = emf.createEntityManager().createQuery("Select c.id From TherapyProgram c WHERE c.therapyComplex.profile=:profile");
+        Query query = emf.createEntityManager().createQuery("Select c.id From TherapyProgram c WHERE c.therapyComplex.profile=:profile  order by c.id asc");
         query.setParameter("profile", p);
         return query.getResultList();
 
@@ -1642,7 +1671,7 @@ else {
      */
     public List<TherapyProgram> getAllTherapyProgram(Profile p)
     {
-        Query query = emf.createEntityManager().createQuery("Select c From TherapyProgram c WHERE c.therapyComplex.profile=:profile");
+        Query query = emf.createEntityManager().createQuery("Select c From TherapyProgram c WHERE c.therapyComplex.profile=:profile  order by c.position asc");
         query.setParameter("profile", p);
         return query.getResultList();
 

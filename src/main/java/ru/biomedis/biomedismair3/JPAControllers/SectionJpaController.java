@@ -12,6 +12,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.io.Serializable;
@@ -153,8 +154,14 @@ public class SectionJpaController implements Serializable {
     private List<Section> findSectionEntities(boolean all, int maxResults, int firstResult) {
         EntityManager em = getEntityManager();
         try {
-            CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
+
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery cq = cb.createQuery();
+            Root<Section> c = cq.from(Section.class);
             cq.select(cq.from(Section.class));
+            cq.orderBy(cb.asc(c.get("id")));
+
+
             Query q = em.createQuery(cq);
             if (!all) {
                 q.setMaxResults(maxResults);

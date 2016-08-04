@@ -5,17 +5,19 @@
  */
 package ru.biomedis.biomedismair3.JPAControllers;
 
-import java.io.Serializable;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Query;
-import javax.persistence.EntityNotFoundException;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import ru.biomedis.biomedismair3.JPAControllers.exceptions.NonexistentEntityException;
 import ru.biomedis.biomedismair3.entity.Complex;
 import ru.biomedis.biomedismair3.entity.Section;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityNotFoundException;
+import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  *
@@ -101,8 +103,13 @@ public class ComplexJpaController implements Serializable {
     private List<Complex> findComplexEntities(boolean all, int maxResults, int firstResult) {
         EntityManager em = getEntityManager();
         try {
-            CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
+
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery cq = cb.createQuery();
+            Root<Complex> c = cq.from(Complex.class);
             cq.select(cq.from(Complex.class));
+            cq.orderBy(cb.asc(c.get("id")));
+
             Query q = em.createQuery(cq);
             if (!all) {
                 q.setMaxResults(maxResults);
@@ -138,7 +145,7 @@ public class ComplexJpaController implements Serializable {
       public List<Complex> findAllComplexBySection(Section section)
     {
           EntityManager em = getEntityManager();
-          Query query = em.createQuery("SELECT p FROM Complex p WHERE p.section=:section");
+          Query query = em.createQuery("SELECT p FROM Complex p WHERE p.section=:section order by p.id asc");
           query.setParameter("section", section);
           return query.getResultList();
     }

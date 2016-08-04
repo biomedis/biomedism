@@ -14,6 +14,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 import java.io.Serializable;
@@ -103,8 +104,13 @@ public class ProgramJpaController implements Serializable {
     private List<Program> findProgramEntities(boolean all, int maxResults, int firstResult) {
         EntityManager em = getEntityManager();
         try {
-            CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
+
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery cq = cb.createQuery();
+            Root<Program> c = cq.from(Program.class);
             cq.select(cq.from(Program.class));
+            cq.orderBy(cb.asc(c.get("id")));
+
             Query q = em.createQuery(cq);
             if (!all) {
                 q.setMaxResults(maxResults);
@@ -143,7 +149,7 @@ public class ProgramJpaController implements Serializable {
     public List<Program> findAllProgramByComplex(Complex complex)
     {
          EntityManager em = getEntityManager();
-         Query query = em.createQuery("SELECT p FROM Program p WHERE p.complex=:complex");
+         Query query = em.createQuery("SELECT p FROM Program p WHERE p.complex=:complex order by p.position asc");
          query.setParameter("complex", complex);
          return query.getResultList();
     }
@@ -151,7 +157,7 @@ public class ProgramJpaController implements Serializable {
      public List<Program> findAllProgramBySection(Section section)
     {
           EntityManager em = getEntityManager();
-          Query query = em.createQuery("SELECT p FROM Program p WHERE p.section=:section");
+          Query query = em.createQuery("SELECT p FROM Program p WHERE p.section=:section  order by p.position asc");
           query.setParameter("section", section);
           return query.getResultList();
     }

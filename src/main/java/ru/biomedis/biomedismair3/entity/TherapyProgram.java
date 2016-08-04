@@ -1,6 +1,9 @@
 package ru.biomedis.biomedismair3.entity;
 
-import javafx.beans.property.*;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -193,5 +196,29 @@ public class TherapyProgram implements Serializable {
         return frequencies.get().split(";").length;
     }
 
+    /**
+     * общее число частот, без учета мультичастот!
+     * @return
+     */
+    @Transient
+    public int getNumFreqsForce() {
+
+
+       String[] split = frequencies.get().split(";");
+
+        int count=0;
+        for (String s : split)
+        {
+            if(s.contains("+"))
+            {
+                String[] split1 = s.split("\\+");
+
+                count+=split1.length;
+
+            }else count++;
+
+        }
+        return count;
+    }
 
 }

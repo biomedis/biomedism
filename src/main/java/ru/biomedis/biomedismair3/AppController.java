@@ -31,7 +31,10 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -60,7 +63,9 @@ import ru.biomedis.biomedismair3.utils.Disk.DiskSpaceData;
 import ru.biomedis.biomedismair3.utils.Files.*;
 import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Path;
@@ -139,6 +144,15 @@ public class AppController  extends BaseController {
     private Tab tab2;
     @FXML
     private Tab tab3;
+
+    @FXML private Spinner<Integer> bundlesSpinner;
+
+    @FXML private HBox bundlesPan;
+    @FXML private VBox bundlesBtnPan;
+    @FXML private Button  btnOkBundles;
+    @FXML private Button  btnCancelBundles;
+
+
 
 
     private TableViewSkin<?> tableSkin;
@@ -499,6 +513,19 @@ public class AppController  extends BaseController {
         btnCancelSpinner.setGraphic(new ImageView(new Image(cancelUrl.toExternalForm())));
 
 /*******************/
+
+        /** Спиннер пачек частот **/
+
+        bundlesSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 1000, 1, 1));
+        bundlesSpinner.setEditable(true);
+        bundlesPan.setVisible(false);
+        bundlesBtnPan.setVisible(false);
+
+        btnOkBundles.setGraphic(new ImageView(new Image(okUrl.toExternalForm())));
+        btnCancelBundles.setGraphic(new ImageView(new Image(cancelUrl.toExternalForm())));
+
+/*******************/
+
 
         progress1Pane.setVisible(false);
         progress2Pane.setVisible(false);
@@ -990,6 +1017,7 @@ initTables();
              btnDeleteTherapy.disableProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNull());
 
            spinnerPan.visibleProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNotNull());
+           bundlesPan.visibleProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNotNull());
 
 
          btnDeleteProgram.disableProperty().bind(tableProgram.getSelectionModel().selectedItemProperty().isNull());
@@ -1431,7 +1459,7 @@ initTables();
         });
 
 
-        //общая длительность, зависит от количества  частот и мультичастотного режима, также времени на частоту
+        //общая длительность, зависит от количества  частот и мультичастотного режима, также времени на частоту и пачек частот
         TableColumn<TherapyProgram,String> timeColTP=new TableColumn<>(res.getString("app.table.delay"));
         timeColTP.setCellValueFactory(param ->
         {
@@ -1452,8 +1480,17 @@ initTables();
 
             }else
             {
+                final TherapyComplex selectedComplex = tableComplex.getSelectionModel().getSelectedItem();
+                int freqBundlesCount=1;//сколько пачек получем из частот программы
+                if( selectedComplex.isMulltyFreq() &&  selectedComplex.getBundlesLength()>=2){
+                    int numFreqsForce = param.getValue().getNumFreqsForce();
+                    freqBundlesCount=(int)Math.ceil((float)numFreqsForce/(float)selectedComplex.getBundlesLength());
+                }
+
+
+
                 return new SimpleStringProperty(DateUtil.convertSecondsToHMmSs(
-                        tableComplex.getSelectionModel().getSelectedItem().isMulltyFreq() ? tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency() : param.getValue().getNumFreqs() * tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency()));
+                        selectedComplex.isMulltyFreq() ? selectedComplex.getTimeForFrequency()*freqBundlesCount : param.getValue().getNumFreqs() * selectedComplex.getTimeForFrequency()));
             }
         });
 
@@ -1748,6 +1785,7 @@ initTables();
             if (oldValue != newValue) {
                 //закроем кнопки спинера времени на частоту
                 hideTFSpinnerBTNPan();
+                hideBundlesSpinnerBTNPan();
 
                 tableComplex.getItems().clear();
                 //добавляем через therapyComplexItems иначе не будет работать event на изменение элементов массива и не будут работать галочки мультичастот
@@ -1773,8 +1811,8 @@ initTables();
 
             if (oldValue != newValue) {
                 //закроем кнопки спинера времени на частоту, при переключении компелекса
-                if(newValue!=null) hideTFSpinnerBTNPan(newValue.getTimeForFrequency());
-                else  hideTFSpinnerBTNPan();
+                if(newValue!=null) {hideTFSpinnerBTNPan(newValue.getTimeForFrequency()); hideBundlesSpinnerBTNPan(newValue.getBundlesLength());}
+                else  {hideTFSpinnerBTNPan(); hideBundlesSpinnerBTNPan();}
 
                 tableProgram.getItems().clear();
 
@@ -1790,13 +1828,15 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
     if(spinnerBtnPan.isVisible()) {
         //закроем кнопки спинера времени на частоту, при переключении на программу
 
-      if(tableComplex.getSelectionModel().getSelectedItem()!=null)  hideTFSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency());
-        else hideTFSpinnerBTNPan();
+      if(tableComplex.getSelectionModel().getSelectedItem()!=null)  {
+          hideTFSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency());
+          hideBundlesSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
+      }
+        else { hideTFSpinnerBTNPan();hideBundlesSpinnerBTNPan();}
     }
 });
 
         /***** Спиннер времени на частоту ****/
-
 
         //показывает кнопки при изменениях спинера
         timeToFreqSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {if(oldValue!=newValue) spinnerBtnPan.setVisible(true);});
@@ -1869,6 +1909,52 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
 
         /***************/
+
+        /***** Спиннер пачек частот ****/
+
+        //показывает кнопки при изменениях спинера
+        bundlesSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {if(oldValue!=newValue) bundlesBtnPan.setVisible(true);});
+        //кнопка отмены
+        btnCancelBundles.setOnAction(event ->hideBundlesSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength()) );
+
+        //принять изменения времени
+        btnOkBundles.setOnAction(event ->
+        {
+
+
+            if(!this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
+                List<TherapyComplex> items = new ArrayList<>(this.tableComplex.getSelectionModel().getSelectedItems());
+
+                try {
+
+
+                    for(TherapyComplex item:items) {
+
+
+                        item.setBundlesLength(this.bundlesSpinner.getValue());
+                        item.setChanged(true);
+                        this.getModel().updateTherapyComplex(item);
+                        this.btnGenerate.setDisable(false);                   }
+
+                    this.updateComplexsTime(items, true);
+                } catch (Exception var8) {
+                    this.hideBundlesSpinnerBTNPan(this.tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
+                    Log.logger.error("", var8);
+                    showExceptionDialog("Ошибка обновления времени в терапевтическом комплексе", "", "", var8, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                } finally {
+                    this.hideTFSpinnerBTNPan();
+                }
+
+            }
+        });
+
+
+        /***************/
+
+
+
+
+
         //помогает узнать видимые строки
      //   loadVirtualFlowTableProgramm();
 
@@ -2063,6 +2149,20 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
     }
 
+
+    private void hideBundlesSpinnerBTNPan(int val)
+    {
+        bundlesSpinner.getValueFactory().setValue(val);
+        bundlesBtnPan.setVisible(false);
+
+    }
+    private void hideBundlesSpinnerBTNPan()
+    {
+
+        bundlesBtnPan.setVisible(false);
+
+    }
+
     /**
      * перерсчтет времени на профиль. Профиль инстанс из таблицы.
      * @param p
@@ -2126,30 +2226,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
 
 
-    /**
-     * Время в секундах выбранной программы
-     * @return
-     */
-    private int timeCurrentProgramm()
-    {
-        if(tableComplex.getSelectionModel().getSelectedItem()==null)return 0;
-       return tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency()*tableProgram.getSelectionModel().getSelectedItem().getNumFreqs();
 
-
-    }
-
-    /**
-     * Текущая длительность комплекса
-     * @return
-     */
-    private int timeCurrentComplex()
-    {
-        if (tableComplex.getSelectionModel().getSelectedItem()==null)return 0;
-
-      return   tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency() *  tableProgram.getItems().stream().mapToInt(value -> value.getNumFreqs()).sum();
-
-
-    }
 
     /**
      * Заполнит дерево разделов
