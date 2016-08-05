@@ -1379,7 +1379,7 @@ initTables();
 
                 while(tag.hasNext()) {
                     TherapyComplex therapyComplex = (TherapyComplex)tag.next();
-                    if(this.getModel().hasNeedGenerateProgramInComplex(therapyComplex)) {
+                    if( therapyComplex.isChanged() || this.getModel().hasNeedGenerateProgramInComplex(therapyComplex) ) {
                         mic2.setDisable(false);
                         mic3.setDisable(true);
                         break;
