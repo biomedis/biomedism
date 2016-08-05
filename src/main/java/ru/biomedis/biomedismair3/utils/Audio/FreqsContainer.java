@@ -54,7 +54,7 @@ public class FreqsContainer
                 {
                     cEndT = (i+1)*bundlesLength;
                     if(cEndT<=fl.size())cEnd=cEndT;
-                    else cEnd=fl.size()-1;
+                    else cEnd=fl.size();
                     //разбиваем по пачкам
 
                     addFreq(fl.subList(i*bundlesLength,cEnd));
