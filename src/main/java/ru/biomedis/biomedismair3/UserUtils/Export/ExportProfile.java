@@ -104,7 +104,7 @@ public class ExportProfile {
         strb.append(noops[level]);
         int lvl=level+1;
         strb.append("<Complex ").append("name=\"").append(complex.getName()).append("\" description=\"").append(complex.getDescription()).
-                append("\"").append(" mullty=\"").append(complex.isMulltyFreq()).append("\"").append(" timeForFreq=\"").append(complex.getTimeForFrequency()).append("\"").append(">\n");
+                append("\"").append(" mullty=\"").append(complex.isMulltyFreq()).append("\"").append(" timeForFreq=\"").append(complex.getTimeForFrequency()).append("\"").append(" bundlesLength=\"").append(complex.getBundlesLength()).append("\"").append(">\n");
 
 
         List<TherapyProgram> list = md.findTherapyPrograms(complex);

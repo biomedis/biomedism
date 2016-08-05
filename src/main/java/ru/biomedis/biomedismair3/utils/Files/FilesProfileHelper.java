@@ -65,7 +65,7 @@ public class FilesProfileHelper
             //пустая папка
             if(textFile==null)
             {
-                res.add(new ComplexFileData(-1, file.getName(), 0,false, file));
+                res.add(new ComplexFileData(-1, file.getName(), 0,false,1, file));
                 continue;
             }
             //прочитаем файл
@@ -79,10 +79,18 @@ public class FilesProfileHelper
                 e.printStackTrace();
                 return null;
             }
-            if(progrParam.size()!=8) throw new OldComplexTypeException("Обнаружен комплекс старого формата",textFile.getName().substring(textFile.getName().length()));
 
-            res.add(new ComplexFileData(Long.parseLong(progrParam.get(2)), file.getName(), Long.parseLong(progrParam.get(3)),
-                    Boolean.parseBoolean(progrParam.get(4)), file));
+
+            if(progrParam.size() < 8){
+                throw new OldComplexTypeException("Обнаружен комплекс старого формата",textFile.getName().substring(textFile.getName().length()));
+            }else if(progrParam.size() == 8){
+                //если 8 параметров, значит это файл с версии обновления 0. И не содержит 9 строкой длину пачки частот
+                res.add(new ComplexFileData(Long.parseLong(progrParam.get(2)), file.getName(), Long.parseLong(progrParam.get(3)),
+                        Boolean.parseBoolean(progrParam.get(4)),1, file));
+            }else  res.add(new ComplexFileData(Long.parseLong(progrParam.get(2)), file.getName(), Long.parseLong(progrParam.get(3)),
+                    Boolean.parseBoolean(progrParam.get(4)),Integer.parseInt(progrParam.get(8)), file));
+
+
 
         }
 
@@ -121,9 +129,15 @@ public class FilesProfileHelper
                 e.printStackTrace();
                 return null;
             }
-            if(progrParam.size()!=8) throw new OldComplexTypeException("Обнаружен комплекс старого формата",complexDir.getName().substring(0,file.getName().length()));
 
-        File bssFile=new File(complexDir,file.getName().substring(0,file.getName().length()-4)+".bss");
+            int bundlesLength=1;
+            //в обновлении 1 добавилось 9 поле, тут мы его игнорируем
+            if(progrParam.size() < 8) throw new OldComplexTypeException("Обнаружен комплекс старого формата",complexDir.getName().substring(0,file.getName().length()));
+            else if(progrParam.size() > 8){
+                bundlesLength=Integer.parseInt(progrParam.get(8));
+            }
+
+            File bssFile= new File(complexDir,file.getName().substring(0,file.getName().length()-4)+".bss");
 
             res.put(Long.parseLong(progrParam.get(0)), new ProgramFileData
                     (
@@ -134,7 +148,7 @@ public class FilesProfileHelper
                             progrParam.get(6),
                             progrParam.get(5),
                             file,
-                            bssFile.exists() ? bssFile : null, Boolean.parseBoolean(progrParam.get(7))));
+                            bssFile.exists() ? bssFile : (File)null, Boolean.parseBoolean(progrParam.get(7)),bundlesLength));
         }
 
         return res;
@@ -154,7 +168,7 @@ public class FilesProfileHelper
      *  @param mp3  mp3 программа
      * @throws Exception
      */
-    public static void copyTxt(String freqs,int timeForFreq,long idProgram, String uuid,long idComplex, boolean mullty,String nameProgram, boolean mp3,File txtPath) throws Exception {
+    public static void copyTxt(String freqs,int timeForFreq,long idProgram, String uuid,long idComplex, boolean mullty, int bundlesLength, String nameProgram, boolean mp3,File txtPath) throws Exception {
         txtPath=new File(txtPath.toURI());
 
         try(PrintWriter writer = new PrintWriter(txtPath,"UTF-8"))
@@ -168,7 +182,7 @@ public class FilesProfileHelper
             writer.println(nameProgram);
             writer.println(freqs+"@");
             writer.println(mp3?"true":"false");
-
+            writer.println(bundlesLength+"");
         }catch (Exception e)
         {
 

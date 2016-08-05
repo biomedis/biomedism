@@ -5258,7 +5258,7 @@ class ForceCopyProfile
                     //System.out.println("OK");
                     // System.out.print("Создание текста программы: " + nameFile + ".txt...");
                     FilesProfileHelper.copyTxt(therapyProgram.getFrequencies(), cMap2.get(entry.getKey()), therapyProgram.getId().longValue(),
-                            therapyProgram.getUuid(), entry.getKey(), therapyComplex.isMulltyFreq(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()),false, new File(tempFile, nameFile + ".txt"));
+                            therapyProgram.getUuid(), entry.getKey(), therapyComplex.isMulltyFreq(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()),false, new File(tempFile, nameFile + ".txt"));
                     // System.out.println("OK");
                 }else
                     {
@@ -5279,7 +5279,7 @@ class ForceCopyProfile
                             FilesProfileHelper.copyBSS(new File(therapyProgram.getFrequencies()),new File(tempFile, nameFile + ".bss"));
 
                             FilesProfileHelper.copyTxt(therapyProgram.getFrequencies(), cMap2.get(entry.getKey()), therapyProgram.getId().longValue(),
-                                    therapyProgram.getUuid(), entry.getKey(), therapyComplex.isMulltyFreq(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()),true, new File(tempFile, nameFile + ".txt"));
+                                    therapyProgram.getUuid(), entry.getKey(), therapyComplex.isMulltyFreq(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()),true, new File(tempFile, nameFile + ".txt"));
 
 
 
@@ -5447,7 +5447,7 @@ class ForceCopyProfile
                 tempFile= new File(devicePath.toFile(),(++cnt)+"-"+entry.getValue());
 
                 FilesProfileHelper.copyDir(tempFile);
-                tDComplexes.add(new ComplexFileData(entry.getKey(),cnt+"-"+entry.getValue(),cMap2.get(entry.getKey()),therapyComplex.isMulltyFreq(),tempFile));
+                tDComplexes.add(new ComplexFileData(entry.getKey(),cnt+"-"+entry.getValue(),cMap2.get(entry.getKey()),therapyComplex.isMulltyFreq(),therapyComplex.getBundlesLength(),tempFile));
 
             }
         }catch (Exception e)
@@ -5526,7 +5526,7 @@ class ForceCopyProfile
                                 // System.out.println("OK");
                                 //  System.out.print("Создание текста программы: " + nameFile1 + "...");
                                 FilesProfileHelper.copyTxt(program.getFrequencies(), therapyComplex.getTimeForFrequency(), program.getId().longValue(),
-                                        program.getUuid(), tDComplex.getId(), therapyComplex.isMulltyFreq(), TextUtil.replaceWinPathBadSymbols(program.getName()),
+                                        program.getUuid(), tDComplex.getId(), therapyComplex.isMulltyFreq(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(program.getName()),
                                         false, new File(tDComplex.getFile(), nameFile1));
                                 //System.out.println("OK");
                             }else
@@ -5549,7 +5549,7 @@ class ForceCopyProfile
                                     FilesProfileHelper.copyBSS(new File(program.getFrequencies()),new File(tDComplex.getFile(), nameFile + ".bss"));
 
                                     FilesProfileHelper.copyTxt(program.getFrequencies(), therapyComplex.getTimeForFrequency(), program.getId().longValue(),
-                                            program.getUuid(), tDComplex.getId(), therapyComplex.isMulltyFreq(), TextUtil.replaceWinPathBadSymbols(program.getName()),
+                                            program.getUuid(), tDComplex.getId(), therapyComplex.isMulltyFreq(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(program.getName()),
                                             true, new File(tDComplex.getFile(), nameFile1));
 
 
@@ -5639,7 +5639,7 @@ class ForceCopyProfile
                             //System.out.println("OK");
                             // System.out.print("Создание текста программы: " + nameFile1 + "...");
                             FilesProfileHelper.copyTxt(program.getFrequencies(), therapyComplex.getTimeForFrequency(), program.getId().longValue(),
-                                    program.getUuid(), tDComplex.getId(), therapyComplex.isMulltyFreq(), TextUtil.replaceWinPathBadSymbols(program.getName()), false, new File(tDComplex.getFile(), nameFile1));
+                                    program.getUuid(), tDComplex.getId(), therapyComplex.isMulltyFreq(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(program.getName()), false, new File(tDComplex.getFile(), nameFile1));
                             // System.out.println("OK");
                         }else
                         {
@@ -5659,7 +5659,7 @@ class ForceCopyProfile
                                 FilesProfileHelper.copyBSS(new File(program.getFrequencies()),new File(tDComplex.getFile(), nameFile + ".bss"));
 
                                 FilesProfileHelper.copyTxt(program.getFrequencies(), therapyComplex.getTimeForFrequency(), program.getId().longValue(),
-                                        program.getUuid(), tDComplex.getId(), therapyComplex.isMulltyFreq(), TextUtil.replaceWinPathBadSymbols(program.getName()),
+                                        program.getUuid(), tDComplex.getId(), therapyComplex.isMulltyFreq(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(program.getName()),
                                         true, new File(tDComplex.getFile(), nameFile1));
 
 
@@ -6415,32 +6415,40 @@ class ForceCopyProfile
         String uuidP;
         String nameP;
         Profile profile=null;
-        if(profileParam.isEmpty())
+
+
+        if(!profileParam.isEmpty())
         {
             idProf=Long.parseLong(profileParam.get(0));
             uuidP=profileParam.get(1);
             nameP=profileParam.get(2);
         }else {
              idProf=0;
-             uuidP="jsdfuidj7y47";
+             uuidP=UUID.randomUUID().toString();
              nameP="New profile";
 
         }
 
+        final String up=uuidP;
 
-       long cnt= tableProfile.getItems().stream().filter(itm->itm.getUuid().equals(uuidP)).count();
+       long cnt= tableProfile.getItems().stream().filter(itm->itm.getUuid().equals(up)).count();
         if(cnt!=0)
         {
             //имеется уже такой профиль с такой сигнатурой!!
-
+        /*
             Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.title119"), res.getString("app.title120"), res.getString("app.title121"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
         if(buttonType.isPresent())
         {
                 if(buttonType.get()!=okButtonType) return false;
 
         }else return false;
+    */
+            idProf=0;
+            uuidP=UUID.randomUUID().toString();
+            nameP="New profile";
 
         }
+
         //получим список комплексов
 
         try {
@@ -6465,7 +6473,7 @@ class ForceCopyProfile
                     if(ind==-1) ind= complexFileDataMapEntry.getKey().getName().length()-1;
                     if(ind2==-1) ind2= 0;
 
-                    th=  getModel().createTherapyComplex(profile, complexFileDataMapEntry.getKey().getName().substring(ind2+1,ind), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(), complexFileDataMapEntry.getKey().isMullty(),1);
+                    th=  getModel().createTherapyComplex(profile, complexFileDataMapEntry.getKey().getName().substring(ind2+1,ind), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(), complexFileDataMapEntry.getKey().isMullty(),complexFileDataMapEntry.getKey().getBundlesLength());
 
 
 
@@ -6712,7 +6720,7 @@ return  true;
                     {
                         Long next = programms.keySet().iterator().next();
 
-                        TherapyComplex th = getModel().createTherapyComplex(profile, name, "", (int) programms.get(next).getTimeForFreq(), true,1);
+                        TherapyComplex th = getModel().createTherapyComplex(profile, name, "", (int) programms.get(next).getTimeForFreq(), true,(int) programms.get(next).getBundlesLenght());
 
 
                         for (Map.Entry<Long, ProgramFileData> entry : programms.entrySet())
@@ -7206,7 +7214,7 @@ return  true;
                                                 ++count2;
                                                 timeP = strb2.append(count2).append("-").append(TextUtil.replaceWinPathBadSymbols(therapyProgram.getName())).append(" (").append(AppController.this.replaceTime(mp3file)).append(")").toString();
                                                 FilesProfileHelper.copyBSS(new File(BaseController.getApp().getDataDir(), therapyProgram.getId() + ".dat"), new File(tempFile, timeP + ".bss"));
-                                                FilesProfileHelper.copyTxt(therapyProgram.getFrequencies(), (cMap2.get(entry.getKey())).intValue(), therapyProgram.getId().longValue(), therapyProgram.getUuid(), (entry.getKey()).longValue(), therapyComplex.isMulltyFreq(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()), false, new File(tempFile, timeP + ".txt"));
+                                                FilesProfileHelper.copyTxt(therapyProgram.getFrequencies(), (cMap2.get(entry.getKey())).intValue(), therapyProgram.getId().longValue(), therapyProgram.getUuid(), (entry.getKey()).longValue(), therapyComplex.isMulltyFreq(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()), false, new File(tempFile, timeP + ".txt"));
                                             } else {
                                                 mp3file = null;
 
@@ -7223,7 +7231,7 @@ return  true;
                                                     ++count2;
                                                     String nameFile = strb2.append(count2).append("-").append(TextUtil.replaceWinPathBadSymbols(therapyProgram.getName())).append(" (").append(AppController.this.replaceTime(timeP)).append(")").toString();
                                                     FilesProfileHelper.copyBSS(new File(therapyProgram.getFrequencies()), new File(tempFile, nameFile + ".bss"));
-                                                    FilesProfileHelper.copyTxt(therapyProgram.getFrequencies(), (cMap2.get(entry.getKey())).intValue(), therapyProgram.getId().longValue(), therapyProgram.getUuid(), (entry.getKey()).longValue(), therapyComplex.isMulltyFreq(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()), true, new File(tempFile, nameFile + ".txt"));
+                                                    FilesProfileHelper.copyTxt(therapyProgram.getFrequencies(), (cMap2.get(entry.getKey())).intValue(), therapyProgram.getId().longValue(), therapyProgram.getUuid(), (entry.getKey()).longValue(), therapyComplex.isMulltyFreq(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()), true, new File(tempFile, nameFile + ".txt"));
                                                 }
                                             }
                                         }

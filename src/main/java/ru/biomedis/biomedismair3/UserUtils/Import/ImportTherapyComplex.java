@@ -130,7 +130,7 @@ public class ImportTherapyComplex
         try {
             Iterator<Complex> it1;
             ImportTherapyComplex.Complex complex;
-            for(it1 = this.complexes.iterator(); it1.hasNext(); complex.complex = mda.createTherapyComplex(profile, complex.name, complex.descr, complex.timeForFreq, complex.mullty,1)) {
+            for(it1 = this.complexes.iterator(); it1.hasNext(); complex.complex = mda.createTherapyComplex(profile, complex.name, complex.descr, complex.timeForFreq, complex.mullty,complex.bundlesLength)) {
                 complex =it1.next();
             }
 
@@ -231,7 +231,7 @@ public class ImportTherapyComplex
                 } else if(qName.equals("Complex")) {
                     this.inComplex = true;
                     if(attributes.getLength() != 0) {
-                        ImportTherapyComplex.this.complexes.add(ImportTherapyComplex.this.new Complex(attributes.getValue("name"), attributes.getValue("description"), Boolean.parseBoolean(attributes.getValue("mullty")), Integer.parseInt(attributes.getValue("timeForFreq"))));
+                        ImportTherapyComplex.this.complexes.add(ImportTherapyComplex.this.new Complex(attributes.getValue("name"), attributes.getValue("description"), Boolean.parseBoolean(attributes.getValue("mullty")), Integer.parseInt(attributes.getValue("timeForFreq")),Integer.parseInt(attributes.getValue("bundlesLength")==null?"1":attributes.getValue("bundlesLength"))));
                     }
 
                     super.startElement(uri, localName, qName, attributes);
@@ -314,12 +314,15 @@ public class ImportTherapyComplex
         boolean mullty;
         int timeForFreq;
         TherapyComplex complex;
+        int bundlesLength=1;
 
-        public Complex(String name, String descr, boolean mullty, int timeForFreq) {
+        public Complex(String name, String descr, boolean mullty, int timeForFreq,Integer bundlesLength) {
             this.name = name;
             this.descr = descr;
             this.mullty = mullty;
             this.timeForFreq = timeForFreq;
+            if(bundlesLength!=null) this.bundlesLength=bundlesLength;
+
         }
     }
 
