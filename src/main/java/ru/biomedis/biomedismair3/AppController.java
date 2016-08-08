@@ -153,6 +153,11 @@ public class AppController  extends BaseController {
     @FXML private Button  btnCancelBundles;
 
 
+    @FXML private HBox onameBoxProgram;
+    @FXML private HBox onameBoxComplex;
+
+    @FXML private Label onameProgram;
+    @FXML private Label onameComplex;
 
 
     private TableViewSkin<?> tableSkin;
@@ -231,13 +236,16 @@ public class AppController  extends BaseController {
 
     });
 
-  synchronized   public boolean isStopGCthread() {
+    synchronized   public boolean isStopGCthread() {
         return stopGCthread;
     }
 
     synchronized  public void setStopGCthread() {
         this.stopGCthread = true;
     }
+
+
+
 
 
     private SimpleBooleanProperty checkUppload=new SimpleBooleanProperty(false);
@@ -252,6 +260,22 @@ public class AppController  extends BaseController {
         }
 
 
+
+
+    /**
+     * Установка текста над табл комплексов
+     * @param name
+     */
+    private void setOnameComplex(String name){
+        onameComplex.setText(name);
+    }
+    /**
+     * Установка текста над табл программ
+     * @param name
+     */
+    private void setOnameProgram(String name){
+        onameProgram.setText(name);
+    }
     /**
      * Статус поиска по базе
      * Раздел открытый до поиска чиатается из ComboBox тк любое его изменение отменит поиск
@@ -344,6 +368,27 @@ public class AppController  extends BaseController {
         baseComplexTabName=res.getString("app.ui.tab2");
         baseProgramTabName=res.getString("app.ui.tab3");
 
+        onameComplex.textProperty().bind(new StringBinding() {
+            {
+                bind(tableComplex.getSelectionModel().selectedItemProperty());
+            }
+            @Override
+            protected String computeValue() {
+               if (tableComplex.getSelectionModel().getSelectedItem()==null) return "";
+                return tableComplex.getSelectionModel().getSelectedItem().getOname();
+            }
+        });
+
+        onameProgram.textProperty().bind(new StringBinding() {
+            {
+                bind(tableProgram.getSelectionModel().selectedItemProperty());
+            }
+            @Override
+            protected String computeValue() {
+                if (tableProgram.getSelectionModel().getSelectedItem()==null) return "";
+                return tableProgram.getSelectionModel().getSelectedItem().getOname();
+            }
+        });
 
 
         //настройка подписей в табах
@@ -913,7 +958,30 @@ public class AppController  extends BaseController {
                     if (tableComplex.getSelectionModel().getSelectedItem() != null) {
                         Program p = (Program) sectionTree.getSelectionModel().getSelectedItem().getValue();
                         try {
-                            TherapyProgram therapyProgram = getModel().createTherapyProgram(tableComplex.getSelectionModel().getSelectedItem(), p.getNameString(), p.getDescriptionString(), p.getFrequencies());
+
+                            //проверим язык програмы и язык вставки
+
+                            String il=getInsertComplexLang();
+                            String lp=getModel().getProgramLanguage().getAbbr();
+
+                            String name="";
+                            String oname="";
+                            String descr="";
+
+                            if(il.equals(lp))
+                            {
+                                name=p.getNameString();
+                                descr=p.getDescriptionString();
+                            }else {
+                                //вставим имя на языке вставки.
+                                oname=p.getNameString();
+                                name = getModel().getString2(p.getName(),getModel().getLanguage(il));
+                                descr=getModel().getString2(p.getDescription(),getModel().getLanguage(il));
+                            }
+
+
+
+                            TherapyProgram therapyProgram = getModel().createTherapyProgram(tableComplex.getSelectionModel().getSelectedItem(), name, descr, p.getFrequencies(),oname);
                             tableProgram.getItems().add(therapyProgram);
                             updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(), false);
                             therapyTabPane.getSelectionModel().select(2);//выберем таб с программами
@@ -945,7 +1013,7 @@ public class AppController  extends BaseController {
                         Complex c = (Complex) sectionTree.getSelectionModel().getSelectedItem().getValue();
 
                         try {
-                            TherapyComplex th = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), c, 300, true,0);
+                            TherapyComplex th = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), c, 300, true,1,getInsertComplexLang());
 
                             //therapyComplexItems.clear();
                             //therapyComplexItems содержит отслеживаемый список, элементы которого добавляются в таблицу. Его не нужно очищать
@@ -7402,8 +7470,29 @@ return  true;
         }
     }
 
+ public void    onLanguageInsertComplexOption(){
 
 
+
+     try {
+         openDialog(getApp().getMainWindow(),"/fxml/language_insert_complex_option_dlg.fxml",res.getString("app.menu.insert_language"),false,StageStyle.DECORATED,0,0,0,0);
+     } catch (IOException e) {
+         logger.error("",e);
+     }
+ }
+
+    /**
+     * Абривиатура языка вставки комплекса
+     * @return Пустое значение, если неудачно
+     */
+   public  String getInsertComplexLang(){
+        try {
+            return  getModel().getOption("app.lang_insert_complex");
+        } catch (Exception e) {
+            logger.error("Ошибка получения языка вставки комплекса",e);
+        }
+       return "";
+   }
     /***************************************************/
 
 
@@ -7506,5 +7595,7 @@ return  true;
         Optional<ButtonType> result = alert.showAndWait();
         return result;
     }
+
+
 
 }

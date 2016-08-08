@@ -27,7 +27,7 @@ public class TherapyProgram implements Serializable {
     private final SimpleBooleanProperty fakeChange=new SimpleBooleanProperty();//свойство для инициализации перерасчета наличия файла частот
 
     private final SimpleBooleanProperty mp3=new SimpleBooleanProperty();//свойство для указания что программа  - на основе mp3 файла, путь к файлу будет в поле частот
-
+    private final SimpleStringProperty oname=new SimpleStringProperty();
 
     private String uuid;
    
@@ -44,6 +44,17 @@ public class TherapyProgram implements Serializable {
 
     }
 
+    public String getOname() {
+        return oname.get();
+    }
+    @Transient
+    public SimpleStringProperty onameProperty() {
+        return oname;
+    }
+
+    public void setOname(String oname) {
+        this.oname.set(oname);
+    }
 
     public boolean isMp3() {
         return mp3.get();

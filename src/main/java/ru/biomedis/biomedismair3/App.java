@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+import static ru.biomedis.biomedismair3.BaseController.getApp;
+import static ru.biomedis.biomedismair3.BaseController.showExceptionDialog;
 import static ru.biomedis.biomedismair3.Log.logger;
 
 
@@ -121,16 +123,6 @@ public class App extends Application {
 
             openPersisenceContext();//откроем контекст работы с БД
 
-            ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
-
-             //обновим согласно полученной версии
-            if(getUpdateVersion()==0) update1(updateOption);
-
-
-
-
-
-
 
 
         String version= System.getProperty("java.version");
@@ -156,13 +148,33 @@ public class App extends Application {
         }catch (Exception ex)
         {
 
-            logger.error("Че за фигня!!");
-
 
             BaseController.showInfoConfirmDialog(this.strings.getString("app.duplicate.title"), "", this.strings.getString("app.duplicate.content"), null, Modality.APPLICATION_MODAL);
             Platform.exit();
             return;
         }
+
+
+        /******** Обновления ************/
+        ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
+
+        int currentUpdateFile=1;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
+
+
+        if(getUpdateVersion() < currentUpdateFile)
+        {
+            //обновим согласно полученной версии, учесть, что нужно на младшие накатывать все апдейты по порядку
+            if(getUpdateVersion()==0) update1(updateOption);
+
+        }else if(getUpdateVersion() > currentUpdateFile){
+            logger.error("Запуск апдейта "+currentUpdateFile+" ниже установленного "+getUpdateVersion()+"!");
+
+            BaseController.showInfoConfirmDialog(this.strings.getString("app.error"), "", this.strings.getString("app.update.incorrect_update_message"), null, Modality.APPLICATION_MODAL);
+            Platform.exit();
+            return;
+        }
+        /******************/
+
 
 
         model=new ModelDataApp(emf);
@@ -193,6 +205,10 @@ public class App extends Application {
                     else getModel().setProgramLanguageDefault(); //если что поставим язык по умолчанию
 
                 }
+
+                //если опция пустая- запуск первый раз, то установим опцию равную языку
+                String abbrIL =   getModel().getOption("app.lang_insert_complex");
+                if(abbrIL.isEmpty()) setInsertCompexLang(getModel().getProgramLanguage().getAbbr());
 
             } catch (Exception e) {
                 //если что поставим язык по умолчанию
@@ -319,6 +335,21 @@ https://gist.github.com/DemkaAge/8999236
         
     }
 
+
+
+    private void setInsertCompexLang(String abbr){
+        try {
+            getModel().setOption("app.lang_insert_complex",abbr);
+        } catch (Exception e) {
+            logger.error("",e);
+            showExceptionDialog("Ошибка применения параметра языка", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+            return;
+        }
+
+    }
+
+
+
     /**
      * Получает значение версии обновления. Если ее вообще нет создасто нулевую
      * Установит значение в  this.updateVersion
@@ -395,8 +426,53 @@ https://gist.github.com/DemkaAge/8999236
         }
 
 
+        try
+        {
+            //столбец связан с языком вставки комплексов
+            logger.info("Проверка наличия столбца ONAME  в THERAPYCOMPLEX ");
+            Object singleResult = emf.createEntityManager().createNativeQuery("SELECT ONAME FROM THERAPYCOMPLEX LIMIT 1").getSingleResult();
+            logger.info("Столбец  ONAME  найден.");
+        }catch (Exception e){
+            logger.info("Столбец  ONAME не найден.");
+            logger.info("Создается  столбец ONAME  в THERAPYCOMPLEX ");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            try{
+                em.createNativeQuery("ALTER TABLE THERAPYCOMPLEX ADD ONAME VARCHAR(255) DEFAULT ''").executeUpdate();
+                em.getTransaction().commit();
+                logger.info("Столбец  ONAME создан.");
+            }catch (Exception ex){
+                throw new RuntimeException("Не удалось выполнить ALTER TABLE THERAPYCOMPLEX ADD ONAME VARCHAR(255) DEFAULT ''");
+            }finally {
+                if(em!=null) em.close();
+            }
 
 
+        }
+
+        try
+        {
+            //столбец связан с языком вставки комплексов
+            logger.info("Проверка наличия столбца ONAME  в THERAPYPROGRAM ");
+            Object singleResult = emf.createEntityManager().createNativeQuery("SELECT ONAME FROM THERAPYPROGRAM LIMIT 1").getSingleResult();
+            logger.info("Столбец  ONAME  найден.");
+        }catch (Exception e){
+            logger.info("Столбец  ONAME не найден.");
+            logger.info("Создается  столбец ONAME  в THERAPYPROGRAM ");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            try{
+                em.createNativeQuery("ALTER TABLE THERAPYPROGRAM ADD ONAME VARCHAR(255) DEFAULT ''").executeUpdate();
+                em.getTransaction().commit();
+                logger.info("Столбец  ONAME создан.");
+            }catch (Exception ex){
+                throw new RuntimeException("Не удалось выполнить ALTER TABLE THERAPYPROGRAM ADD ONAME VARCHAR(255) DEFAULT ''");
+            }finally {
+                if(em!=null) em.close();
+            }
+
+
+        }
 
         setUpdateVersion(updateOption,1);//установим новую версию обновления
 
