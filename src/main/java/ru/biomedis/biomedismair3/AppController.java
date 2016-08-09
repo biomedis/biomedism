@@ -158,7 +158,7 @@ public class AppController  extends BaseController {
 
     @FXML private Label onameProgram;
     @FXML private Label onameComplex;
-
+    @FXML private Menu updateBaseMenu;
 
     private TableViewSkin<?> tableSkin;
     private VirtualFlow<?> virtualFlow;
@@ -367,6 +367,9 @@ public class AppController  extends BaseController {
         baseProfileTabName=res.getString("app.ui.tab1");
         baseComplexTabName=res.getString("app.ui.tab2");
         baseProgramTabName=res.getString("app.ui.tab3");
+
+        updateBaseMenu.setVisible(getApp().isUpdateBaseMenuVisible());
+
 
         onameComplex.textProperty().bind(new StringBinding() {
             {
@@ -7493,6 +7496,161 @@ return  true;
         }
        return "";
    }
+
+
+/******* Обновления базы ****/
+    public void onCreateLanguageFiles(){
+
+    }
+    public void onloadLanguageFiles(){
+
+    }
+    public void onCreateUpdateFreqFile(){
+
+    }
+
+    public void onLoadUpdateFreqFile(){
+
+    }
+/**********/
+
+
+    /**
+     *Создать бекап
+     */
+    public void onRecoveryCreate(){
+
+
+
+        List<Section> collect = baseCombo.getItems().stream().filter(section -> "USER".equals(section.getTag())).collect(Collectors.toList());
+        Section userSection=null;
+        if(collect.isEmpty()) return;
+        userSection=collect.get(0);
+        collect=null;
+
+
+
+
+
+
+
+
+
+
+        //получим путь к файлу.
+        File file=null;
+
+        getModel().initStringsSection(userSection);
+        FileChooser fileChooser =new FileChooser();
+        if("USER".equals(userSection.getTag()))  fileChooser.setTitle(res.getString("app.title26"));
+        else fileChooser.setTitle(res.getString("app.title27")+" - " + userSection.getNameString());
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlb", "*.xmlb"));
+        file= fileChooser.showSaveDialog(getApp().getMainWindow());
+
+        if(file==null)return;
+
+
+
+
+
+
+
+
+
+
+        final Section sec=userSection;
+
+
+        setProgressBar(0.0, res.getString("app.title102"), "");
+
+
+        Task<Boolean> task =new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception
+            {
+                File recoveryDir=new File(getApp().getTmpDir(),"recovery");
+                if(!recoveryDir.exists())if(!recoveryDir.mkdir()) return false;
+
+                File baseFile=new File(recoveryDir,"base.xmlb");
+
+                boolean res1= ExportUserBase.export(sec, baseFile, getModel());
+                if(res1==false) {this.failed();return false;}
+
+                List<Profile> allProfiles = getApp().getModel().findAllProfiles();
+                this.updateProgress(1,allProfiles.size()+1);
+                boolean res2=true;
+                File profDir=new File(recoveryDir,"profiles");
+                if(!profDir.exists())if(!profDir.mkdir()) return false;
+                int cnt=1;
+                for (Profile profile : allProfiles) {
+                    res2= ExportProfile.export(profile,new File(profDir,profile.getId()+".xplp"),getModel());
+                    if(res2==false) break;
+                    this.updateProgress(++cnt,allProfiles.size()+1);
+                }
+                return res1 && res2;
+            }
+        };
+
+
+
+        task.progressProperty().addListener((observable, oldValue, newValue) -> {
+            setProgressBar(newValue.doubleValue(), res.getString("app.title102"), "");
+        });
+
+
+        task.setOnRunning(event1 -> setProgressBar(0.0, res.getString("app.title102"), ""));
+
+        task.setOnSucceeded(event ->
+        {
+            Waiter.closeLayer();
+            if (task.getValue()) {
+                hideProgressBar(false);
+                setProgressIndicator(1.0, res.getString("app.title103"));
+
+            } else {
+                hideProgressBar(false);
+                setProgressIndicator(res.getString("app.title93"));
+            }
+            hideProgressIndicator(true);
+
+
+        });
+
+        task.setOnFailed(event -> {
+            Waiter.closeLayer();
+            hideProgressBar(false);
+            setProgressIndicator(res.getString("app.title93"));
+            hideProgressIndicator(true);
+
+
+        });
+
+
+        Thread threadTask=new Thread(task);
+        threadTask.setDaemon(true);
+        setProgressBar(0.01, res.getString("app.title102"), "");
+
+
+        Waiter.openLayer(getApp().getMainWindow(),false);
+
+        threadTask.start();
+        Waiter.show();
+
+
+
+
+
+    }
+
+
+    /**
+     * Загрузить бекап
+     *
+     */
+    public void onRecoveryLoad(){
+
+    }
     /***************************************************/
 
 

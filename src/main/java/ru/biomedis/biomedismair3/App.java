@@ -39,11 +39,20 @@ public class App extends Application {
       private Stage mainWindow=null;
       private ModelDataApp model;
       private  File dataDir;
+      private  File tmpDir;
 
-      
-      public ResourceBundle getResources(){return strings;}
+    public File getTmpDir() {
+        return tmpDir;
+    }
+
+    public ResourceBundle getResources(){return strings;}
       private final boolean test=false;//указывает что будут проводиться интеграционные тесты. Соответсвенно будет подключена другая БД и запущенны тесты
       private final boolean importDB=false;//импорт базы данных
+        private final boolean updateBaseMenuVisible =true;//показ пункта обновления базы частот
+
+    public boolean isUpdateBaseMenuVisible() {
+        return updateBaseMenuVisible;
+    }
 
     private List<CloseAppListener> closeAppListeners=new ArrayList<>();
     public File getDataDir(){return dataDir;}
@@ -117,7 +126,13 @@ public class App extends Application {
         
         this.dataDir=new File("data");
         if(!dataDir.exists())dataDir.mkdir();
-        
+
+        this.tmpDir=new File(dataDir,"tmp");
+        if(!tmpDir.exists()){tmpDir.mkdir();   this.tmpDir=new File(dataDir,"tmp");}
+        else  recursiveDeleteTMP();
+
+
+
          mainWindow=stage;
 
 
@@ -275,7 +290,7 @@ https://gist.github.com/DemkaAge/8999236
 
 
         BaseController.setApp(this);//установим ссылку на приложение для всех контроллеров
-         stage.setTitle(this.strings.getString("app.name")); 
+         stage.setTitle(this.strings.getString("app.name")+getUpdateVersion());
         // stage.getIcons().add(new Image(App.class.getResourceAsStream("icon.png")));
          URL ico = getClass().getResource("/images/icon.png");
          stage.getIcons().add(new Image(ico.toExternalForm()));
@@ -500,7 +515,34 @@ https://gist.github.com/DemkaAge/8999236
     }
 
 
+    /**
+     * Очистка папки временной
+     * @return
+     */
+    public  boolean recursiveDeleteTMP() {
 
+        return recursiveDeleteHelper(this.getTmpDir());
 
+    }
+
+    private  boolean recursiveDeleteHelper(File path)
+    {
+
+        // до конца рекурсивного цикла
+        if (!path.exists())
+            return false;
+
+        //если это папка, то идем внутрь этой папки и вызываем рекурсивное удаление всего, что там есть
+        if (path.isDirectory()) {
+            for (File f : path.listFiles()) {
+                // рекурсивный вызов
+                recursiveDeleteHelper(f);
+            }
+        }
+        // вызываем метод delete() для удаления файлов и пустых(!) папок
+        if(path ==tmpDir)  return true;
+        else  return path.delete();
+
+    }
 
 }
