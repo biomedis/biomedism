@@ -7542,10 +7542,9 @@ return  true;
 
         getModel().initStringsSection(userSection);
         FileChooser fileChooser =new FileChooser();
-        if("USER".equals(userSection.getTag()))  fileChooser.setTitle(res.getString("app.title26"));
-        else fileChooser.setTitle(res.getString("app.title27")+" - " + userSection.getNameString());
+       fileChooser.setTitle(res.getString("ui.backup.create_backup"));
         fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlb", "*.xmlb"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("brecovery", "*.brecovery"));
         file= fileChooser.showSaveDialog(getApp().getMainWindow());
 
         if(file==null)return;
@@ -7560,9 +7559,9 @@ return  true;
 
 
         final Section sec=userSection;
+        final File zipFile=file;
 
-
-        setProgressBar(0.0, res.getString("app.title102"), "");
+        setProgressBar(0.0, res.getString("ui.backup.create_backup"), "");
 
 
         Task<Boolean> task =new Task<Boolean>() {
@@ -7578,28 +7577,31 @@ return  true;
                 if(res1==false) {this.failed();return false;}
 
                 List<Profile> allProfiles = getApp().getModel().findAllProfiles();
-                this.updateProgress(1,allProfiles.size()+1);
+                this.updateProgress(1,allProfiles.size()+2);
                 boolean res2=true;
                 File profDir=new File(recoveryDir,"profiles");
                 if(!profDir.exists())if(!profDir.mkdir()) return false;
                 int cnt=1;
                 for (Profile profile : allProfiles) {
-                    res2= ExportProfile.export(profile,new File(profDir,profile.getId()+".xplp"),getModel());
+                    res2= ExportProfile.export(profile,new File(profDir,profile.getId()+".xmlp"),getModel());
                     if(res2==false) break;
-                    this.updateProgress(++cnt,allProfiles.size()+1);
+                    this.updateProgress(++cnt,allProfiles.size()+2);
                 }
-                return res1 && res2;
+                if(res2==false) {this.failed();return false;}
+                boolean res3=true;
+                res3 = ZIPUtil.zipFolder(recoveryDir,zipFile);
+                return res1 && res2 && res3;
             }
         };
 
 
 
         task.progressProperty().addListener((observable, oldValue, newValue) -> {
-            setProgressBar(newValue.doubleValue(), res.getString("app.title102"), "");
+            setProgressBar(newValue.doubleValue(), res.getString("ui.backup.create_backup"), "");
         });
 
 
-        task.setOnRunning(event1 -> setProgressBar(0.0, res.getString("app.title102"), ""));
+        task.setOnRunning(event1 -> setProgressBar(0.0, res.getString("ui.backup.create_backup"), ""));
 
         task.setOnSucceeded(event ->
         {
@@ -7649,6 +7651,222 @@ return  true;
      *
      */
     public void onRecoveryLoad(){
+
+
+        List<Section> collect = baseCombo.getItems().stream().filter(section -> "USER".equals(section.getTag())).collect(Collectors.toList());
+        Section userSection=null;
+        if(collect.isEmpty()) return;
+        userSection=collect.get(0);
+        collect=null;
+
+        //получим путь к файлу.
+        File file=null;
+
+        getModel().initStringsSection(userSection);
+        FileChooser fileChooser =new FileChooser();
+        fileChooser.setTitle(res.getString("ui.backup.load_backup"));
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("brecovery", "*.brecovery"));
+        file= fileChooser.showOpenDialog(getApp().getMainWindow());
+
+        if(file==null)return;
+
+
+
+        final Section sec=userSection;
+        final File zipFile=file;
+
+        setProgressBar(0.0, res.getString("ui.backup.load_backup"), "");
+
+
+
+        Task<Boolean> task =new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception
+            {
+                getApp().recursiveDeleteTMP();
+
+                File recoveryDir=new File(getApp().getTmpDir(),"recovery");
+                if(!recoveryDir.exists())if(!recoveryDir.mkdir()) return false;
+
+
+                boolean res1 = ZIPUtil.unZip(zipFile,recoveryDir);
+
+
+
+                File profDir=new File(recoveryDir,"profiles");
+                boolean res2 =true;
+                File[] files = profDir.listFiles((dir, name) -> name.contains(".xmlp"));
+                int pCount= files.length;
+                this.updateProgress(1,pCount+2);
+                int cnt=1;
+                for (File f : files)
+                {
+                    ImportProfile imp=new ImportProfile();
+                    imp.setListener(new ImportProfile.Listener() {
+                        @Override
+                        public void onStartParse() {}
+
+                        @Override
+                        public void onEndParse() {}
+
+                        @Override
+                        public void onStartAnalize()  {}
+                        @Override
+                        public void onEndAnalize() {}
+                        @Override
+                        public void onStartImport() {}
+
+                        @Override
+                        public void onEndImport()  {}
+
+                        @Override
+                        public void onSuccess()  {}
+
+                        @Override
+                        public void onError(boolean fileTypeMissMatch) {
+
+                        }
+                    });
+
+                    boolean res= imp.parse(f, getModel());
+                    imp.setListener(null);
+                    if(res==false)
+                    {
+
+                        res2=false;
+                        break;
+                        }
+                    this.updateProgress(++cnt,pCount+2);
+
+                }
+
+                //база
+
+                ImportUserBase imp=new ImportUserBase();
+
+                        imp.setListener(new ImportUserBase.Listener() {
+                            @Override
+                            public void onStartParse() {
+
+                            }
+
+                            @Override
+                            public void onEndParse() {
+
+                            }
+
+                            @Override
+                            public void onStartAnalize() {
+
+                            }
+
+                            @Override
+                            public void onEndAnalize() {
+
+                            }
+
+                            @Override
+                            public void onStartImport() {
+
+                            }
+
+                            @Override
+                            public void onEndImport() {
+
+                            }
+
+                            @Override
+                            public void onSuccess() {
+
+                            }
+
+                            @Override
+                            public void onError(boolean fileTypeMissMatch) {
+
+                            }
+                        });
+
+
+                        boolean res3= imp.parse( new File(recoveryDir,"base.xmlb"), getModel(),sec);
+                       imp.setListener(null);
+
+                getApp().recursiveDeleteTMP();
+                return res1 && res2 && res3;
+            }
+        };
+
+
+
+        task.progressProperty().addListener((observable, oldValue, newValue) -> {
+            setProgressBar(newValue.doubleValue(), res.getString("ui.backup.load_backup"), "");
+        });
+
+
+        task.setOnRunning(event1 -> setProgressBar(0.0, res.getString("ui.backup.load_backup"), ""));
+
+
+        int count_profiles=getModel().countProfile();
+
+        task.setOnSucceeded(event ->
+        {
+            Waiter.closeLayer();
+            if (task.getValue()) {
+                hideProgressBar(false);
+                setProgressIndicator(1.0, res.getString("app.title103"));
+                if(getModel().countProfile()!=0)
+                {
+                    if(count_profiles==0){
+                        tableProfile.getItems().addAll(getModel().findAllProfiles());
+                    }
+                    else if(count_profiles<getModel().countProfile())tableProfile.getItems().addAll(getModel().findAllProfiles().subList(count_profiles,getModel().countProfile()));
+
+                    int i = tableProfile.getItems().size()-1;
+                    tableProfile.requestFocus();
+                    tableProfile.getSelectionModel().select(i);
+                    tableProfile.scrollTo(i);
+                    tableProfile.getFocusModel().focus(i);
+
+                    baseCombo.getSelectionModel().select(0);
+                    baseCombo.getSelectionModel().select(sec);
+
+                }
+
+
+            } else {
+                hideProgressBar(false);
+                setProgressIndicator(res.getString("app.title93"));
+            }
+            hideProgressIndicator(true);
+
+
+        });
+
+        task.setOnFailed(event -> {
+            Waiter.closeLayer();
+            hideProgressBar(false);
+            setProgressIndicator(res.getString("app.title93"));
+            hideProgressIndicator(true);
+
+
+        });
+
+
+        Thread threadTask=new Thread(task);
+        threadTask.setDaemon(true);
+        setProgressBar(0.01, res.getString("ui.backup.load_backup"), "");
+
+
+        Waiter.openLayer(getApp().getMainWindow(),false);
+
+        threadTask.start();
+        Waiter.show();
+
+
+
+
+
+
 
     }
     /***************************************************/
