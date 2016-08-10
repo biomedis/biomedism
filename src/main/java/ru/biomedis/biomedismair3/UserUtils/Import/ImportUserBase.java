@@ -4,9 +4,6 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import ru.biomedis.biomedismair3.ModelDataApp;
-import ru.biomedis.biomedismair3.entity.Complex;
-import ru.biomedis.biomedismair3.entity.Program;
-import sun.print.resources.serviceui_zh_CN;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -103,6 +100,7 @@ private Listener listener=null;
 
             for (Program itm : listPrograms) {
                 if(itm.freqs.isEmpty())continue;
+                itm.freqs=itm.freqs.replace(",",".");
                 split = itm.freqs.split(";");
                 for (String s : split) {
                     if (s.contains("+")) {
@@ -132,7 +130,11 @@ private Listener listener=null;
         try {
 
 
-            for (Section section : listSections)  section.section = mda.createSection(container, section.name, section.descr, false, mda.getUserLanguage());
+            for (Section section : listSections)  {
+                if(section.sectionIndex < 0) section.section = mda.createSection(container, section.name, section.descr, false, mda.getUserLanguage());
+                else section.section = mda.createSection(listSections.get(section.sectionIndex).section, section.name, section.descr, false, mda.getUserLanguage());
+
+            }
             for (Complex complex : listComplexes)
             {
                if(complex.sectionIndex>=0) complex.complex=mda.createComplex(complex.name,complex.descr,listSections.get(complex.sectionIndex).section,false,mda.getUserLanguage());
