@@ -50,7 +50,7 @@ public class ExportTherapyComplex {
         StringBuilder strb = new StringBuilder();
         list.stream().filter(p ->!p.isMp3()).forEach((program) -> {
             strb.append(noops[level]);
-            strb.append("<Program ").append("name=\"").append(program.getName()).append("\" description=\"").append(program.getDescription()).append("\" ").append("frequencies=\"").append(program.getFrequencies()).append("\"/>\n");
+            strb.append("<Program ").append("name=\"").append(program.getName().replace("\"","&quot;")).append("\" description=\"").append(program.getDescription().replace("\"","&quot;")).append("\" ").append("frequencies=\"").append(program.getFrequencies()).append("\"/>\n");
         });
         return strb.toString();
     }
@@ -59,7 +59,7 @@ public class ExportTherapyComplex {
         StringBuilder strb = new StringBuilder();
         strb.append(noops[level]);
         int lvl = level + 1;
-        strb.append("<Complex ").append("name=\"").append(complex.getName()).append("\" description=\"").append(complex.getDescription()).append("\"").append(" mullty=\"").append(complex.isMulltyFreq()).append("\"").append(" timeForFreq=\"").append(complex.getTimeForFrequency()).append("\"").append(" bundlesLength=\"").append(complex.getBundlesLength()).append("\"").append(">\n");
+        strb.append("<Complex ").append("name=\"").append(complex.getName().replace("\"","&quot;")).append("\" description=\"").append(complex.getDescription().replace("\"","&quot;")).append("\"").append(" mullty=\"").append(complex.isMulltyFreq()).append("\"").append(" timeForFreq=\"").append(complex.getTimeForFrequency()).append("\"").append(" bundlesLength=\"").append(complex.getBundlesLength()).append("\"").append(">\n");
         List list = md.findTherapyPrograms(complex);
         strb.append(getProgramList(list, md, lvl));
         strb.append(noops[level]);

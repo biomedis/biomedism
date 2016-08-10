@@ -231,14 +231,14 @@ public class ImportTherapyComplex
                 } else if(qName.equals("Complex")) {
                     this.inComplex = true;
                     if(attributes.getLength() != 0) {
-                        ImportTherapyComplex.this.complexes.add(ImportTherapyComplex.this.new Complex(attributes.getValue("name"), attributes.getValue("description"), Boolean.parseBoolean(attributes.getValue("mullty")), Integer.parseInt(attributes.getValue("timeForFreq")),Integer.parseInt(attributes.getValue("bundlesLength")==null?"1":attributes.getValue("bundlesLength"))));
+                        ImportTherapyComplex.this.complexes.add(ImportTherapyComplex.this.new Complex(attributes.getValue("name").replace("&quot;","\""), attributes.getValue("description").replace("&quot;","\""), Boolean.parseBoolean(attributes.getValue("mullty")), Integer.parseInt(attributes.getValue("timeForFreq")),Integer.parseInt(attributes.getValue("bundlesLength")==null?"1":attributes.getValue("bundlesLength"))));
                     }
 
                     super.startElement(uri, localName, qName, attributes);
                 } else if(qName.equals("Program")) {
                     if(!ImportTherapyComplex.this.complexes.isEmpty() && this.inComplex) {
                         if(attributes.getLength() != 0) {
-                            ImportTherapyComplex.this.listProgram.add(ImportTherapyComplex.this.new Program(attributes.getValue("name"), attributes.getValue("description"), attributes.getValue("frequencies"), ImportTherapyComplex.this.complexes.size() - 1));
+                            ImportTherapyComplex.this.listProgram.add(ImportTherapyComplex.this.new Program(attributes.getValue("name").replace("&quot;","\""), attributes.getValue("description"), attributes.getValue("frequencies").replace("&quot;","\""), ImportTherapyComplex.this.complexes.size() - 1));
                         }
 
                         super.startElement(uri, localName, qName, attributes);

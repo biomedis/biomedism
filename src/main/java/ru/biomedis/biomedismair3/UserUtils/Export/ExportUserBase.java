@@ -1,13 +1,15 @@
 package ru.biomedis.biomedismair3.UserUtils.Export;
 
-import ru.biomedis.biomedismair3.Log;
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.Complex;
 import ru.biomedis.biomedismair3.entity.Program;
 import ru.biomedis.biomedismair3.entity.Section;
 
 import javax.validation.constraints.NotNull;
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.List;
 
 import static ru.biomedis.biomedismair3.Log.logger;
@@ -76,7 +78,7 @@ return false;
         StringBuilder strb=new StringBuilder();
         strb.append(noops[level]);
         md.initStringsProgram(program);
-        strb.append("<Program ").append("name=\"").append(program.getNameString()).append("\" description=\"").append(program.getDescriptionString()).
+        strb.append("<Program ").append("name=\"").append(program.getNameString().replace("\"","&quot;")).append("\" description=\"").append(program.getDescriptionString().replace("\"","&quot;")).
                 append("\" ").append("frequencies=\"").append(program.getFrequencies()).append("\"/>\n");
         return strb.toString();
 
@@ -91,8 +93,8 @@ return false;
         md.initStringsProgram(list);
         list.forEach(program -> {
             strb.append(noops[level]);
-            strb.append("<Program ").append("name=\"").append(program.getNameString()).append("\" description=\"").append(program.getDescriptionString()).
-                    append("\" ").append("frequencies=\"").append(program.getFrequencies()).append("\"/>\n");
+            strb.append("<Program ").append("name=\"").append(program.getNameString().replace("\"","&quot;")).append("\" description=\"").append(program.getDescriptionString()).
+                    append("\" ").append("frequencies=\"").append(program.getFrequencies().replace("\"","&quot;")).append("\"/>\n");
         });
 
         return strb.toString();
@@ -105,7 +107,7 @@ return false;
 
         strb.append(noops[level]);
         int lvl=level+1;
-        strb.append("<Complex ").append("name=\"").append(complex.getNameString()).append("\" description=\"").append(complex.getDescriptionString()).
+        strb.append("<Complex ").append("name=\"").append(complex.getNameString().replace("\"","&quot;")).append("\" description=\"").append(complex.getDescriptionString().replace("\"","&quot;")).
                 append("\"").append(">\n");
 
 
@@ -126,7 +128,7 @@ return false;
         if(level!=0)//исключаем стартовый раздел
         {
             md.initStringsSection(section);
-            strb.append("<Section ").append("name=\"").append(section.getNameString()).append("\" description=\"").append(section.getDescriptionString()).
+            strb.append("<Section ").append("name=\"").append(section.getNameString().replace("\"","&quot;")).append("\" description=\"").append(section.getDescriptionString().replace("\"","&quot;")).
                     append("\"").append(">\n");
 
         }

@@ -252,7 +252,7 @@ private Listener listener=null;
 
                 if(attributes.getLength()!=0)
                 {
-                    sectionsStack.push(new Section(attributes.getValue("name"),attributes.getValue("description"),index));//положим на вершину стека
+                    sectionsStack.push(new Section(attributes.getValue("name").replace("&quot;","\""),attributes.getValue("description").replace("&quot;","\""),index));//положим на вершину стека
                     listSections.add(sectionsStack.peek());
                 }
             }else  if(qName.equals("Complex"))
@@ -263,7 +263,7 @@ private Listener listener=null;
 
                 if(attributes.getLength()!=0)
                 {
-                    complexesStack.push(new Complex(attributes.getValue("name"),attributes.getValue("description"),index));//положим на вершину стека
+                    complexesStack.push(new Complex(attributes.getValue("name").replace("&quot;","\""),attributes.getValue("description").replace("&quot;","\""),index));//положим на вершину стека
                     listComplexes.add(complexesStack.peek());
                 }
 
@@ -284,7 +284,7 @@ private Listener listener=null;
 
                 if(attributes.getLength()!=0)
                 {
-                   listPrograms.add(new Program(attributes.getValue("name"),attributes.getValue("description"),attributes.getValue("frequencies"),indexSect,indexCompl));
+                   listPrograms.add(new Program(attributes.getValue("name").replace("&quot;","\""),attributes.getValue("description").replace("&quot;","\""),attributes.getValue("frequencies"),indexSect,indexCompl));
 
                 }
 

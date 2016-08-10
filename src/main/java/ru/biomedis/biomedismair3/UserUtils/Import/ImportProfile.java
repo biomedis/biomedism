@@ -125,16 +125,16 @@ public class ImportProfile {
         //если все хорошо можно импортировать объекты в базу
         try {
 
-               profile.profile= mda.createProfile(profile.name);
+               profile.profile= mda.createProfile(profile.name.replace("&quot;","\""));
 
             for (Complex complex : listComplex) {
 
-                complex.complex =  mda.createTherapyComplex(profile.profile,complex.name,complex.descr,complex.timeForFreq,complex.mullty,complex.bundlesLength);
+                complex.complex =  mda.createTherapyComplex(profile.profile,complex.name.replace("&quot;","\""),complex.descr.replace("&quot;","\""),complex.timeForFreq,complex.mullty,complex.bundlesLength);
             }
 
             for (Program program : listProgram) {
 
-                mda.createTherapyProgram(listComplex.get(program.complexIndex).complex,program.name,program.descr,program.freqs);
+                mda.createTherapyProgram(listComplex.get(program.complexIndex).complex,program.name.replace("&quot;","\""),program.descr.replace("&quot;","\""),program.freqs);
             }
 
 

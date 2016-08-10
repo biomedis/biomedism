@@ -52,6 +52,7 @@ import ru.biomedis.biomedismair3.Dialogs.TextInputValidationController;
 import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.CreateFrequenciesFile;
 import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.CreateLanguageFiles;
 import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadFrequenciesFile;
+import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadLanguageFiles;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportProfile;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportTherapyComplex;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportUserBase;
@@ -7521,7 +7522,24 @@ return  true;
         showInfoDialog("Создание  языковых файлов.","","Завершено",getApp().getMainWindow(),Modality.WINDOW_MODAL);
 
     }
-    public void onloadLanguageFiles(){
+
+
+    public void onloadLanguageFiles()
+    {
+        List<File> files=null;
+
+
+        FileChooser fileChooser =new FileChooser();
+        fileChooser.setTitle("Загрузка языковых файлов");
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xml", "*.xml"));
+        files= fileChooser.showOpenMultipleDialog(getApp().getMainWindow());
+
+        if(files==null)return;
+
+        LoadLanguageFiles ll=new LoadLanguageFiles();
+        if( ll.parse(files,getModel())) showInfoDialog("Загрузка языковых файлов","","Все нормально. Результаты в консоли",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        else showErrorDialog("Загрузка языковых файлов","","Есть ошибки. Результаты в консоли",getApp().getMainWindow(),Modality.WINDOW_MODAL);
 
     }
 

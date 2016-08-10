@@ -71,7 +71,7 @@ public class ExportProfile {
     {
         StringBuilder strb=new StringBuilder();
         strb.append(noops[level]);
-        strb.append("<Profile ").append("name=\"").append(profile.getName()).append("\">\n");
+        strb.append("<Profile ").append("name=\"").append(profile.getName().replace("\"","&quot;")).append("\">\n");
 
         int lvl=level+1;
           md.findAllTherapyComplexByProfile(profile).forEach(therapyComplex -> strb.append(getComplex(therapyComplex,md,lvl)));
@@ -89,7 +89,7 @@ public class ExportProfile {
 
         list.stream().filter(p->!p.isMp3()).forEach(program -> {
             strb.append(noops[level]);
-            strb.append("<Program ").append("name=\"").append(program.getName()).append("\" description=\"").append(program.getDescription()).
+            strb.append("<Program ").append("name=\"").append(program.getName().replace("\"","&quot;")).append("\" description=\"").append(program.getDescription().replace("\"","&quot;")).
                     append("\" ").append("frequencies=\"").append(program.getFrequencies()).append("\"/>\n");
         });
 
@@ -103,7 +103,7 @@ public class ExportProfile {
 
         strb.append(noops[level]);
         int lvl=level+1;
-        strb.append("<Complex ").append("name=\"").append(complex.getName()).append("\" description=\"").append(complex.getDescription()).
+        strb.append("<Complex ").append("name=\"").append(complex.getName().replace("\"","&quot;")).append("\" description=\"").append(complex.getDescription().replace("\"","&quot;")).
                 append("\"").append(" mullty=\"").append(complex.isMulltyFreq()).append("\"").append(" timeForFreq=\"").append(complex.getTimeForFrequency()).append("\"").append(" bundlesLength=\"").append(complex.getBundlesLength()).append("\"").append(">\n");
 
 
