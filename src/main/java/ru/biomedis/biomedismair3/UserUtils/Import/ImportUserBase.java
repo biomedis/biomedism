@@ -293,9 +293,8 @@ private Listener listener=null;
 
             }else if(fileTypeOK)
             {
-                //если не было перехода ранее из метода, том сюда попадем.
 
-                    //если нашли левый тег
+                //если попался левый тег, мы тут возмутимся
                 SAXException saxException = new SAXException(new FileTypeMissMatch());
                 throw saxException;
             }

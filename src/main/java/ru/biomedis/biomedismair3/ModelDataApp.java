@@ -638,6 +638,40 @@ public class ModelDataApp {
         });
 
     }
+    /**
+     * Заполнить поля строк локализованных.
+     * @param p
+     */
+    public void initStringsSection(Section p,Language lang)
+    {
+        String name = getString(p.getName(), lang);
+        String d = getString(p.getDescription(), lang);
+
+        p.setNameString(name==null?"":name);
+        p.setDescriptionString(d==null?"":d);
+
+    }
+
+
+    public void initStringsSection(List<Section> sections,Language lang)
+    {
+        String name =null;
+        String d=null;
+        for(Section p : sections)
+        {
+            name =null;
+            d=null;
+
+            name = getString(p.getName(), lang);
+            d = getString(p.getDescription(), lang);
+
+            p.setNameString(name==null?"":name);
+            p.setDescriptionString(d==null?"":d);
+
+
+        }
+
+    }
 
 
 
@@ -732,6 +766,37 @@ public class ModelDataApp {
 
 
 
+    /**
+     * Заполнить поля строк локализованных.
+     * @param section
+     */
+    public void initStringsComplex(Complex section,Language l)
+    {
+
+        String name=getString(section.getName(),l);
+        String d=getString(section.getDescription(),l);
+
+        section.setNameString(name==null?"":name);
+        section.setDescriptionString(d==null?"":d);
+
+    }
+
+    public void initStringsComplex(List<Complex> cs,Language l)
+    {
+       for (Complex c : cs)
+        {
+
+            String name=getString(c.getName(),l);
+            String d=getString(c.getDescription(),l);
+
+            c.setNameString(name==null?"":name);
+            c.setDescriptionString(d==null?"":d);
+
+        }
+
+    }
+
+
     public void updateComplex(Complex complex) throws Exception{complexDAO.edit(complex);}
     
      /******************************************/
@@ -810,6 +875,40 @@ public class ModelDataApp {
     {
         section.setNameString(getSmartString(section.getName()));
         section.setDescriptionString(getSmartString(section.getDescription()));
+
+    }
+    /**
+     * Заполнить поля строк локализованных.
+     * @param p
+     */
+    public void initStringsProgram(Program p,Language lang)
+    {
+        String name = getString(p.getName(), lang);
+        String d = getString(p.getDescription(), lang);
+
+        p.setNameString(name==null?"":name);
+        p.setDescriptionString(d==null?"":d);
+
+    }
+
+
+    public void initStringsProgram(List<Program> programms,Language lang)
+    {
+        String name =null;
+        String d=null;
+       for(Program p : programms)
+        {
+             name =null;
+             d=null;
+
+             name = getString(p.getName(), lang);
+             d = getString(p.getDescription(), lang);
+
+            p.setNameString(name==null?"":name);
+            p.setDescriptionString(d==null?"":d);
+
+
+        }
 
     }
 
@@ -2091,6 +2190,34 @@ public class ModelDataApp {
         query.setParameter("lang", lang);
 
         return query.getResultList();
+
+    }
+
+
+
+
+    public Program getProgram(String uuid){
+
+        Query query=emf.createEntityManager().createQuery("Select p From Program p WHERE p.uuid=:uuid");
+        query.setParameter("uuid", uuid);
+        query.setMaxResults(1);
+        return (Program)query.getSingleResult();
+
+    }
+    public Section getSection(String uuid){
+
+        Query query=emf.createEntityManager().createQuery("Select p From Section p WHERE p.uuid=:uuid");
+        query.setParameter("uuid", uuid);
+        query.setMaxResults(1);
+        return (Section)query.getSingleResult();
+
+    }
+    public Complex getComplex(String uuid){
+
+        Query query=emf.createEntityManager().createQuery("Select p From Complex p WHERE p.uuid=:uuid");
+        query.setParameter("uuid", uuid);
+        query.setMaxResults(1);
+        return (Complex)query.getSingleResult();
 
     }
 }

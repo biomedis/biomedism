@@ -49,6 +49,9 @@ import ru.biomedis.biomedismair3.Dialogs.NameDescroptionDialogController;
 import ru.biomedis.biomedismair3.Dialogs.ProgramDialogController;
 import ru.biomedis.biomedismair3.Dialogs.SearchProfile;
 import ru.biomedis.biomedismair3.Dialogs.TextInputValidationController;
+import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.CreateFrequenciesFile;
+import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.CreateLanguageFiles;
+import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadFrequenciesFile;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportProfile;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportTherapyComplex;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportUserBase;
@@ -7499,17 +7502,71 @@ return  true;
 
 
 /******* Обновления базы ****/
-    public void onCreateLanguageFiles(){
+    /**
+     * Языковые файлы
+     */
+    public void onCreateLanguageFiles()
+    {
+        File file=null;
+
+
+        DirectoryChooser dirChooser =new DirectoryChooser();
+        dirChooser.setTitle("Создание  языковых файлов. Выбор директории");
+        dirChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        file= dirChooser.showDialog(getApp().getMainWindow());
+
+        if(file==null)return;
+
+        CreateLanguageFiles.export(file,getModel());
+        showInfoDialog("Создание  языковых файлов.","","Завершено",getApp().getMainWindow(),Modality.WINDOW_MODAL);
 
     }
     public void onloadLanguageFiles(){
 
     }
-    public void onCreateUpdateFreqFile(){
+
+    /**
+     * Файл для правки частот
+     */
+    public void onCreateUpdateFreqFile()
+    {
+        File file=null;
+
+
+        FileChooser fileChooser =new FileChooser();
+        fileChooser.setTitle("Создание файла частот");
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("freqbase", "*.freqbase"));
+        file= fileChooser.showSaveDialog(getApp().getMainWindow());
+
+        if(file==null)return;
+       if( CreateFrequenciesFile.export(file,getModel())) showInfoDialog("Создание файла частот","","Файл создан",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        else showErrorDialog("Создание файла частот","","Файл не создан",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+
 
     }
 
     public void onLoadUpdateFreqFile(){
+        File file=null;
+
+
+        FileChooser fileChooser =new FileChooser();
+        fileChooser.setTitle("Загрузка файла частот");
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("freqbase", "*.freqbase"));
+        file= fileChooser.showOpenDialog(getApp().getMainWindow());
+
+        if(file==null)return;
+        LoadFrequenciesFile lf=new LoadFrequenciesFile();
+
+        try {
+            lf.parse(file,getModel());
+            showInfoDialog("Загрузка файла частот","","Файл загружен",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        } catch (Exception e) {
+           logger.error("Ошибка загрузки файла частот",e);
+            showErrorDialog("Загрузка файла частот","","Файл не загружен",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        }
+
 
     }
 /**********/
