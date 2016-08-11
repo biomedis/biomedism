@@ -6,6 +6,7 @@ import ru.biomedis.biomedismair3.entity.Complex;
 import ru.biomedis.biomedismair3.entity.Language;
 import ru.biomedis.biomedismair3.entity.Program;
 import ru.biomedis.biomedismair3.entity.Section;
+import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
 import javax.validation.constraints.NotNull;
 import java.io.File;
@@ -70,8 +71,8 @@ public class CreateLanguageFiles
         for (Language language : md.findAllLanguage())
         {
             if(md.getUserLanguage().getId().longValue()==language.getId().longValue()) continue;
-            if(doExport(allRootSection,language,new File(file,language.getName()+".xml"),md)) Log.logger.info("Обработка языка "+language.getName()+" УСПЕШНО");
-            else Log.logger.info("Обработка языка "+language.getName()+" ОШИБКА");
+            if(doExport(allRootSection,language,new File(file,language.getName()+".xml"),md)) System.out.println("Обработка языка "+language.getName()+" УСПЕШНО");
+            else System.out.println("Обработка языка "+language.getName()+" ОШИБКА");
         }
 
 
@@ -81,7 +82,7 @@ public class CreateLanguageFiles
 
     private static boolean doExport(List<Section> allRootSection, Language language, File file, ModelDataApp md){
 
-        Log.logger.info("Обработка языка "+language.getName());
+        System.out.print("Обработка языка "+language.getName()+" ... ");
         StringBuilder strb=new StringBuilder();
         allRootSection.forEach(section -> strb.append(getSection(section, md,0,language)));
 
@@ -100,10 +101,11 @@ public class CreateLanguageFiles
 
         } catch (IOException e) {
             logger.error("",e);
+            System.out.print("Error "+e.getMessage());
             return false;
         }finally
         {
-            Log.logger.info("Ок");
+            System.out.print("Ок");
         }
         return true;
     }
@@ -125,11 +127,11 @@ public class CreateLanguageFiles
         String ldescr=md.getString2(program.getDescription(),l);
 
         strb.append("<Program ").append("uuid=\"").append(program.getUuid()).append("\"  \n")
-                .append(noops[level]).append("nameRussian=\"").append(lname.replace("\"","&quot;")).append("\"  \n")
-                .append(noops[level]).append("name=\"").append(program.getNameString().replace("\"","&quot;")).append("\" \n")
+                .append(noops[level]).append("nameRussian=\"").append(TextUtil.escapeXML(lname)).append("\"  \n")
+                .append(noops[level]).append("name=\"").append(TextUtil.escapeXML(program.getNameString())).append("\" \n")
 
-                .append(noops[level]).append("descriptionRussian=\"").append(ldescr.replace("\"","&quot;")).append("\"  \n")
-                .append(noops[level]) .append("description=\"").append(program.getDescriptionString().replace("\"","&quot;")).append("\"  \n")
+                .append(noops[level]).append("descriptionRussian=\"").append(TextUtil.escapeXML(ldescr)).append("\"  \n")
+                .append(noops[level]) .append("description=\"").append(TextUtil.escapeXML(program.getDescriptionString())).append("\"  \n")
                 .append(noops[level]) .append(" />\n\n");
         return strb.toString();
 
@@ -159,11 +161,11 @@ public class CreateLanguageFiles
 
             strb.append(noops[level]);
             strb.append("<Program ").append("uuid=\"").append(program.getUuid()).append("\"  \n")
-                    .append(noops[level]).append("nameRussian=\"").append(lname.replace("\"","&quot;")).append("\"  \n")
-                    .append(noops[level]).append("name=\"").append(program.getNameString().replace("\"","&quot;")).append("\" \n")
+                    .append(noops[level]).append("nameRussian=\"").append(TextUtil.escapeXML(lname)).append("\"  \n")
+                    .append(noops[level]).append("name=\"").append(TextUtil.escapeXML(program.getNameString())).append("\" \n")
 
-                    .append(noops[level]).append("descriptionRussian=\"").append(ldescr.replace("\"","&quot;")).append("\"  \n")
-                    .append(noops[level]).append("description=\"").append(program.getDescriptionString().replace("\"","&quot;")).append("\"  \n")
+                    .append(noops[level]).append("descriptionRussian=\"").append(TextUtil.escapeXML(ldescr)).append("\"  \n")
+                    .append(noops[level]).append("description=\"").append(TextUtil.escapeXML(program.getDescriptionString())).append("\"  \n")
                     .append(noops[level]).append("/>\n\n");
         }
 
@@ -189,10 +191,10 @@ public class CreateLanguageFiles
         strb.append(noops[level]);
         int lvl=level+1;
         strb.append("<Complex ").append("uuid=\"").append(complex.getUuid()).append("\"  \n")
-                .append(noops[level]).append("nameRussian=\"").append(lname.replace("\"","&quot;")).append("\"  \n")
-                .append(noops[level]).append("name=\"").append(complex.getNameString().replace("\"","&quot;")).append("\" \n")
-                .append(noops[level]) .append("descriptionRussian=\"").append(ldescr.replace("\"","&quot;")).append("\"  \n")
-                .append(noops[level]).append("description=\"").append(complex.getDescriptionString().replace("\"","&quot;")).append("\"  \n")
+                .append(noops[level]).append("nameRussian=\"").append(TextUtil.escapeXML(lname)).append("\"  \n")
+                .append(noops[level]).append("name=\"").append(TextUtil.escapeXML(complex.getNameString())).append("\" \n")
+                .append(noops[level]) .append("descriptionRussian=\"").append(TextUtil.escapeXML(ldescr)).append("\"  \n")
+                .append(noops[level]).append("description=\"").append(TextUtil.escapeXML(complex.getDescriptionString())).append("\"  \n")
                 .append(noops[level]).append(">\n");
 
 
@@ -225,10 +227,10 @@ public class CreateLanguageFiles
             md.initStringsSection(section,language);
             strb.append("<Section ")
                     .append("uuid=\"").append(section.getUuid()).append("\"  \n")
-                    .append(noops[level]) .append("nameRussian=\"").append(lname.replace("\"","&quot;")).append("\"  \n")
-                    .append(noops[level]).append("name=\"").append(section.getNameString().replace("\"","&quot;")).append("\" \n")
-                    .append(noops[level]).append("descriptionRussian=\"").append(ldescr.replace("\"","&quot;")).append("\"  \n")
-                    .append(noops[level]).append("description=\"").append(section.getDescriptionString().replace("\"","&quot;")).append("\"  \n")
+                    .append(noops[level]) .append("nameRussian=\"").append(TextUtil.escapeXML(lname)).append("\"  \n")
+                    .append(noops[level]).append("name=\"").append(TextUtil.escapeXML(section.getNameString())).append("\" \n")
+                    .append(noops[level]).append("descriptionRussian=\"").append(TextUtil.escapeXML(ldescr)).append("\"  \n")
+                    .append(noops[level]).append("description=\"").append(TextUtil.escapeXML(section.getDescriptionString())).append("\"  \n")
                     .append(noops[level]).append(">\n");
 
         }

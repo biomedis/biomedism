@@ -5,6 +5,7 @@ import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.Complex;
 import ru.biomedis.biomedismair3.entity.Program;
 import ru.biomedis.biomedismair3.entity.Section;
+import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
 import javax.validation.constraints.NotNull;
 import java.io.File;
@@ -90,7 +91,7 @@ public class CreateFrequenciesFile
         StringBuilder strb=new StringBuilder();
         strb.append(noops[level]);
         md.initStringsProgram(program);
-        strb.append("<Program ").append("uuid=\"").append(program.getUuid()).append("\" ").append("name=\"").append(program.getNameString().replace("\"","&quot;")).append("\" ").append("frequencies=\"").append(program.getFrequencies()).append("\"/>\n");
+        strb.append("<Program ").append("uuid=\"").append(program.getUuid()).append("\" ").append("name=\"").append(TextUtil.escapeXML(program.getNameString())).append("\" ").append("frequencies=\"").append(program.getFrequencies()).append("\"/>\n");
         return strb.toString();
 
     }
@@ -105,7 +106,7 @@ public class CreateFrequenciesFile
         list.forEach(program -> {
             strb.append(noops[level]);
             strb.append("<Program ").append("uuid=\"").append(program.getUuid()).append("\" ").append("name=\"")
-                    .append(program.getNameString().replace("\"","&quot;")).append("\" ").append("frequencies=\"").append(program.getFrequencies()).append("\"/>\n");
+                    .append(TextUtil.escapeXML(program.getNameString())).append("\" ").append("frequencies=\"").append(program.getFrequencies()).append("\"/>\n");
         });
 
         return strb.toString();
@@ -118,7 +119,7 @@ public class CreateFrequenciesFile
 
         strb.append(noops[level]);
         int lvl=level+1;
-        strb.append("<Complex ").append("uuid=\"").append(complex.getUuid()).append("\" ").append("name=\"").append(complex.getNameString().replace("\"","&quot;")).append("\" ").append(">\n");
+        strb.append("<Complex ").append("uuid=\"").append(complex.getUuid()).append("\" ").append("name=\"").append(TextUtil.escapeXML(complex.getNameString())).append("\" ").append(">\n");
 
 
         List<Program> list = md.findAllProgramByComplex(complex);
@@ -138,7 +139,7 @@ public class CreateFrequenciesFile
         if(level!=0)//исключаем стартовый раздел
         {
             md.initStringsSection(section);
-            strb.append("<Section ").append("uuid=\"").append(section.getUuid()).append("\" ").append("name=\"").append(section.getNameString().replace("\"","&quot;")).append("\" ").append(">\n");
+            strb.append("<Section ").append("uuid=\"").append(section.getUuid()).append("\" ").append("name=\"").append(TextUtil.escapeXML(section.getNameString())).append("\" ").append(">\n");
 
         }
         int lvl=level+1;

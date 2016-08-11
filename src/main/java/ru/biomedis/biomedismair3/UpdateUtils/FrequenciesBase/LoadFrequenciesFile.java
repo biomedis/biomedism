@@ -4,6 +4,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import ru.biomedis.biomedismair3.ModelDataApp;
+import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -180,7 +181,7 @@ public class LoadFrequenciesFile
             {
                 if(attributes.getLength()!=0)
                 {
-                    listPrograms.add(new LoadFrequenciesFile.Program(attributes.getValue("name"),"",attributes.getValue("frequencies").replace(" ",""),attributes.getValue("uuid")));
+                    listPrograms.add(new LoadFrequenciesFile.Program(TextUtil.unEscapeXML(attributes.getValue("name")),"",attributes.getValue("frequencies").replace(" ",""),attributes.getValue("uuid")));
 
                 }
 

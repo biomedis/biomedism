@@ -1,5 +1,7 @@
 package ru.biomedis.biomedismair3.utils.Text;
 
+import java.text.CharacterIterator;
+import java.text.StringCharacterIterator;
 import java.util.regex.Pattern;
 
 /**
@@ -7,6 +9,77 @@ import java.util.regex.Pattern;
  */
 public class TextUtil
 {
+
+    public static String escapeXML(String s) {
+        StringBuilder result = new StringBuilder();
+        StringCharacterIterator i = new StringCharacterIterator(s);
+        char c =  i.current();
+        while (c != CharacterIterator.DONE ){
+            switch (c) {
+                case '<':
+                    result.append("&lt;");
+                    break;
+
+                case '>':
+                    result.append("&gt;");
+                    break;
+
+                case '"':
+                    result.append("&quot;");
+                    break;
+
+                case '\'':
+                    result.append("&apos;");
+                    break;
+
+                case '&':
+                    result.append("&amp;");
+                    break;
+
+                default:
+                    result.append(c);
+            }
+            c = i.next();
+        }
+        return result.toString();
+    }
+
+
+
+
+    public static String unEscapeXML(String text)
+    {
+        StringBuilder result = new StringBuilder(text.length());
+        int i = 0;
+        int n = text.length();
+        while (i < n) {
+            char charAt = text.charAt(i);
+            if (charAt != '&') {
+                result.append(charAt);
+                i++;
+            } else {
+                if (text.startsWith("&amp;", i)) {
+                    result.append('&');
+                    i += 5;
+                } else if (text.startsWith("&apos;", i)) {
+                    result.append('\'');
+                    i += 6;
+                } else if (text.startsWith("&quot;", i)) {
+                    result.append('"');
+                    i += 6;
+                } else if (text.startsWith("&lt;", i)) {
+                    result.append('<');
+                    i += 4;
+                } else if (text.startsWith("&gt;", i)) {
+                    result.append('>');
+                    i += 4;
+                } else i++;
+            }
+        }
+        return result.toString();
+    }
+
+
     /**
      * Проверит строку частот типа 5.4;6+5+6.7 на возможнность парсинга
      * @param freqs

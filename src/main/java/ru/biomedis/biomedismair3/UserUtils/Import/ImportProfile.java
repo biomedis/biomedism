@@ -5,6 +5,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
+import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -125,16 +126,16 @@ public class ImportProfile {
         //если все хорошо можно импортировать объекты в базу
         try {
 
-               profile.profile= mda.createProfile(profile.name.replace("&quot;","\""));
+               profile.profile= mda.createProfile(TextUtil.unEscapeXML(profile.name));
 
             for (Complex complex : listComplex) {
 
-                complex.complex =  mda.createTherapyComplex(profile.profile,complex.name.replace("&quot;","\""),complex.descr.replace("&quot;","\""),complex.timeForFreq,complex.mullty,complex.bundlesLength);
+                complex.complex =  mda.createTherapyComplex(profile.profile,TextUtil.unEscapeXML(complex.name),TextUtil.unEscapeXML(complex.descr),complex.timeForFreq,complex.mullty,complex.bundlesLength);
             }
 
             for (Program program : listProgram) {
 
-                mda.createTherapyProgram(listComplex.get(program.complexIndex).complex,program.name.replace("&quot;","\""),program.descr.replace("&quot;","\""),program.freqs);
+                mda.createTherapyProgram(listComplex.get(program.complexIndex).complex,TextUtil.unEscapeXML(program.name),TextUtil.unEscapeXML(program.descr),program.freqs);
             }
 
 

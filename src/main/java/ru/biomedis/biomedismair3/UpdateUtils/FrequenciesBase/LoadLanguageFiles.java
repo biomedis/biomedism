@@ -1,11 +1,14 @@
 package ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.Language;
 import ru.biomedis.biomedismair3.entity.LocalizedString;
+import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -105,25 +108,36 @@ public class LoadLanguageFiles
                 ru.biomedis.biomedismair3.entity.Program program = mda.getProgram(prog.uuid);
                 mda.initStringsProgram(program,lang);
                 if(program==null) continue;
-                if(prog.name.equals(program.getNameString()) && prog.descr.equals(program.getDescriptionString())) continue;
+
+                if(!prog.name.equals(program.getNameString()) )
+                {
 
 
-                LocalizedString localStringName = mda.getLocalString(program.getName(), lang);
-                if(localStringName==null) mda.addString(program.getName(),prog.name,lang);
-                else {
-                    localStringName.setContent(prog.name);
-                    mda.updateLocalString(localStringName);
+                    LocalizedString localStringName = mda.getLocalString(program.getName(), lang);
+                    if (localStringName == null) mda.addString(program.getName(), prog.name, lang);
+                    else {
+                        localStringName.setContent(prog.name);
+                        mda.updateLocalString(localStringName);
+                    }
+                    System.out.println("Обновлена программа "+prog.nameRus +" uuid= "+prog.uuid +" Имя было: "+program.getNameString()+" Стало:"+prog.name);
+
                 }
 
-                LocalizedString localStringDescr = mda.getLocalString(program.getDescription(), lang);
-                if(localStringDescr==null) mda.addString(program.getDescription(),prog.descr,lang);
-                else{
-                    localStringDescr.setContent(prog.descr);
-                    mda.updateLocalString(localStringDescr);
+                if(!prog.descr.equals(program.getDescriptionString()))
+                {
+
+
+                    LocalizedString localStringDescr = mda.getLocalString(program.getDescription(), lang);
+                    if(localStringDescr==null) mda.addString(program.getDescription(),prog.descr,lang);
+                    else{
+                        localStringDescr.setContent(prog.descr);
+                        mda.updateLocalString(localStringDescr);
+                    }
+
+                    System.out.println("Обновлена программа "+prog.nameRus +" uuid= "+prog.uuid +" Описание Было: "+program.getDescriptionString()+" Стало:"+prog.descr);
                 }
 
 
-                System.out.println("Обновлена программа "+prog.name +" uuid= "+prog.uuid);
 
 
 
@@ -134,25 +148,30 @@ public class LoadLanguageFiles
                 ru.biomedis.biomedismair3.entity.Complex itemComplex = mda.getComplex(complex.uuid);
                 mda.initStringsComplex(itemComplex,lang);
                 if(itemComplex==null) continue;
-                if(complex.name.equals(itemComplex.getNameString()) && complex.descr.equals(itemComplex.getDescriptionString())) continue;
+
+                if(!complex.name.equals(itemComplex.getNameString()) ) {
 
 
-                LocalizedString localStringName = mda.getLocalString(itemComplex.getName(), lang);
-                if(localStringName==null) mda.addString(itemComplex.getName(),complex.name,lang);
-                else {
-                    localStringName.setContent(complex.name);
-                    mda.updateLocalString(localStringName);
+                    LocalizedString localStringName = mda.getLocalString(itemComplex.getName(), lang);
+                    if (localStringName == null) mda.addString(itemComplex.getName(), complex.name, lang);
+                    else {
+                        localStringName.setContent(complex.name);
+                        mda.updateLocalString(localStringName);
+                    }
+                    System.out.println("Обновлена секция "+complex.nameRus +" uuid= "+complex.uuid +" Имя было: "+itemComplex.getNameString()+" Стало:"+complex.name);
                 }
 
-                LocalizedString localStringDescr = mda.getLocalString(itemComplex.getDescription(), lang);
-                if(localStringDescr==null) mda.addString(itemComplex.getDescription(),complex.descr,lang);
-                else{
-                    localStringDescr.setContent(complex.descr);
-                    mda.updateLocalString(localStringDescr);
+                if(!complex.descr.equals(itemComplex.getDescriptionString())) {
+                    LocalizedString localStringDescr = mda.getLocalString(itemComplex.getDescription(), lang);
+                    if (localStringDescr == null) mda.addString(itemComplex.getDescription(), complex.descr, lang);
+                    else {
+                        localStringDescr.setContent(complex.descr);
+                        mda.updateLocalString(localStringDescr);
+                    }
+                    System.out.println("Обновлена секция "+complex.nameRus +" uuid= "+complex.uuid +" Описание Было: "+itemComplex.getDescriptionString()+" Стало:"+complex.descr);
                 }
 
 
-                System.out.println("Обновлен комплекс "+complex.name +" uuid= "+complex.uuid);
 
 
 
@@ -164,25 +183,30 @@ public class LoadLanguageFiles
                 ru.biomedis.biomedismair3.entity.Section itemSection = mda.getSection(section.uuid);
                 mda.initStringsSection(itemSection,lang);
                 if(itemSection==null) continue;
-                if(section.name.equals(itemSection.getNameString()) && section.descr.equals(itemSection.getDescriptionString())) continue;
+                if(!section.name.equals(itemSection.getNameString()) ) {
 
 
-                LocalizedString localStringName = mda.getLocalString(itemSection.getName(), lang);
-                if(localStringName==null) mda.addString(itemSection.getName(),section.name,lang);
-                else {
-                    localStringName.setContent(section.name);
-                    mda.updateLocalString(localStringName);
+                    LocalizedString localStringName = mda.getLocalString(itemSection.getName(), lang);
+                    if (localStringName == null) mda.addString(itemSection.getName(), section.name, lang);
+                    else {
+                        localStringName.setContent(section.name);
+                        mda.updateLocalString(localStringName);
+                    }
+                    System.out.println("Обновлена секция "+section.nameRus +" uuid= "+section.uuid +" Имя было: "+itemSection.getNameString()+" Стало:"+section.name);
                 }
 
-                LocalizedString localStringDescr = mda.getLocalString(itemSection.getDescription(), lang);
-                if(localStringDescr==null) mda.addString(itemSection.getDescription(),section.descr,lang);
-                else{
-                    localStringDescr.setContent(section.descr);
-                    mda.updateLocalString(localStringDescr);
+                if(!section.descr.equals(itemSection.getDescriptionString())) {
+                    LocalizedString localStringDescr = mda.getLocalString(itemSection.getDescription(), lang);
+                    if (localStringDescr == null) mda.addString(itemSection.getDescription(), section.descr, lang);
+                    else {
+                        localStringDescr.setContent(section.descr);
+                        mda.updateLocalString(localStringDescr);
+                    }
+
+                    System.out.println("Обновлена секция "+section.nameRus +" uuid= "+section.uuid +" Описание Было: "+itemSection.getDescriptionString()+" Стало:"+section.descr);
                 }
 
 
-                System.out.println("Обновлена секция "+section.name +" uuid= "+section.uuid);
 
 
 
@@ -265,7 +289,7 @@ public class LoadLanguageFiles
             {
                 if(attributes.getLength()!=0)
                 {
-                    listPrograms.add(new LoadLanguageFiles.Program(attributes.getValue("name").replace("&quot;","\""),attributes.getValue("description").replace("&quot;","\""),attributes.getValue("uuid")));
+                    listPrograms.add(new LoadLanguageFiles.Program(TextUtil.unEscapeXML(attributes.getValue("name")),TextUtil.unEscapeXML(attributes.getValue("description")),attributes.getValue("uuid"),TextUtil.unEscapeXML(attributes.getValue("nameRussian"))));
 
                 }
 
@@ -277,7 +301,7 @@ public class LoadLanguageFiles
             {
                 if(attributes.getLength()!=0)
                 {
-                    listComplex.add(new LoadLanguageFiles.Complex(attributes.getValue("name").replace("&quot;","\""),attributes.getValue("description").replace("&quot;","\""),attributes.getValue("uuid")));
+                    listComplex.add(new LoadLanguageFiles.Complex(TextUtil.unEscapeXML(attributes.getValue("name")),TextUtil.unEscapeXML(attributes.getValue("description")),attributes.getValue("uuid"),TextUtil.unEscapeXML(attributes.getValue("nameRussian"))));
 
                 }
 
@@ -290,7 +314,7 @@ public class LoadLanguageFiles
             {
                 if(attributes.getLength()!=0)
                 {
-                    listSection.add(new LoadLanguageFiles.Section(attributes.getValue("name").replace("&quot;","\""),attributes.getValue("description").replace("&quot;","\""),attributes.getValue("uuid")));
+                    listSection.add(new LoadLanguageFiles.Section(TextUtil.unEscapeXML(attributes.getValue("name")),TextUtil.unEscapeXML(attributes.getValue("description")),attributes.getValue("uuid"),TextUtil.unEscapeXML(attributes.getValue("nameRussian"))));
 
                 }
 
@@ -330,45 +354,41 @@ public class LoadLanguageFiles
 
 
 
-
+@Data
+@AllArgsConstructor
     class Program
     {
         String name;
         String descr;
         String uuid;
+        String nameRus;
 
-        public Program(String name, String descr,String uuid) {
-            this.name = name;
-            this.descr = descr;
 
-            this.uuid=uuid;
-        }
+
     }
-
+    @Data
+    @AllArgsConstructor
     class Section
     {
         String name;
         String descr;
         String uuid;
+        String nameRus;
 
-        public Section(String name, String descr,String uuid) {
-            this.name = name;
-            this.descr = descr;
-            this.uuid=uuid;
-        }
+
+
     }
-
+    @Data
+    @AllArgsConstructor
     class Complex
     {
         String name;
         String descr;
         String uuid;
+        String nameRus;
 
-        public Complex(String name, String descr ,String uuid) {
-            this.name = name;
-            this.descr = descr;
-            this.uuid=uuid;
-        }
+
+
     }
 
     /**
