@@ -31,7 +31,10 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -46,6 +49,10 @@ import ru.biomedis.biomedismair3.Dialogs.NameDescroptionDialogController;
 import ru.biomedis.biomedismair3.Dialogs.ProgramDialogController;
 import ru.biomedis.biomedismair3.Dialogs.SearchProfile;
 import ru.biomedis.biomedismair3.Dialogs.TextInputValidationController;
+import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.CreateFrequenciesFile;
+import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.CreateLanguageFiles;
+import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadFrequenciesFile;
+import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadLanguageFiles;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportProfile;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportTherapyComplex;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportUserBase;
@@ -60,7 +67,9 @@ import ru.biomedis.biomedismair3.utils.Disk.DiskSpaceData;
 import ru.biomedis.biomedismair3.utils.Files.*;
 import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Path;
@@ -140,6 +149,20 @@ public class AppController  extends BaseController {
     @FXML
     private Tab tab3;
 
+    @FXML private Spinner<Integer> bundlesSpinner;
+
+    @FXML private HBox bundlesPan;
+    @FXML private VBox bundlesBtnPan;
+    @FXML private Button  btnOkBundles;
+    @FXML private Button  btnCancelBundles;
+
+
+    @FXML private HBox onameBoxProgram;
+    @FXML private HBox onameBoxComplex;
+
+    @FXML private Label onameProgram;
+    @FXML private Label onameComplex;
+    @FXML private Menu updateBaseMenu;
 
     private TableViewSkin<?> tableSkin;
     private VirtualFlow<?> virtualFlow;
@@ -217,13 +240,16 @@ public class AppController  extends BaseController {
 
     });
 
-  synchronized   public boolean isStopGCthread() {
+    synchronized   public boolean isStopGCthread() {
         return stopGCthread;
     }
 
     synchronized  public void setStopGCthread() {
         this.stopGCthread = true;
     }
+
+
+
 
 
     private SimpleBooleanProperty checkUppload=new SimpleBooleanProperty(false);
@@ -238,6 +264,22 @@ public class AppController  extends BaseController {
         }
 
 
+
+
+    /**
+     * Установка текста над табл комплексов
+     * @param name
+     */
+    private void setOnameComplex(String name){
+        onameComplex.setText(name);
+    }
+    /**
+     * Установка текста над табл программ
+     * @param name
+     */
+    private void setOnameProgram(String name){
+        onameProgram.setText(name);
+    }
     /**
      * Статус поиска по базе
      * Раздел открытый до поиска чиатается из ComboBox тк любое его изменение отменит поиск
@@ -330,6 +372,30 @@ public class AppController  extends BaseController {
         baseComplexTabName=res.getString("app.ui.tab2");
         baseProgramTabName=res.getString("app.ui.tab3");
 
+        updateBaseMenu.setVisible(getApp().isUpdateBaseMenuVisible());
+
+
+        onameComplex.textProperty().bind(new StringBinding() {
+            {
+                bind(tableComplex.getSelectionModel().selectedItemProperty());
+            }
+            @Override
+            protected String computeValue() {
+               if (tableComplex.getSelectionModel().getSelectedItem()==null) return "";
+                return tableComplex.getSelectionModel().getSelectedItem().getOname();
+            }
+        });
+
+        onameProgram.textProperty().bind(new StringBinding() {
+            {
+                bind(tableProgram.getSelectionModel().selectedItemProperty());
+            }
+            @Override
+            protected String computeValue() {
+                if (tableProgram.getSelectionModel().getSelectedItem()==null) return "";
+                return tableProgram.getSelectionModel().getSelectedItem().getOname();
+            }
+        });
 
 
         //настройка подписей в табах
@@ -499,6 +565,19 @@ public class AppController  extends BaseController {
         btnCancelSpinner.setGraphic(new ImageView(new Image(cancelUrl.toExternalForm())));
 
 /*******************/
+
+        /** Спиннер пачек частот **/
+
+        bundlesSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 1000, 1, 1));
+        bundlesSpinner.setEditable(true);
+        bundlesPan.setVisible(false);
+        bundlesBtnPan.setVisible(false);
+
+        btnOkBundles.setGraphic(new ImageView(new Image(okUrl.toExternalForm())));
+        btnCancelBundles.setGraphic(new ImageView(new Image(cancelUrl.toExternalForm())));
+
+/*******************/
+
 
         progress1Pane.setVisible(false);
         progress2Pane.setVisible(false);
@@ -886,7 +965,30 @@ public class AppController  extends BaseController {
                     if (tableComplex.getSelectionModel().getSelectedItem() != null) {
                         Program p = (Program) sectionTree.getSelectionModel().getSelectedItem().getValue();
                         try {
-                            TherapyProgram therapyProgram = getModel().createTherapyProgram(tableComplex.getSelectionModel().getSelectedItem(), p.getNameString(), p.getDescriptionString(), p.getFrequencies());
+
+                            //проверим язык програмы и язык вставки
+
+                            String il=getInsertComplexLang();
+                            String lp=getModel().getProgramLanguage().getAbbr();
+
+                            String name="";
+                            String oname="";
+                            String descr="";
+
+                            if(il.equals(lp))
+                            {
+                                name=p.getNameString();
+                                descr=p.getDescriptionString();
+                            }else {
+                                //вставим имя на языке вставки.
+                                oname=p.getNameString();
+                                name = getModel().getString2(p.getName(),getModel().getLanguage(il));
+                                descr=getModel().getString2(p.getDescription(),getModel().getLanguage(il));
+                            }
+
+
+
+                            TherapyProgram therapyProgram = getModel().createTherapyProgram(tableComplex.getSelectionModel().getSelectedItem(), name, descr, p.getFrequencies(),oname);
                             tableProgram.getItems().add(therapyProgram);
                             updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(), false);
                             therapyTabPane.getSelectionModel().select(2);//выберем таб с программами
@@ -918,7 +1020,7 @@ public class AppController  extends BaseController {
                         Complex c = (Complex) sectionTree.getSelectionModel().getSelectedItem().getValue();
 
                         try {
-                            TherapyComplex th = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), c, 300, true);
+                            TherapyComplex th = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), c, 300, true,1,getInsertComplexLang());
 
                             //therapyComplexItems.clear();
                             //therapyComplexItems содержит отслеживаемый список, элементы которого добавляются в таблицу. Его не нужно очищать
@@ -990,6 +1092,7 @@ initTables();
              btnDeleteTherapy.disableProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNull());
 
            spinnerPan.visibleProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNotNull());
+           bundlesPan.visibleProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNotNull());
 
 
          btnDeleteProgram.disableProperty().bind(tableProgram.getSelectionModel().selectedItemProperty().isNull());
@@ -1155,10 +1258,7 @@ initTables();
         weightCol.setSortable(false);
 
 
-        tableProfile.setOnKeyReleased(event ->
-        {
-            if(event.getCode()==KeyCode.DELETE) onRemoveProfile();
-        });
+
 
     /**********/
 
@@ -1330,6 +1430,7 @@ initTables();
         mic1.setOnAction((event2) -> {
             this.copyTherapyComplexToBase();
         });
+
         mic2.setOnAction((event2) -> {
             this.generateComplexes();
         });
@@ -1351,7 +1452,7 @@ initTables();
 
                 while(tag.hasNext()) {
                     TherapyComplex therapyComplex = (TherapyComplex)tag.next();
-                    if(this.getModel().hasNeedGenerateProgramInComplex(therapyComplex)) {
+                    if( therapyComplex.isChanged() || this.getModel().hasNeedGenerateProgramInComplex(therapyComplex) ) {
                         mic2.setDisable(false);
                         mic3.setDisable(true);
                         break;
@@ -1378,16 +1479,6 @@ initTables();
 
 
 
-        this.tableComplex.setOnKeyReleased((e) -> {
-            if(e.getCode() == KeyCode.DELETE) {
-                this.onRemoveComplex();
-            }
-
-            if(e.getCode() == KeyCode.A && e.isControlDown()) {
-                this.tableComplex.getSelectionModel().selectAll();
-            }
-
-        });
         /**********/
 
 
@@ -1431,7 +1522,7 @@ initTables();
         });
 
 
-        //общая длительность, зависит от количества  частот и мультичастотного режима, также времени на частоту
+        //общая длительность, зависит от количества  частот и мультичастотного режима, также времени на частоту и пачек частот
         TableColumn<TherapyProgram,String> timeColTP=new TableColumn<>(res.getString("app.table.delay"));
         timeColTP.setCellValueFactory(param ->
         {
@@ -1452,8 +1543,17 @@ initTables();
 
             }else
             {
+                final TherapyComplex selectedComplex = tableComplex.getSelectionModel().getSelectedItem();
+                int freqBundlesCount=1;//сколько пачек получем из частот программы
+                if( selectedComplex.isMulltyFreq() &&  selectedComplex.getBundlesLength()>=2){
+                    int numFreqsForce = param.getValue().getNumFreqsForce();
+                    freqBundlesCount=(int)Math.ceil((float)numFreqsForce/(float)selectedComplex.getBundlesLength());
+                }
+
+
+
                 return new SimpleStringProperty(DateUtil.convertSecondsToHMmSs(
-                        tableComplex.getSelectionModel().getSelectedItem().isMulltyFreq() ? tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency() : param.getValue().getNumFreqs() * tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency()));
+                        selectedComplex.isMulltyFreq() ? selectedComplex.getTimeForFrequency()*freqBundlesCount : param.getValue().getNumFreqs() * selectedComplex.getTimeForFrequency()));
             }
         });
 
@@ -1568,9 +1668,45 @@ initTables();
         timeColTP.setSortable(false);
         fileCol.setSortable(false);
 
+        tableProfile.setOnKeyReleased(event ->
+        {
+            if(event.getCode()==KeyCode.DELETE) onRemoveProfile();
+            if(event.getCode()==KeyCode.RIGHT){
+                therapyTabPane.getSelectionModel().select(1);
+                tableComplex.requestFocus();
+                if(tableComplex.getItems().size()!=0){tableComplex.getFocusModel().focus(0);tableComplex.getSelectionModel().select(0);}
+            }
+        });
 
+        this.tableComplex.setOnKeyReleased((e) -> {
+            if(e.getCode() == KeyCode.DELETE) {
+                this.onRemoveComplex();
+            }
+
+            if(e.getCode() == KeyCode.A && e.isControlDown()) {
+                this.tableComplex.getSelectionModel().selectAll();
+            }
+
+            if(e.getCode()==KeyCode.RIGHT) {
+                therapyTabPane.getSelectionModel().select(2);
+                tableProgram.requestFocus();
+                if(tableProgram.getItems().size()!=0){tableProgram.getFocusModel().focus(0);tableProgram.getSelectionModel().select(0);}
+            }
+            if(e.getCode()==KeyCode.LEFT) {
+                therapyTabPane.getSelectionModel().select(0);
+                tableProfile.requestFocus();
+                if(tableProfile.getItems().size()!=0){tableProfile.getFocusModel().focus(0);tableProfile.getSelectionModel().select(0);}
+            }
+
+        });
         tableProgram.setOnKeyReleased(e ->{
             if(e.getCode()==KeyCode.DELETE) onRemoveProgram();
+            if(e.getCode()==KeyCode.LEFT) {
+                therapyTabPane.getSelectionModel().select(1);
+                tableComplex.requestFocus();
+                if(tableComplex.getItems().size()!=0){tableComplex.getFocusModel().focus(0);tableComplex.getSelectionModel().select(0);}
+            }
+
         });
 //контекстное меню для программ - вырезать и вставить, зависит от выбрано или нет
 
@@ -1748,6 +1884,7 @@ initTables();
             if (oldValue != newValue) {
                 //закроем кнопки спинера времени на частоту
                 hideTFSpinnerBTNPan();
+                hideBundlesSpinnerBTNPan();
 
                 tableComplex.getItems().clear();
                 //добавляем через therapyComplexItems иначе не будет работать event на изменение элементов массива и не будут работать галочки мультичастот
@@ -1773,8 +1910,8 @@ initTables();
 
             if (oldValue != newValue) {
                 //закроем кнопки спинера времени на частоту, при переключении компелекса
-                if(newValue!=null) hideTFSpinnerBTNPan(newValue.getTimeForFrequency());
-                else  hideTFSpinnerBTNPan();
+                if(newValue!=null) {hideTFSpinnerBTNPan(newValue.getTimeForFrequency()); hideBundlesSpinnerBTNPan(newValue.getBundlesLength());}
+                else  {hideTFSpinnerBTNPan(); hideBundlesSpinnerBTNPan();}
 
                 tableProgram.getItems().clear();
 
@@ -1790,13 +1927,15 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
     if(spinnerBtnPan.isVisible()) {
         //закроем кнопки спинера времени на частоту, при переключении на программу
 
-      if(tableComplex.getSelectionModel().getSelectedItem()!=null)  hideTFSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency());
-        else hideTFSpinnerBTNPan();
+      if(tableComplex.getSelectionModel().getSelectedItem()!=null)  {
+          hideTFSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency());
+          hideBundlesSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
+      }
+        else { hideTFSpinnerBTNPan();hideBundlesSpinnerBTNPan();}
     }
 });
 
         /***** Спиннер времени на частоту ****/
-
 
         //показывает кнопки при изменениях спинера
         timeToFreqSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {if(oldValue!=newValue) spinnerBtnPan.setVisible(true);});
@@ -1869,6 +2008,52 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
 
         /***************/
+
+        /***** Спиннер пачек частот ****/
+
+        //показывает кнопки при изменениях спинера
+        bundlesSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {if(oldValue!=newValue) bundlesBtnPan.setVisible(true);});
+        //кнопка отмены
+        btnCancelBundles.setOnAction(event ->hideBundlesSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength()) );
+
+        //принять изменения времени
+        btnOkBundles.setOnAction(event ->
+        {
+
+
+            if(!this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
+                List<TherapyComplex> items = new ArrayList<>(this.tableComplex.getSelectionModel().getSelectedItems());
+
+                try {
+
+
+                    for(TherapyComplex item:items) {
+
+
+                        item.setBundlesLength(this.bundlesSpinner.getValue());
+                        item.setChanged(true);
+                        this.getModel().updateTherapyComplex(item);
+                        this.btnGenerate.setDisable(false);                   }
+
+                    this.updateComplexsTime(items, true);
+                } catch (Exception var8) {
+                    this.hideBundlesSpinnerBTNPan(this.tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
+                    Log.logger.error("", var8);
+                    showExceptionDialog("Ошибка обновления времени в терапевтическом комплексе", "", "", var8, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                } finally {
+                    this.hideTFSpinnerBTNPan();
+                }
+
+            }
+        });
+
+
+        /***************/
+
+
+
+
+
         //помогает узнать видимые строки
      //   loadVirtualFlowTableProgramm();
 
@@ -2063,6 +2248,20 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
     }
 
+
+    private void hideBundlesSpinnerBTNPan(int val)
+    {
+        bundlesSpinner.getValueFactory().setValue(val);
+        bundlesBtnPan.setVisible(false);
+
+    }
+    private void hideBundlesSpinnerBTNPan()
+    {
+
+        bundlesBtnPan.setVisible(false);
+
+    }
+
     /**
      * перерсчтет времени на профиль. Профиль инстанс из таблицы.
      * @param p
@@ -2126,30 +2325,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
 
 
-    /**
-     * Время в секундах выбранной программы
-     * @return
-     */
-    private int timeCurrentProgramm()
-    {
-        if(tableComplex.getSelectionModel().getSelectedItem()==null)return 0;
-       return tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency()*tableProgram.getSelectionModel().getSelectedItem().getNumFreqs();
 
-
-    }
-
-    /**
-     * Текущая длительность комплекса
-     * @return
-     */
-    private int timeCurrentComplex()
-    {
-        if (tableComplex.getSelectionModel().getSelectedItem()==null)return 0;
-
-      return   tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency() *  tableProgram.getItems().stream().mapToInt(value -> value.getNumFreqs()).sum();
-
-
-    }
 
     /**
      * Заполнит дерево разделов
@@ -4444,7 +4620,7 @@ private void setInfoMessage(String message)
         {
 
             try {
-                TherapyComplex therapyComplex = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), data.getNewName(), data.getNewDescription(), 300, true);
+                TherapyComplex therapyComplex = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), data.getNewName(), data.getNewDescription(), 300, true,1);
                 //therapyComplexItems.clear();
                 therapyComplexItems.add(therapyComplex);
                 tableComplex.getItems().add(therapyComplexItems.get(therapyComplexItems.size()-1));
@@ -5181,7 +5357,7 @@ class ForceCopyProfile
                     //System.out.println("OK");
                     // System.out.print("Создание текста программы: " + nameFile + ".txt...");
                     FilesProfileHelper.copyTxt(therapyProgram.getFrequencies(), cMap2.get(entry.getKey()), therapyProgram.getId().longValue(),
-                            therapyProgram.getUuid(), entry.getKey(), therapyComplex.isMulltyFreq(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()),false, new File(tempFile, nameFile + ".txt"));
+                            therapyProgram.getUuid(), entry.getKey(), therapyComplex.isMulltyFreq(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()),false, new File(tempFile, nameFile + ".txt"));
                     // System.out.println("OK");
                 }else
                     {
@@ -5202,7 +5378,7 @@ class ForceCopyProfile
                             FilesProfileHelper.copyBSS(new File(therapyProgram.getFrequencies()),new File(tempFile, nameFile + ".bss"));
 
                             FilesProfileHelper.copyTxt(therapyProgram.getFrequencies(), cMap2.get(entry.getKey()), therapyProgram.getId().longValue(),
-                                    therapyProgram.getUuid(), entry.getKey(), therapyComplex.isMulltyFreq(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()),true, new File(tempFile, nameFile + ".txt"));
+                                    therapyProgram.getUuid(), entry.getKey(), therapyComplex.isMulltyFreq(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()),true, new File(tempFile, nameFile + ".txt"));
 
 
 
@@ -5370,7 +5546,7 @@ class ForceCopyProfile
                 tempFile= new File(devicePath.toFile(),(++cnt)+"-"+entry.getValue());
 
                 FilesProfileHelper.copyDir(tempFile);
-                tDComplexes.add(new ComplexFileData(entry.getKey(),cnt+"-"+entry.getValue(),cMap2.get(entry.getKey()),therapyComplex.isMulltyFreq(),tempFile));
+                tDComplexes.add(new ComplexFileData(entry.getKey(),cnt+"-"+entry.getValue(),cMap2.get(entry.getKey()),therapyComplex.isMulltyFreq(),therapyComplex.getBundlesLength(),tempFile));
 
             }
         }catch (Exception e)
@@ -5449,7 +5625,7 @@ class ForceCopyProfile
                                 // System.out.println("OK");
                                 //  System.out.print("Создание текста программы: " + nameFile1 + "...");
                                 FilesProfileHelper.copyTxt(program.getFrequencies(), therapyComplex.getTimeForFrequency(), program.getId().longValue(),
-                                        program.getUuid(), tDComplex.getId(), therapyComplex.isMulltyFreq(), TextUtil.replaceWinPathBadSymbols(program.getName()),
+                                        program.getUuid(), tDComplex.getId(), therapyComplex.isMulltyFreq(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(program.getName()),
                                         false, new File(tDComplex.getFile(), nameFile1));
                                 //System.out.println("OK");
                             }else
@@ -5472,7 +5648,7 @@ class ForceCopyProfile
                                     FilesProfileHelper.copyBSS(new File(program.getFrequencies()),new File(tDComplex.getFile(), nameFile + ".bss"));
 
                                     FilesProfileHelper.copyTxt(program.getFrequencies(), therapyComplex.getTimeForFrequency(), program.getId().longValue(),
-                                            program.getUuid(), tDComplex.getId(), therapyComplex.isMulltyFreq(), TextUtil.replaceWinPathBadSymbols(program.getName()),
+                                            program.getUuid(), tDComplex.getId(), therapyComplex.isMulltyFreq(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(program.getName()),
                                             true, new File(tDComplex.getFile(), nameFile1));
 
 
@@ -5562,7 +5738,7 @@ class ForceCopyProfile
                             //System.out.println("OK");
                             // System.out.print("Создание текста программы: " + nameFile1 + "...");
                             FilesProfileHelper.copyTxt(program.getFrequencies(), therapyComplex.getTimeForFrequency(), program.getId().longValue(),
-                                    program.getUuid(), tDComplex.getId(), therapyComplex.isMulltyFreq(), TextUtil.replaceWinPathBadSymbols(program.getName()), false, new File(tDComplex.getFile(), nameFile1));
+                                    program.getUuid(), tDComplex.getId(), therapyComplex.isMulltyFreq(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(program.getName()), false, new File(tDComplex.getFile(), nameFile1));
                             // System.out.println("OK");
                         }else
                         {
@@ -5582,7 +5758,7 @@ class ForceCopyProfile
                                 FilesProfileHelper.copyBSS(new File(program.getFrequencies()),new File(tDComplex.getFile(), nameFile + ".bss"));
 
                                 FilesProfileHelper.copyTxt(program.getFrequencies(), therapyComplex.getTimeForFrequency(), program.getId().longValue(),
-                                        program.getUuid(), tDComplex.getId(), therapyComplex.isMulltyFreq(), TextUtil.replaceWinPathBadSymbols(program.getName()),
+                                        program.getUuid(), tDComplex.getId(), therapyComplex.isMulltyFreq(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(program.getName()),
                                         true, new File(tDComplex.getFile(), nameFile1));
 
 
@@ -5660,6 +5836,9 @@ class ForceCopyProfile
 
         File dir= dirChooser.showDialog(getApp().getMainWindow());
         if(dir==null)return;
+        if(!dir.exists()) {
+            showWarningDialog(res.getString("app.upload_to_dir"),  res.getString("app.ui.dir_not_exist"), "", getApp().getMainWindow(), Modality.WINDOW_MODAL);
+            return;}
 
         int cnt = dir.list().length;
         if(cnt!=0)
@@ -6335,32 +6514,40 @@ class ForceCopyProfile
         String uuidP;
         String nameP;
         Profile profile=null;
-        if(profileParam.isEmpty())
+
+
+        if(!profileParam.isEmpty())
         {
             idProf=Long.parseLong(profileParam.get(0));
             uuidP=profileParam.get(1);
             nameP=profileParam.get(2);
         }else {
              idProf=0;
-             uuidP="jsdfuidj7y47";
+             uuidP=UUID.randomUUID().toString();
              nameP="New profile";
 
         }
 
+        final String up=uuidP;
 
-       long cnt= tableProfile.getItems().stream().filter(itm->itm.getUuid().equals(uuidP)).count();
+       long cnt= tableProfile.getItems().stream().filter(itm->itm.getUuid().equals(up)).count();
         if(cnt!=0)
         {
             //имеется уже такой профиль с такой сигнатурой!!
-
+        /*
             Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.title119"), res.getString("app.title120"), res.getString("app.title121"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
         if(buttonType.isPresent())
         {
                 if(buttonType.get()!=okButtonType) return false;
 
         }else return false;
+    */
+            idProf=0;
+            uuidP=UUID.randomUUID().toString();
+            nameP="New profile";
 
         }
+
         //получим список комплексов
 
         try {
@@ -6385,7 +6572,7 @@ class ForceCopyProfile
                     if(ind==-1) ind= complexFileDataMapEntry.getKey().getName().length()-1;
                     if(ind2==-1) ind2= 0;
 
-                    th=  getModel().createTherapyComplex(profile, complexFileDataMapEntry.getKey().getName().substring(ind2+1,ind), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(), complexFileDataMapEntry.getKey().isMullty());
+                    th=  getModel().createTherapyComplex(profile, complexFileDataMapEntry.getKey().getName().substring(ind2+1,ind), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(), complexFileDataMapEntry.getKey().isMullty(),complexFileDataMapEntry.getKey().getBundlesLength());
 
 
 
@@ -6449,7 +6636,7 @@ class ForceCopyProfile
                 for (Map.Entry<ComplexFileData, Map<Long, ProgramFileData>> complexFileDataMapEntry : data.entrySet())
                 {
 
-                    th=  getModel().createTherapyComplex(profile, complexFileDataMapEntry.getKey().getName(), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(), complexFileDataMapEntry.getKey().isMullty());
+                    th=  getModel().createTherapyComplex(profile, complexFileDataMapEntry.getKey().getName(), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(), complexFileDataMapEntry.getKey().isMullty(),1);
 
 
 
@@ -6625,14 +6812,14 @@ return  true;
 
 
 
-                        getModel().createTherapyComplex(profile, name, "", 300, true);
+                        getModel().createTherapyComplex(profile, name, "", 300, true,1);
 
 
                     }else
                     {
                         Long next = programms.keySet().iterator().next();
 
-                        TherapyComplex th = getModel().createTherapyComplex(profile, name, "", (int) programms.get(next).getTimeForFreq(), true);
+                        TherapyComplex th = getModel().createTherapyComplex(profile, name, "", (int) programms.get(next).getTimeForFreq(), true,(int) programms.get(next).getBundlesLenght());
 
 
                         for (Map.Entry<Long, ProgramFileData> entry : programms.entrySet())
@@ -6744,7 +6931,7 @@ return  true;
 
 
     /**
-     * Импорт терап.комплекса из папки
+     * Импорт терап.комплексов из папки
      */
     public void onImportComplex()
     {
@@ -7066,6 +7253,11 @@ return  true;
                 final File dir = dirChooser.showDialog(getApp().getMainWindow());
                 if(dir != null)
                 {
+                    if(!dir.exists()) {
+                        showWarningDialog(res.getString("app.upload_to_dir"),  res.getString("app.ui.dir_not_exist"), "", getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                        return;}
+
+
                     try {
                         //максимальное значение нумерации комплексов в папке.
                          int e = 0;
@@ -7121,7 +7313,7 @@ return  true;
                                                 ++count2;
                                                 timeP = strb2.append(count2).append("-").append(TextUtil.replaceWinPathBadSymbols(therapyProgram.getName())).append(" (").append(AppController.this.replaceTime(mp3file)).append(")").toString();
                                                 FilesProfileHelper.copyBSS(new File(BaseController.getApp().getDataDir(), therapyProgram.getId() + ".dat"), new File(tempFile, timeP + ".bss"));
-                                                FilesProfileHelper.copyTxt(therapyProgram.getFrequencies(), (cMap2.get(entry.getKey())).intValue(), therapyProgram.getId().longValue(), therapyProgram.getUuid(), (entry.getKey()).longValue(), therapyComplex.isMulltyFreq(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()), false, new File(tempFile, timeP + ".txt"));
+                                                FilesProfileHelper.copyTxt(therapyProgram.getFrequencies(), (cMap2.get(entry.getKey())).intValue(), therapyProgram.getId().longValue(), therapyProgram.getUuid(), (entry.getKey()).longValue(), therapyComplex.isMulltyFreq(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()), false, new File(tempFile, timeP + ".txt"));
                                             } else {
                                                 mp3file = null;
 
@@ -7138,7 +7330,7 @@ return  true;
                                                     ++count2;
                                                     String nameFile = strb2.append(count2).append("-").append(TextUtil.replaceWinPathBadSymbols(therapyProgram.getName())).append(" (").append(AppController.this.replaceTime(timeP)).append(")").toString();
                                                     FilesProfileHelper.copyBSS(new File(therapyProgram.getFrequencies()), new File(tempFile, nameFile + ".bss"));
-                                                    FilesProfileHelper.copyTxt(therapyProgram.getFrequencies(), (cMap2.get(entry.getKey())).intValue(), therapyProgram.getId().longValue(), therapyProgram.getUuid(), (entry.getKey()).longValue(), therapyComplex.isMulltyFreq(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()), true, new File(tempFile, nameFile + ".txt"));
+                                                    FilesProfileHelper.copyTxt(therapyProgram.getFrequencies(), (cMap2.get(entry.getKey())).intValue(), therapyProgram.getId().longValue(), therapyProgram.getUuid(), (entry.getKey()).longValue(), therapyComplex.isMulltyFreq(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()), true, new File(tempFile, nameFile + ".txt"));
                                                 }
                                             }
                                         }
@@ -7309,8 +7501,473 @@ return  true;
         }
     }
 
+ public void    onLanguageInsertComplexOption(){
 
 
+
+     try {
+         openDialog(getApp().getMainWindow(),"/fxml/language_insert_complex_option_dlg.fxml",res.getString("app.menu.insert_language"),false,StageStyle.DECORATED,0,0,0,0);
+     } catch (IOException e) {
+         logger.error("",e);
+     }
+ }
+
+    /**
+     * Абривиатура языка вставки комплекса
+     * @return Пустое значение, если неудачно
+     */
+   public  String getInsertComplexLang(){
+        try {
+            return  getModel().getOption("app.lang_insert_complex");
+        } catch (Exception e) {
+            logger.error("Ошибка получения языка вставки комплекса",e);
+        }
+       return "";
+   }
+
+
+/******* Обновления базы ****/
+    /**
+     * Языковые файлы
+     */
+    public void onCreateLanguageFiles()
+    {
+        File file=null;
+
+
+        DirectoryChooser dirChooser =new DirectoryChooser();
+        dirChooser.setTitle("Создание  языковых файлов. Выбор директории");
+        dirChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        file= dirChooser.showDialog(getApp().getMainWindow());
+
+        if(file==null)return;
+
+        CreateLanguageFiles.export(file,getModel());
+        showInfoDialog("Создание  языковых файлов.","","Завершено",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+
+    }
+
+
+    public void onloadLanguageFiles()
+    {
+        List<File> files=null;
+
+
+        FileChooser fileChooser =new FileChooser();
+        fileChooser.setTitle("Загрузка языковых файлов");
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xml", "*.xml"));
+        files= fileChooser.showOpenMultipleDialog(getApp().getMainWindow());
+
+        if(files==null)return;
+
+        LoadLanguageFiles ll=new LoadLanguageFiles();
+        if( ll.parse(files,getModel())) showInfoDialog("Загрузка языковых файлов","","Все нормально. Результаты в консоли",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        else showErrorDialog("Загрузка языковых файлов","","Есть ошибки. Результаты в консоли",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+
+    }
+
+    /**
+     * Файл для правки частот
+     */
+    public void onCreateUpdateFreqFile()
+    {
+        File file=null;
+
+
+        FileChooser fileChooser =new FileChooser();
+        fileChooser.setTitle("Создание файла частот");
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("freqbase", "*.freqbase"));
+        file= fileChooser.showSaveDialog(getApp().getMainWindow());
+
+        if(file==null)return;
+       if( CreateFrequenciesFile.export(file,getModel())) showInfoDialog("Создание файла частот","","Файл создан",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        else showErrorDialog("Создание файла частот","","Файл не создан",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+
+
+    }
+
+    public void onLoadUpdateFreqFile(){
+        File file=null;
+
+
+        FileChooser fileChooser =new FileChooser();
+        fileChooser.setTitle("Загрузка файла частот");
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("freqbase", "*.freqbase"));
+        file= fileChooser.showOpenDialog(getApp().getMainWindow());
+
+        if(file==null)return;
+        LoadFrequenciesFile lf=new LoadFrequenciesFile();
+
+        try {
+            lf.parse(file,getModel());
+            showInfoDialog("Загрузка файла частот","","Файл загружен",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        } catch (Exception e) {
+           logger.error("Ошибка загрузки файла частот",e);
+            showErrorDialog("Загрузка файла частот","","Файл не загружен",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        }
+
+
+    }
+/**********/
+
+
+    /**
+     *Создать бекап
+     */
+    public void onRecoveryCreate(){
+
+
+
+        List<Section> collect = baseCombo.getItems().stream().filter(section -> "USER".equals(section.getTag())).collect(Collectors.toList());
+        Section userSection=null;
+        if(collect.isEmpty()) return;
+        userSection=collect.get(0);
+        collect=null;
+
+
+
+
+
+
+
+
+
+
+        //получим путь к файлу.
+        File file=null;
+
+        getModel().initStringsSection(userSection);
+        FileChooser fileChooser =new FileChooser();
+       fileChooser.setTitle(res.getString("ui.backup.create_backup"));
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("brecovery", "*.brecovery"));
+        file= fileChooser.showSaveDialog(getApp().getMainWindow());
+
+        if(file==null)return;
+
+
+
+
+
+
+
+
+
+
+        final Section sec=userSection;
+        final File zipFile=file;
+
+        setProgressBar(0.0, res.getString("ui.backup.create_backup"), "");
+
+
+        Task<Boolean> task =new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception
+            {
+                File recoveryDir=new File(getApp().getTmpDir(),"recovery");
+                if(!recoveryDir.exists())if(!recoveryDir.mkdir()) return false;
+
+                File baseFile=new File(recoveryDir,"base.xmlb");
+
+                boolean res1= ExportUserBase.export(sec, baseFile, getModel());
+                if(res1==false) {this.failed();return false;}
+
+                List<Profile> allProfiles = getApp().getModel().findAllProfiles();
+                this.updateProgress(1,allProfiles.size()+2);
+                boolean res2=true;
+                File profDir=new File(recoveryDir,"profiles");
+                if(!profDir.exists())if(!profDir.mkdir()) return false;
+                int cnt=1;
+                for (Profile profile : allProfiles) {
+                    res2= ExportProfile.export(profile,new File(profDir,profile.getId()+".xmlp"),getModel());
+                    if(res2==false) break;
+                    this.updateProgress(++cnt,allProfiles.size()+2);
+                }
+                if(res2==false) {this.failed();return false;}
+                boolean res3=true;
+                res3 = ZIPUtil.zipFolder(recoveryDir,zipFile);
+                return res1 && res2 && res3;
+            }
+        };
+
+
+
+        task.progressProperty().addListener((observable, oldValue, newValue) -> {
+            setProgressBar(newValue.doubleValue(), res.getString("ui.backup.create_backup"), "");
+        });
+
+
+        task.setOnRunning(event1 -> setProgressBar(0.0, res.getString("ui.backup.create_backup"), ""));
+
+        task.setOnSucceeded(event ->
+        {
+            Waiter.closeLayer();
+            if (task.getValue()) {
+                hideProgressBar(false);
+                setProgressIndicator(1.0, res.getString("app.title103"));
+
+            } else {
+                hideProgressBar(false);
+                setProgressIndicator(res.getString("app.title93"));
+            }
+            hideProgressIndicator(true);
+
+
+        });
+
+        task.setOnFailed(event -> {
+            Waiter.closeLayer();
+            hideProgressBar(false);
+            setProgressIndicator(res.getString("app.title93"));
+            hideProgressIndicator(true);
+
+
+        });
+
+
+        Thread threadTask=new Thread(task);
+        threadTask.setDaemon(true);
+        setProgressBar(0.01, res.getString("app.title102"), "");
+
+
+        Waiter.openLayer(getApp().getMainWindow(),false);
+
+        threadTask.start();
+        Waiter.show();
+
+
+
+
+
+    }
+
+
+    /**
+     * Загрузить бекап
+     *
+     */
+    public void onRecoveryLoad(){
+
+
+        List<Section> collect = baseCombo.getItems().stream().filter(section -> "USER".equals(section.getTag())).collect(Collectors.toList());
+        Section userSection=null;
+        if(collect.isEmpty()) return;
+        userSection=collect.get(0);
+        collect=null;
+
+        //получим путь к файлу.
+        File file=null;
+
+        getModel().initStringsSection(userSection);
+        FileChooser fileChooser =new FileChooser();
+        fileChooser.setTitle(res.getString("ui.backup.load_backup"));
+        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("brecovery", "*.brecovery"));
+        file= fileChooser.showOpenDialog(getApp().getMainWindow());
+
+        if(file==null)return;
+
+
+
+        final Section sec=userSection;
+        final File zipFile=file;
+
+        setProgressBar(0.0, res.getString("ui.backup.load_backup"), "");
+
+
+
+        Task<Boolean> task =new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception
+            {
+                getApp().recursiveDeleteTMP();
+
+                File recoveryDir=new File(getApp().getTmpDir(),"recovery");
+                if(!recoveryDir.exists())if(!recoveryDir.mkdir()) return false;
+
+
+                boolean res1 = ZIPUtil.unZip(zipFile,recoveryDir);
+
+
+
+                File profDir=new File(recoveryDir,"profiles");
+                boolean res2 =true;
+                File[] files = profDir.listFiles((dir, name) -> name.contains(".xmlp"));
+                int pCount= files.length;
+                this.updateProgress(1,pCount+2);
+                int cnt=1;
+                for (File f : files)
+                {
+                    ImportProfile imp=new ImportProfile();
+                    imp.setListener(new ImportProfile.Listener() {
+                        @Override
+                        public void onStartParse() {}
+
+                        @Override
+                        public void onEndParse() {}
+
+                        @Override
+                        public void onStartAnalize()  {}
+                        @Override
+                        public void onEndAnalize() {}
+                        @Override
+                        public void onStartImport() {}
+
+                        @Override
+                        public void onEndImport()  {}
+
+                        @Override
+                        public void onSuccess()  {}
+
+                        @Override
+                        public void onError(boolean fileTypeMissMatch) {
+
+                        }
+                    });
+
+                    boolean res= imp.parse(f, getModel());
+                    imp.setListener(null);
+                    if(res==false)
+                    {
+
+                        res2=false;
+                        break;
+                        }
+                    this.updateProgress(++cnt,pCount+2);
+
+                }
+
+                //база
+
+                ImportUserBase imp=new ImportUserBase();
+
+                        imp.setListener(new ImportUserBase.Listener() {
+                            @Override
+                            public void onStartParse() {
+
+                            }
+
+                            @Override
+                            public void onEndParse() {
+
+                            }
+
+                            @Override
+                            public void onStartAnalize() {
+
+                            }
+
+                            @Override
+                            public void onEndAnalize() {
+
+                            }
+
+                            @Override
+                            public void onStartImport() {
+
+                            }
+
+                            @Override
+                            public void onEndImport() {
+
+                            }
+
+                            @Override
+                            public void onSuccess() {
+
+                            }
+
+                            @Override
+                            public void onError(boolean fileTypeMissMatch) {
+
+                            }
+                        });
+
+
+                        boolean res3= imp.parse( new File(recoveryDir,"base.xmlb"), getModel(),sec);
+                       imp.setListener(null);
+
+                getApp().recursiveDeleteTMP();
+                return res1 && res2 && res3;
+            }
+        };
+
+
+
+        task.progressProperty().addListener((observable, oldValue, newValue) -> {
+            setProgressBar(newValue.doubleValue(), res.getString("ui.backup.load_backup"), "");
+        });
+
+
+        task.setOnRunning(event1 -> setProgressBar(0.0, res.getString("ui.backup.load_backup"), ""));
+
+
+        int count_profiles=getModel().countProfile();
+
+        task.setOnSucceeded(event ->
+        {
+            Waiter.closeLayer();
+            if (task.getValue()) {
+                hideProgressBar(false);
+                setProgressIndicator(1.0, res.getString("app.title103"));
+                if(getModel().countProfile()!=0)
+                {
+                    if(count_profiles==0){
+                        tableProfile.getItems().addAll(getModel().findAllProfiles());
+                    }
+                    else if(count_profiles<getModel().countProfile())tableProfile.getItems().addAll(getModel().findAllProfiles().subList(count_profiles,getModel().countProfile()));
+
+                    int i = tableProfile.getItems().size()-1;
+                    tableProfile.requestFocus();
+                    tableProfile.getSelectionModel().select(i);
+                    tableProfile.scrollTo(i);
+                    tableProfile.getFocusModel().focus(i);
+
+                    baseCombo.getSelectionModel().select(0);
+                    baseCombo.getSelectionModel().select(sec);
+
+                }
+
+
+            } else {
+                hideProgressBar(false);
+                setProgressIndicator(res.getString("app.title93"));
+            }
+            hideProgressIndicator(true);
+
+
+        });
+
+        task.setOnFailed(event -> {
+            Waiter.closeLayer();
+            hideProgressBar(false);
+            setProgressIndicator(res.getString("app.title93"));
+            hideProgressIndicator(true);
+
+
+        });
+
+
+        Thread threadTask=new Thread(task);
+        threadTask.setDaemon(true);
+        setProgressBar(0.01, res.getString("ui.backup.load_backup"), "");
+
+
+        Waiter.openLayer(getApp().getMainWindow(),false);
+
+        threadTask.start();
+        Waiter.show();
+
+
+
+
+
+
+
+    }
     /***************************************************/
 
 
@@ -7413,5 +8070,7 @@ return  true;
         Optional<ButtonType> result = alert.showAndWait();
         return result;
     }
+
+
 
 }

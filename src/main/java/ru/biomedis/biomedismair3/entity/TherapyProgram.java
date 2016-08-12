@@ -1,6 +1,9 @@
 package ru.biomedis.biomedismair3.entity;
 
-import javafx.beans.property.*;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -24,7 +27,7 @@ public class TherapyProgram implements Serializable {
     private final SimpleBooleanProperty fakeChange=new SimpleBooleanProperty();//свойство для инициализации перерасчета наличия файла частот
 
     private final SimpleBooleanProperty mp3=new SimpleBooleanProperty();//свойство для указания что программа  - на основе mp3 файла, путь к файлу будет в поле частот
-
+    private final SimpleStringProperty oname=new SimpleStringProperty();
 
     private String uuid;
    
@@ -41,6 +44,17 @@ public class TherapyProgram implements Serializable {
 
     }
 
+    public String getOname() {
+        return oname.get();
+    }
+    @Transient
+    public SimpleStringProperty onameProperty() {
+        return oname;
+    }
+
+    public void setOname(String oname) {
+        this.oname.set(oname);
+    }
 
     public boolean isMp3() {
         return mp3.get();
@@ -193,5 +207,29 @@ public class TherapyProgram implements Serializable {
         return frequencies.get().split(";").length;
     }
 
+    /**
+     * общее число частот, без учета мультичастот!
+     * @return
+     */
+    @Transient
+    public int getNumFreqsForce() {
+
+
+       String[] split = frequencies.get().split(";");
+
+        int count=0;
+        for (String s : split)
+        {
+            if(s.contains("+"))
+            {
+                String[] split1 = s.split("\\+");
+
+                count+=split1.length;
+
+            }else count++;
+
+        }
+        return count;
+    }
 
 }

@@ -5,16 +5,18 @@
  */
 package ru.biomedis.biomedismair3.JPAControllers;
 
-import java.io.Serializable;
-import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Query;
-import javax.persistence.EntityNotFoundException;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
 import ru.biomedis.biomedismair3.JPAControllers.exceptions.NonexistentEntityException;
 import ru.biomedis.biomedismair3.entity.Language;
+
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityNotFoundException;
+import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
+import java.io.Serializable;
+import java.util.List;
 
 /**
  *
@@ -100,8 +102,11 @@ public class LanguageJpaController implements Serializable {
     private List<Language> findLanguageEntities(boolean all, int maxResults, int firstResult) {
         EntityManager em = getEntityManager();
         try {
-            CriteriaQuery cq = em.getCriteriaBuilder().createQuery();
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery cq = cb.createQuery();
+            Root<Language> c = cq.from(Language.class);
             cq.select(cq.from(Language.class));
+            cq.orderBy(cb.asc(c.get("id")));
             Query q = em.createQuery(cq);
             if (!all) {
                 q.setMaxResults(maxResults);

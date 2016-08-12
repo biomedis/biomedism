@@ -145,6 +145,14 @@ public class ModelDataApp {
             if(option!=null) optionsMap.put(option.getName(),option);
         }
 
+
+
+        if(allOptions.stream().filter(option -> option.getName().equals("app.lang_insert_complex")).count()==0)
+        {
+            ProgramOptions option = createOption("app.lang_insert_complex", "");//опция есть но пустая. пока язык не выбран. Язык вставки комплекса. Устанвливается автоматически при перекл, языка в программе, но может быть выбран вручную
+            if(option!=null) optionsMap.put(option.getName(),option);
+        }
+
         if(allOptions.stream().filter(option -> option.getName().equals("codec.path")).count()==0)
         {
             ProgramOptions option = createOption("codec.path", "");
@@ -313,6 +321,20 @@ public class ModelDataApp {
     private List<ProgramOptions> findAllOptions()
     {
         return optionsDAO.findOptionsEntities();
+    }
+
+
+    /**
+     * Получает опцию из базы
+     * @param name
+     * @return
+     */
+    public ProgramOptions findOptionInBase(String name){
+        Query query=emf.createEntityManager().createQuery("Select o From ProgramOptions o Where o.name = :name").setMaxResults(1);
+        query.setParameter("name",name);
+        return (ProgramOptions )query.getSingleResult();
+
+
     }
 
     private void updateOption(String name,String value) throws Exception {
@@ -616,6 +638,40 @@ public class ModelDataApp {
         });
 
     }
+    /**
+     * Заполнить поля строк локализованных.
+     * @param p
+     */
+    public void initStringsSection(Section p,Language lang)
+    {
+        String name = getString(p.getName(), lang);
+        String d = getString(p.getDescription(), lang);
+
+        p.setNameString(name==null?"":name);
+        p.setDescriptionString(d==null?"":d);
+
+    }
+
+
+    public void initStringsSection(List<Section> sections,Language lang)
+    {
+        String name =null;
+        String d=null;
+        for(Section p : sections)
+        {
+            name =null;
+            d=null;
+
+            name = getString(p.getName(), lang);
+            d = getString(p.getDescription(), lang);
+
+            p.setNameString(name==null?"":name);
+            p.setDescriptionString(d==null?"":d);
+
+
+        }
+
+    }
 
 
 
@@ -710,6 +766,37 @@ public class ModelDataApp {
 
 
 
+    /**
+     * Заполнить поля строк локализованных.
+     * @param section
+     */
+    public void initStringsComplex(Complex section,Language l)
+    {
+
+        String name=getString(section.getName(),l);
+        String d=getString(section.getDescription(),l);
+
+        section.setNameString(name==null?"":name);
+        section.setDescriptionString(d==null?"":d);
+
+    }
+
+    public void initStringsComplex(List<Complex> cs,Language l)
+    {
+       for (Complex c : cs)
+        {
+
+            String name=getString(c.getName(),l);
+            String d=getString(c.getDescription(),l);
+
+            c.setNameString(name==null?"":name);
+            c.setDescriptionString(d==null?"":d);
+
+        }
+
+    }
+
+
     public void updateComplex(Complex complex) throws Exception{complexDAO.edit(complex);}
     
      /******************************************/
@@ -788,6 +875,40 @@ public class ModelDataApp {
     {
         section.setNameString(getSmartString(section.getName()));
         section.setDescriptionString(getSmartString(section.getDescription()));
+
+    }
+    /**
+     * Заполнить поля строк локализованных.
+     * @param p
+     */
+    public void initStringsProgram(Program p,Language lang)
+    {
+        String name = getString(p.getName(), lang);
+        String d = getString(p.getDescription(), lang);
+
+        p.setNameString(name==null?"":name);
+        p.setDescriptionString(d==null?"":d);
+
+    }
+
+
+    public void initStringsProgram(List<Program> programms,Language lang)
+    {
+        String name =null;
+        String d=null;
+       for(Program p : programms)
+        {
+             name =null;
+             d=null;
+
+             name = getString(p.getName(), lang);
+             d = getString(p.getDescription(), lang);
+
+            p.setNameString(name==null?"":name);
+            p.setDescriptionString(d==null?"":d);
+
+
+        }
 
     }
 
@@ -931,6 +1052,7 @@ public class ModelDataApp {
      }
 
 
+
     /**
      * Вернет абривиатуру языка, которыю предпочтет getSmartString
      * @param lStr
@@ -986,6 +1108,19 @@ public class ModelDataApp {
          return findByStrings.get(0).getContent();
           
      }
+
+    /**
+     * получает строку локализованную по классу агрегатору или строку для языка по умолчанию
+     * @param lStr
+     * @param lang
+     * @return строка на языке по умолчанию если нет искомой
+     */
+    public String getString2(Strings lStr,Language lang)
+    {
+        List<LocalizedString> findByStrings = localizedStringDAO.findByStrings(lStr, lang);
+        if(findByStrings.isEmpty()) return getString(lStr,getDefaultLanguage());
+        return findByStrings.get(0).getContent();
+    }
      /**
       *Сущность  локализованной строки
       * @param lStr
@@ -1095,7 +1230,7 @@ public class ModelDataApp {
      public List<TherapyComplex> findTherapyComplexes(Profile profile)
      {
          
-        Query query = emf.createEntityManager().createQuery("Select t from TherapyComplex t where t.profile=:tc");
+        Query query = emf.createEntityManager().createQuery("Select t from TherapyComplex t where t.profile=:tc order by t.id");
         query.setParameter("tc", profile);
          return query.getResultList();
      }
@@ -1125,15 +1260,20 @@ public class ModelDataApp {
     }
       /******************************************/
       /************ Терапия Комплексы ***/
-      
-      
-      /**
-       * Создаст терапевтический комплекс, с именем name
-       * @param profile
-       * @param name
-       * @return 
-       */
-      public TherapyComplex createTherapyComplex(Profile profile,String name,String description,int timeForFreq,boolean mulltyFreq) throws Exception
+
+
+    /**
+     * Создаст терапевтический комплекс, с именем name
+     * @param profile профиль
+     * @param name имя тер.комплекса
+     * @param description описание
+     * @param timeForFreq время на частоту
+     * @param mulltyFreq мультичастотный режим генерации
+     * @param bundlesLength колличество частот в пачке для мультичастотного режима(<2 пачки не образуются)
+     * @return
+     * @throws Exception
+     */
+      public TherapyComplex createTherapyComplex(Profile profile,String name,String description,int timeForFreq,boolean mulltyFreq, int bundlesLength) throws Exception
       {
           TherapyComplex tc=new TherapyComplex();
           tc.setDescription(description);
@@ -1141,6 +1281,8 @@ public class ModelDataApp {
           tc.setTimeForFrequency(timeForFreq);
           tc.setName(name);
           tc.setMulltyFreq(mulltyFreq);
+          tc.setBundlesLength(bundlesLength);
+          tc.setOname("");
 
          // tc.setChanged(true);
         
@@ -1150,6 +1292,136 @@ public class ModelDataApp {
         }catch(Exception e){Log.logger.error("",e);tc=null;throw new Exception("Ошибка создания терапевтического комплекса",e); }
         return tc;
       }
+
+
+
+    /**
+     *  Создаст терапевтический комплекс из комплекса complex
+     * @param profile профиль
+     * @param complex комплекс из которого создается тер.комплекс
+     * @param timeForFreq время на частоту
+     * @param mulltyFreq мультичастотный режим генерации
+     * @param bundlesLength колличество частот в пачке для мультичастотного режима(<2 пачки не образуются)
+     * @return
+     * @throws Exception
+     */
+      public TherapyComplex createTherapyComplex(Profile profile,Complex complex,int timeForFreq,boolean mulltyFreq, int bundlesLength) throws Exception
+      {
+         
+          TherapyComplex tc=new TherapyComplex();
+          tc.setProfile(profile);
+          tc.setTimeForFrequency(timeForFreq);
+          tc.setName(getSmartString(complex.getName()));
+          tc.setMulltyFreq(mulltyFreq);
+          tc.setBundlesLength(bundlesLength);
+          //tc.setChanged(true);//только изменения в существующих комплексах должно приводить к регенерации
+
+
+          List<Program> findAllProgramByComplex = findAllProgramByComplex(complex);
+          initStringsProgram(findAllProgramByComplex);
+
+          initStringsComplex(complex);
+          tc.setDescription(complex.getDescriptionString());
+          tc.setName(complex.getNameString());
+        
+        try
+        { 
+         therapyComplexDAO.create(tc);//создадим компелекс
+         for(Program itm: findAllProgramByComplex) createTherapyProgram(tc, itm.getNameString(),itm.getDescriptionString(),itm.getFrequencies());//создадим програмы из комплекса
+         
+        }catch(Exception e){Log.logger.error("",e);tc=null;throw new Exception("Ошибка создания терапевтического комплекса",e); }
+        return tc;
+      }
+
+    /**
+     *  Создаст терапевтический комплекс из комплекса complex, с учетом языка вставки
+     * @param profile профиль
+     * @param complex комплекс из которого создается тер.комплекс
+     * @param timeForFreq время на частоту
+     * @param mulltyFreq мультичастотный режим генерации
+     * @param bundlesLength колличество частот в пачке для мультичастотного режима(<2 пачки не образуются)
+     *                      @param  insertComplexLang язык вставки комплекса
+     * @return
+     * @throws Exception
+     */
+    public TherapyComplex createTherapyComplex(Profile profile,Complex complex,int timeForFreq,boolean mulltyFreq, int bundlesLength, String insertComplexLang) throws Exception
+    {
+
+        TherapyComplex tc=new TherapyComplex();
+        tc.setProfile(profile);
+        tc.setTimeForFrequency(timeForFreq);
+        tc.setName(getSmartString(complex.getName()));
+        tc.setMulltyFreq(mulltyFreq);
+        tc.setBundlesLength(bundlesLength);
+        //tc.setChanged(true);//только изменения в существующих комплексах должно приводить к регенерации
+
+
+
+        initStringsComplex(complex);
+        List<Program> findAllProgramByComplex = findAllProgramByComplex(complex);
+        initStringsProgram(findAllProgramByComplex);
+
+        String il=insertComplexLang;
+        String lp=getProgramLanguage().getAbbr();
+
+        String name="";
+        String oname="";
+        String descr="";
+
+        Map<Long,String> onameP=new HashMap<>();
+
+        if(il.equals(lp))
+        {
+            name=complex.getNameString();
+            descr=complex.getDescriptionString();
+
+        }else {
+            //вставим имя на языке вставки.
+            oname=complex.getNameString();
+            name = getString2(complex.getName(),getLanguage(il));
+            descr=getString2(complex.getDescription(),getLanguage(il));
+
+
+            String nameP="";
+
+            String descrP="";
+            //заменим тоже самое для программ
+            for(Program itm: findAllProgramByComplex)
+            {
+                onameP.put(itm.getId(),itm.getNameString());
+                nameP = getString2(itm.getName(),getLanguage(il));
+                descrP=getString2(itm.getDescription(),getLanguage(il));
+                itm.setNameString(nameP);
+                itm.setDescriptionString(descrP);
+
+            }
+
+
+        }
+
+        tc.setDescription(descr);
+        tc.setName(name);
+        tc.setOname(oname);
+
+
+
+
+
+
+        try
+        {
+            therapyComplexDAO.create(tc);//создадим компелекс
+            if(il.equals(lp))
+            {
+                for(Program itm: findAllProgramByComplex) createTherapyProgram(tc, itm.getNameString(),itm.getDescriptionString(),itm.getFrequencies());//создадим програмы из комплекса
+            }else {
+                for(Program itm: findAllProgramByComplex) createTherapyProgram(tc, itm.getNameString(),itm.getDescriptionString(),itm.getFrequencies(),onameP.get(itm.getId()));
+            }
+
+
+        }catch(Exception e){Log.logger.error("",e);tc=null;throw new Exception("Ошибка создания терапевтического комплекса",e); }
+        return tc;
+    }
 
 
 
@@ -1172,40 +1444,6 @@ public class ModelDataApp {
         return query.getResultList();
     }
 
-      /**
-       * Создаст терапевтический комплекс из комплекса complex
-       * @param profile
-       * @param complex
-       * @return 
-       */
-      public TherapyComplex createTherapyComplex(Profile profile,Complex complex,int timeForFreq,boolean mulltyFreq) throws Exception
-      {
-         
-          TherapyComplex tc=new TherapyComplex();
-          tc.setProfile(profile);
-          tc.setTimeForFrequency(timeForFreq);
-          tc.setName(getSmartString(complex.getName()));
-          tc.setMulltyFreq(mulltyFreq);
-
-          //tc.setChanged(true);//только изменения в существующих комплексах должно приводить к регенерации
-
-
-          List<Program> findAllProgramByComplex = findAllProgramByComplex(complex);
-          initStringsProgram(findAllProgramByComplex);
-
-          initStringsComplex(complex);
-          tc.setDescription(complex.getDescriptionString());
-          tc.setName(complex.getNameString());
-        
-        try
-        { 
-         therapyComplexDAO.create(tc);//создадим компелекс
-         for(Program itm: findAllProgramByComplex) createTherapyProgram(tc, itm.getNameString(),itm.getDescriptionString(),itm.getFrequencies());//создадим програмы из комплекса
-         
-        }catch(Exception e){Log.logger.error("",e);tc=null;throw new Exception("Ошибка создания терапевтического комплекса",e); }
-        return tc;
-      }
-
 
     public int getTimeTherapyComplex(TherapyComplex th)
     {
@@ -1214,8 +1452,33 @@ public class ModelDataApp {
         Query query=null;
         List<String> results=null;
         //если все частоты мульти, подсчитаем все без мп3 и умножим на время частоты, mp3 считает ся ниже отдельно
-        if(th.isMulltyFreq()) res = (int)(th.getTimeForFrequency() * countTherapyPrograms(th,false));
-else {
+        if(th.isMulltyFreq())
+        {
+
+            //посчитаем пачки частот для всех программ комплекса
+            int freqBundlesCount=0;//сколько пачек получем из частот программ
+
+
+
+            if(   th.getBundlesLength()>=2){
+
+
+                for (TherapyProgram tp : findTherapyPrograms(th))
+                {
+                    int numFreqsForce = tp.getNumFreqsForce();
+                    freqBundlesCount+=(int)Math.ceil((float)numFreqsForce/(float)th.getBundlesLength());
+
+                }
+
+
+                res = (int)(th.getTimeForFrequency() * freqBundlesCount);
+            }else {
+                res = (int)(th.getTimeForFrequency() * countTherapyPrograms(th,false));
+            }
+
+
+        }
+        else {
              query = emf.createEntityManager().createQuery("Select t.frequencies from TherapyProgram t where t.therapyComplex = :tc and t.mp3 <> true");
             query.setParameter("tc", th);
             results = query.getResultList();
@@ -1380,6 +1643,7 @@ else {
           tc.setTimeMarker(0);
           tc.setChanged(true);//по умолчанию файлы не генерятся, значит установим этот флажек
           tc.setMp3(false);
+          tc.setOname("");
 
 
         try
@@ -1400,6 +1664,44 @@ else {
       }
 
     /**
+     *
+     * @param therapyComplex
+     * @param name - имя на языке вставки
+     * @param description
+     * @param freqs
+     * @param oName имя на языке программы
+     * @return
+     * @throws Exception
+     */
+    public TherapyProgram createTherapyProgram(TherapyComplex therapyComplex, String name,String description, String freqs,String oName) throws Exception
+    {
+        TherapyProgram tc=new TherapyProgram();
+        tc.setTherapyComplex(therapyComplex);
+        tc.setName(name);
+        tc.setDescription(description);
+        tc.setFrequencies(freqs);
+        tc.setTimeMarker(0);
+        tc.setChanged(true);//по умолчанию файлы не генерятся, значит установим этот флажек
+        tc.setMp3(false);
+        tc.setOname(oName);
+
+        try
+        {
+
+            therapyProgramDAO.create(tc);
+            tc.setPosition(tc.getId());
+            therapyProgramDAO.edit(tc);
+
+
+        }catch(Exception e)
+        {
+            Log.logger.error("",e);
+            tc=null;
+            throw new Exception("Ошибка создания терапевтической программы",e);
+        }
+        return tc;
+    }
+    /**
      * Создание программы из файла mp3.
      * @param therapyComplex
      * @param name
@@ -1418,7 +1720,7 @@ else {
         tc.setTimeMarker(0);
         tc.setChanged(false);//по умолчанию файлы mp3 выбиратся из папок, значит они сразу существуют
         tc.setMp3(true);
-
+        tc.setOname("");
 
         try
         {
@@ -1458,7 +1760,9 @@ else {
     public List<TherapyComplex> getLastTherapyComplexes(int n) {
         Query query = this.emf.createEntityManager().createQuery("Select p From TherapyComplex p   order by p.id desc");
         query.setMaxResults(n);
-        return query.getResultList();
+        List resultList = query.getResultList();
+        Collections.reverse(resultList);
+        return resultList;
     }
     public boolean isNeedGenerateFilesInProfile(Profile profile)
     {
@@ -1488,7 +1792,7 @@ else {
     {
 
         //просмотрим есть ли изменения в программах комплексов профиля
-        Query query2 = emf.createEntityManager().createQuery("Select c From TherapyProgram c WHERE c.therapyComplex.profile.id=:profile and c.mp3=true");
+        Query query2 = emf.createEntityManager().createQuery("Select c From TherapyProgram c WHERE c.therapyComplex.profile.id=:profile and c.mp3=true order by c.position asc");
         query2.setParameter("profile", profile.getId());
         return query2.getResultList();
 
@@ -1496,7 +1800,7 @@ else {
     }
 
     public List<TherapyProgram> mp3ProgramInComplex(TherapyComplex tc) {
-        Query query2 = this.emf.createEntityManager().createQuery("Select c From TherapyProgram c WHERE c.therapyComplex.id=:tc and c.mp3=true");
+        Query query2 = this.emf.createEntityManager().createQuery("Select c From TherapyProgram c WHERE c.therapyComplex.id=:tc and c.mp3=true  order by c.position asc");
         query2.setParameter("tc", tc.getId());
         return query2.getResultList();
     }
@@ -1582,7 +1886,7 @@ else {
      */
     public List<Integer> getAllTherapyComplexID(Profile p)
     {
-        Query query = emf.createEntityManager().createQuery("Select c.id From TherapyComplex c WHERE c.profile=:profile");
+        Query query = emf.createEntityManager().createQuery("Select c.id From TherapyComplex c WHERE c.profile=:profile order by c.id asc");
         query.setParameter("profile", p);
         return query.getResultList();
 
@@ -1604,7 +1908,7 @@ else {
      */
     public List<Integer> getAllTherapyProgramID(Profile p)
     {
-        Query query = emf.createEntityManager().createQuery("Select c.id From TherapyProgram c WHERE c.therapyComplex.profile=:profile");
+        Query query = emf.createEntityManager().createQuery("Select c.id From TherapyProgram c WHERE c.therapyComplex.profile=:profile  order by c.id asc");
         query.setParameter("profile", p);
         return query.getResultList();
 
@@ -1616,7 +1920,7 @@ else {
      */
     public List<TherapyProgram> getAllTherapyProgram(Profile p)
     {
-        Query query = emf.createEntityManager().createQuery("Select c From TherapyProgram c WHERE c.therapyComplex.profile=:profile");
+        Query query = emf.createEntityManager().createQuery("Select c From TherapyProgram c WHERE c.therapyComplex.profile=:profile  order by c.position asc");
         query.setParameter("profile", p);
         return query.getResultList();
 
@@ -1886,6 +2190,34 @@ else {
         query.setParameter("lang", lang);
 
         return query.getResultList();
+
+    }
+
+
+
+
+    public Program getProgram(String uuid){
+
+        Query query=emf.createEntityManager().createQuery("Select p From Program p WHERE p.uuid=:uuid");
+        query.setParameter("uuid", uuid);
+        query.setMaxResults(1);
+        return (Program)query.getSingleResult();
+
+    }
+    public Section getSection(String uuid){
+
+        Query query=emf.createEntityManager().createQuery("Select p From Section p WHERE p.uuid=:uuid");
+        query.setParameter("uuid", uuid);
+        query.setMaxResults(1);
+        return (Section)query.getSingleResult();
+
+    }
+    public Complex getComplex(String uuid){
+
+        Query query=emf.createEntityManager().createQuery("Select p From Complex p WHERE p.uuid=:uuid");
+        query.setParameter("uuid", uuid);
+        query.setMaxResults(1);
+        return (Complex)query.getSingleResult();
 
     }
 }

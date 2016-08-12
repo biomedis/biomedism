@@ -7,18 +7,6 @@
 package ru.biomedis.biomedismair3;
 
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.lang.ref.WeakReference;
-import java.net.URL;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -29,6 +17,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
@@ -36,6 +25,16 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.ref.WeakReference;
+import java.net.URL;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 
@@ -101,6 +100,11 @@ public abstract class BaseController implements Initializable
         dlg.initOwner(ownerWindow);
         dlg.initModality(Modality.WINDOW_MODAL);
 
+       Image image = ownerWindow.getIcons().get(0);
+       dlg.getIcons().clear();
+       dlg.getIcons().add(image);
+
+
        WeakReference<T> userDataRef=new WeakReference<>(userData);
 
       
@@ -154,7 +158,9 @@ public abstract class BaseController implements Initializable
         dlg.initOwner(ownerWindow);
         dlg.initModality(Modality.WINDOW_MODAL);
 
-
+        Image image = ownerWindow.getIcons().get(0);
+        dlg.getIcons().clear();
+        dlg.getIcons().add(image);
 
 
         URL location = app.getClass().getResource(fxml);
@@ -202,7 +208,9 @@ public abstract class BaseController implements Initializable
         dlg.initOwner(ownerWindow);
         dlg.initModality(Modality.NONE);
 
-
+        Image image = ownerWindow.getIcons().get(0);
+        dlg.getIcons().clear();
+        dlg.getIcons().add(image);
 
 
         URL location = app.getClass().getResource(fxml);

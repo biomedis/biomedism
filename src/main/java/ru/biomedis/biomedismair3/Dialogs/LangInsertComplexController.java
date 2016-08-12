@@ -15,7 +15,7 @@ import static ru.biomedis.biomedismair3.Log.logger;
 /**
  * Created by Anama on 30.09.2015.
  */
-public class LangController extends BaseController {
+public class LangInsertComplexController extends BaseController {
 
     @FXML private ComboBox<Language> langlist;
 
@@ -34,7 +34,7 @@ public class LangController extends BaseController {
         langlist.setConverter(new StringConverter<Language>() {
             @Override
             public String toString(Language object) {
-                if (object.getId().longValue() == 0) return resources.getString("app.lang.system_or_eng");
+                if (object.getId().longValue() == 0) return "Язык системы или английский";
                 return object.getName();
             }
 
@@ -43,16 +43,11 @@ public class LangController extends BaseController {
                 return null;
             }
         });
-        Language l=new Language();
-        l.setAbbr("");
-        l.setName("");
-        l.setId(0L);
 
-        langlist.getItems().add(l);
         langlist.getItems().addAll(getModel().findAvaliableLangs());
 
         try {
-            String abbr =   getModel().getOption("app.lang");
+            String abbr =   getModel().getOption("app.lang_insert_complex");
             if(abbr.isEmpty()) langlist.getSelectionModel().select(0);
             else
             {
@@ -79,12 +74,7 @@ public class LangController extends BaseController {
             if(newValue.intValue()==0)
             {
                 try {
-                    getModel().setOption("app.lang","");
-                    if (getModel().getLanguage(getModel().getSystemLocale().getLanguage()).isAvaliable()){
-                        setInsertCompexLang(getModel().getSystemLocale().getLanguage());
-                    }else  setInsertCompexLang("en");
-
-
+                    getModel().setOption("app.lang_insert_complex","en");
                 } catch (Exception e) {
                     logger.error("",e);
                     showExceptionDialog("Ошибка применения параметра языка","","",e,getApp().getMainWindow(), Modality.WINDOW_MODAL);
@@ -93,30 +83,18 @@ public class LangController extends BaseController {
             }else
             {
                 try {
-                    getModel().setOption("app.lang",langlist.getItems().get(newValue.intValue()).getAbbr());
-                    setInsertCompexLang(langlist.getItems().get(newValue.intValue()).getAbbr());
+                    getModel().setOption("app.lang_insert_complex",langlist.getItems().get(newValue.intValue()).getAbbr());
                 } catch (Exception e) {
                     logger.error("",e);
                     showExceptionDialog("Ошибка применения параметра языка", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                     return;
                 }
             }
-            showInfoDialogNoHeader(resources.getString("app.text.change_lang_title"),resources.getString("app.text.change_lang_text"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
+            showInfoDialogNoHeader(resources.getString("app.menu.insert_language"),resources.getString("app.success"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
 
 
         });
 
-
-    }
-
-    private void setInsertCompexLang(String abbr){
-        try {
-            getModel().setOption("app.lang_insert_complex",abbr);
-        } catch (Exception e) {
-            logger.error("",e);
-            showExceptionDialog("Ошибка применения параметра языка", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-            return;
-        }
 
     }
 

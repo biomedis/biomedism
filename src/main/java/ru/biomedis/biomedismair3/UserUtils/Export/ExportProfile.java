@@ -2,6 +2,7 @@ package ru.biomedis.biomedismair3.UserUtils.Export;
 
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.*;
+import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
 import javax.validation.constraints.NotNull;
 import java.io.*;
@@ -71,7 +72,7 @@ public class ExportProfile {
     {
         StringBuilder strb=new StringBuilder();
         strb.append(noops[level]);
-        strb.append("<Profile ").append("name=\"").append(profile.getName()).append("\">\n");
+        strb.append("<Profile ").append("name=\"").append(TextUtil.escapeXML(profile.getName())).append("\">\n");
 
         int lvl=level+1;
           md.findAllTherapyComplexByProfile(profile).forEach(therapyComplex -> strb.append(getComplex(therapyComplex,md,lvl)));
@@ -89,7 +90,7 @@ public class ExportProfile {
 
         list.stream().filter(p->!p.isMp3()).forEach(program -> {
             strb.append(noops[level]);
-            strb.append("<Program ").append("name=\"").append(program.getName()).append("\" description=\"").append(program.getDescription()).
+            strb.append("<Program ").append("name=\"").append(TextUtil.escapeXML(program.getName())).append("\" description=\"").append(TextUtil.escapeXML(program.getDescription())).
                     append("\" ").append("frequencies=\"").append(program.getFrequencies()).append("\"/>\n");
         });
 
@@ -103,8 +104,8 @@ public class ExportProfile {
 
         strb.append(noops[level]);
         int lvl=level+1;
-        strb.append("<Complex ").append("name=\"").append(complex.getName()).append("\" description=\"").append(complex.getDescription()).
-                append("\"").append(" mullty=\"").append(complex.isMulltyFreq()).append("\"").append(" timeForFreq=\"").append(complex.getTimeForFrequency()).append("\"").append(">\n");
+        strb.append("<Complex ").append("name=\"").append(TextUtil.escapeXML(complex.getName())).append("\" description=\"").append(TextUtil.escapeXML(complex.getDescription())).
+                append("\"").append(" mullty=\"").append(complex.isMulltyFreq()).append("\"").append(" timeForFreq=\"").append(complex.getTimeForFrequency()).append("\"").append(" bundlesLength=\"").append(complex.getBundlesLength()).append("\"").append(">\n");
 
 
         List<TherapyProgram> list = md.findTherapyPrograms(complex);

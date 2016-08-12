@@ -84,7 +84,7 @@ private static final boolean debug=false;
     private boolean encode(CODEC_TYPE codecType,int sampleRate,TherapyProgram programm)
    {
         boolean res=false;
-       FreqsContainer fk=new FreqsContainer(programm.getFrequencies(),programm.getTherapyComplex().getTimeForFrequency(),sampleRate,programm.getTherapyComplex().isMulltyFreq(),16);
+       FreqsContainer fk=new FreqsContainer(programm.getFrequencies(),programm.getTherapyComplex().getTimeForFrequency(),sampleRate,programm.getTherapyComplex().isMulltyFreq(),programm.getTherapyComplex().getBundlesLength(),16);
 
        System.out.print("Temp File Generating...");
        File	outputWavFile = new File("temp.wav");

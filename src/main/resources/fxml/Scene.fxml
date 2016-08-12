@@ -58,17 +58,40 @@
           </Menu>
             <Menu mnemonicParsing="false" text="%app.menu.service">
               <items>
+                  <Menu fx:id="updateBaseMenu" mnemonicParsing="false" text="Обновление базы частот">
+                    <items>
+                        <Menu mnemonicParsing="false" text="Переводы">
+                          <items>
+                            <MenuItem mnemonicParsing="false" onAction="#onCreateLanguageFiles" text="Получить файлы для перевода" />
+                            <MenuItem mnemonicParsing="false" onAction="#onloadLanguageFiles" text="Применить файлы переводов" />
+                          </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Частоты">
+                          <items>
+                              <MenuItem mnemonicParsing="false" onAction="#onCreateUpdateFreqFile" text="Получить файл для правки частот" />
+                            <MenuItem mnemonicParsing="false" onAction="#onLoadUpdateFreqFile" text="Применить файл правки частот" />
+                          </items>
+                        </Menu>
+                    </items>
+                  </Menu>
                   <MenuItem fx:id="menuFindDevice" mnemonicParsing="false" onAction="#onFindDevice" text="%app.menu.find_device" />
                 <MenuItem fx:id="menuClearFileSystemDevice" mnemonicParsing="false" onAction="#onClearDevice" text="%app.menu_filesystem_check" />
                   <MenuItem fx:id="menuDelGeneratedFiles" mnemonicParsing="false" onAction="#onRemoveProfileFiles" text="%app.menu.del_files" />
                   <MenuItem mnemonicParsing="false" onAction="#onLoadProfileDir" text="%app.menu.read_profile_from_dir" />
                   <MenuItem fx:id="menuImportComplex" mnemonicParsing="false" onAction="#onImportComplex" text="%app.menu.read_complex_from_dir" />
+                  <Menu mnemonicParsing="false" text="%ui.menu.base_recovery">
+                    <items>
+                      <MenuItem mnemonicParsing="false" onAction="#onRecoveryCreate" text="%ui.backup.create_backup" />
+                        <MenuItem mnemonicParsing="false" onAction="#onRecoveryLoad" text="%ui.backup.load_backup" />
+                    </items>
+                  </Menu>
               </items>
             </Menu>
             <Menu mnemonicParsing="false" text="%app.menu.options">
               <items>
                   <MenuItem mnemonicParsing="false" onAction="#onCodecOptions" text="%app.menu.codecpath" />
                 <MenuItem mnemonicParsing="false" onAction="#onLangChoose" text="%app.menu.language_select" />
+                  <MenuItem mnemonicParsing="false" onAction="#onLanguageInsertComplexOption" text="%app.menu.insert_language" />
               </items>
             </Menu>
           <Menu mnemonicParsing="false" text="%app.menu.help">
@@ -218,6 +241,28 @@
                                        <children>
                                           <Button fx:id="btnCreateTherapy" mnemonicParsing="false" onAction="#onCreateComplex" text="%ui.main.create_complex" />
                                           <Button fx:id="btnDeleteTherapy" mnemonicParsing="false" onAction="#onRemoveComplex" text="%ui.main.remove_complex" />
+                                           <HBox fx:id="bundlesPan" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
+                                               <HBox.margin>
+                                                   <Insets left="8.0" right="8.0" top="-4.0" />
+                                               </HBox.margin>
+                                               <children>
+                                                   <Label alignment="CENTER" text="%ui.bundles_length">
+                                                       <HBox.margin>
+                                                           <Insets left="8.0" right="8.0" />
+                                                       </HBox.margin>
+                                                   </Label>
+                                                   <Spinner fx:id="bundlesSpinner" maxWidth="80.0" />
+                                                   <VBox fx:id="bundlesBtnPan" spacing="3.0">
+                                                       <children>
+                                                           <Button fx:id="btnOkBundles" contentDisplay="CENTER" ellipsisString="" maxHeight="16.0" maxWidth="16.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0" />
+                                                           <Button fx:id="btnCancelBundles" maxHeight="16.0" maxWidth="16.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0" />
+                                                       </children>
+                                                       <HBox.margin>
+                                                           <Insets left="5.0" right="5.0" />
+                                                       </HBox.margin>
+                                                   </VBox>
+                                               </children>
+                                           </HBox>
                                           <HBox fx:id="spinnerPan" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
                                              <HBox.margin>
                                                 <Insets left="8.0" right="8.0" top="-4.0" />
@@ -245,6 +290,14 @@
                                           <Insets left="8.0" right="8.0" top="8.0" />
                                        </padding>
                                     </HBox>
+                                    <HBox fx:id="onameBoxComplex" spacing="6.0">
+                                       <children>
+                                          <Label text="%app.ui.name_on_ins_lang" />
+                                          <Label fx:id="onameComplex" text="" />
+                                       </children>
+                                       <padding>
+                                          <Insets left="8.0" />
+                                       </padding></HBox>
                                     <TableView fx:id="tableComplex" maxHeight="1.7976931348623157E308" minHeight="50.0" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
                                  </children>
                               </VBox>
@@ -268,6 +321,14 @@
                                           <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                                        </padding>
                                     </HBox>
+                                     <HBox fx:id="onameBoxProgram" spacing="6.0">
+                                         <children>
+                                             <Label text="%app.ui.name_on_ins_lang" />
+                                             <Label fx:id="onameProgram" text="" />
+                                         </children>
+                                         <padding>
+                                             <Insets left="8.0" />
+                                         </padding></HBox>
                                     <TableView fx:id="tableProgram" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
                                  </children>
                               </VBox>

@@ -4,9 +4,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import ru.biomedis.biomedismair3.ModelDataApp;
-import ru.biomedis.biomedismair3.entity.Complex;
-import ru.biomedis.biomedismair3.entity.Program;
-import sun.print.resources.serviceui_zh_CN;
+import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -103,6 +101,7 @@ private Listener listener=null;
 
             for (Program itm : listPrograms) {
                 if(itm.freqs.isEmpty())continue;
+                itm.freqs=itm.freqs.replace(",",".");
                 split = itm.freqs.split(";");
                 for (String s : split) {
                     if (s.contains("+")) {
@@ -132,7 +131,11 @@ private Listener listener=null;
         try {
 
 
-            for (Section section : listSections)  section.section = mda.createSection(container, section.name, section.descr, false, mda.getUserLanguage());
+            for (Section section : listSections)  {
+                if(section.sectionIndex < 0) section.section = mda.createSection(container, section.name, section.descr, false, mda.getUserLanguage());
+                else section.section = mda.createSection(listSections.get(section.sectionIndex).section, section.name, section.descr, false, mda.getUserLanguage());
+
+            }
             for (Complex complex : listComplexes)
             {
                if(complex.sectionIndex>=0) complex.complex=mda.createComplex(complex.name,complex.descr,listSections.get(complex.sectionIndex).section,false,mda.getUserLanguage());
@@ -250,7 +253,7 @@ private Listener listener=null;
 
                 if(attributes.getLength()!=0)
                 {
-                    sectionsStack.push(new Section(attributes.getValue("name"),attributes.getValue("description"),index));//положим на вершину стека
+                    sectionsStack.push(new Section(TextUtil.unEscapeXML(attributes.getValue("name")),TextUtil.unEscapeXML(attributes.getValue("description")),index));//положим на вершину стека
                     listSections.add(sectionsStack.peek());
                 }
             }else  if(qName.equals("Complex"))
@@ -261,7 +264,7 @@ private Listener listener=null;
 
                 if(attributes.getLength()!=0)
                 {
-                    complexesStack.push(new Complex(attributes.getValue("name"),attributes.getValue("description"),index));//положим на вершину стека
+                    complexesStack.push(new Complex(TextUtil.unEscapeXML(attributes.getValue("name")),TextUtil.unEscapeXML(attributes.getValue("description")),index));//положим на вершину стека
                     listComplexes.add(complexesStack.peek());
                 }
 
@@ -282,7 +285,7 @@ private Listener listener=null;
 
                 if(attributes.getLength()!=0)
                 {
-                   listPrograms.add(new Program(attributes.getValue("name"),attributes.getValue("description"),attributes.getValue("frequencies"),indexSect,indexCompl));
+                   listPrograms.add(new Program(TextUtil.unEscapeXML(attributes.getValue("name")),TextUtil.unEscapeXML(attributes.getValue("description")),attributes.getValue("frequencies"),indexSect,indexCompl));
 
                 }
 
@@ -291,9 +294,8 @@ private Listener listener=null;
 
             }else if(fileTypeOK)
             {
-                //если не было перехода ранее из метода, том сюда попадем.
 
-                    //если нашли левый тег
+                //если попался левый тег, мы тут возмутимся
                 SAXException saxException = new SAXException(new FileTypeMissMatch());
                 throw saxException;
             }
