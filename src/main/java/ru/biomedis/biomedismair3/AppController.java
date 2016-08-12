@@ -1258,10 +1258,7 @@ initTables();
         weightCol.setSortable(false);
 
 
-        tableProfile.setOnKeyReleased(event ->
-        {
-            if(event.getCode()==KeyCode.DELETE) onRemoveProfile();
-        });
+
 
     /**********/
 
@@ -1433,6 +1430,7 @@ initTables();
         mic1.setOnAction((event2) -> {
             this.copyTherapyComplexToBase();
         });
+
         mic2.setOnAction((event2) -> {
             this.generateComplexes();
         });
@@ -1481,16 +1479,6 @@ initTables();
 
 
 
-        this.tableComplex.setOnKeyReleased((e) -> {
-            if(e.getCode() == KeyCode.DELETE) {
-                this.onRemoveComplex();
-            }
-
-            if(e.getCode() == KeyCode.A && e.isControlDown()) {
-                this.tableComplex.getSelectionModel().selectAll();
-            }
-
-        });
         /**********/
 
 
@@ -1680,9 +1668,45 @@ initTables();
         timeColTP.setSortable(false);
         fileCol.setSortable(false);
 
+        tableProfile.setOnKeyReleased(event ->
+        {
+            if(event.getCode()==KeyCode.DELETE) onRemoveProfile();
+            if(event.getCode()==KeyCode.RIGHT){
+                therapyTabPane.getSelectionModel().select(1);
+                tableComplex.requestFocus();
+                if(tableComplex.getItems().size()!=0){tableComplex.getFocusModel().focus(0);tableComplex.getSelectionModel().select(0);}
+            }
+        });
 
+        this.tableComplex.setOnKeyReleased((e) -> {
+            if(e.getCode() == KeyCode.DELETE) {
+                this.onRemoveComplex();
+            }
+
+            if(e.getCode() == KeyCode.A && e.isControlDown()) {
+                this.tableComplex.getSelectionModel().selectAll();
+            }
+
+            if(e.getCode()==KeyCode.RIGHT) {
+                therapyTabPane.getSelectionModel().select(2);
+                tableProgram.requestFocus();
+                if(tableProgram.getItems().size()!=0){tableProgram.getFocusModel().focus(0);tableProgram.getSelectionModel().select(0);}
+            }
+            if(e.getCode()==KeyCode.LEFT) {
+                therapyTabPane.getSelectionModel().select(0);
+                tableProfile.requestFocus();
+                if(tableProfile.getItems().size()!=0){tableProfile.getFocusModel().focus(0);tableProfile.getSelectionModel().select(0);}
+            }
+
+        });
         tableProgram.setOnKeyReleased(e ->{
             if(e.getCode()==KeyCode.DELETE) onRemoveProgram();
+            if(e.getCode()==KeyCode.LEFT) {
+                therapyTabPane.getSelectionModel().select(1);
+                tableComplex.requestFocus();
+                if(tableComplex.getItems().size()!=0){tableComplex.getFocusModel().focus(0);tableComplex.getSelectionModel().select(0);}
+            }
+
         });
 //контекстное меню для программ - вырезать и вставить, зависит от выбрано или нет
 
