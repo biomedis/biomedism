@@ -1,6 +1,5 @@
 package ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase;
 
-import ru.biomedis.biomedismair3.Log;
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.Complex;
 import ru.biomedis.biomedismair3.entity.Language;
@@ -175,7 +174,7 @@ public class CreateLanguageFiles
     private static String getComplex(Complex complex, ModelDataApp md, int level, Language language)
     {
         StringBuilder strb=new StringBuilder();
-        md.initStringsComplex(complex);
+        md.initStringsComplex(complex,language);
 
         Language l=md.getDefaultLanguage();
 
