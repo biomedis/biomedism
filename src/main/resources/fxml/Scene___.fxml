@@ -1,0 +1,343 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Group?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.effect.Reflection?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="500.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.AppController">
+   <top>
+      <MenuBar BorderPane.alignment="CENTER">
+        <menus>
+          <Menu mnemonicParsing="false" text="%app.menu.file">
+            <items>
+                  <Menu mnemonicParsing="false" text="%app.menu.export">
+                    <items>
+                        <MenuItem fx:id="menuExportProfile" mnemonicParsing="false" onAction="#onExportProfile" text="%app.menu.export_profile" />
+                      <MenuItem fx:id="menuExportUserBase" mnemonicParsing="false" onAction="#onExportUserBase" text="%app.menu.export_user_base" />
+                        <MenuItem fx:id="menuExportTherapyComplex" mnemonicParsing="false" onAction="#onExportTherapyComplex" text="%app.menu.export_therapy_complex" />
+                    </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="%app.menu.import">
+                    <items>
+                        <MenuItem fx:id="menuImportProfile" mnemonicParsing="false" onAction="#onImportProfile" text="%app.menu.import_profile" />
+                      <MenuItem fx:id="menuImportUserBase" mnemonicParsing="false" onAction="#onImportUserBase" text="%app.menu.import_user_base" />
+                        <MenuItem fx:id="menuImportTherapyComplex" mnemonicParsing="false" onAction="#onImportTherapyComplex" text="%app.menu.import_therapy_complex" />
+                        <MenuItem fx:id="menuImportComplexToBase" mnemonicParsing="false" onAction="#onImportComplexToBase" text="%app.ui.import_compl_to_base" />
+                    </items>
+                  </Menu>
+                  <Menu mnemonicParsing="false" text="%app.menu.print">
+                    <items>
+                      <MenuItem fx:id="printProfileMenu" mnemonicParsing="false" onAction="#onPrintProfile" text="%app.menu.print_profile" />
+                        <MenuItem fx:id="printComplexMenu" mnemonicParsing="false" onAction="#onPrintComplex" text="%app.menu.print_complex" />
+                    </items>
+                  </Menu>
+
+            </items>
+          </Menu>
+            <Menu mnemonicParsing="false" text="%app.menu.service">
+              <items>
+                  <Menu fx:id="updateBaseMenu" mnemonicParsing="false" text="Обновление базы частот">
+                    <items>
+                        <Menu mnemonicParsing="false" text="Переводы">
+                          <items>
+                            <MenuItem mnemonicParsing="false" onAction="#onCreateLanguageFiles" text="Получить файлы для перевода" />
+                            <MenuItem mnemonicParsing="false" onAction="#onloadLanguageFiles" text="Применить файлы переводов" />
+                          </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Частоты">
+                          <items>
+                              <MenuItem mnemonicParsing="false" onAction="#onCreateUpdateFreqFile" text="Получить файл для правки частот" />
+                            <MenuItem mnemonicParsing="false" onAction="#onLoadUpdateFreqFile" text="Применить файл правки частот" />
+                          </items>
+                        </Menu>
+                    </items>
+                  </Menu>
+                  <MenuItem fx:id="menuFindDevice" mnemonicParsing="false" onAction="#onFindDevice" text="%app.menu.find_device" />
+                <MenuItem fx:id="menuClearFileSystemDevice" mnemonicParsing="false" onAction="#onClearDevice" text="%app.menu_filesystem_check" />
+                  <MenuItem fx:id="menuDelGeneratedFiles" mnemonicParsing="false" onAction="#onRemoveProfileFiles" text="%app.menu.del_files" />
+                  <MenuItem mnemonicParsing="false" onAction="#onLoadProfileDir" text="%app.menu.read_profile_from_dir" />
+                  <MenuItem fx:id="menuImportComplex" mnemonicParsing="false" onAction="#onImportComplex" text="%app.menu.read_complex_from_dir" />
+                  <Menu mnemonicParsing="false" text="%ui.menu.base_recovery">
+                    <items>
+                      <MenuItem mnemonicParsing="false" onAction="#onRecoveryCreate" text="%ui.backup.create_backup" />
+                        <MenuItem mnemonicParsing="false" onAction="#onRecoveryLoad" text="%ui.backup.load_backup" />
+                    </items>
+                  </Menu>
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="%app.menu.options">
+              <items>
+                  <MenuItem mnemonicParsing="false" onAction="#onCodecOptions" text="%app.menu.codecpath" />
+                <MenuItem mnemonicParsing="false" onAction="#onLangChoose" text="%app.menu.language_select" />
+                  <MenuItem mnemonicParsing="false" onAction="#onLanguageInsertComplexOption" text="%app.menu.insert_language" />
+              </items>
+            </Menu>
+          <Menu mnemonicParsing="false" text="%app.menu.help">
+               <items>
+                  <MenuItem mnemonicParsing="false" onAction="#onHelp" text="%app.menu.manual" />
+               </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+   </top>
+   <left>
+      <VBox maxHeight="1.7976931348623157E308" spacing="8.0" BorderPane.alignment="CENTER">
+
+         <children>
+            <ComboBox fx:id="baseCombo" prefWidth="250.0" promptText="%ui.main.base_prompt" />
+            <ComboBox fx:id="sectionCombo" prefWidth="250.0" />
+            <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" spacing="5.0">
+               <children>
+                  <TextField fx:id="searchPatternField" promptText="%app.prompt_search" HBox.hgrow="ALWAYS" />
+                  <Button fx:id="searchBtn" mnemonicParsing="false" text="%app.search" />
+               </children>
+            </HBox>
+            <HBox fx:id="userActionPane" prefWidth="250.0" spacing="5.0">
+               <children>
+                  <Button fx:id="createUserBtn" mnemonicParsing="false" onAction="#onCreateUserBtn" text="%app.create" />
+                  <Button fx:id="editUserBtn" mnemonicParsing="false" onAction="#onEditUserBtn" text="%app.edit" />
+                  <Button fx:id="delUserBtn" mnemonicParsing="false" text="%app.delete" />
+               </children>
+            </HBox>
+            <TreeView fx:id="sectionTree" maxHeight="1.7976931348623157E308" minHeight="100.0" prefHeight="200.0" prefWidth="250.0" VBox.vgrow="ALWAYS" />
+            <TextArea fx:id="programInfo" maxHeight="150.0" minHeight="70.0" prefHeight="70.0" prefWidth="250.0" />
+            <TextArea fx:id="programDescription" maxHeight="150.0" minHeight="50.0" prefHeight="50.0" prefWidth="250.0" />
+         </children>
+         <padding>
+            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+         </padding>
+      </VBox>
+   </left>
+   <center>
+      <VBox prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <HBox maxHeight="70.0" maxWidth="1.7976931348623157E308" prefHeight="69.0" prefWidth="434.0">
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
+               <padding>
+                  <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+               </padding>
+               <children>
+                  <ImageView fx:id="deviceIcon" fitHeight="70.0" fitWidth="34.0" pickOnBounds="true" preserveRatio="true">
+                     <HBox.margin>
+                        <Insets left="15.0" right="15.0" />
+                     </HBox.margin>
+                  </ImageView>
+                  <Group>
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                     <children>
+                        <ProgressBar fx:id="diskSpaceBar" layoutY="100.0" prefHeight="10.0" prefWidth="70.0" progress="0.0" rotate="270.0" translateY="35.0" />
+                     </children>
+                  </Group>
+                  <Separator orientation="VERTICAL">
+                     <HBox.margin>
+                        <Insets left="8.0" />
+                     </HBox.margin></Separator>
+                  <StackPane HBox.hgrow="ALWAYS">
+                     <children>
+                        <VBox fx:id="progress2Pane" alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" spacing="8.0" visible="false">
+                           <padding>
+                              <Insets left="8.0" />
+                           </padding>
+                           <children>
+                              <Label fx:id="textInfo" maxWidth="1.7976931348623157E308" text="Label">
+                                 <VBox.margin>
+                                    <Insets />
+                                 </VBox.margin>
+                              </Label>
+                              <Label fx:id="textActionInfo" maxWidth="1.7976931348623157E308" text="Label" />
+                              <ProgressBar fx:id="progressAction" maxWidth="400.0" prefWidth="200.0" progress="0.0" />
+                           </children>
+                        </VBox>
+                        <VBox fx:id="progress1Pane" alignment="CENTER" maxWidth="1.7976931348623157E308" visible="false">
+                           <children>
+                              <ProgressIndicator fx:id="progressIndicator" VBox.vgrow="ALWAYS">
+                                 <VBox.margin>
+                                    <Insets bottom="3.0" left="8.0" right="8.0" />
+                                 </VBox.margin>
+                                 <effect>
+                                    <Reflection bottomOpacity="0.13" fraction="0.32" topOpacity="0.2" />
+                                 </effect>
+                              </ProgressIndicator>
+                              <Label fx:id="progressIndicatorLabel" alignment="CENTER" maxWidth="1.7976931348623157E308" text="Label">
+                                 <VBox.margin>
+                                    <Insets bottom="3.0" left="8.0" right="8.0" top="3.0" />
+                                 </VBox.margin>
+                              </Label>
+                           </children>
+                        </VBox>
+                        <VBox fx:id="progress3Pane" alignment="CENTER" maxWidth="1.7976931348623157E308" StackPane.alignment="CENTER">
+                           <children>
+                              <Label fx:id="messageText" alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Label" VBox.vgrow="ALWAYS" />
+                           </children>
+                        </VBox>
+                     </children>
+                  </StackPane>
+               </children>
+            </HBox>
+            <Separator prefWidth="200.0">
+               <VBox.margin>
+                  <Insets left="18.0" right="18.0" />
+               </VBox.margin>
+            </Separator>
+            <TabPane fx:id="therapyTabPane" maxHeight="1.7976931348623157E308" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+              <tabs>
+                <Tab fx:id="tab1" closable="false" text="%app.ui.tab1">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <HBox maxWidth="1.7976931348623157E308" prefWidth="200.0" spacing="8.0">
+                                       <children>
+                                          <Button fx:id="btnCreateProfile" mnemonicParsing="false" onAction="#onCreateProfile" text="%ui.main.create_profile" />
+                                          <Button fx:id="btnGenerate" mnemonicParsing="false" onAction="#onGenerate" text="%app.file_generation" />
+                                          <Button fx:id="btnUploadm" mnemonicParsing="false" text="%app.uppload_" />
+                                          <Button minHeight="24.0" minWidth="24.0" mnemonicParsing="false" onAction="#onSearchProfile" prefHeight="24.0" prefWidth="24.0" styleClass="searchButton" />
+                                          <Button fx:id="btnDeleteProfile" mnemonicParsing="false" onAction="#onRemoveProfile" text="%ui.main.remove_profile" />
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                                       </padding>
+                                    </HBox>
+                                    <TableView fx:id="tableProfile" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0" prefHeight="60.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                                 </children>
+                              </VBox>
+                           </children></AnchorPane>
+                  </content>
+                </Tab>
+                <Tab fx:id="tab2" closable="false" disable="true" text="%app.ui.tab2">
+                  <content>
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <HBox maxWidth="1.7976931348623157E308" prefWidth="200.0" spacing="8.0">
+                                       <children>
+                                          <Button fx:id="btnCreateTherapy" mnemonicParsing="false" onAction="#onCreateComplex" text="%ui.main.create_complex" />
+                                          <Button fx:id="btnDeleteTherapy" mnemonicParsing="false" onAction="#onRemoveComplex" text="%ui.main.remove_complex" />
+                                           <HBox fx:id="bundlesPan" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
+                                               <HBox.margin>
+                                                   <Insets left="8.0" right="8.0" top="-4.0" />
+                                               </HBox.margin>
+                                               <children>
+                                                   <Label alignment="CENTER" text="%ui.bundles_length">
+                                                       <HBox.margin>
+                                                           <Insets left="8.0" right="8.0" />
+                                                       </HBox.margin>
+                                                   </Label>
+                                                   <Spinner fx:id="bundlesSpinner" maxWidth="80.0" />
+                                                   <VBox fx:id="bundlesBtnPan" spacing="3.0">
+                                                       <children>
+                                                           <Button fx:id="btnOkBundles" contentDisplay="CENTER" ellipsisString="" maxHeight="16.0" maxWidth="16.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0" />
+                                                           <Button fx:id="btnCancelBundles" maxHeight="16.0" maxWidth="16.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0" />
+                                                       </children>
+                                                       <HBox.margin>
+                                                           <Insets left="5.0" right="5.0" />
+                                                       </HBox.margin>
+                                                   </VBox>
+                                               </children>
+                                           </HBox>
+                                          <HBox fx:id="spinnerPan" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
+                                             <HBox.margin>
+                                                <Insets left="8.0" right="8.0" top="-4.0" />
+                                             </HBox.margin>
+                                             <children>
+                                                <Label alignment="CENTER" text="%ui.time_to_freq">
+                                                   <HBox.margin>
+                                                      <Insets left="8.0" right="8.0" />
+                                                   </HBox.margin>
+                                                </Label>
+                                                <Spinner fx:id="timeToFreqSpinner" maxWidth="80.0" />
+                                                <VBox fx:id="spinnerBtnPan" spacing="3.0">
+                                                   <children>
+                                                      <Button fx:id="btnOkSpinner" contentDisplay="CENTER" ellipsisString="" maxHeight="16.0" maxWidth="16.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0" />
+                                                      <Button fx:id="btnCancelSpinner" maxHeight="16.0" maxWidth="16.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0" />
+                                                   </children>
+                                                   <HBox.margin>
+                                                      <Insets left="5.0" right="5.0" />
+                                                   </HBox.margin>
+                                                </VBox>
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                       <padding>
+                                          <Insets left="8.0" right="8.0" top="8.0" />
+                                       </padding>
+                                    </HBox>
+                                    <HBox fx:id="onameBoxComplex" spacing="6.0">
+                                       <children>
+                                          <Label text="%app.ui.name_on_ins_lang" />
+                                          <Label fx:id="onameComplex" text="" />
+                                       </children>
+                                       <padding>
+                                          <Insets left="8.0" />
+                                       </padding></HBox>
+                                    <TableView fx:id="tableComplex" maxHeight="1.7976931348623157E308" minHeight="50.0" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                                 </children>
+                              </VBox>
+                           </children></AnchorPane>
+                  </content>
+                </Tab>
+                  <Tab fx:id="tab3" closable="false" disable="true" text="%app.ui.tab3">
+                      <content>
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                           <children>
+                              <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <HBox maxWidth="1.7976931348623157E308" prefWidth="200.0" spacing="8.0">
+                                       <children>
+                                          <Button fx:id="btnUpProgram" mnemonicParsing="false" onAction="#onUpProgram" text="%app.up" />
+                                          <Button fx:id="btnDownProgram" mnemonicParsing="false" onAction="#onDownProgram" text="%app.down" />
+                                          <Button mnemonicParsing="false" onAction="#onAddMP3" text="%app.ui.program_by_mp3" />
+                                          <Button fx:id="btnDeleteProgram" mnemonicParsing="false" onAction="#onRemoveProgram" text="%ui.main.remove_program" />
+                                       </children>
+                                       <padding>
+                                          <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                                       </padding>
+                                    </HBox>
+                                     <HBox fx:id="onameBoxProgram" spacing="6.0">
+                                         <children>
+                                             <Label text="%app.ui.name_on_ins_lang" />
+                                             <Label fx:id="onameProgram" text="" />
+                                         </children>
+                                         <padding>
+                                             <Insets left="8.0" />
+                                         </padding></HBox>
+                                    <TableView fx:id="tableProgram" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+                                 </children>
+                              </VBox>
+                           </children></AnchorPane>
+                      </content>
+                  </Tab>
+              </tabs>
+            </TabPane>
+         </children>
+      </VBox>
+   </center>
+</BorderPane>

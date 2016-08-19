@@ -346,12 +346,15 @@ public class AppController  extends BaseController {
      */
     private void balanceSpitterDividers()
     {
-        double summ=   ((VBox)tableProfile.getParent()).getChildren().stream().mapToDouble(node ->
-                (node instanceof Parent )? ((Parent)node).minHeight(-1):  node.getBoundsInParent().getHeight()).sum();
+
+       // double summ=   splitOuter.getItems().stream().mapToDouble(node ->(node instanceof Parent )? ((Parent)node).minWidth(-1):  node.getBoundsInParent().getWidth()).sum();
+        double summ =
+                ((splitOuter.getItems().get(0) instanceof Parent )? ((Parent)splitOuter.getItems().get(0)).minWidth(-1):  splitOuter.getItems().get(0).getBoundsInParent().getWidth())+ ((splitOuter.getItems().get(1) instanceof Parent )? ((Parent)splitOuter.getItems().get(1)).minWidth(-1):  splitOuter.getItems().get(1).getBoundsInParent().getWidth());
+
         summ+=15;
-        double h=  splitOuter.getHeight();
+        double w=  splitOuter.getWidth();
         SplitPane.Divider divider1 = splitOuter.getDividers().get(0);
-        if(divider1.getPosition()<=summ/h) divider1.setPosition(summ / h);
+        if(divider1.getPosition()<=summ/w) divider1.setPosition(summ / w);
 
 
 
@@ -480,10 +483,10 @@ public class AppController  extends BaseController {
         //меню импорта комплекса из папки в пользовательскую базу
 
         //splitOuter.setStyle("-fx-box-border: transparent;");
-        //Platform.runLater(() -> balanceSpitterDividers());
+        Platform.runLater(() -> balanceSpitterDividers());
 
         //будем подстраивать  dividers при изменении размеров контейнера таблиц, при движ ползунков это не работает, при изм размеров окна срабатывает
-        //splitOuter.heightProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) ->    balanceSpitterDividers());
+        splitOuter.widthProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> balanceSpitterDividers());
 
 
 
