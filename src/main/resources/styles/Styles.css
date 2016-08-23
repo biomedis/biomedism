@@ -6,6 +6,15 @@
     -fx-background-position:center;
 }
 
+
+.searchReturnButton
+{
+    -fx-background-image: url("../images/undo.png");
+    -fx-background-size: 20 20;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position:center;
+}
+
 /*
 .button {
     -fx-font-weight: bold;

@@ -113,6 +113,7 @@
                   <ComboBox fx:id="sectionCombo" maxWidth="1.7976931348623157E308" prefWidth="250.0" />
                   <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" spacing="5.0">
                      <children>
+                        <Button fx:id="searchReturn" maxHeight="24.0" maxWidth="24.0" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" onAction="#onSearchReturn" prefHeight="24.0" prefWidth="24.0"  styleClass="searchReturnButton"/>
                         <TextField fx:id="searchPatternField" promptText="%app.prompt_search" HBox.hgrow="ALWAYS" />
                         <Button fx:id="searchBtn" mnemonicParsing="false" text="%app.search" />
                      </children>

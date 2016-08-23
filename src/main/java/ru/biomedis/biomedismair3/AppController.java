@@ -11,9 +11,7 @@ import javafx.beans.Observable;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.StringBinding;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -163,6 +161,7 @@ public class AppController  extends BaseController {
     @FXML private Label onameProgram;
     @FXML private Label onameComplex;
     @FXML private Menu updateBaseMenu;
+    @FXML private Button searchReturn;
 
     private TableViewSkin<?> tableSkin;
     private VirtualFlow<?> virtualFlow;
@@ -264,7 +263,10 @@ public class AppController  extends BaseController {
         }
 
 
+    public void onSearchReturn(){
+        clearSearch(true,true);
 
+    }
 
     /**
      * Установка текста над табл комплексов
@@ -289,6 +291,16 @@ public class AppController  extends BaseController {
        private   boolean search=false;
         private String searchText="";
 
+        private ReadOnlyBooleanWrapper searched=new ReadOnlyBooleanWrapper(false);
+
+
+
+
+        public ReadOnlyBooleanProperty searchedProperty() {
+            return searched.getReadOnlyProperty();
+        }
+
+
 
         public boolean isSearch() {
             return this.search;
@@ -296,6 +308,7 @@ public class AppController  extends BaseController {
 
         public void setSearch(boolean search) {
             this.search = search;
+            searched.set(search);
         }
 
         public String getSearchText() {
@@ -308,8 +321,8 @@ public class AppController  extends BaseController {
 
         public void clear(){
 
-            this.search=false;
-            this.searchText="";
+           setSearch(false);
+           setSearchText("");
 
         }
     }
@@ -374,6 +387,13 @@ public class AppController  extends BaseController {
         baseProfileTabName=res.getString("app.ui.tab1");
         baseComplexTabName=res.getString("app.ui.tab2");
         baseProgramTabName=res.getString("app.ui.tab3");
+
+
+        searchReturn.setDisable(true);
+        searchReturn.disableProperty().bind(searchState.searchedProperty().not());
+
+        //if (!searchState.isSearch()) smi4.setDisable(true);
+        //else smi4.setDisable(false);
 
         updateBaseMenu.setVisible(getApp().isUpdateBaseMenuVisible());
 
