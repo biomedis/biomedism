@@ -48,7 +48,7 @@ public class LangController extends BaseController {
         l.setName("");
         l.setId(0L);
 
-        langlist.getItems().add(l);
+       // langlist.getItems().add(l);
         langlist.getItems().addAll(getModel().findAvaliableLangs());
 
         try {
@@ -76,7 +76,7 @@ public class LangController extends BaseController {
 
         langlist.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) ->
         {
-            if(newValue.intValue()==0)
+          /*  if(newValue.intValue()==0)
             {
                 try {
                     getModel().setOption("app.lang","");
@@ -91,7 +91,7 @@ public class LangController extends BaseController {
                     return;
                 }
             }else
-            {
+            {  */
                 try {
                     getModel().setOption("app.lang",langlist.getItems().get(newValue.intValue()).getAbbr());
                     setInsertCompexLang(langlist.getItems().get(newValue.intValue()).getAbbr());
@@ -100,7 +100,7 @@ public class LangController extends BaseController {
                     showExceptionDialog("Ошибка применения параметра языка", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                     return;
                 }
-            }
+            //}
             showInfoDialogNoHeader(resources.getString("app.text.change_lang_title"),resources.getString("app.text.change_lang_text"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
 
 

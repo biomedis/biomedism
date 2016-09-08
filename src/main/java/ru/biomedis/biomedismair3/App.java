@@ -198,6 +198,10 @@ public class App extends Application {
 
         //настроим язык программы
 
+        String option = getModel().getOption("app.first-run");
+
+        boolean firstStart=false;
+        if(option.equals("true")) firstStart=true;
 
 
         if(getModel().countLanguages()>0)
@@ -205,12 +209,17 @@ public class App extends Application {
             try {
 
                 String langOpt = getModel().getOption("app.lang");
-                if (langOpt.isEmpty()) {
+                if (langOpt.isEmpty() || firstStart==true) {
                     //если настройки нет то установим по по возможностиумолчанию
                     if (getModel().getLanguage(getModel().getSystemLocale().getLanguage()).isAvaliable()) {
                         getModel().setProgramLanguage(new Locale(getModel().getSystemLocale().getLanguage()));
                     } else
                         getModel().setProgramLanguageDefault(); // если системный язык не доступен в локализации то поставим язык по умолчанию
+
+                    //если  запуск первый раз, то установим опцию равную языку
+                    setInsertCompexLang(getModel().getProgramLanguage().getAbbr());
+                    getModel().setOption("app.lang",getModel().getProgramLanguage().getAbbr());
+                    getModel().setOption("app.first-run","false");
 
 
                 } else {
@@ -221,9 +230,9 @@ public class App extends Application {
 
                 }
 
-                //если опция пустая- запуск первый раз, то установим опцию равную языку
-                String abbrIL =   getModel().getOption("app.lang_insert_complex");
-                if(abbrIL.isEmpty()) setInsertCompexLang(getModel().getProgramLanguage().getAbbr());
+
+
+
 
             } catch (Exception e) {
                 //если что поставим язык по умолчанию
@@ -237,6 +246,9 @@ public class App extends Application {
             getModel().setProgramLanguageDefault();
             //System.out.println("Язык - по умолчанию");
         }
+
+
+
 
         //загрузим перевод интерфейса на выбранный язык!
         this.strings= ResourceBundle.getBundle("bundles.strings", new UTF8Control());
