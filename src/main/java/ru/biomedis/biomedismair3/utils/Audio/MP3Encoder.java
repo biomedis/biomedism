@@ -52,7 +52,15 @@ private static final boolean debug=false;
         this.codecType=codecType;
         this.sampleRate= sampleRate;
 
-        ModelDataApp mda= BaseController.getApp().getModel();
+
+
+        if(OSValidator.isWindows()) codecPath="./codec/lame.exe";
+        else if(OSValidator.isMac()) codecPath="."+File.separator+"codec"+File.separator+"lame_mac";
+
+
+
+
+            ModelDataApp mda= BaseController.getApp().getModel();
         try {
            String p= mda.getOption("codec.path");
             if(!p.isEmpty()) codecPath=p;
@@ -68,6 +76,10 @@ private static final boolean debug=false;
         this.getProfile = false;
         this.codecType = codecType;
         this.sampleRate = sampleRate;
+
+        if(OSValidator.isWindows()) codecPath="./codec/lame.exe";
+        else if(OSValidator.isMac())  codecPath="."+File.separator+"codec"+File.separator+"lame_mac";
+
         ModelDataApp mda = BaseController.getApp().getModel();
 
         try {
@@ -160,7 +172,7 @@ String fName="." + File.separator +"data"+ File.separator + programm.getId() + "
         File lame=new File(codecPath);
         Process proc = null;
                if(OSValidator.isWindows()) proc = runtime.exec(lame.getAbsolutePath()+" "+param+"  --silent  "+waveFileName+" "+mp3FileName);
-                else if(OSValidator.isMac() )  proc =runtime.exec(new String[]{"open",codecPath,param+"  --silent ",waveFileName,mp3FileName});
+                else if(OSValidator.isMac() )   proc = runtime.exec(codecPath +" "+param+"  --silent "+waveFileName+" "+mp3FileName);
                else if( OSValidator.isUnix())  proc =runtime.exec(new String[]{codecPath,param +"  --silent ",waveFileName,mp3FileName});
                 else {BaseController.showErrorDialog("Ошибка","","Операционная система не поддерживается",BaseController.getApp().getMainWindow(), Modality.WINDOW_MODAL);throw new RuntimeException();}
         InputStream stderr = proc.getErrorStream();
@@ -188,7 +200,7 @@ String fName="." + File.separator +"data"+ File.separator + programm.getId() + "
 
         Process proc = null;
         if(OSValidator.isWindows())  proc =runtime.exec(lame.getAbsolutePath()+" --preset 128  --silent  "+waveFileName+" "+mp3FileName);
-        else if(OSValidator.isMac()) proc = runtime.exec(new String[]{"open",codecPath,"--preset 128  --silent ",waveFileName,mp3FileName});
+        else if(OSValidator.isMac())   proc = runtime.exec(codecPath +" --preset 128  --silent "+waveFileName+" "+mp3FileName);
         else if( OSValidator.isUnix()) proc = runtime.exec(new String[]{codecPath,"--preset 128 --silent ",waveFileName,mp3FileName});
 
         else {BaseController.showErrorDialog("Ошибка","","Операционная система не поддерживается",BaseController.getApp().getMainWindow(), Modality.WINDOW_MODAL);throw new RuntimeException();}

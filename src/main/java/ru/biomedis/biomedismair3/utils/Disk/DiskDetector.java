@@ -275,13 +275,13 @@ return ret;
 
                     List<FileStore> allFileStores = getAllFileStores();
 
-                    long count = allFileStores.stream().filter(fileStore -> fileStore.name().equals(getNameDiskStore()) || fileStore.name().equalsIgnoreCase(getNameDiskStore())).count();
+                    long count = allFileStores.stream().filter(fileStore -> fileStore.name().contains(getNameDiskStore()) || fileStore.name().equalsIgnoreCase(getNameDiskStore()) || fileStore.toString().contains(getNameDiskStore())).count();
 
                     if (count != 0) {
                         //обнаружен прибор, вернем еще его FileStore
                         status=true;
                         List<FileStore> collect = allFileStores.stream().
-                                filter(fileStore -> fileStore.name().equals(getNameDiskStore()) || fileStore.name().equalsIgnoreCase(getNameDiskStore())).collect(Collectors.toList());
+                                filter(fileStore -> fileStore.name().equalsIgnoreCase(getNameDiskStore()) || fileStore.name().contains(getNameDiskStore()) || fileStore.toString().contains(getNameDiskStore())).collect(Collectors.toList());
                         if(collect!=null ? !collect.isEmpty(): false)  action.accept(true,collect.get(0));
                        else  action.accept(true,null);
 
@@ -304,7 +304,11 @@ return ret;
                         Thread.sleep(periodSec * 1000);
 
                         List<FileStore> allFileStores = getAllFileStores();
-                        long count = allFileStores.stream().filter(fileStore -> fileStore.name().equals(getNameDiskStore()) || fileStore.name().equalsIgnoreCase(getNameDiskStore())).count();
+                        long count = allFileStores.stream().filter(fileStore ->
+
+
+                             fileStore.name().equalsIgnoreCase(getNameDiskStore()) || fileStore.name().contains(getNameDiskStore()) || fileStore.toString().contains(getNameDiskStore())
+                        ).count();
 
                         if(count!=0)
                         {
@@ -313,7 +317,7 @@ return ret;
                             status=true;
 
                             List<FileStore> collect = allFileStores.stream().
-                                    filter(fileStore -> fileStore.name().equals(getNameDiskStore()) || fileStore.name().equalsIgnoreCase(getNameDiskStore())).collect(Collectors.toList());
+                                    filter(fileStore -> fileStore.name().contains(getNameDiskStore()) || fileStore.name().equalsIgnoreCase(getNameDiskStore()) || fileStore.toString().contains(getNameDiskStore())).collect(Collectors.toList());
                             if(collect!=null ? !collect.isEmpty(): false)  action.accept(true,collect.get(0));
                             else  action.accept(true,null);
                         }
