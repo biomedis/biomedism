@@ -99,7 +99,10 @@ private static final boolean debug=false;
        FreqsContainer fk=new FreqsContainer(programm.getFrequencies(),programm.getTherapyComplex().getTimeForFrequency(),sampleRate,programm.getTherapyComplex().isMulltyFreq(),programm.getTherapyComplex().getBundlesLength(),16);
 
        System.out.print("Temp File Generating...");
-       File	outputWavFile = new File("temp.wav");
+       File	outputWavFile;
+       if(OSValidator.isMac())outputWavFile = new File("/var/tmp/temp.wav");
+       else outputWavFile = new File("temp.wav");
+
        TimeMesure tm=new TimeMesure("WAV");
        tm.start();
        AudioInputStream oscillator = new SineOscillatorProgram(fk);
@@ -134,7 +137,9 @@ String fName="." + File.separator +"data"+ File.separator + programm.getId() + "
         {
             case EXTERNAL_CODEC:
 
-              if(wavToMP3_128("temp.wav", fName)!=0) res=false;
+
+
+              if(wavToMP3_128(outputWavFile.getAbsolutePath(), fName)!=0) res=false;
                 else res=true;
 
 
