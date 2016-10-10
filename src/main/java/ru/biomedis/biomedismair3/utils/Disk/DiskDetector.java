@@ -1,6 +1,7 @@
 package ru.biomedis.biomedismair3.utils.Disk;
 
 import ru.biomedis.biomedismair3.entity.Strings;
+import ru.biomedis.biomedismair3.utils.OS.OSValidator;
 
 import java.nio.file.*;
 import java.util.ArrayList;
@@ -90,16 +91,46 @@ return ret;
 
 
     public   static Path getRootPath(FileStore fs) throws Exception {
-        Path media = Paths.get("/media");
-        if (media.isAbsolute() && Files.exists(media)) { // Linux
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(media)) {
-                for (Path p : stream) {
-                    if (Files.getFileStore(p).equals(fs)) {
-                        return p;
+
+
+        if(OSValidator.isWindows())
+        {
+
+            Path media = Paths.get("/media");
+            if (media.isAbsolute() && Files.exists(media)) { // Linux
+                try (DirectoryStream<Path> stream = Files.newDirectoryStream(media)) {
+                    for (Path p : stream) {
+                        if (Files.getFileStore(p).equals(fs)) {
+                            return p;
+                        }
                     }
                 }
+            }else {
+
+                throw new Exception("Ощибка определения ОС. Ожидался Linux");
             }
-        } else { // Windows
+        }else if(OSValidator.isMac())
+        {
+
+            Path media = Paths.get("/Volumes");
+            if (media.isAbsolute() && Files.exists(media)) { // OS X
+                try (DirectoryStream<Path> stream = Files.newDirectoryStream(media)) {
+                    for (Path p : stream) {
+                        if (Files.getFileStore(p).equals(fs)) {
+                            return p;
+                        }
+                    }
+                }
+            }else {
+
+                throw new Exception("Ощибка определения ОС. Ожидался OS X");
+            }
+
+
+        }
+            else {
+
+            // Windows
             Exception ex = null;
             for (Path p : FileSystems.getDefault().getRootDirectories()) {
                 try {
@@ -111,25 +142,59 @@ return ret;
                 }
             }
             if (ex != null) {
-                logger.error("",ex);
+                logger.error("Ощибка определения ОС. Ожидался Windows",ex);
                 throw ex;
             }
+
         }
+
+
         return null;
     }
 
 
     private  static boolean isRootPath(FileStore fs) throws Exception {
-        Path media = Paths.get("/media");
-        if (media.isAbsolute() && Files.exists(media)) { // Linux
-            try (DirectoryStream<Path> stream = Files.newDirectoryStream(media)) {
-                for (Path p : stream) {
-                    if (Files.getFileStore(p).equals(fs)) {
-                        return true;
+
+
+
+        if(OSValidator.isWindows())
+        {
+
+            Path media = Paths.get("/media");
+            if (media.isAbsolute() && Files.exists(media)) { // Linux
+                try (DirectoryStream<Path> stream = Files.newDirectoryStream(media)) {
+                    for (Path p : stream) {
+                        if (Files.getFileStore(p).equals(fs)) {
+                            return true;
+                        }
                     }
                 }
+            }else {
+
+                throw new Exception("Ощибка определения ОС. Ожидался Linux");
             }
-        } else { // Windows
+        }else if(OSValidator.isMac())
+        {
+
+            Path media = Paths.get("/Volumes");
+            if (media.isAbsolute() && Files.exists(media)) { // OS X
+                try (DirectoryStream<Path> stream = Files.newDirectoryStream(media)) {
+                    for (Path p : stream) {
+                        if (Files.getFileStore(p).equals(fs)) {
+                            return true;
+                        }
+                    }
+                }
+            }else {
+
+                throw new Exception("Ощибка определения ОС. Ожидался OS X");
+            }
+
+
+        }
+        else {
+
+            // Windows
             Exception ex = null;
             for (Path p : FileSystems.getDefault().getRootDirectories()) {
                 try {
@@ -141,9 +206,10 @@ return ret;
                 }
             }
             if (ex != null) {
-                logger.error("",ex);
+                logger.error("Ощибка определения ОС. Ожидался Windows",ex);
                 throw ex;
             }
+
         }
         return false;
     }
