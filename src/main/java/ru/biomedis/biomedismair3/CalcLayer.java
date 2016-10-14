@@ -94,6 +94,7 @@ if(actionListener!=null) actionListener.onCancel();
         dlg.initOwner(owner);
         dlg.initModality(Modality.WINDOW_MODAL);
 
+
         URL location = getApp().getClass().getResource("/fxml/CalcLayer.fxml");
         FXMLLoader fxmlLoader = new FXMLLoader(location, getApp().getResources());
         Parent root=null;
@@ -107,7 +108,7 @@ if(actionListener!=null) actionListener.onCancel();
         controller.setWindow(dlg);
         Scene scene = new Scene(root);
         //scene.setFill(Color.TRANSPARENT);
-
+        scene.getStylesheets().add("/styles/CalcLayer.css");
         dlg.setScene(scene);
         dlg.setResizable(false);
         return dlg;
@@ -164,6 +165,11 @@ if(actionListener!=null) actionListener.onCancel();
         controller=null;
         Platform.runLater(() -> {stage.close();stage=null;});
 
+    }
+
+    public void minimize(){
+
+        getApp().getMainWindow().setIconified(true);
     }
 
     public static final CalcLayer getLayer(){return controller;}

@@ -1,0 +1,8 @@
+
+.minimizeBtn
+{
+    -fx-background-image: url("../images/minimize.png");
+    -fx-background-size: 20 20;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position:left;
+}

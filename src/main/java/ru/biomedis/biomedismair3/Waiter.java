@@ -60,7 +60,7 @@ public class Waiter extends BaseController
         controller.setWindow(dlg);
         Scene scene = new Scene(root);
         //scene.setFill(Color.TRANSPARENT);
-
+        scene.getStylesheets().add("/styles/CalcLayer.css");
         dlg.setScene(scene);
         dlg.setResizable(false);
         return dlg;
@@ -114,5 +114,10 @@ public class Waiter extends BaseController
         controller=null;
         Platform.runLater(() -> {stage.close();stage=null;});
 
+    }
+
+    public void minimize(){
+
+        getApp().getMainWindow().setIconified(true);
     }
 }

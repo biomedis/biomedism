@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.effect.*?>
-<?import javafx.scene.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
-<?import java.lang.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.effect.Glow?>
+<?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="root" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" style="-fx-background-color: rgba(100, 100, 100, 0.6)" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.CalcLayer">
+<VBox fx:id="root" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" spacing="10.0" style="-fx-background-color: rgba(100, 100, 100, 0.6)" xmlns="http://javafx.com/javafx/8.0.102-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.CalcLayer">
    <cursor>
       <Cursor fx:constant="WAIT" />
    </cursor>
@@ -15,6 +16,11 @@
       <Button fx:id="cancel" mnemonicParsing="false" onAction="#onCancel" text="%app.cancel" />
       <ProgressBar maxWidth="1.7976931348623157E308" />
       <Label fx:id="info" maxWidth="1.7976931348623157E308" />
+      <Button  minHeight="24.0" minWidth="24.0" mnemonicParsing="false" onAction="#minimize" prefHeight="24.0" styleClass="minimizeBtn" text="%minimizeApp">
+         <padding>
+            <Insets bottom="3.0" left="23.0" right="5.0" top="3.0" />
+         </padding></Button>
+
    </children>
    <padding>
       <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />

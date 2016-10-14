@@ -93,42 +93,9 @@ return ret;
     public   static Path getRootPath(FileStore fs) throws Exception {
 
 
-        if(OSValidator.isWindows())
-        {
-
-            Path media = Paths.get("/media");
-            if (media.isAbsolute() && Files.exists(media)) { // Linux
-                try (DirectoryStream<Path> stream = Files.newDirectoryStream(media)) {
-                    for (Path p : stream) {
-                        if (Files.getFileStore(p).equals(fs)) {
-                            return p;
-                        }
-                    }
-                }
-            }else {
-
-                throw new Exception("Ощибка определения ОС. Ожидался Linux");
-            }
-        }else if(OSValidator.isMac())
-        {
-
-            Path media = Paths.get("/Volumes");
-            if (media.isAbsolute() && Files.exists(media)) { // OS X
-                try (DirectoryStream<Path> stream = Files.newDirectoryStream(media)) {
-                    for (Path p : stream) {
-                        if (Files.getFileStore(p).equals(fs)) {
-                            return p;
-                        }
-                    }
-                }
-            }else {
-
-                throw new Exception("Ощибка определения ОС. Ожидался OS X");
-            }
 
 
-        }
-            else {
+        if(OSValidator.isWindows()) {
 
             // Windows
             Exception ex = null;
@@ -146,7 +113,50 @@ return ret;
                 throw ex;
             }
 
+        }else if(OSValidator.isMac())
+        {
+
+            Path media = Paths.get("/Volumes");
+            if (media.isAbsolute() && Files.exists(media)) { // OS X
+                try (DirectoryStream<Path> stream = Files.newDirectoryStream(media)) {
+                    for (Path p : stream) {
+                        if (Files.getFileStore(p).equals(fs)) {
+                            return p;
+                        }
+                    }
+                }
+            }else {
+
+                throw new Exception("Ощибка определения ОС. Ожидался OS X");
+            }
+
+
+        }else if(OSValidator.isUnix())
+        {
+
+            Path media = Paths.get("/media");
+            boolean flag = media.isAbsolute() && Files.exists(media);
+            if(!flag){
+                media=Paths.get("/mnt");
+                flag = media.isAbsolute() && Files.exists(media);
+            }
+
+            if(!flag) throw new Exception("Ощибка определения ОС. Ожидался Linux");
+
+
+                try (DirectoryStream<Path> stream = Files.newDirectoryStream(media)) {
+                    for (Path p : stream) {
+                        if (Files.getFileStore(p).equals(fs)) {
+                            return p;
+                        }
+                    }
+                }
+
+
+
+
         }
+
 
 
         return null;
@@ -155,24 +165,24 @@ return ret;
 
     private  static boolean isRootPath(FileStore fs) throws Exception {
 
+        if(OSValidator.isWindows()){
 
-
-        if(OSValidator.isWindows())
-        {
-
-            Path media = Paths.get("/media");
-            if (media.isAbsolute() && Files.exists(media)) { // Linux
-                try (DirectoryStream<Path> stream = Files.newDirectoryStream(media)) {
-                    for (Path p : stream) {
-                        if (Files.getFileStore(p).equals(fs)) {
-                            return true;
-                        }
+            // Windows
+            Exception ex = null;
+            for (Path p : FileSystems.getDefault().getRootDirectories()) {
+                try {
+                    if (Files.getFileStore(p).equals(fs)) {
+                        return true;
                     }
+                } catch (Exception e) {
+                    ex = e;
                 }
-            }else {
-
-                throw new Exception("Ощибка определения ОС. Ожидался Linux");
             }
+            if (ex != null) {
+                logger.error("Ощибка определения ОС. Ожидался Windows",ex);
+                throw ex;
+            }
+
         }else if(OSValidator.isMac())
         {
 
@@ -192,23 +202,24 @@ return ret;
 
 
         }
-        else {
+        else if(OSValidator.isUnix())
+        {
 
-            // Windows
-            Exception ex = null;
-            for (Path p : FileSystems.getDefault().getRootDirectories()) {
-                try {
-                    if (Files.getFileStore(p).equals(fs)) {
-                        return true;
+            Path media = Paths.get("/media");
+           boolean flag =  media.isAbsolute() && Files.exists(media);
+            if(!flag){
+                media = Paths.get("/mnt");
+                flag =  media.isAbsolute() && Files.exists(media);
+            }
+            if(!flag) throw new Exception("Ощибка определения ОС. Ожидался Linux");
+
+                try (DirectoryStream<Path> stream = Files.newDirectoryStream(media)) {
+                    for (Path p : stream) {
+                        if (Files.getFileStore(p).equals(fs)) {
+                            return true;
+                        }
                     }
-                } catch (Exception e) {
-                    ex = e;
                 }
-            }
-            if (ex != null) {
-                logger.error("Ощибка определения ОС. Ожидался Windows",ex);
-                throw ex;
-            }
 
         }
         return false;
