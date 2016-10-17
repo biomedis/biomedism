@@ -7,6 +7,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Создание директорий, удаление директорий в папке profiles
@@ -51,7 +52,27 @@ public class FilesProfileHelper
         if (!diskPath.exists())  return null;
         File textFile=null;
 
-        for (File file : diskPath.listFiles( dir -> dir.isDirectory()))
+
+
+        File[] listFiles = diskPath.listFiles(dir -> dir.isDirectory());
+
+        List<File> files = Arrays.stream(listFiles).sorted((f1, f2) -> {
+
+            String[] f1_split = f1.getName().split("-");
+            String[] f2_split = f2.getName().split("-");
+
+            if(f1_split.length==0 || f2_split.length==0) return 0;
+
+            int i1 = Integer.parseInt(f1_split[0]);
+            int i2 = Integer.parseInt(f2_split[0]);
+            if(i1<i2) return -1;
+            else if(i1>i2) return 1;
+            else return 0;
+
+
+        }).collect(Collectors.toList());
+
+        for (File file : files)
         {
             //найдем первый попавшийся текстовый файл
             textFile=null;
@@ -108,15 +129,34 @@ public class FilesProfileHelper
 
         if (!complexDir.exists())  return null;
 
-        //найдем bss без текста и удалим
+        //найдем bss без текста и удалим.
+        // Не будем удалять, а пусть такие bss будет на совести пользователя. Нехер копировать вручную в прибор что попало
+        /*
         for (File file : complexDir.listFiles(dir -> dir.isFile()&&dir.getName().contains(".bss")))
         {
             File txtFile=new File(complexDir,file.getName().substring(0,file.getName().length()-4)+".txt");
             if(!txtFile.exists())file.delete();
         }
+        */
+        File[] listFiles = complexDir.listFiles(dir -> dir.isFile() && dir.getName().contains(".txt"));
+        List<File> files = Arrays.stream(listFiles).sorted((f1, f2) -> {
+
+            String[] f1_split = f1.getName().split("-");
+            String[] f2_split = f2.getName().split("-");
+
+            if(f1_split.length==0 || f2_split.length==0) return 0;
+
+            int i1 = Integer.parseInt(f1_split[0]);
+            int i2 = Integer.parseInt(f2_split[0]);
+            if(i1<i2) return -1;
+            else if(i1>i2) return 1;
+            else return 0;
 
 
-        for (File file : complexDir.listFiles(dir -> dir.isFile()&&dir.getName().contains(".txt")))
+        }).collect(Collectors.toList());
+
+
+        for (File file : files)
         {
 
 
@@ -132,12 +172,13 @@ public class FilesProfileHelper
 
             int bundlesLength=1;
             //в обновлении 1 добавилось 9 поле, тут мы его игнорируем
-            if(progrParam.size() < 8) throw new OldComplexTypeException("Обнаружен комплекс старого формата",complexDir.getName().substring(0,file.getName().length()));
+            if(progrParam.size() < 8) throw new OldComplexTypeException("Обнаружен комплекс старого формата",complexDir.getName().substring(0,complexDir.getName().length()));
             else if(progrParam.size() > 8){
                 bundlesLength=Integer.parseInt(progrParam.get(8));
             }
 
             File bssFile= new File(complexDir,file.getName().substring(0,file.getName().length()-4)+".bss");
+
 
             res.put(Long.parseLong(progrParam.get(0)), new ProgramFileData
                     (
@@ -149,6 +190,7 @@ public class FilesProfileHelper
                             progrParam.get(5),
                             file,
                             bssFile.exists() ? bssFile : (File)null, Boolean.parseBoolean(progrParam.get(7)),bundlesLength));
+
         }
 
         return res;

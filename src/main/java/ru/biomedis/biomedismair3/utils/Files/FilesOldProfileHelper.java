@@ -5,10 +5,8 @@ import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Списки комплексов и программ, в старом формате.
@@ -53,7 +51,26 @@ public class FilesOldProfileHelper
         if (!diskPath.exists())  return null;
         File textFile=null;
 
-        for (File file : diskPath.listFiles( dir -> dir.isDirectory()&&!dir.getName().equalsIgnoreCase("System Volume Information")))
+
+        File[] listFiles = diskPath.listFiles(dir -> dir.isDirectory() && !dir.getName().equalsIgnoreCase("System Volume Information"));
+        List<File> files = Arrays.stream(listFiles).sorted((f1, f2) -> {
+
+            String[] f1_split = f1.getName().split("-");
+            String[] f2_split = f2.getName().split("-");
+
+            if(f1_split.length==0 || f2_split.length==0) return 0;
+
+            int i1 = Integer.parseInt(f1_split[0]);
+            int i2 = Integer.parseInt(f2_split[0]);
+            if(i1<i2) return -1;
+            else if(i1>i2) return 1;
+            else return 0;
+
+
+        }).collect(Collectors.toList());
+
+
+        for (File file : files)
         {
             //найдем первый попавшийся текстовый файл
             textFile=null;
@@ -138,7 +155,25 @@ public class FilesOldProfileHelper
 
 
 long k=0;
-        for (File file : complexDir.listFiles(dir -> dir.isFile()&&dir.getName().contains(".txt")))
+        File[] listFiles = complexDir.listFiles(dir -> dir.isFile() && dir.getName().contains(".txt"));
+        List<File> files = Arrays.stream(listFiles).sorted((f1, f2) -> {
+
+            String[] f1_split = f1.getName().split("-");
+            String[] f2_split = f2.getName().split("-");
+
+            if(f1_split.length==0 || f2_split.length==0) return 0;
+
+            int i1 = Integer.parseInt(f1_split[0]);
+            int i2 = Integer.parseInt(f2_split[0]);
+            if(i1<i2) return -1;
+            else if(i1>i2) return 1;
+            else return 0;
+
+
+        }).collect(Collectors.toList());
+
+
+        for (File file : files)
         {
             int ind= file.getName().length()-4;
             int ind2= file.getName().indexOf("-");
