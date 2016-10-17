@@ -443,6 +443,21 @@ public class AppController  extends BaseController {
                 }else return baseProfileTabName;
             }
         });
+
+
+        tableComplex.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+
+            if(newValue !=null)
+            {
+                String s = DateUtil.convertSecondsToHMmSs(AppController.this.getModel().getTimeTherapyComplex(newValue));
+                setComplexTabName(baseComplexTabName+" ("+ newValue.getName() +") +("+s+")");
+
+
+            }else setComplexTabName(baseComplexTabName);
+
+        });
+
+        /*
         tabs.get(1).textProperty().bind(new StringBinding() {
             {
                 //указывается через , список свойств изменения которых приведут к срабатыванию этого
@@ -450,13 +465,20 @@ public class AppController  extends BaseController {
             }
             @Override
             protected String computeValue() {
-                if(tableComplex.getSelectionModel().getSelectedItem()!=null)
+                TherapyComplex selected = tableComplex.getSelectionModel().getSelectedItem();
+                if(selected !=null)
                 {
-                    return  baseComplexTabName+" ("+tableComplex.getSelectionModel().getSelectedItem().getName()+")";
-                }else return baseComplexTabName;
+                    String s = DateUtil.convertSecondsToHMmSs(AppController.this.getModel().getTimeTherapyComplex(selected));
+                    return  baseComplexTabName+" ("+ selected.getName() +") +("+s+")";
+
+
+                }else{
+
+                    return baseComplexTabName;
+                }
             }
         });
-
+*/
         tabs.get(2).textProperty().bind(new StringBinding() {
             {
                 //указывается через , список свойств изменения которых приведут к срабатыванию этого
@@ -1162,11 +1184,43 @@ initTables();
 
 
 
+//хранит время комплекса в строковом представлении и через # id комплекса. Используется в выводе в табе комплекса времени и его обновления
+private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
 
 
+
+
+            private String getComplexTabName(){
+               return therapyTabPane.getTabs().get(1).getText();
+
+            }
+    private void setComplexTabName(String val){
+         Platform.runLater(() -> therapyTabPane.getTabs().get(1).setText(val));
+
+    }
     private void initTables()
     {
+
+        //установка имени таба комплексов с учетом времени
+        textComplexTime.addListener((observable, oldValue, newValue) -> {
+
+            String[] strings = newValue.split("#");
+             if(strings.length!=0)
+             {
+                 TherapyComplex selectedItem = tableComplex.getSelectionModel().getSelectedItem();
+                 if(selectedItem==null) return;
+
+
+                 long idC= Long.parseLong(strings[1]);
+                 if(idC!=selectedItem.getId().longValue())return;//если изменения не в выбраном комплексе, то и считать не надо
+                 setComplexTabName(baseComplexTabName+" ("+ selectedItem.getName() +") +("+strings[0]+")") ;
+             }
+
+        });
+
+
+
         //значения времени(хранятся в соответств. классах сущностей) устанавливаются при инициализации данных. После обновляются при изменении времени, удалении и добавлении програм и комплексов.
 
         /*** Профили  ****/
@@ -1369,6 +1423,10 @@ initTables();
         TableColumn<TherapyComplex,String> timeColTC=new TableColumn<>(res.getString("app.table.delay"));
       //  timeColTC.setCellValueFactory(param -> new SimpleStringProperty(DateUtil.convertSecondsToHMmSs(getModel().getTimeTherapyComplex(param.getValue()))));
        //пересчет индуцируется при изменении свойства time
+
+
+
+
         timeColTC.setCellValueFactory(param -> {
             SimpleStringProperty property = new SimpleStringProperty();
             property.bind(new StringBinding() {
@@ -1378,7 +1436,9 @@ initTables();
 
                 @Override
                 protected String computeValue() {
-                    return DateUtil.convertSecondsToHMmSs(AppController.this.getModel().getTimeTherapyComplex(param.getValue()));
+                    String s = DateUtil.convertSecondsToHMmSs(AppController.this.getModel().getTimeTherapyComplex(param.getValue()));
+                    textComplexTime.setValue(s+"#"+param.getValue().getId().longValue());
+                    return s;
                 }
             });
             return property;
