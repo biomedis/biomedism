@@ -20,6 +20,8 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -198,11 +200,16 @@ public class App extends Application {
 
         //настроим язык программы
 
-        String option = getModel().getOption("app.first-run");
+         //String option = getModel().getOption("app.first-run");
 
         boolean firstStart=false;
-        if(option.equals("true")) firstStart=true;
+        //if(option.equals("true")) firstStart=true;
 
+        File firstStartFileIndicator=new File(this.dataDir,"fs.ind");
+        if(!firstStartFileIndicator.exists())firstStart=true;
+        else firstStart=false;
+
+        if(firstStart==false) System.out.println("sfs");else  System.out.println("2222");
 
         if(getModel().countLanguages()>0)
         {
@@ -219,8 +226,8 @@ public class App extends Application {
                     //если  запуск первый раз, то установим опцию равную языку
                     setInsertCompexLang(getModel().getProgramLanguage().getAbbr());
                     getModel().setOption("app.lang",getModel().getProgramLanguage().getAbbr());
-                    getModel().setOption("app.first-run","false");
-
+                    //getModel().setOption("app.first-run","false");
+                    createFirstStartFile(firstStartFileIndicator);
 
                 } else {
                     //если есть настройка проверим и установим язык программы
@@ -234,7 +241,12 @@ public class App extends Application {
 
 
 
-            } catch (Exception e) {
+            } catch (IOException e){
+                BaseController.showInfoConfirmDialog(this.strings.getString("app.error"),
+                        "", this.strings.getString("app.error_write_ind_file"), null, Modality.APPLICATION_MODAL);
+                Platform.exit();
+            }
+            catch (Exception e) {
                 //если что поставим язык по умолчанию
                  Log.logger.error("",e);
                 getModel().setProgramLanguageDefault();
@@ -362,7 +374,18 @@ https://gist.github.com/DemkaAge/8999236
         
     }
 
+    /**
+     * Создаст индикаторный файл первого запуска в папке data c указанным именем
+     * @param file дескриптор файла
+     */
+    private void createFirstStartFile(File file) throws IOException {
 
+            try(FileWriter fw=new FileWriter(file) )
+            {
+                fw.write(":-)");
+            }
+
+        }
 
     private void setInsertCompexLang(String abbr){
         try {
