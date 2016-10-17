@@ -2563,7 +2563,14 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
                 break;
 
         }
-        if(sections.isEmpty() && complexes.isEmpty() && programs.isEmpty()){ showInfoDialog(res.getString("app.search_res"),res.getString("app.search_res_1"),"",getApp().getMainWindow(),Modality.WINDOW_MODAL);  clearSearch(false,false); return;}
+        if(sections.isEmpty() && complexes.isEmpty() && programs.isEmpty()){
+            showInfoDialog(res.getString("app.search_res"),res.getString("app.search_res_1"),"",
+                    getApp().getMainWindow(),Modality.WINDOW_MODAL);
+
+            //clearSearch(false,false);
+
+            return;
+        }
 
         clearTree();
 
