@@ -200,16 +200,15 @@ public class App extends Application {
 
         //настроим язык программы
 
-         //String option = getModel().getOption("app.first-run");
+
 
         boolean firstStart=false;
-        //if(option.equals("true")) firstStart=true;
+
 
         File firstStartFileIndicator=new File(this.dataDir,"fs.ind");
         if(!firstStartFileIndicator.exists())firstStart=true;
         else firstStart=false;
 
-        if(firstStart==false) System.out.println("sfs");else  System.out.println("2222");
 
         if(getModel().countLanguages()>0)
         {
@@ -226,7 +225,7 @@ public class App extends Application {
                     //если  запуск первый раз, то установим опцию равную языку
                     setInsertCompexLang(getModel().getProgramLanguage().getAbbr());
                     getModel().setOption("app.lang",getModel().getProgramLanguage().getAbbr());
-                    //getModel().setOption("app.first-run","false");
+
                     createFirstStartFile(firstStartFileIndicator);
 
                 } else {

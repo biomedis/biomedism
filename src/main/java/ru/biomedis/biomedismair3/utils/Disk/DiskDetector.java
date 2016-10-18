@@ -1,8 +1,13 @@
 package ru.biomedis.biomedismair3.utils.Disk;
 
 import ru.biomedis.biomedismair3.entity.Strings;
+import ru.biomedis.biomedismair3.utils.OS.ExecCommand;
 import ru.biomedis.biomedismair3.utils.OS.OSValidator;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,8 +26,23 @@ import static ru.biomedis.biomedismair3.Log.logger;
 public class DiskDetector
 {
 
+    private  static  String whoami="";
+    static {
+        if(OSValidator.isUnix()) {
+            try {
+                whoami = ExecCommand.execCmd("whoami");
 
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
+    /**
+     * Имя пользователя в системе Linux
+     * @return
+     */
+    public static String whoami(){return whoami;}
 
 
             private static  List<FileStore> getAllFileStores()
@@ -90,6 +110,12 @@ return ret;
 }
 
 
+    /**
+     * ПРоблема в том что из FileStore не получить путь и приходиться его выковыривать вот так
+     * @param fs
+     * @return
+     * @throws Exception
+     */
     public   static Path getRootPath(FileStore fs) throws Exception {
 
 
@@ -136,21 +162,49 @@ return ret;
 
             Path media = Paths.get("/media");
             boolean flag = media.isAbsolute() && Files.exists(media);
-            if(!flag){
-                media=Paths.get("/mnt");
-                flag = media.isAbsolute() && Files.exists(media);
-            }
-
-            if(!flag) throw new Exception("Ощибка определения ОС. Ожидался Linux");
-
-
+            if(media.isAbsolute() && Files.exists(media))
+            {
                 try (DirectoryStream<Path> stream = Files.newDirectoryStream(media)) {
                     for (Path p : stream) {
                         if (Files.getFileStore(p).equals(fs)) {
                             return p;
                         }
                     }
+
+
                 }
+                //если не нашли, посмотрим в поддиректории с именем пользователя
+
+                try{
+                    media=Paths.get("/media/"+whoami());
+                }catch (InvalidPathException e){
+                    return null;
+                }
+                try (DirectoryStream<Path> stream = Files.newDirectoryStream(media)) {
+                    for (Path p : stream) {
+                        if (Files.getFileStore(p).equals(fs)) {
+                            return p;
+                        }
+                    }
+
+
+                }
+            }
+            else
+            {
+
+                media=Paths.get("/mnt");
+
+                if(media.isAbsolute() && Files.exists(media)){
+                    try (DirectoryStream<Path> stream = Files.newDirectoryStream(media)) {
+                        for (Path p : stream) {
+                            if (Files.getFileStore(p).equals(fs)) {
+                                return p;
+                            }
+                        }
+                    }
+                }else   if(!flag) throw new Exception("Ощибка определения ОС. Ожидался Linux");
+            }
 
 
 
@@ -205,21 +259,57 @@ return ret;
         else if(OSValidator.isUnix())
         {
 
-            Path media = Paths.get("/media");
-           boolean flag =  media.isAbsolute() && Files.exists(media);
-            if(!flag){
-                media = Paths.get("/mnt");
-                flag =  media.isAbsolute() && Files.exists(media);
-            }
-            if(!flag) throw new Exception("Ощибка определения ОС. Ожидался Linux");
 
+            Path media = Paths.get("/media");
+            boolean flag = media.isAbsolute() && Files.exists(media);
+            if(media.isAbsolute() && Files.exists(media))
+            {
                 try (DirectoryStream<Path> stream = Files.newDirectoryStream(media)) {
                     for (Path p : stream) {
                         if (Files.getFileStore(p).equals(fs)) {
                             return true;
                         }
                     }
+
+
                 }
+                //если не нашли, посмотрим в поддиректории с именем пользователя
+
+               try{
+                   media=Paths.get("/media/"+whoami());
+               }catch (InvalidPathException e){
+                   return false;
+               }
+                try (DirectoryStream<Path> stream = Files.newDirectoryStream(media)) {
+                    for (Path p : stream) {
+                        if (Files.getFileStore(p).equals(fs)) {
+                            return true;
+                        }
+                    }
+
+
+                }
+            }
+            else
+            {
+
+                media=Paths.get("/mnt");
+
+                if(media.isAbsolute() && Files.exists(media)){
+                    try (DirectoryStream<Path> stream = Files.newDirectoryStream(media)) {
+                        for (Path p : stream) {
+                            if (Files.getFileStore(p).equals(fs)) {
+                                return true;
+                            }
+                        }
+                    }
+                }else   if(!flag) throw new Exception("Ощибка определения ОС. Ожидался Linux");
+            }
+
+
+
+
+
 
         }
         return false;
