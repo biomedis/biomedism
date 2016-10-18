@@ -175,13 +175,17 @@ public class App extends Application {
         /******** Обновления ************/
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
 
-        int currentUpdateFile=1;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
+        int currentUpdateFile=2;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
 
 
         if(getUpdateVersion() < currentUpdateFile)
         {
             //обновим согласно полученной версии, учесть, что нужно на младшие накатывать все апдейты по порядку
-            if(getUpdateVersion()==0) update1(updateOption);
+            if(getUpdateVersion()==0) {
+                update1(updateOption);
+                update2(updateOption);
+            }
+            else if(getUpdateVersion()==1) update2(updateOption);
 
         }else if(getUpdateVersion() > currentUpdateFile){
             logger.error("Запуск апдейта "+currentUpdateFile+" ниже установленного "+getUpdateVersion()+"!");
@@ -373,6 +377,8 @@ https://gist.github.com/DemkaAge/8999236
         
     }
 
+
+
     /**
      * Создаст индикаторный файл первого запуска в папке data c указанным именем
      * @param file дескриптор файла
@@ -528,6 +534,14 @@ https://gist.github.com/DemkaAge/8999236
         logger.info("ОБНОВЛЕНИЕ 1 ЗАВЕРШЕНО.");
     }
 
+
+    private void update2(ProgramOptions updateOption) {
+        logger.info("ОБНОВЛЕНИЕ 2.");
+
+        setUpdateVersion(updateOption,2);//установим новую версию обновления
+
+        logger.info("ОБНОВЛЕНИЕ 2 ЗАВЕРШЕНО.");
+    }
 
     @Override
     public void stop() throws Exception {       
