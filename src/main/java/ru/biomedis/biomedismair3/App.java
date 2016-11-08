@@ -13,15 +13,14 @@ import ru.biomedis.biomedismair3.DBImport.NewDBImport;
 import ru.biomedis.biomedismair3.DBImport.OldDBImport;
 import ru.biomedis.biomedismair3.Tests.TestsFramework.TestsManager;
 import ru.biomedis.biomedismair3.entity.ProgramOptions;
+import ru.biomedis.biomedismair3.utils.OS.OSValidator;
 import ru.biomedis.biomedismair3.utils.UTF8Control;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import javax.persistence.Query;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,12 +39,33 @@ public class App extends Application {
       public  ResourceBundle strings=null;
       private Stage mainWindow=null;
       private ModelDataApp model;
-      private  File dataDir;
-      private  File tmpDir;
+
+      private  static  File dataDir;
+      private  static  File innerDataDir;
+      private  static  File tmpDir;
 
     public File getTmpDir() {
         return tmpDir;
     }
+
+    public  File getInnerDataDir() {
+        return innerDataDir;
+    }
+
+    public File getDataDir(){return dataDir;}
+
+
+
+    public static File getTmpDir_() {
+        return tmpDir;
+    }
+
+    public static File getInnerDataDir_() {
+        return innerDataDir;
+    }
+
+    public static File getDataDir_(){return dataDir;}
+
 
     public ResourceBundle getResources(){return strings;}
       private final boolean test=false;//указывает что будут проводиться интеграционные тесты. Соответсвенно будет подключена другая БД и запущенны тесты
@@ -57,7 +77,7 @@ public class App extends Application {
     }
 
     private List<CloseAppListener> closeAppListeners=new ArrayList<>();
-    public File getDataDir(){return dataDir;}
+
 
     public void addCloseApplistener(CloseAppListener action)
     {
@@ -118,19 +138,77 @@ public class App extends Application {
        }
     
        public Stage getMainWindow(){return mainWindow;}
-      
+
+    private int copyWindowsDataContentToRoaming() throws IOException, InterruptedException {
+
+        //скопируем, то что нужно в эту папку, если этого там нет
+        Runtime runtime = Runtime.getRuntime();
+        Process proc = null;
+        File codec=new File("./codec/");
+
+            proc = runtime.exec("cmd.exe /C xcopy "+codec.getAbsolutePath() +" "+dataDir.getAbsolutePath()+"\\codec /e /i");
+
+
+        InputStream stderr = proc.getInputStream();
+        InputStreamReader isr = new InputStreamReader(stderr);
+        BufferedReader br = new BufferedReader(isr);
+        String line = null;
+        while ( (line = br.readLine()) != null){
+        }
+        int exitVal = proc.waitFor();
+        //System.out.println("Process exitValue: " + exitVal);
+        return exitVal;
+    }
+
+
+
+    private boolean neadCleanDataFilesAndState=false;
     @Override
     public void start(Stage stage) throws Exception {
 
 
         Log.logger.info("Старт программы");
 
-        
-        this.dataDir=new File("data");
-        if(!dataDir.exists())dataDir.mkdir();
+        if(OSValidator.isWindows()){
 
-        this.tmpDir=new File(dataDir,"tmp");
-        if(!tmpDir.exists()){tmpDir.mkdir();   this.tmpDir=new File(dataDir,"tmp");}
+            String userProfileDir=System.getenv("USERPROFILE");
+            if(userProfileDir==null) throw new RuntimeException("Не удалось определить профиль пользователя");
+
+
+
+            this.innerDataDir=new File("data");
+            if(!innerDataDir.exists())innerDataDir.mkdir();
+
+            dataDir=new File(userProfileDir+"\\AppData\\Roaming\\BiomedisMAir4");
+
+            if(!dataDir.exists()){
+                dataDir.mkdirs();
+                copyWindowsDataContentToRoaming();
+                neadCleanDataFilesAndState=true;
+
+
+
+            }else {
+                File codec=new File(dataDir,"codec");
+                if(!codec.exists())copyWindowsDataContentToRoaming();
+            }
+
+
+
+
+        }else {
+            dataDir=new File("data");
+            if(!dataDir.exists())dataDir.mkdir();
+            innerDataDir=dataDir;
+        }
+
+
+
+        tmpDir=new File(dataDir,"tmp");
+        if(!tmpDir.exists()){
+            tmpDir.mkdir();
+            tmpDir=new File(dataDir,"tmp");
+        }
         else  recursiveDeleteTMP();
 
 
@@ -172,6 +250,10 @@ public class App extends Application {
         }
 
 
+
+
+
+
         /******** Обновления ************/
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
 
@@ -201,6 +283,7 @@ public class App extends Application {
         model=new ModelDataApp(emf);
         modelStatic =model;
 
+        cleanDataFilesAndState();
 
         //настроим язык программы
 
@@ -209,7 +292,7 @@ public class App extends Application {
         boolean firstStart=false;
 
 
-        File firstStartFileIndicator=new File(this.dataDir,"fs.ind");
+        File firstStartFileIndicator=new File(getInnerDataDir(),"fs.ind");
         if(!firstStartFileIndicator.exists())firstStart=true;
         else firstStart=false;
 
@@ -377,6 +460,25 @@ https://gist.github.com/DemkaAge/8999236
         
     }
 
+    /**
+     * Очистка внутренней директории данных от файлов data
+     * Установка для всех программ статуса - требует генерации
+     */
+    private void cleanDataFilesAndState() {
+        if(neadCleanDataFilesAndState==false)return;
+
+        neadCleanDataFilesAndState=false;
+
+        //удаление dat файлов
+        for (File f : getInnerDataDir().listFiles())
+        {
+            if(f.getName().contains(".dat")) f.delete();
+
+        }
+        //необходимость генерации программ
+        getModel().setNeedGenerateAllTherapyProgramm();
+
+    }
 
 
     /**
@@ -387,7 +489,7 @@ https://gist.github.com/DemkaAge/8999236
 
             try(FileWriter fw=new FileWriter(file) )
             {
-                fw.write(":-)");
+                fw.write(getUpdateVersion()+"\n");
             }
 
         }

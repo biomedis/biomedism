@@ -98,7 +98,7 @@ public class ModelDataApp {
             findAllLanguage.add(createLanguage("de", "Deutsch",true));
             findAllLanguage.add(createLanguage("fi", "финский"));
             findAllLanguage.add(createLanguage("sv", "шведский"));
-            findAllLanguage.add(createLanguage("fr", "французский"));
+            findAllLanguage.add(createLanguage("fr", "Français",true));
             findAllLanguage.add(createLanguage("bg", "болгарский"));
             findAllLanguage.add(createLanguage("sl", "словенский"));
             findAllLanguage.add(createLanguage("sk", "словацкий"));
@@ -967,6 +967,26 @@ public class ModelDataApp {
         return   programDAO.findAllProgramBySection(section);
     }
      public void updateProgram(Program program) throws Exception{programDAO.edit(program);}
+
+
+    /**
+     * Установит необходимость генерации для всех программ
+     */
+    public void setNeedGenerateAllTherapyProgramm(){
+        EntityManager em = emf.createEntityManager();
+        Query query = em.createQuery("Update TherapyProgram set changed=true");
+        try{
+            em.getTransaction().begin();
+            query.executeUpdate();
+            em.getTransaction().commit();
+        }finally {
+            if(em!=null) em.close();
+        }
+
+
+
+
+    }
      
     /******************************************/
      

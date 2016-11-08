@@ -1,10 +1,9 @@
 package ru.biomedis.biomedismair3.utils.Audio;
 
 
-
-
 import javafx.concurrent.Task;
 import javafx.stage.Modality;
+import ru.biomedis.biomedismair3.App;
 import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.Profile;
@@ -44,7 +43,7 @@ private static final boolean debug=false;
     public synchronized String getCurrentName(){return currentName;}
     private  synchronized void setCurrentName(String val){currentName=val;}
 
-    private String codecPath="./codec/lame.exe";
+    private String codecPath="";
 
     public MP3Encoder(Profile encodingProfile,CODEC_TYPE codecType,int sampleRate)
     {
@@ -54,7 +53,7 @@ private static final boolean debug=false;
 
 
 
-        if(OSValidator.isWindows()) codecPath="./codec/lame.exe";
+        if(OSValidator.isWindows()) codecPath= App.getDataDir_()+"\\codec\\lame.exe";
         else if(OSValidator.isMac()) codecPath="."+File.separator+"codec"+File.separator+"lame_mac";
         else if(OSValidator.isUnix()) codecPath="lame";
 
@@ -78,7 +77,7 @@ private static final boolean debug=false;
         this.codecType = codecType;
         this.sampleRate = sampleRate;
 
-        if(OSValidator.isWindows()) codecPath="./codec/lame.exe";
+        if(OSValidator.isWindows()) codecPath= App.getDataDir_()+"\\codec\\lame.exe";
         else if(OSValidator.isMac())  codecPath="."+File.separator+"codec"+File.separator+"lame_mac";
         else if(OSValidator.isUnix()) codecPath="lame";
 
@@ -103,7 +102,7 @@ private static final boolean debug=false;
        System.out.print("Temp File Generating...");
        File	outputWavFile;
        if(OSValidator.isMac())outputWavFile = new File("/var/tmp/temp.wav");
-       else if(OSValidator.isWindows())outputWavFile = new File("temp.wav");
+       else if(OSValidator.isWindows())outputWavFile = new File(App.getTmpDir_()+"\\temp.wav");
        else outputWavFile = new File("/var/tmp/temp.wav");
 
        TimeMesure tm=new TimeMesure("WAV");
@@ -135,7 +134,11 @@ private static final boolean debug=false;
 
     try {
         System.out.print("MP3 File Generating...");
-String fName="." + File.separator +"data"+ File.separator + programm.getId() + ".dat";
+        String fName;
+
+        if(OSValidator.isWindows())fName=App.getDataDir_()+ "\\"+ programm.getId() + ".dat";
+        else fName="." + File.separator +"data"+ File.separator + programm.getId() + ".dat";
+
        switch (codecType)
         {
             case EXTERNAL_CODEC:
@@ -183,7 +186,7 @@ String fName="." + File.separator +"data"+ File.separator + programm.getId() + "
                 else if(OSValidator.isMac() )   proc = runtime.exec(codecPath +" "+param+"  --silent "+waveFileName+" "+mp3FileName);
                else if( OSValidator.isUnix())  proc =runtime.exec(codecPath +" "+param+"  --silent "+waveFileName+" "+mp3FileName);
                 else {BaseController.showErrorDialog("Ошибка","","Операционная система не поддерживается",BaseController.getApp().getMainWindow(), Modality.WINDOW_MODAL);throw new RuntimeException();}
-        InputStream stderr = proc.getErrorStream();
+        InputStream stderr = proc.getInputStream();
         InputStreamReader isr = new InputStreamReader(stderr);
         BufferedReader br = new BufferedReader(isr);
         String line = null;
@@ -203,6 +206,7 @@ String fName="." + File.separator +"data"+ File.separator + programm.getId() + "
 
     private  int wavToMP3_128(String waveFileName, String mp3FileName) throws Exception
     {
+
         Runtime runtime = Runtime.getRuntime();
         File lame=new File(codecPath);
 
@@ -213,7 +217,7 @@ String fName="." + File.separator +"data"+ File.separator + programm.getId() + "
 
         else {BaseController.showErrorDialog("Ошибка","","Операционная система не поддерживается",BaseController.getApp().getMainWindow(), Modality.WINDOW_MODAL);throw new RuntimeException();}
 
-        InputStream stderr = proc.getErrorStream();
+        InputStream stderr = proc.getInputStream();
         InputStreamReader isr = new InputStreamReader(stderr);
         BufferedReader br = new BufferedReader(isr);
         String line = null;
@@ -226,6 +230,9 @@ String fName="." + File.separator +"data"+ File.separator + programm.getId() + "
 
         int exitVal = proc.waitFor();
         if(debug)System.out.println("Process exitValue: " + exitVal);
+
+
+
       return exitVal;
 
     }
