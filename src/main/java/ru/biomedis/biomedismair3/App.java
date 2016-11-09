@@ -22,6 +22,7 @@ import javax.persistence.Persistence;
 import javax.persistence.Query;
 import java.io.*;
 import java.net.URL;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -139,25 +140,25 @@ public class App extends Application {
     
        public Stage getMainWindow(){return mainWindow;}
 
-    private int copyWindowsDataContentToRoaming() throws IOException, InterruptedException {
+    private boolean copyWindowsDataContentToRoaming() throws IOException, InterruptedException {
 
         //скопируем, то что нужно в эту папку, если этого там нет
-        Runtime runtime = Runtime.getRuntime();
-        Process proc = null;
+
         File codec=new File("./codec/");
+        File dstDir=new File(dataDir.getAbsolutePath(),"codec");
 
-            proc = runtime.exec("cmd.exe /C xcopy "+codec.getAbsolutePath() +" "+dataDir.getAbsolutePath()+"\\codec /e /i");
+        if(!dstDir.exists()) dstDir.mkdir();
+        try {
+            for (File file : codec.listFiles()) {
 
+                    copyFile(file,new File(dstDir,file.getName()));
 
-        InputStream stderr = proc.getInputStream();
-        InputStreamReader isr = new InputStreamReader(stderr);
-        BufferedReader br = new BufferedReader(isr);
-        String line = null;
-        while ( (line = br.readLine()) != null){
+            }
+        } catch (Exception e) {
+            logger.error("Ошибка копирования кодека",e);
+            return false;
         }
-        int exitVal = proc.waitFor();
-        //System.out.println("Process exitValue: " + exitVal);
-        return exitVal;
+        return true;
     }
 
 
@@ -197,7 +198,7 @@ public class App extends Application {
 
 
         }else {
-            dataDir=new File("data");
+            dataDir=new File("./data");
             if(!dataDir.exists())dataDir.mkdir();
             innerDataDir=dataDir;
         }
@@ -695,4 +696,25 @@ https://gist.github.com/DemkaAge/8999236
 
     }
 
+
+
+
+
+    public static void copyFile(File srcFile,File destFile) throws Exception {
+
+        destFile=new File(destFile.toURI());
+
+        try(FileChannel source = new FileInputStream(srcFile).getChannel(); FileChannel destination = new FileOutputStream(destFile).getChannel())
+        {
+
+            destination.transferFrom(source, 0, source.size());
+
+
+        } catch (Exception e) {
+
+            if(destFile.exists()) destFile.delete();
+            throw new Exception(e);
+        }
+
+    }
 }
