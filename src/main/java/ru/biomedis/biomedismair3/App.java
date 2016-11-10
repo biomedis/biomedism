@@ -150,7 +150,7 @@ public class App extends Application {
         if(!dstDir.exists()) dstDir.mkdir();
         try {
             for (File file : codec.listFiles()) {
-
+                    if(file.isDirectory())continue;
                     copyFile(file,new File(dstDir,file.getName()));
 
             }
