@@ -1200,6 +1200,17 @@ public class ModelDataApp {
      /************ Языки ***/
      public Language createLanguage(String abbr,String name,boolean avaliable)
      {
+
+         Language langU=null;
+         try {
+             langU= updateLanguage(abbr,name,avaliable);
+         } catch (Exception e) {
+             Log.logger.error("",e);
+             return langU;
+         }
+         if(langU!=null)return langU;
+
+
          Language lang = new Language();
          
          lang.setAbbr(abbr);
@@ -1215,6 +1226,15 @@ public class ModelDataApp {
 
     public Language createLanguage(String abbr,String name)
     {
+        Language langU=null;
+        try {
+            langU= updateLanguage(abbr,name,false);
+        } catch (Exception e) {
+            Log.logger.error("",e);
+            return langU;
+        }
+        if(langU!=null)return langU;
+
         Language lang = new Language();
 
         lang.setAbbr(abbr);
@@ -1238,6 +1258,53 @@ public class ModelDataApp {
         query.setParameter("tc", true);
         return query.getResultList();
 
+    }
+
+
+    public boolean hasLang(String abbr){
+        EntityManager em = emf.createEntityManager();
+        Query query = em.createQuery("Select count(l) from   Language l WHERE l.abbr=:abbr");
+        query.setParameter("abbr", abbr);
+        long cnt = (Long) query.getSingleResult();
+        if(em!=null) em.close();
+
+        return cnt>0;
+    }
+    private Language findLanguage(String abbr){
+        EntityManager em = emf.createEntityManager();
+        try {
+            Query query = em.createQuery("Select l from   Language l WHERE l.abbr=:abbr");
+            query.setParameter("abbr", abbr);
+            return  (Language) query.getSingleResult();
+        }finally {
+            if(em!=null) em.close();
+        }
+
+
+    }
+
+    /**
+     * Обновит язык если изменено имя или доступность. Если нет языка то вернет null, если есть то вернет обновленный или найденный
+     * @param abbr
+     * @param name
+     * @param avaliable
+     * @return
+     * @throws Exception
+     */
+    private  Language updateLanguage(String abbr,String name,boolean avaliable) throws Exception {
+        Language language = findLanguage(abbr);
+        if(language==null) return null;
+        if(!name.equals(language.getName()) || avaliable!=language.isAvaliable())
+        {
+            language.setName(name);
+            language.setAvaliable(avaliable);
+
+                languageDAO.edit(language);
+
+        }
+
+
+        return language;
     }
 
 
