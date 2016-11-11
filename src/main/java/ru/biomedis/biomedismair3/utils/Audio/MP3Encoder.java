@@ -139,6 +139,7 @@ private static final boolean debug=false;
         if(OSValidator.isWindows())fName=App.getDataDir_()+ "\\"+ programm.getId() + ".dat";
         else fName="." + File.separator +"data"+ File.separator + programm.getId() + ".dat";
 
+        logger.info("MP3 params: src = "+outputWavFile.getAbsolutePath()+" dst = "+fName);
        switch (codecType)
         {
             case EXTERNAL_CODEC:

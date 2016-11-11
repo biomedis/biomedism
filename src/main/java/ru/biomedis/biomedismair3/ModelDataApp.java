@@ -77,9 +77,9 @@ public class ModelDataApp {
     private void init()
     {
         //проверим и создадим данные языков
-        List<Language> findAllLanguage = findAllLanguage();
-        if(findAllLanguage.isEmpty())
-        {
+        List<Language> findAllLanguage = new ArrayList<>();//findAllLanguage();
+
+
             //создадим тут списочек           
             findAllLanguage.add(createLanguage("user", "Язык ввода пользователя"));
             findAllLanguage.add(createLanguage("hr", "хорватский"));
@@ -121,7 +121,7 @@ public class ModelDataApp {
             findAllLanguage.add(createLanguage("es", "испанский"));
             findAllLanguage.add(createLanguage("nl", "голландский"));
             findAllLanguage.add(createLanguage("ja", "японский"));
-        }        
+
         for(Language lang:findAllLanguage)languageMap.put(lang.getAbbr(), lang);
         
         defaultLanguage=languageMap.get("en");

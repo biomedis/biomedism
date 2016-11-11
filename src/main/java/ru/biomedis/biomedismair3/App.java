@@ -181,7 +181,7 @@ public class App extends Application {
             if(!innerDataDir.exists())innerDataDir.mkdir();
 
             dataDir=new File(userProfileDir+"\\AppData\\Roaming\\BiomedisMAir4");
-
+            logger.info("Data dir: "+dataDir.getAbsolutePath());
             if(!dataDir.exists()){
                 dataDir.mkdirs();
                 copyWindowsDataContentToRoaming();
