@@ -13,7 +13,6 @@ import ru.biomedis.biomedismair3.DBImport.NewDBImport;
 import ru.biomedis.biomedismair3.DBImport.OldDBImport;
 import ru.biomedis.biomedismair3.Tests.TestsFramework.TestsManager;
 import ru.biomedis.biomedismair3.entity.ProgramOptions;
-import ru.biomedis.biomedismair3.utils.OS.OSValidator;
 import ru.biomedis.biomedismair3.utils.UTF8Control;
 
 import javax.persistence.EntityManager;
@@ -23,10 +22,7 @@ import javax.persistence.Query;
 import java.io.*;
 import java.net.URL;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.*;
 
 import static ru.biomedis.biomedismair3.BaseController.getApp;
 import static ru.biomedis.biomedismair3.BaseController.showExceptionDialog;
@@ -169,7 +165,7 @@ public class App extends Application {
 
 
         Log.logger.info("Старт программы");
-
+/*
         if(OSValidator.isWindows()){
 
             String userProfileDir=System.getenv("USERPROFILE");
@@ -197,11 +193,11 @@ public class App extends Application {
 
 
 
-        }else {
+        }else {*/
             dataDir=new File("./data");
             if(!dataDir.exists())dataDir.mkdir();
             innerDataDir=dataDir;
-        }
+       // }
 
 
 
@@ -314,7 +310,7 @@ public class App extends Application {
                     setInsertCompexLang(getModel().getProgramLanguage().getAbbr());
                     getModel().setOption("app.lang",getModel().getProgramLanguage().getAbbr());
 
-                    createFirstStartFile(firstStartFileIndicator);
+
 
                 } else {
                     //если есть настройка проверим и установим язык программы
@@ -325,8 +321,8 @@ public class App extends Application {
                 }
 
 
-
-
+                //при каждом запуске пересоздаем файл, чтобы знать версию и последнеевремя запуска в мс.
+                createFirstStartFile(firstStartFileIndicator);
 
             } catch (IOException e){
                 BaseController.showInfoConfirmDialog(this.strings.getString("app.error"),
@@ -490,7 +486,10 @@ https://gist.github.com/DemkaAge/8999236
 
             try(FileWriter fw=new FileWriter(file) )
             {
+                Calendar dt = Calendar.getInstance();
                 fw.write(getUpdateVersion()+"\n");
+                fw.write(dt.getTimeInMillis() +"\n");
+                fw.write(dt.getTime() +"\n");
             }
 
         }
