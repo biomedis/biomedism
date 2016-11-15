@@ -53,7 +53,7 @@ private static final boolean debug=false;
 
 
 
-        if(OSValidator.isWindows()) codecPath= App.getDataDir_()+"\\codec\\lame.exe";
+        if(OSValidator.isWindows())  codecPath="."+File.separator+"codec"+File.separator+"lame.exe";
         else if(OSValidator.isMac()) codecPath="."+File.separator+"codec"+File.separator+"lame_mac";
         else if(OSValidator.isUnix()) codecPath="lame";
 
@@ -77,7 +77,7 @@ private static final boolean debug=false;
         this.codecType = codecType;
         this.sampleRate = sampleRate;
 
-        if(OSValidator.isWindows()) codecPath= App.getDataDir_()+"\\codec\\lame.exe";
+        if(OSValidator.isWindows()) codecPath="."+File.separator+"codec"+File.separator+"lame.exe";
         else if(OSValidator.isMac())  codecPath="."+File.separator+"codec"+File.separator+"lame_mac";
         else if(OSValidator.isUnix()) codecPath="lame";
 
