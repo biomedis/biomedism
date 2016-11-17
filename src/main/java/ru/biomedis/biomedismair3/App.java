@@ -90,6 +90,15 @@ public class App extends Application {
         public void onClose();
     }
 
+    /**
+     * Установит путь к директории данных
+     * @param dataDir
+     */
+    public  void setDataDir(File dataDir) {
+            if(!dataDir.exists())dataDir.mkdir();
+        App.dataDir = dataDir;
+
+    }
 
     private static ModelDataApp modelStatic;
     public static ModelDataApp getStaticModel() {
@@ -165,48 +174,8 @@ public class App extends Application {
 
 
         Log.logger.info("Старт программы");
-/*
-        if(OSValidator.isWindows()){
-
-            String userProfileDir=System.getenv("USERPROFILE");
-            if(userProfileDir==null) throw new RuntimeException("Не удалось определить профиль пользователя");
 
 
-
-            this.innerDataDir=new File("data");
-            if(!innerDataDir.exists())innerDataDir.mkdir();
-
-            dataDir=new File(userProfileDir+"\\AppData\\Roaming\\BiomedisMAir4");
-            logger.info("Data dir: "+dataDir.getAbsolutePath());
-            if(!dataDir.exists()){
-                dataDir.mkdirs();
-                copyWindowsDataContentToRoaming();
-                neadCleanDataFilesAndState=true;
-
-
-
-            }else {
-                File codec=new File(dataDir,"codec");
-                if(!codec.exists())copyWindowsDataContentToRoaming();
-            }
-
-
-
-
-        }else {*/
-            dataDir=new File("./data");
-            if(!dataDir.exists())dataDir.mkdir();
-            innerDataDir=dataDir;
-       // }
-
-
-
-        tmpDir=new File(dataDir,"tmp");
-        if(!tmpDir.exists()){
-            tmpDir.mkdir();
-            tmpDir=new File(dataDir,"tmp");
-        }
-        else  recursiveDeleteTMP();
 
 
 
@@ -248,6 +217,12 @@ public class App extends Application {
 
 
 
+        //путь к папке данных далее устанавливается из опций!!
+        dataDir=new File("data");
+        if(!dataDir.exists())dataDir.mkdir();
+        innerDataDir=dataDir;
+
+
 
 
 
@@ -255,7 +230,7 @@ public class App extends Application {
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
 
         int currentUpdateFile=2;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-
+        int currentMinorVersion=1;//версия исправлений в пределах мажорной версии currentUpdateFile
 
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -280,7 +255,20 @@ public class App extends Application {
         model=new ModelDataApp(emf);
         modelStatic =model;
 
-        cleanDataFilesAndState();
+        String data_path = getModel().getOption("data_path");
+        if(!data_path.isEmpty()){
+            File nData = new File(data_path);
+            if(!nData.exists()) nData.mkdirs();
+            setDataDir(nData);
+        }
+
+        tmpDir=new File(dataDir,"tmp");
+        if(!tmpDir.exists()){
+            tmpDir.mkdir();
+            tmpDir=new File(dataDir,"tmp");
+        }
+
+        recursiveDeleteTMP();
 
         //настроим язык программы
 
@@ -397,7 +385,7 @@ https://gist.github.com/DemkaAge/8999236
 
 
         BaseController.setApp(this);//установим ссылку на приложение для всех контроллеров
-         stage.setTitle(this.strings.getString("app.name")+getUpdateVersion());
+         stage.setTitle(this.strings.getString("app.name")+getUpdateVersion()+"."+currentMinorVersion);
         // stage.getIcons().add(new Image(App.class.getResourceAsStream("icon.png")));
          URL ico = getClass().getResource("/images/icon.png");
          stage.getIcons().add(new Image(ico.toExternalForm()));

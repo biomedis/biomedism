@@ -63,6 +63,7 @@ import ru.biomedis.biomedismair3.utils.Date.DateUtil;
 import ru.biomedis.biomedismair3.utils.Disk.DiskDetector;
 import ru.biomedis.biomedismair3.utils.Disk.DiskSpaceData;
 import ru.biomedis.biomedismair3.utils.Files.*;
+import ru.biomedis.biomedismair3.utils.OS.OSValidator;
 import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
 import java.io.File;
@@ -138,6 +139,7 @@ public class AppController  extends BaseController {
     @FXML private MenuItem printComplexMenu;
     @FXML private MenuItem menuImportComplex;
     @FXML private MenuItem   menuImportComplexToBase;
+    @FXML private MenuItem   dataPathMenuItem;
     @FXML TabPane therapyTabPane;
 
     @FXML
@@ -391,6 +393,8 @@ public class AppController  extends BaseController {
 
         searchReturn.setDisable(true);
         searchReturn.disableProperty().bind(searchState.searchedProperty().not());
+
+        dataPathMenuItem.setVisible(OSValidator.isWindows());//видимость пункта меню для введения пути к папки данных, только на винде!
 
         //if (!searchState.isSearch()) smi4.setDisable(true);
         //else smi4.setDisable(false);
@@ -8058,6 +8062,18 @@ return  true;
 
 
 
+    }
+
+    /**
+     *  Нажатие на меню выбора пути к данным в опциях
+     */
+    public void onPathMenuItemAction()
+    {
+        try {
+            openDialog(getApp().getMainWindow(),"/fxml/DataPathDialog.fxml",res.getString("app.ui.options.data_path"),false,StageStyle.DECORATED,0,0,0,0);
+        } catch (IOException e) {
+            logger.error("",e);
+        }
     }
     /***************************************************/
 

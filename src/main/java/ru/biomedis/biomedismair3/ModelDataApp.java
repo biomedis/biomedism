@@ -132,7 +132,11 @@ public class ModelDataApp {
         //работа с опциями. Стоит сделать проферку наличия конкретных опций, чтобы добавлять их без очистки базы
         List<ProgramOptions> allOptions = findAllOptions();
 
-
+        if(allOptions.stream().filter(option -> option.getName().equals("data_path")).count()==0)
+        {
+            ProgramOptions option = createOption("data_path", "");
+            if(option!=null) optionsMap.put(option.getName(),option);
+        }
 
         if(allOptions.stream().filter(option -> option.getName().equals("device.disk.mark")).count()==0)
         {

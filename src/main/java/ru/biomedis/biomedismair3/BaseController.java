@@ -49,7 +49,7 @@ public abstract class BaseController implements Initializable
   protected Stage window=null;
   
   
-
+public Stage getControllerWindow(){return window;}
   
   
   public ModelDataApp getModel(){return app.getModel();}
