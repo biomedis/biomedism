@@ -186,7 +186,7 @@ public class FilesProfileHelper
                             Long.parseLong(progrParam.get(2)),
                             Long.parseLong(progrParam.get(3)),
                             progrParam.get(1),
-                            progrParam.get(6),
+                            progrParam.get(6).replace(",","."),
                             progrParam.get(5),
                             file,
                             bssFile.exists() ? bssFile : (File)null, Boolean.parseBoolean(progrParam.get(7)),bundlesLength));

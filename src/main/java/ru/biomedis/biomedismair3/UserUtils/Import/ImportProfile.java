@@ -98,6 +98,7 @@ public class ImportProfile {
 
             for (Program itm : listProgram) {
                 if(itm.freqs.isEmpty())continue;
+                itm.freqs =  itm.freqs.replace(",",".");
                 split = itm.freqs.split(";");
                 for (String s : split) {
                     if (s.contains("+")) {

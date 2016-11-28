@@ -97,7 +97,7 @@ private static final boolean debug=false;
     private boolean encode(CODEC_TYPE codecType,int sampleRate,TherapyProgram programm)
    {
         boolean res=false;
-       FreqsContainer fk=new FreqsContainer(programm.getFrequencies(),programm.getTherapyComplex().getTimeForFrequency(),sampleRate,programm.getTherapyComplex().isMulltyFreq(),programm.getTherapyComplex().getBundlesLength(),16);
+       FreqsContainer fk=new FreqsContainer(programm.getFrequencies().replace(",","."),programm.getTherapyComplex().getTimeForFrequency(),sampleRate,programm.getTherapyComplex().isMulltyFreq(),programm.getTherapyComplex().getBundlesLength(),16);
 
        System.out.print("Temp File Generating...");
        File	outputWavFile;
@@ -139,7 +139,9 @@ private static final boolean debug=false;
         if(OSValidator.isWindows())fName=App.getDataDir_()+ "\\"+ programm.getId() + ".dat";
         else fName="." + File.separator +"data"+ File.separator + programm.getId() + ".dat";
 
-        logger.info("MP3 params: src = "+outputWavFile.getAbsolutePath()+" dst = "+fName);
+        fName = new File(fName).getAbsolutePath();
+
+        logger.info("MP3 params: src = "+outputWavFile.getAbsolutePath()+"\n dst = "+fName);
        switch (codecType)
         {
             case EXTERNAL_CODEC:
@@ -183,7 +185,7 @@ private static final boolean debug=false;
         Runtime runtime = Runtime.getRuntime();
         File lame=new File(codecPath);
         Process proc = null;
-               if(OSValidator.isWindows()) proc = runtime.exec(lame.getAbsolutePath()+" "+param+"  --silent  "+waveFileName+" "+mp3FileName);
+               if(OSValidator.isWindows()) proc = runtime.exec("\""+lame.getAbsolutePath()+"\" "+param+" --silent \""+waveFileName+"\" \""+mp3FileName+"\"");
                 else if(OSValidator.isMac() )   proc = runtime.exec(codecPath +" "+param+"  --silent "+waveFileName+" "+mp3FileName);
                else if( OSValidator.isUnix())  proc =runtime.exec(codecPath +" "+param+"  --silent "+waveFileName+" "+mp3FileName);
                 else {BaseController.showErrorDialog("Ошибка","","Операционная система не поддерживается",BaseController.getApp().getMainWindow(), Modality.WINDOW_MODAL);throw new RuntimeException();}
@@ -212,7 +214,7 @@ private static final boolean debug=false;
         File lame=new File(codecPath);
 
         Process proc = null;
-        if(OSValidator.isWindows())  proc =runtime.exec(lame.getAbsolutePath()+" --preset 128  --silent  "+waveFileName+" "+mp3FileName);
+        if(OSValidator.isWindows())  proc =runtime.exec("\""+lame.getAbsolutePath()+"\" --preset 128 --silent \""+waveFileName+"\" \""+mp3FileName+"\"");
         else if(OSValidator.isMac())   proc = runtime.exec(codecPath +" --preset 128  --silent "+waveFileName+" "+mp3FileName);
         else if( OSValidator.isUnix()) proc = runtime.exec(codecPath +" --preset 128  --silent "+waveFileName+" "+mp3FileName);
 

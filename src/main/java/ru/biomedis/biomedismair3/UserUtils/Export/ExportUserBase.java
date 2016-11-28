@@ -95,7 +95,7 @@ return false;
         list.forEach(program -> {
             strb.append(noops[level]);
             strb.append("<Program ").append("name=\"").append(TextUtil.escapeXML(program.getNameString())).append("\" description=\"").append(TextUtil.escapeXML(program.getDescriptionString())).
-                    append("\" ").append("frequencies=\"").append(program.getFrequencies()).append("\"/>\n");
+                    append("\" ").append("frequencies=\"").append(program.getFrequencies().replace(",",".")).append("\"/>\n");
         });
 
         return strb.toString();

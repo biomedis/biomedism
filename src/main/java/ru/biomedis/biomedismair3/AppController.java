@@ -7773,11 +7773,11 @@ return  true;
                 List<Profile> allProfiles = getApp().getModel().findAllProfiles();
                 this.updateProgress(1,allProfiles.size()+2);
                 boolean res2=true;
-                File profDir=new File(recoveryDir,"profiles");
-                if(!profDir.exists())if(!profDir.mkdir()) return false;
+
+
                 int cnt=1;
                 for (Profile profile : allProfiles) {
-                    res2= ExportProfile.export(profile,new File(profDir,profile.getId()+".xmlp"),getModel());
+                    res2= ExportProfile.export(profile,new File(recoveryDir,profile.getId()+".xmlp"),getModel());
                     if(res2==false) break;
                     this.updateProgress(++cnt,allProfiles.size()+2);
                 }
@@ -7889,6 +7889,7 @@ return  true;
 
 
                 File profDir=new File(recoveryDir,"profiles");
+                if(!profDir.exists())profDir=recoveryDir;//учитывает возможность наличие папки из бекапов старых версий
                 boolean res2 =true;
                 File[] files = profDir.listFiles((dir, name) -> name.contains(".xmlp"));
                 int pCount= files.length;
