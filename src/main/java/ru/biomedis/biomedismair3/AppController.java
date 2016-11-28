@@ -7840,6 +7840,8 @@ return  true;
     }
 
 
+
+
     /**
      * Загрузить бекап
      *
@@ -7865,7 +7867,17 @@ return  true;
 
         if(file==null)return;
 
+        String add_mode=res.getString("app.ui.add_recovery_data");
+        String replace_mode=res.getString("app.ui.replace_recovery_data");
 
+
+        String mRec = showChoiceDialog("Загрузка резервной копии", "", "Выбирайте ",
+                Arrays.asList(add_mode,replace_mode),
+                replace_mode,
+                getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+        if(mRec==null) return;
+        final boolean replaceMode = mRec.equals(replace_mode);
 
         final Section sec=userSection;
         final File zipFile=file;
@@ -7886,6 +7898,19 @@ return  true;
 
                 boolean res1 = ZIPUtil.unZip(zipFile,recoveryDir);
 
+
+                //очистка пользовательской базы и профилей если выбран соответствуюший режим.
+                if(replaceMode){
+                    getModel().clearUserBaseAndProfiles();
+
+                    Platform.runLater(() -> {
+                        //удалить из таблицы профилей профили, комплесы и програмы
+                        tableProfile.getItems().clear();
+                        //выбрать раздел 0 главный раздел
+                        baseCombo.getSelectionModel().select(0);
+                    });
+
+                }
 
 
                 File profDir=new File(recoveryDir,"profiles");
@@ -8001,7 +8026,7 @@ return  true;
         task.setOnRunning(event1 -> setProgressBar(0.0, res.getString("ui.backup.load_backup"), ""));
 
 
-        int count_profiles=getModel().countProfile();
+        int count_profiles=replaceMode==true?0:getModel().countProfile();
 
         task.setOnSucceeded(event ->
         {

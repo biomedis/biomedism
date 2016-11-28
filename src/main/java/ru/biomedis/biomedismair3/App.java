@@ -230,7 +230,7 @@ public class App extends Application {
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
 
         int currentUpdateFile=2;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=1;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentMinorVersion=2;//версия исправлений в пределах мажорной версии currentUpdateFile
 
         if(getUpdateVersion() < currentUpdateFile)
         {

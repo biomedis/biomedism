@@ -6,11 +6,9 @@
 package ru.biomedis.biomedismair3;
 
 import com.mpatric.mp3agic.Mp3File;
-
 import ru.biomedis.biomedismair3.JPAControllers.*;
 import ru.biomedis.biomedismair3.JPAControllers.exceptions.NonexistentEntityException;
 import ru.biomedis.biomedismair3.entity.*;
-
 
 import javax.persistence.*;
 import java.text.Collator;
@@ -538,7 +536,7 @@ public class ModelDataApp {
             throw new Exception("Ошибка удаления раздела",e);
         } 
     }
-    
+
     /**
      * Удаляет раздел указанный с комплексами и программми. Если Раздел содержит дочерние разделы выбросит исключение
      * @param section
@@ -2312,6 +2310,90 @@ public class ModelDataApp {
         return (Complex)query.getSingleResult();
 
     }
+
+    /**
+     * Список всех пользовательских программ
+     * @return
+     */
+    public List<Program> findAllUserProgramm(){
+        EntityManager entityManager = emf.createEntityManager();
+        Query query= entityManager.createQuery("Select p From Program p  where p.ownerSystem=false");
+        List resultList = query.getResultList();
+        if(entityManager!=null)entityManager.close();
+        return resultList;
+    }
+
+    /**
+     * Список всех пользовательских программ
+     * @return
+     */
+    public List<Complex> findAllUserComplex(){
+        EntityManager entityManager = emf.createEntityManager();
+        Query query= entityManager.createQuery("Select p From Complex p  where p.ownerSystem=false");
+        List resultList = query.getResultList();
+        if(entityManager!=null)entityManager.close();
+        return resultList;
+    }
+
+    /**
+     * Список всех пользовательских программ
+     * @return
+     */
+    public List<Section> findAllUserEmptySection(){
+        EntityManager entityManager = emf.createEntityManager();
+        Query query= entityManager.createQuery("Select p From Section p  where p.ownerSystem=false and (select count(s) from Section s where s.parent=p)  = 0");
+        List resultList = query.getResultList();
+        if(entityManager!=null)entityManager.close();
+        return resultList;
+    }
+
+
+    /**
+     * Очистка пользовательской базы и профилей
+     */
+    public void clearUserBaseAndProfiles() throws Exception {
+
+        for (Profile profile : findAllProfiles())
+        {
+            removeProfile(profile);
+        }
+
+
+
+
+        //найдем все программы с ownerSystem=false и удалим
+        for (Program program : findAllUserProgramm()) {
+            removeProgram(program);
+        }
+
+        //найдем все комплексы с ownerSystem=false и удалим
+        for (Complex complex : findAllUserComplex()) {
+            removeComplex(complex);
+        }
+        //найдем все разделы с ownerSystem=false и удалим
+        List<Section> allUserEmptySection = findAllUserEmptySection();
+        Section userSection=null;
+        do{
+
+
+            allUserEmptySection = findAllUserEmptySection();
+            for (Section section : allUserEmptySection) {
+                if(section.getTag()!=null){
+                    if(section.getTag().equals("USER")){ userSection=section; continue;}
+                }
+                removeSection(section);
+            }
+            if(userSection!=null) allUserEmptySection.remove(userSection);
+        }while (allUserEmptySection.size()>0);
+
+
+
+
+    }
+
+
+
+
 }
 
 
