@@ -12,6 +12,7 @@ import ru.biomedis.biomedismair3.DBImport.AddonsDBImport;
 import ru.biomedis.biomedismair3.DBImport.NewDBImport;
 import ru.biomedis.biomedismair3.DBImport.OldDBImport;
 import ru.biomedis.biomedismair3.Tests.TestsFramework.TestsManager;
+import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.entity.ProgramOptions;
 import ru.biomedis.biomedismair3.utils.UTF8Control;
 
@@ -40,6 +41,15 @@ public class App extends Application {
       private  static  File dataDir;
       private  static  File innerDataDir;
       private  static  File tmpDir;
+      private Profile biofonProfile;
+
+    /**
+     * Профиль биофона
+     * @return
+     */
+    public Profile getBiofonProfile() {
+        return biofonProfile;
+    }
 
     public File getTmpDir() {
         return tmpDir;
@@ -270,6 +280,10 @@ public class App extends Application {
 
         recursiveDeleteTMP();
 
+
+        //проверка профиля биофона
+        checkBiofonProfile();
+
         //настроим язык программы
 
 
@@ -443,6 +457,20 @@ https://gist.github.com/DemkaAge/8999236
 
 
         
+    }
+
+    public static final  String BIOFON_PROFILE_NAME="$~";
+    private void checkBiofonProfile() throws Exception {
+
+        List<Profile> profiles = getModel().searchProfile(BIOFON_PROFILE_NAME);
+        if(profiles.isEmpty()){
+
+            biofonProfile =  getModel().createProfile(BIOFON_PROFILE_NAME);
+
+        }else {
+
+             biofonProfile = profiles.get(0);
+        }
     }
 
     /**

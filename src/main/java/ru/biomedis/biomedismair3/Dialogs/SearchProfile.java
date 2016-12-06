@@ -5,12 +5,14 @@ import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import ru.biomedis.biomedismair3.App;
 import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.entity.Profile;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Поиск по профилям диалог
@@ -78,7 +80,8 @@ public class SearchProfile extends BaseController {
     public void onSearch()
     {
         searchResult.getItems().clear();
-        searchResult.getItems().addAll(getModel().searchProfile(searchPattern.getText())) ;
+        searchResult.getItems().addAll(getModel().searchProfile(searchPattern.getText()).stream().filter(i->!i.getName().equals(
+                App.BIOFON_PROFILE_NAME)).collect(Collectors.toList())) ;
 
     }
 

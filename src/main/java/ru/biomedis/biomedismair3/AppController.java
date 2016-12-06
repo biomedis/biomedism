@@ -1320,7 +1320,10 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         tableProfile.placeholderProperty().setValue(new Label(res.getString("app.table.profile_not_avaliable")));
         tableProfile.setEditable(true);
 
-        tableProfile.getItems().addAll(getModel().findAllProfiles());
+        tableProfile.getItems().addAll(getModel().findAllProfiles()
+                                                 .stream()
+                                                 .filter(i->!i.getName().equals(App.BIOFON_PROFILE_NAME))
+                                                 .collect(Collectors.toList()));
 
 
         numProfileCol.prefWidthProperty().bind(tableProfile.widthProperty().multiply(0.1));
