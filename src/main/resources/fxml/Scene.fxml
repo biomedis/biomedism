@@ -10,6 +10,7 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.SplitPane?>
@@ -19,15 +20,20 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TreeView?>
+<?import javafx.scene.effect.Bloom?>
 <?import javafx.scene.effect.Reflection?>
+<?import javafx.scene.effect.Shadow?>
+<?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="500.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.AppController">
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="500.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.AppController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -311,7 +317,7 @@
                               </AnchorPane>
                         </content>
                       </Tab>
-                        <Tab fx:id="tab3" closable="false" text="%app.ui.tab3">
+                        <Tab fx:id="tab3" closable="false" disable="true" text="%app.ui.tab3">
                             <content>
                                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                  <children>
@@ -343,6 +349,106 @@
                                  </children>
                               </AnchorPane>
                             </content>
+                        </Tab>
+                        <Tab fx:id="tab4" closable="false" text="%app.ui.tab4">
+                        <content>
+                            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                 <children>
+                                    <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                       <padding>
+                                          <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                                       </padding>
+                                       <bottom>
+                                          <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="100.0" spacing="8.0" BorderPane.alignment="CENTER">
+                                             <children>
+                                                <Button fx:id="biofonBtnComplex1" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="100.0" prefWidth="100.0" style="-fx-background-color: red;" text="Комплекс1" textFill="WHITE" />
+                                                <Button fx:id="biofonBtnComplex2" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="100.0" prefWidth="100.0" style="-fx-background-color: green;" text="Комплекс2" textFill="WHITE" />
+                                                <Button fx:id="biofonBtnComplex3" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="100.0" prefWidth="100.0" style="-fx-background-color: blue;" text="Комплекс3" textFill="WHITE" />
+                                                <HBox alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
+                                                   <children>
+                                                      <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="100.0" prefHeight="100.0" prefWidth="134.2">
+                                                         <children>
+
+                                                            <ImageView fitHeight="100.0" fitWidth="134.2" pickOnBounds="true" preserveRatio="true" StackPane.alignment="CENTER">
+                                                               <image>
+                                                                  <Image url="@../images/biofon.png" />
+                                                               </image></ImageView>
+                                                            <Label fx:id="biofonBlueInd" prefHeight="5.0" prefWidth="5.0" style="-fx-background-color: blue;">
+                                                               <font>
+                                                                  <Font size="4.0" />
+                                                               </font>
+                                                               <StackPane.margin>
+                                                                  <Insets bottom="2.0" right="32.0" top="30.0" />
+                                                               </StackPane.margin>
+                                                               <effect>
+                                                                  <Shadow blurType="ONE_PASS_BOX" color="BLUE" />
+                                                               </effect>
+                                                            </Label>
+                                                            <Label fx:id="biofonGreenInd" layoutX="59.0" layoutY="72.0" prefHeight="5.0" prefWidth="5.0" style="-fx-background-color: green;">
+                                                               <font>
+                                                                  <Font size="4.0" />
+                                                               </font>
+                                                               <effect>
+                                                                  <Shadow blurType="ONE_PASS_BOX" color="LIME" />
+                                                               </effect>
+                                                               <StackPane.margin>
+                                                                  <Insets bottom="3.0" right="32.0" top="7.0" />
+                                                               </StackPane.margin>
+                                                            </Label>
+                                                            <Label fx:id="biofonRedInd" layoutX="59.0" layoutY="72.0" prefHeight="5.0" prefWidth="5.0" style="-fx-background-color: red;">
+                                                               <font>
+                                                                  <Font size="4.0" />
+                                                               </font>
+                                                               <effect>
+                                                                  <Shadow blurType="ONE_PASS_BOX" color="RED" />
+                                                               </effect>
+                                                               <StackPane.margin>
+                                                                  <Insets bottom="21.0" right="32.0" />
+                                                               </StackPane.margin>
+                                                            </Label>
+                                                             <ProgressIndicator fx:id="biofonProgressIndicator" visible="false" StackPane.alignment="CENTER">
+                                                                 <effect>
+                                                                     <Bloom threshold="0.13" />
+                                                                 </effect>
+                                                             </ProgressIndicator>
+                                                         </children>
+                                                      </StackPane>
+                                                   </children>
+                                                </HBox>
+                                             </children>
+                                          </HBox>
+                                       </bottom>
+                                       <center>
+                                          <TabPane prefHeight="200.0" prefWidth="200.0" side="RIGHT" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+                                            <tabs>
+                                              <Tab closable="false" text="Комплексы">
+                                                <content>
+                                                  <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0">
+                                                         <children>
+                                                            <ScrollPane fx:id="biofonScrollComplex" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                               <content>
+                                                                  <FlowPane fx:id="BiofonComplexes" hgap="4.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWrapLength="0.0" vgap="4.0">
+                                                                     <padding>
+                                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                                                     </padding>
+                                                                  </FlowPane>
+                                                               </content>
+                                                            </ScrollPane>
+                                                         </children></AnchorPane>
+                                                </content>
+                                              </Tab>
+                                              <Tab closable="false" text="Программы">
+                                                <content>
+                                                  <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" />
+                                                </content>
+                                              </Tab>
+                                            </tabs>
+                                          </TabPane>
+                                       </center>
+                                    </BorderPane>
+                                 </children>
+                            </AnchorPane>
+                        </content>
                         </Tab>
                     </tabs>
                   </TabPane>
