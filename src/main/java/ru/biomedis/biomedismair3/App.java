@@ -42,7 +42,7 @@ public class App extends Application {
       private  static  File innerDataDir;
       private  static  File tmpDir;
       private Profile biofonProfile;
-
+    public static final  String BIOFON_PROFILE_NAME="BIOFON";
     /**
      * Профиль биофона
      * @return
@@ -459,7 +459,7 @@ https://gist.github.com/DemkaAge/8999236
         
     }
 
-    public static final  String BIOFON_PROFILE_NAME="$~";
+
     private void checkBiofonProfile() throws Exception {
 
         List<Profile> profiles = getModel().searchProfile(BIOFON_PROFILE_NAME);

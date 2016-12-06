@@ -29,10 +29,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.DataFormat;
-import javafx.scene.input.KeyCode;
+import javafx.scene.input.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -148,6 +145,9 @@ public class AppController  extends BaseController {
     private Tab tab2;
     @FXML
     private Tab tab3;
+
+    @FXML
+    private Tab tab4;
 
     @FXML private Spinner<Integer> bundlesSpinner;
 
@@ -919,6 +919,8 @@ public class AppController  extends BaseController {
         sectionTree.setRoot(rootItem);
         rootItem.setExpanded(true);
 
+
+
         sectionTree.setOnMouseClicked(event -> {
 
 
@@ -927,6 +929,8 @@ public class AppController  extends BaseController {
             //по одиночному клику
 
             TreeItem<INamed> selectedItem = sectionTree.getSelectionModel().getSelectedItem();
+            boolean nowExpanded= selectedItem.isExpanded();
+
             if (selectedItem == null) return;
             if (selectedItem.getValue() instanceof Program)
             {
@@ -1007,9 +1011,13 @@ public class AppController  extends BaseController {
 
             if (event.getClickCount() == 2)
             {
+
                 //перенос программы в текущий комплекс  в такблицу справа.
                 if (sectionTree.getSelectionModel().getSelectedItem().getValue() instanceof Program)
                 {
+
+
+
                     //если выбран комплекс в таблице комплексов
                     if (tableComplex.getSelectionModel().getSelectedItem() != null) {
                         Program p = (Program) sectionTree.getSelectionModel().getSelectedItem().getValue();
@@ -1088,11 +1096,11 @@ public class AppController  extends BaseController {
                             showExceptionDialog("Ошибка создания терапевтического комплекса ", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                         }
                         c = null;
+
                     }
 
                 }
-
-            }
+                }
 
         });
         sectionTree.setCellFactory(param -> new TreeCell<INamed>() {
