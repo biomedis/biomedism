@@ -15,6 +15,7 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.SortedList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -30,6 +31,7 @@ import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -138,6 +140,17 @@ public class AppController  extends BaseController {
     @FXML private MenuItem   menuImportComplexToBase;
     @FXML private MenuItem   dataPathMenuItem;
     @FXML TabPane therapyTabPane;
+    @FXML TabPane biofonInnerTab;
+    @FXML ListView<TherapyComplex> biofonCompexesList;
+    @FXML ListView<TherapyProgram> biofonProgramsList;
+
+    private ObservableList<TherapyComplex> biofonComplexes= FXCollections.observableArrayList();
+    private SortedList<TherapyComplex> biofonComplexesSorted=new SortedList<>(biofonComplexes);
+    private  Comparator<TherapyComplex> comparatorBiofonComplex= Comparator.comparing(TherapyComplex::getName);
+
+    private ObservableList<TherapyProgram> biofonPrograms= FXCollections.observableArrayList();
+    private SortedList<TherapyProgram> biofonProgramsSorted=new SortedList<>(biofonPrograms);
+    private  Comparator<TherapyProgram> comparatorBiofonProgram= Comparator.comparing(TherapyProgram::getPosition);
 
     @FXML
     private Tab tab1;
@@ -929,7 +942,7 @@ public class AppController  extends BaseController {
             //по одиночному клику
 
             TreeItem<INamed> selectedItem = sectionTree.getSelectionModel().getSelectedItem();
-            boolean nowExpanded= selectedItem.isExpanded();
+
 
             if (selectedItem == null) return;
             if (selectedItem.getValue() instanceof Program)
@@ -1006,43 +1019,64 @@ public class AppController  extends BaseController {
                 programInfo.setText("");
                 createUserBtn.setDisable(false);
             }
-            selectedItem = null;
+
 
 
             if (event.getClickCount() == 2)
             {
-
+                int tabSelectedIndex = therapyTabPane.getSelectionModel().getSelectedIndex();
                 //перенос программы в текущий комплекс  в такблицу справа.
-                if (sectionTree.getSelectionModel().getSelectedItem().getValue() instanceof Program)
+                if (selectedItem.getValue() instanceof Program)
                 {
 
 
+                    //проверим язык програмы и язык вставки
+                    Program p = (Program) selectedItem.getValue();
+                    String il=getInsertComplexLang();
+                    String lp=getModel().getProgramLanguage().getAbbr();
 
-                    //если выбран комплекс в таблице комплексов
-                    if (tableComplex.getSelectionModel().getSelectedItem() != null) {
-                        Program p = (Program) sectionTree.getSelectionModel().getSelectedItem().getValue();
+                    String name="";
+                    String oname="";
+                    String descr="";
+
+                    if(il.equals(lp))
+                    {
+                        name=p.getNameString();
+                        descr=p.getDescriptionString();
+                    }else {
+                        //вставим имя на языке вставки.
+                        oname=p.getNameString();
                         try {
+                            name = getModel().getString2(p.getName(),getModel().getLanguage(il));
+                            descr=getModel().getString2(p.getDescription(),getModel().getLanguage(il));
+                        } catch (Exception e) {
+                            logger.error("",e);
+                            showExceptionDialog("Ошибка создания терапевтической программы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
 
-                            //проверим язык програмы и язык вставки
+                        }
 
-                            String il=getInsertComplexLang();
-                            String lp=getModel().getProgramLanguage().getAbbr();
+                    }
 
-                            String name="";
-                            String oname="";
-                            String descr="";
 
-                            if(il.equals(lp))
-                            {
-                                name=p.getNameString();
-                                descr=p.getDescriptionString();
-                            }else {
-                                //вставим имя на языке вставки.
-                                oname=p.getNameString();
-                                name = getModel().getString2(p.getName(),getModel().getLanguage(il));
-                                descr=getModel().getString2(p.getDescription(),getModel().getLanguage(il));
-                            }
+                    if(tabSelectedIndex==3){
+                        TherapyComplex selectedTCBiofon = biofonCompexesList.getSelectionModel().getSelectedItem();
+                        if(selectedTCBiofon==null) return;
+                        try {
+                            TherapyProgram therapyProgram = getModel().createTherapyProgram(tableComplex.getSelectionModel().getSelectedItem(), name, descr, p.getFrequencies(),oname);
+                            addProgramToBiofonTab(selectedTCBiofon,therapyProgram);
+                        } catch (Exception e) {
+                            logger.error("",e);
+                            showExceptionDialog("Ошибка создания терапевтической программы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
 
+                        }
+
+
+
+                    }else
+                    if (tableComplex.getSelectionModel().getSelectedItem() != null) {
+                        //если выбран комплекс в таблице комплексов
+
+                        try {
 
 
                             TherapyProgram therapyProgram = getModel().createTherapyProgram(tableComplex.getSelectionModel().getSelectedItem(), name, descr, p.getFrequencies(),oname);
@@ -1069,12 +1103,30 @@ public class AppController  extends BaseController {
 
                     }
 
-                } else if (sectionTree.getSelectionModel().getSelectedItem().getValue() instanceof Complex) {
-                    //добавление комплекса в профиль
-                    if (tableProfile.getSelectionModel().getSelectedItem() != null)
+                } else if (selectedItem.getValue() instanceof Complex) {
+
+                    //если выбран биофон вкладка
+                    if(tabSelectedIndex==3){
+                        //добавляется комплекс в биофон
+                        Complex c = (Complex) selectedItem.getValue();
+                        try {
+                            TherapyComplex th = getModel().createTherapyComplex(getApp().getBiofonProfile(), c, 180, true,1,getInsertComplexLang());
+
+                            biofonInnerTab.getSelectionModel().select(0);
+                            addComplexToBiofonTab(th);
+
+                        } catch (Exception e) {
+                            logger.error("",e);
+                            showExceptionDialog("Ошибка создания терапевтического комплекса ", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+                        }
+
+
+                    }else
+                    if (tableProfile.getSelectionModel().getSelectedItem() != null)//добавление комплекса в профиль
                     {
 
-                        Complex c = (Complex) sectionTree.getSelectionModel().getSelectedItem().getValue();
+                        Complex c = (Complex) selectedItem.getValue();
 
                         try {
                             TherapyComplex th = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), c, 300, true,1,getInsertComplexLang());
@@ -1140,6 +1192,7 @@ public class AppController  extends BaseController {
         sectionCombo.getOnAction().handle(new ActionEvent());
 
 initTables();
+initBiofon();
 
 
         /** кнопки  таблиц **/
@@ -1196,7 +1249,41 @@ initTables();
 
 
 
-//хранит время комплекса в строковом представлении и через # id комплекса. Используется в выводе в табе комплекса времени и его обновления
+    private  Image biofonComplexImage;
+    ImageView biofonComplexImageView;
+
+    private void addComplexToBiofonTab(TherapyComplex tc)
+    {
+        biofonComplexes.add(tc);
+    }
+    private void addProgramToBiofonTab(TherapyComplex tc,TherapyProgram tp)
+    {
+        biofonPrograms.add(tp);
+    }
+    private void initBiofon() {
+
+        URL location = getClass().getResource("/images/medical_record.png");
+        biofonComplexImage = new Image(location.toExternalForm());
+        biofonComplexImageView=new ImageView(biofonComplexImage);
+
+
+        biofonComplexesSorted.setComparator(comparatorBiofonComplex);
+        biofonCompexesList.setItems(biofonComplexesSorted);
+
+
+        biofonProgramsList.setItems(biofonProgramsSorted);
+        biofonProgramsSorted.setComparator(comparatorBiofonProgram);
+
+        biofonComplexes.addAll(getModel().findAllTherapyComplexByProfile(getApp().getBiofonProfile()));
+
+
+
+
+
+    }
+
+
+    //хранит время комплекса в строковом представлении и через # id комплекса. Используется в выводе в табе комплекса времени и его обновления
 private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
 

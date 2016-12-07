@@ -11,7 +11,6 @@
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.ProgressIndicator?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.SplitPane?>
@@ -28,7 +27,6 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.FlowPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
@@ -133,7 +131,10 @@
                         <Button fx:id="delUserBtn" mnemonicParsing="false" text="%app.delete" />
                      </children>
                   </HBox>
-                  <TreeView fx:id="sectionTree" maxHeight="1.7976931348623157E308" minHeight="100.0" prefHeight="200.0" prefWidth="250.0" VBox.vgrow="ALWAYS" />
+                  <TreeView fx:id="sectionTree" maxHeight="1.7976931348623157E308" minHeight="100.0" prefHeight="200.0" prefWidth="250.0" VBox.vgrow="ALWAYS">
+                     <VBox.margin>
+                        <Insets />
+                     </VBox.margin></TreeView>
                   <TextArea fx:id="programInfo" maxHeight="150.0" minHeight="70.0" prefHeight="70.0" prefWidth="250.0" />
                   <TextArea fx:id="programDescription" maxHeight="150.0" minHeight="50.0" prefHeight="50.0" prefWidth="250.0" />
                </children>
@@ -420,27 +421,42 @@
                                           </HBox>
                                        </bottom>
                                        <center>
-                                          <TabPane prefHeight="200.0" prefWidth="200.0" side="RIGHT" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
+                                          <TabPane fx:id="biofonInnerTab" prefHeight="200.0" prefWidth="200.0" side="RIGHT" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER">
                                             <tabs>
                                               <Tab closable="false" text="Комплексы">
                                                 <content>
                                                   <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0">
                                                          <children>
-                                                            <ScrollPane fx:id="biofonScrollComplex" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                                               <content>
-                                                                  <FlowPane fx:id="BiofonComplexes" hgap="4.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWrapLength="0.0" vgap="4.0">
-                                                                     <padding>
-                                                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                                                                     </padding>
-                                                                  </FlowPane>
-                                                               </content>
-                                                            </ScrollPane>
+                                                            <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="5.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                                               <children>
+                                                                  <VBox maxHeight="1.7976931348623157E308" spacing="5.0" HBox.hgrow="NEVER">
+                                                                     <children>
+                                                                        <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
+                                                                           <children>
+                                                                              <Button mnemonicParsing="false" text="Button" />
+                                                                              <Button mnemonicParsing="false" text="Button" />
+                                                                           </children>
+                                                                        </HBox>
+                                                                        <ListView fx:id="biofonCompexesList" maxHeight="1.7976931348623157E308" prefWidth="250.0" VBox.vgrow="ALWAYS" />
+                                                                     </children>
+                                                                  </VBox>
+                                                                  <VBox maxHeight="1.7976931348623157E308" spacing="5.0" HBox.hgrow="ALWAYS">
+                                                                     <children>
+                                                                        <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
+                                                                           <children>
+                                                                              <Button mnemonicParsing="false" text="Button" />
+                                                                              <Button mnemonicParsing="false" text="Button" />
+                                                                           </children>
+                                                                        </HBox>
+                                                                        <ListView fx:id="biofonProgramsList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
+                                                                     </children>
+                                                                  </VBox>
+                                                               </children>
+                                                               <padding>
+                                                                  <Insets bottom="5.0" />
+                                                               </padding>
+                                                            </HBox>
                                                          </children></AnchorPane>
-                                                </content>
-                                              </Tab>
-                                              <Tab closable="false" text="Программы">
-                                                <content>
-                                                  <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0" />
                                                 </content>
                                               </Tab>
                                                 <Tab closable="false" text="Прибор">
