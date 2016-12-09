@@ -5,6 +5,8 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MultipleSelectionModel;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import ru.biomedis.biomedismair3.entity.Profile;
@@ -44,10 +46,14 @@ public class BiofonUIUtil {
         this.biofonProfile = biofonProfile;
         this.biofonCompexesList = biofonCompexesList;
         this.biofonProgramsList = biofonProgramsList;
+
+
     }
 
 
     public void init() {
+
+        this.biofonCompexesList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         URL location = getClass().getResource("/images/medical_record.png");
         biofonComplexImage = new Image(location.toExternalForm());
@@ -105,15 +111,23 @@ public class BiofonUIUtil {
         biofonProgramsList.setItems(biofonProgramsSorted);
         biofonProgramsSorted.setComparator(comparatorBiofonProgram);
 
-        biofonCompexesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> viewBiofonProgramsOnComplexClick(oldValue,newValue));
+        biofonCompexesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> viewBiofonProgramsOnComplexClick());
 
     }
 
-    public void viewBiofonProgramsOnComplexClick(TherapyComplex oldValue, TherapyComplex newValue){
-        if(oldValue==newValue)return;
 
+    private ObservableList<TherapyComplex> getSelectedComplexes(){
+        return biofonCompexesList.getSelectionModel().getSelectedItems();
+    }
+
+
+    public void viewBiofonProgramsOnComplexClick(){
+        ObservableList<TherapyComplex> selectedItems = getSelectedComplexes();
         biofonPrograms.clear();
-        biofonPrograms.addAll(mda.findTherapyPrograms(newValue));
+        if(selectedItems.isEmpty())return;
+
+        if(selectedItems.size() == 1)  biofonPrograms.addAll(mda.findTherapyPrograms(selectedItems.get(0)));
+
     }
 
 
