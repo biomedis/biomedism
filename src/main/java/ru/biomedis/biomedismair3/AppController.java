@@ -1267,6 +1267,50 @@ initBiofon();
         biofonComplexImageView=new ImageView(biofonComplexImage);
 
 
+
+
+        biofonComplexes.addAll(getModel().findAllTherapyComplexByProfile(getApp().getBiofonProfile()));
+        biofonCompexesList.setCellFactory(param -> new ListCell<TherapyComplex>(){
+           private  ImageView imgv;
+            @Override
+            protected void updateItem(TherapyComplex item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (item == null || empty) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                } else {
+                    this.setText(item.getName());
+                    if(imgv==null)imgv=new ImageView(biofonComplexImage);
+
+                    setGraphic(imgv);
+                }
+
+
+            }
+
+        });
+
+        biofonProgramsList.setCellFactory(param -> new ListCell<TherapyProgram>(){
+            @Override
+            protected void updateItem(TherapyProgram item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (item == null || empty) {
+                    setText(null);
+                    setGraphic(null);
+                    return;
+                } else {
+                    this.setText(item.getName()+"\n"+item.getFrequencies().replace("+",";"));
+                    setGraphic(null);
+                }
+
+
+            }
+
+        });
+
         biofonComplexesSorted.setComparator(comparatorBiofonComplex);
         biofonCompexesList.setItems(biofonComplexesSorted);
 
@@ -1274,12 +1318,15 @@ initBiofon();
         biofonProgramsList.setItems(biofonProgramsSorted);
         biofonProgramsSorted.setComparator(comparatorBiofonProgram);
 
-        biofonComplexes.addAll(getModel().findAllTherapyComplexByProfile(getApp().getBiofonProfile()));
+        biofonCompexesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> viewBiofonProgramsOnComplexClick(oldValue,newValue));
 
+    }
 
+    private void viewBiofonProgramsOnComplexClick(TherapyComplex oldValue, TherapyComplex newValue){
+        if(oldValue==newValue)return;
 
-
-
+        biofonPrograms.clear();
+        biofonPrograms.addAll(getModel().findTherapyPrograms(newValue));
     }
 
 
