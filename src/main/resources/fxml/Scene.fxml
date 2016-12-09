@@ -120,7 +120,11 @@
                   <ComboBox fx:id="sectionCombo" maxWidth="1.7976931348623157E308" prefWidth="250.0" />
                   <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" spacing="5.0">
                      <children>
-                        <Button fx:id="searchReturn" maxHeight="24.0" maxWidth="24.0" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" onAction="#onSearchReturn" prefHeight="24.0" prefWidth="24.0" styleClass="searchReturnButton" />
+                        <Button fx:id="searchReturn" maxHeight="24.0" maxWidth="24.0" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" onAction="#onSearchReturn" prefHeight="24.0" prefWidth="24.0">
+                           <styleClass>
+                              <String fx:value="searchReturnButton" />
+                              <String fx:value="GenericBtn" />
+                           </styleClass></Button>
                         <TextField fx:id="searchPatternField" promptText="%app.prompt_search" HBox.hgrow="ALWAYS" />
                         <Button fx:id="searchBtn" mnemonicParsing="false" text="%app.search" />
                      </children>
@@ -439,24 +443,24 @@
                                                                                     <String fx:value="AddBtn" />
                                                                                     <String fx:value="GenericBtn" />
                                                                                  </styleClass></Button>
-                                                                              <Button  fx:id="bComplexEdit"  minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
+                                                                              <Button fx:id="bComplexEdit" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
                                                                                  <styleClass>
                                                                                     <String fx:value="EditBtn" />
                                                                                     <String fx:value="GenericBtn" />
                                                                                  </styleClass></Button>
-                                                                              <Button  fx:id="bComplexImport" layoutX="33.0" layoutY="10.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
+                                                                              <Button fx:id="bComplexImport" layoutX="33.0" layoutY="10.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
                                                                                  <styleClass>
                                                                                     <String fx:value="ImportBtn" />
                                                                                     <String fx:value="GenericBtn" />
                                                                                  </styleClass>
                                                                               </Button>
-                                                                              <Button  fx:id="bComplexExport" layoutX="56.0" layoutY="10.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
+                                                                              <Button fx:id="bComplexExport" layoutX="56.0" layoutY="10.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
                                                                                  <styleClass>
                                                                                     <String fx:value="ExportBtn" />
                                                                                     <String fx:value="GenericBtn" />
                                                                                  </styleClass>
                                                                               </Button>
-                                                                              <Button  fx:id="bComplexPrint" layoutX="79.0" layoutY="10.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
+                                                                              <Button fx:id="bComplexPrint" layoutX="79.0" layoutY="10.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
                                                                                  <styleClass>
                                                                                     <String fx:value="PrintBtn" />
                                                                                     <String fx:value="GenericBtn" />
@@ -464,7 +468,7 @@
                                                                               </Button>
                                                                               <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
                                                                                  <children>
-                                                                                    <Button  fx:id="bComplexDel"  minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
+                                                                                    <Button fx:id="bComplexDel" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
                                                                                        <styleClass>
                                                                                           <String fx:value="DelBtn" />
                                                                                           <String fx:value="GenericBtn" />
@@ -484,7 +488,7 @@
                                                                      <children>
                                                                         <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
                                                                            <children>
-                                                                              <Button  fx:id="bProgramUp" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
+                                                                              <Button fx:id="bProgramUp" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
                                                                                  <styleClass>
                                                                                     <String fx:value="UpBtn" />
                                                                                     <String fx:value="GenericBtn" />

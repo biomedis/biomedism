@@ -140,17 +140,7 @@ public class AppController  extends BaseController {
     @FXML private MenuItem   menuImportComplexToBase;
     @FXML private MenuItem   dataPathMenuItem;
     @FXML TabPane therapyTabPane;
-    @FXML TabPane biofonInnerTab;
-    @FXML ListView<TherapyComplex> biofonCompexesList;
-    @FXML ListView<TherapyProgram> biofonProgramsList;
 
-    private ObservableList<TherapyComplex> biofonComplexes= FXCollections.observableArrayList();
-    private SortedList<TherapyComplex> biofonComplexesSorted=new SortedList<>(biofonComplexes);
-    private  Comparator<TherapyComplex> comparatorBiofonComplex= Comparator.comparing(TherapyComplex::getName);
-
-    private ObservableList<TherapyProgram> biofonPrograms= FXCollections.observableArrayList();
-    private SortedList<TherapyProgram> biofonProgramsSorted=new SortedList<>(biofonPrograms);
-    private  Comparator<TherapyProgram> comparatorBiofonProgram= Comparator.comparing(TherapyProgram::getPosition);
 
     @FXML
     private Tab tab1;
@@ -1248,86 +1238,105 @@ initBiofon();
     }
 
 
+/******* Биофон *****/
 
-    private  Image biofonComplexImage;
-    ImageView biofonComplexImageView;
+
+    @FXML TabPane biofonInnerTab;
+    @FXML ListView<TherapyComplex> biofonCompexesList;
+    @FXML ListView<TherapyProgram> biofonProgramsList;
+
+    @FXML private Button bComplexAdd;
+    @FXML private Button bComplexEdit;
+    @FXML private Button bComplexImport;
+    @FXML private Button bComplexExport;
+    @FXML private Button bComplexDel;
+    @FXML private Button bComplexPrint;
+    @FXML private Button bProgramUp;
+    @FXML private Button bProgramDown;
+    @FXML private Button bProgramDel;
+    private BiofonUIUtil biofonUIUtil;
 
     private void addComplexToBiofonTab(TherapyComplex tc)
     {
-        biofonComplexes.add(tc);
+        biofonUIUtil.addComplex(tc);
     }
     private void addProgramToBiofonTab(TherapyComplex tc,TherapyProgram tp)
     {
-        biofonPrograms.add(tp);
+        biofonUIUtil.addProgram(tp);
     }
+
     private void initBiofon() {
+        biofonUIUtil=new BiofonUIUtil(res,
+                getModel(),
+                getApp().getBiofonProfile(),
+                biofonCompexesList,
+                biofonProgramsList);
+        biofonUIUtil.init();
 
-        URL location = getClass().getResource("/images/medical_record.png");
-        biofonComplexImage = new Image(location.toExternalForm());
-        biofonComplexImageView=new ImageView(biofonComplexImage);
-
-
-
-
-        biofonComplexes.addAll(getModel().findAllTherapyComplexByProfile(getApp().getBiofonProfile()));
-        biofonCompexesList.setCellFactory(param -> new ListCell<TherapyComplex>(){
-           private  ImageView imgv;
-            @Override
-            protected void updateItem(TherapyComplex item, boolean empty) {
-                super.updateItem(item, empty);
-
-                if (item == null || empty) {
-                    setText(null);
-                    setGraphic(null);
-                    return;
-                } else {
-                    this.setText(item.getName());
-                    if(imgv==null)imgv=new ImageView(biofonComplexImage);
-
-                    setGraphic(imgv);
-                }
-
-
-            }
-
-        });
-
-        biofonProgramsList.setCellFactory(param -> new ListCell<TherapyProgram>(){
-            @Override
-            protected void updateItem(TherapyProgram item, boolean empty) {
-                super.updateItem(item, empty);
-
-                if (item == null || empty) {
-                    setText(null);
-                    setGraphic(null);
-                    return;
-                } else {
-                    this.setText(item.getName()+"\n"+item.getFrequencies().replace("+",";"));
-                    setGraphic(null);
-                }
-
-
-            }
-
-        });
-
-        biofonComplexesSorted.setComparator(comparatorBiofonComplex);
-        biofonCompexesList.setItems(biofonComplexesSorted);
-
-
-        biofonProgramsList.setItems(biofonProgramsSorted);
-        biofonProgramsSorted.setComparator(comparatorBiofonProgram);
-
-        biofonCompexesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> viewBiofonProgramsOnComplexClick(oldValue,newValue));
+        initBiofonButtons();
 
     }
 
-    private void viewBiofonProgramsOnComplexClick(TherapyComplex oldValue, TherapyComplex newValue){
-        if(oldValue==newValue)return;
 
-        biofonPrograms.clear();
-        biofonPrograms.addAll(getModel().findTherapyPrograms(newValue));
+
+    private void initBiofonButtons(){
+        //bComplexAdd;
+
+         bComplexEdit.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
+        //bComplexImport.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
+        bComplexExport.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
+        bComplexDel.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
+        bComplexPrint.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
+        bProgramUp.disableProperty().bind(biofonProgramsList.getSelectionModel().selectedItemProperty().isNull());
+        bProgramDown.disableProperty().bind(biofonProgramsList.getSelectionModel().selectedItemProperty().isNull());
+        bProgramDel.disableProperty().bind(biofonProgramsList.getSelectionModel().selectedItemProperty().isNull());
+
+        bComplexAdd.setOnAction(event -> biofonUIUtil.addComplex());
+        bComplexEdit.setOnAction(event -> biofonUIUtil.editComplex());
+        bComplexExport.setOnAction(event -> biofonUIUtil.exportComplex());
+        bComplexImport.setOnAction(event -> biofonUIUtil.importComplex());
+        bComplexPrint.setOnAction(event -> biofonUIUtil.printComplex());
+        bComplexDel.setOnAction(event -> biofonUIUtil.delComplex());
+
+        bProgramUp.setOnAction(event -> biofonUIUtil.upProgram());
+        bProgramDown.setOnAction(event -> biofonUIUtil.downProgram());
+        bProgramDel.setOnAction(event -> biofonUIUtil.delProgram());
+
+
+
+        Tooltip t = new Tooltip("Добавить пустой комплекс");
+        Tooltip.install(bComplexAdd, t);
+
+
+        t = new Tooltip("Редактировать имя комплекса");
+        Tooltip.install(bComplexEdit, t);
+
+        t = new Tooltip("Экспортировать комплексы");
+        Tooltip.install(bComplexExport, t);
+
+        t = new Tooltip("Импортировать комплексы");
+        Tooltip.install(bComplexImport, t);
+
+        t = new Tooltip("Печать комплексов");
+        Tooltip.install(bComplexPrint, t);
+
+        t = new Tooltip("Удалить комплексы");
+        Tooltip.install(bComplexDel, t);
+
+        t = new Tooltip("Вверх");
+        Tooltip.install(bProgramUp, t);
+
+        t = new Tooltip("Вниз");
+        Tooltip.install(bProgramDown, t);
+
+        t = new Tooltip("Удалить программу");
+        Tooltip.install(bProgramDel, t);
+
     }
+
+
+/**********************************************/
+
 
 
     //хранит время комплекса в строковом представлении и через # id комплекса. Используется в выводе в табе комплекса времени и его обновления
