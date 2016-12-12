@@ -1246,15 +1246,31 @@ initBiofon();
     @FXML ListView<TherapyProgram> biofonProgramsList;
 
     @FXML private Button bComplexAdd;
-    @FXML private Button bComplexEdit;
-    @FXML private Button bComplexImport;
-    @FXML private Button bComplexExport;
+    @FXML private Button bComplexMenu;
     @FXML private Button bComplexDel;
-    @FXML private Button bComplexPrint;
+
     @FXML private Button bProgramUp;
     @FXML private Button bProgramDown;
     @FXML private Button bProgramDel;
+
+    @FXML private Spinner<Integer> timeToFreqSpinnerBiofon;
+
+    @FXML private HBox spinnerPanBiofon;
+    @FXML private VBox spinnerBtnPanBiofon;
+    @FXML private Button  btnOkSpinnerBiofon;
+    @FXML private Button  btnCancelSpinnerBiofon;
+
+    @FXML private Spinner<Integer> bundlesSpinnerBiofon;
+
+    @FXML private HBox bundlesPanBiofon;
+    @FXML private VBox bundlesBtnPanBiofon;
+    @FXML private Button  btnOkBundlesBiofon;
+    @FXML private Button  btnCancelBundlesBiofon;
+    @FXML private Label biofonInsLangComplex;
+    @FXML private Label biofonInsLangProgram;
+
     private BiofonUIUtil biofonUIUtil;
+    private ContextMenu biofonComplexesMenu=new ContextMenu();
 
     private void addComplexToBiofonTab(TherapyComplex tc)
     {
@@ -1265,7 +1281,197 @@ initBiofon();
         biofonUIUtil.addProgram(tp);
     }
 
+    private MenuItem biofonEditMi=new MenuItem();
+    private MenuItem biofonPrintMi=new MenuItem();
+    private MenuItem biofonImportMi=new MenuItem();
+    private MenuItem biofonExportMi=new MenuItem();
+
+    private void initContextMenuComplexes(){
+
+        URL imgb = getClass().getResource("/images/print.png");
+        biofonPrintMi.setGraphic(new ImageView(new Image(imgb.toExternalForm())));
+
+        imgb = getClass().getResource("/images/import.png");
+        biofonImportMi.setGraphic(new ImageView(new Image(imgb.toExternalForm())));
+
+        imgb = getClass().getResource("/images/export.png");
+        biofonExportMi.setGraphic(new ImageView(new Image(imgb.toExternalForm())));
+
+
+
+
+        biofonPrintMi.setText(" Печать комплексов");
+
+
+        biofonImportMi.setText(" Импорт комплексов");
+
+        biofonExportMi.setText(" Экспорт комплексов");
+        biofonEditMi.setText(" Редактирование имени комплекса");
+
+
+
+        biofonExportMi.setOnAction(event -> biofonUIUtil.exportComplex());
+        biofonImportMi.setOnAction(event -> biofonUIUtil.importComplex());
+        biofonPrintMi.setOnAction(event -> biofonUIUtil.printComplex());
+        biofonEditMi.setOnAction(event -> biofonUIUtil.editComplex());
+
+
+
+        biofonComplexesMenu.getItems().addAll(biofonEditMi,biofonPrintMi,biofonImportMi,biofonExportMi);
+
+
+    }
+
+
+    private void hideTFSpinnerBTNPanBiofon(int val)
+    {
+        timeToFreqSpinnerBiofon.getValueFactory().setValue(val);
+        spinnerBtnPanBiofon.setVisible(false);
+
+    }
+    private void hideTFSpinnerBTNPanBiofon()
+    {
+
+        spinnerBtnPanBiofon.setVisible(false);
+
+    }
+
+
+    private void hideBundlesSpinnerBTNPanBiofon(int val)
+    {
+        bundlesSpinnerBiofon.getValueFactory().setValue(val);
+        bundlesBtnPanBiofon.setVisible(false);
+
+    }
+    private void hideBundlesSpinnerBTNPanBiofon()
+    {
+
+        bundlesBtnPanBiofon.setVisible(false);
+
+    }
+
+    private void initBiofonSpinners(){
+
+
+        /** Спиннер внемя на частоту **/
+
+        timeToFreqSpinnerBiofon.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(10, 1000, 180, 10));
+        timeToFreqSpinnerBiofon.setEditable(true);
+        spinnerPanBiofon.setVisible(false);
+        spinnerBtnPanBiofon.setVisible(false);
+
+
+        URL okUrl = getClass().getResource("/images/ok.png");
+        URL cancelUrl = getClass().getResource("/images/cancel.png");
+        btnOkSpinnerBiofon.setGraphic(new ImageView(new Image(okUrl.toExternalForm())));
+        btnCancelSpinnerBiofon.setGraphic(new ImageView(new Image(cancelUrl.toExternalForm())));
+
+
+
+
+        //показывает кнопки при изменениях спинера
+        timeToFreqSpinnerBiofon.valueProperty().addListener((observable, oldValue, newValue) -> {if(oldValue!=newValue) spinnerBtnPanBiofon.setVisible(true);});
+        //кнопка отмены
+        btnCancelSpinnerBiofon.setOnAction(event ->hideTFSpinnerBTNPanBiofon(tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency()) );
+        //принять изменения времени
+        btnOkSpinnerBiofon.setOnAction(event ->
+        {
+
+
+            if(!this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
+                List<TherapyComplex> items = new ArrayList<>(this.tableComplex.getSelectionModel().getSelectedItems());
+
+                try {
+
+
+                    for(TherapyComplex item:items) {
+
+
+                        item.setTimeForFrequency(this.timeToFreqSpinnerBiofon.getValue());
+                        item.setChanged(true);
+                        this.getModel().updateTherapyComplex(item);
+                        this.btnGenerate.setDisable(false);
+                    }
+
+                    this.updateComplexsTime(items, true);
+                } catch (Exception var8) {
+                    this.hideTFSpinnerBTNPanBiofon(this.tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency().intValue());
+                    Log.logger.error("", var8);
+                    showExceptionDialog("Ошибка обновления времени в терапевтическом комплексе", "", "", var8, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                } finally {
+                    this.hideTFSpinnerBTNPanBiofon();
+                }
+
+            }
+        });
+
+
+
+
+
+/*******************/
+
+        /** Спиннер пачек частот **/
+
+        bundlesSpinnerBiofon.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 1000, 1, 1));
+        bundlesSpinnerBiofon.setEditable(true);
+        bundlesPanBiofon.setVisible(false);
+        bundlesBtnPanBiofon.setVisible(false);
+
+        btnOkBundlesBiofon.setGraphic(new ImageView(new Image(okUrl.toExternalForm())));
+        btnCancelBundlesBiofon.setGraphic(new ImageView(new Image(cancelUrl.toExternalForm())));
+
+/*******************/
+
+
+
+        //показывает кнопки при изменениях спинера
+        bundlesSpinnerBiofon.valueProperty().addListener((observable, oldValue, newValue) -> {if(oldValue!=newValue) bundlesBtnPanBiofon.setVisible(true);});
+        //кнопка отмены
+        btnCancelBundlesBiofon.setOnAction(event ->hideBundlesSpinnerBTNPanBiofon(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength()) );
+
+        //принять изменения времени
+        btnOkBundlesBiofon.setOnAction(event ->
+        {
+
+
+            if(!this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
+                List<TherapyComplex> items = new ArrayList<>(this.tableComplex.getSelectionModel().getSelectedItems());
+
+                try {
+
+
+                    for(TherapyComplex item:items) {
+
+
+                        item.setBundlesLength(this.bundlesSpinnerBiofon.getValue());
+                        item.setChanged(true);
+                        this.getModel().updateTherapyComplex(item);
+                        this.btnGenerate.setDisable(false);                   }
+
+                    this.updateComplexsTime(items, true);
+                } catch (Exception var8) {
+                    this.hideBundlesSpinnerBTNPanBiofon(this.tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
+                    Log.logger.error("", var8);
+                    showExceptionDialog("Ошибка обновления времени в терапевтическом комплексе", "", "", var8, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                } finally {
+                    this.hideTFSpinnerBTNPanBiofon();
+                }
+
+            }
+        });
+
+
+
+
+
+        spinnerPanBiofon.visibleProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNotNull());
+        bundlesPanBiofon.visibleProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNotNull());
+
+    }
+
     private void initBiofon() {
+
         biofonUIUtil=new BiofonUIUtil(res,
                 getModel(),
                 getApp().getBiofonProfile(),
@@ -1273,7 +1479,14 @@ initBiofon();
                 biofonProgramsList);
         biofonUIUtil.init();
 
+        initContextMenuComplexes();
+
         initBiofonButtons();
+        initBiofonSpinners();
+
+        biofonInsLangComplex.setText("");
+        biofonInsLangProgram.setText("");
+
 
     }
 
@@ -1282,20 +1495,19 @@ initBiofon();
     private void initBiofonButtons(){
         //bComplexAdd;
 
-         bComplexEdit.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
-        //bComplexImport.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
-        bComplexExport.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
+         biofonEditMi.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
+
+        biofonPrintMi.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
         bComplexDel.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
-        bComplexPrint.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
+        biofonExportMi.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
         bProgramUp.disableProperty().bind(biofonProgramsList.getSelectionModel().selectedItemProperty().isNull());
         bProgramDown.disableProperty().bind(biofonProgramsList.getSelectionModel().selectedItemProperty().isNull());
         bProgramDel.disableProperty().bind(biofonProgramsList.getSelectionModel().selectedItemProperty().isNull());
 
         bComplexAdd.setOnAction(event -> biofonUIUtil.addComplex());
-        bComplexEdit.setOnAction(event -> biofonUIUtil.editComplex());
-        bComplexExport.setOnAction(event -> biofonUIUtil.exportComplex());
-        bComplexImport.setOnAction(event -> biofonUIUtil.importComplex());
-        bComplexPrint.setOnAction(event -> biofonUIUtil.printComplex());
+        bComplexMenu.setOnAction(event -> biofonComplexesMenu.show(bComplexMenu,Side.BOTTOM,0,0));
+
+
         bComplexDel.setOnAction(event -> biofonUIUtil.delComplex());
 
         bProgramUp.setOnAction(event -> biofonUIUtil.upProgram());
@@ -1303,7 +1515,7 @@ initBiofon();
         bProgramDel.setOnAction(event -> biofonUIUtil.delProgram());
 
 
-
+/*
         Tooltip t = new Tooltip("Добавить пустой комплекс");
         Tooltip.install(bComplexAdd, t);
 
@@ -1312,7 +1524,7 @@ initBiofon();
         Tooltip.install(bComplexEdit, t);
 
         t = new Tooltip("Экспортировать комплексы");
-        Tooltip.install(bComplexExport, t);
+        Tooltip.install(biofonExportMi, t);
 
         t = new Tooltip("Импортировать комплексы");
         Tooltip.install(bComplexImport, t);
@@ -1331,6 +1543,7 @@ initBiofon();
 
         t = new Tooltip("Удалить программу");
         Tooltip.install(bProgramDel, t);
+        */
 
     }
 

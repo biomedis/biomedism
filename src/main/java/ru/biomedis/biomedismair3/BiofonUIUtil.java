@@ -3,10 +3,7 @@ package ru.biomedis.biomedismair3;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.MultipleSelectionModel;
-import javafx.scene.control.SelectionMode;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import ru.biomedis.biomedismair3.entity.Profile;
@@ -40,6 +37,8 @@ public class BiofonUIUtil {
     private SortedList<TherapyProgram> biofonProgramsSorted=new SortedList<>(biofonPrograms);
     private  Comparator<TherapyProgram> comparatorBiofonProgram= Comparator.comparing(TherapyProgram::getPosition);
 
+
+
     public BiofonUIUtil(ResourceBundle resource, ModelDataApp mda, Profile biofonProfile,ListView<TherapyComplex> biofonCompexesList, ListView<TherapyProgram> biofonProgramsList) {
         this.resource = resource;
         this.mda = mda;
@@ -48,10 +47,17 @@ public class BiofonUIUtil {
         this.biofonProgramsList = biofonProgramsList;
 
 
+
+
     }
 
-
     public void init() {
+
+
+        biofonCompexesList.setPlaceholder(new Label(resource.getString("app.table.complex_placeholder")));
+        biofonProgramsList.setPlaceholder(new Label(resource.getString("app.table.programm_placeholder")));
+
+
 
         this.biofonCompexesList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
