@@ -7,6 +7,7 @@ import javafx.collections.transformation.SortedList;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import ru.biomedis.biomedismair3.Dialogs.NameDescroptionDialogController;
@@ -15,6 +16,7 @@ import ru.biomedis.biomedismair3.entity.TherapyComplex;
 import ru.biomedis.biomedismair3.entity.TherapyProgram;
 
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -106,6 +108,7 @@ public class BiofonUIUtil {
         });
 
         biofonProgramsList.setCellFactory(param -> new ListCell<TherapyProgram>(){
+            private Text text;
             @Override
             protected void updateItem(TherapyProgram item, boolean empty) {
                 super.updateItem(item, empty);
@@ -115,8 +118,10 @@ public class BiofonUIUtil {
                     setGraphic(null);
                     return;
                 } else {
-                    this.setText(item.getName()+"\n"+item.getFrequencies().replace("+",";"));
-                    setGraphic(null);
+                    text = new Text(item.getName()+"\n"+item.getFrequencies().replace("+","; "));
+                    text.setWrappingWidth(getListView().getWidth()); // Setting the wrapping width to the Text
+                    text.wrappingWidthProperty().bind(getListView().widthProperty());
+                    setGraphic(text);
                 }
 
 
@@ -155,7 +160,7 @@ public class BiofonUIUtil {
     }
 
 
-    private ObservableList<TherapyComplex> getSelectedComplexes(){
+    public ObservableList<TherapyComplex> getSelectedComplexes(){
         return biofonCompexesList.getSelectionModel().getSelectedItems();
     }
 
@@ -360,7 +365,10 @@ public class BiofonUIUtil {
     }
     public void printComplex(){
 
+
+
     }
+
     public void importComplex(){
 
     }
@@ -375,5 +383,34 @@ public class BiofonUIUtil {
     }
     public void delProgram(){
 
+        TherapyProgram selectedItem = biofonProgramsList.getSelectionModel().getSelectedItem();
+
+        if(selectedItem ==null)return;
+
+
+
+        Optional<ButtonType> buttonType = bc.showConfirmationDialog(
+                resource.getString("app.title66"),
+                "", resource.getString("app.title67"),
+                app.getMainWindow(),
+                Modality.WINDOW_MODAL);
+
+        if(buttonType.isPresent() ? buttonType.get()==bc.okButtonType: false)
+        {
+            try {
+
+                mda.removeTherapyProgram(selectedItem);
+
+                biofonPrograms.remove(selectedItem);
+
+            } catch (Exception e) {
+                logger.error("",e);
+
+                bc.showExceptionDialog("Ошибка удаления программы","","",e,app.getMainWindow(),Modality.WINDOW_MODAL);
+
+            }
+
+
+        }
     }
 }

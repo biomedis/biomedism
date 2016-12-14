@@ -13,6 +13,7 @@ import ru.biomedis.biomedismair3.entity.TherapyComplex;
 import ru.biomedis.biomedismair3.utils.Date.DateUtil;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import static ru.biomedis.biomedismair3.Log.logger;
@@ -28,6 +29,7 @@ public class PrintController extends BaseController {
 
     private Long id;
     private int type;
+    private List<Long> ids;
     private ResourceBundle res;
 
     @Override
@@ -36,8 +38,15 @@ public class PrintController extends BaseController {
 
         if(params.length==2)
         {
-            id=(Long)params[0];
+
             type=(Integer)params[1];
+            if(type==2){
+
+                ids=(List<Long>)params[0];
+
+            }else id=(Long)params[0];
+
+
 
         }
 
@@ -74,7 +83,9 @@ public class PrintController extends BaseController {
             case 0:
                 complexContent(strB,id,false);
                 break;
-
+            case 2:
+                ids.forEach(itm -> complexContent(strB,itm,true));
+                break;
         }
 
 

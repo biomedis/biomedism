@@ -73,6 +73,7 @@ import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -1316,9 +1317,20 @@ initBiofon();
 
 
 
-        biofonExportMi.setOnAction(event -> biofonUIUtil.exportComplex());
-        biofonImportMi.setOnAction(event -> biofonUIUtil.importComplex());
-        biofonPrintMi.setOnAction(event -> biofonUIUtil.printComplex());
+        biofonExportMi.setOnAction(event -> exportTherapyComplexes(biofonUIUtil.getSelectedComplexes()) );
+        biofonImportMi.setOnAction(event -> {
+
+            importTherapyComplex(getApp().getBiofonProfile(),nums -> {
+                if(nums==0) return;
+              getModel().getLastTherapyComplexes(nums).forEach(therapyComplex ->  biofonUIUtil.addComplex(therapyComplex));
+            });
+
+
+
+
+        });
+
+        biofonPrintMi.setOnAction(event -> printComplexes(biofonUIUtil.getSelectedComplexes()));
 
 
 
@@ -4111,11 +4123,26 @@ data=null;
     }
 
 
+
     public void onExportTherapyComplex()
     {
         if(tableComplex.getSelectionModel().getSelectedItems().isEmpty()) return;
 
        final ObservableList<TherapyComplex> selectedItems = tableComplex.getSelectionModel().getSelectedItems();
+        exportTherapyComplexes(selectedItems);
+
+
+    }
+
+    /**
+     * Экспорт выбранных комплексов в файл
+     * @param complexes
+     */
+    public void exportTherapyComplexes(List<TherapyComplex> complexes)
+    {
+        if(complexes.isEmpty()) return;
+
+        final List<TherapyComplex> selectedItems = complexes;
 
         //получим путь к файлу.
         File file=null;
@@ -4168,7 +4195,6 @@ data=null;
 
 
     }
-
 
     public void onImportProfile()
     {
@@ -4577,11 +4603,37 @@ final ResourceBundle rest=this.res;
 
 
     }
+
     public void onImportTherapyComplex()
     {
         Profile profile = tableProfile.getSelectionModel().getSelectedItem();
+        importTherapyComplex(profile,nums -> {
 
-      if(profile==null)return;
+            this.tableProfile.getSelectionModel().select(profile);
+            //this.therapyComplexItems.clear();
+            int nextIndex = this.therapyComplexItems.size();
+            List<TherapyComplex> lastTherapyComplexes = this.getModel().getLastTherapyComplexes(nums);
+            if(!lastTherapyComplexes.isEmpty())
+            {
+                this.therapyComplexItems.addAll(lastTherapyComplexes);
+                this.tableComplex.getItems().addAll(this.therapyComplexItems.subList(nextIndex,this.therapyComplexItems.size()));
+                //this.therapyComplexItems.clear();
+            }
+
+            this.btnGenerate.setDisable(false);
+        });
+    }
+
+    /**
+     * Импорт комплексов из файла
+     * @param profile
+     * @param afterAction выполняется после всего, в случае успеха. Передается параметр ему кол-во импортированных комплексов
+     */
+    public void importTherapyComplex(Profile profile, Consumer<Integer> afterAction)
+    {
+
+
+        if(profile==null)return;
 
 //получим путь к файлу.
         File file=null;
@@ -4600,7 +4652,7 @@ final ResourceBundle rest=this.res;
         final File fileToSave=file;
 
         final ImportTherapyComplex imp=new ImportTherapyComplex();
-final ResourceBundle rest=res;
+        final ResourceBundle rest=res;
         Task<Integer> task =new Task<Integer>() {
             @Override
             protected Integer call() throws Exception
@@ -4686,18 +4738,9 @@ final ResourceBundle rest=res;
 
 
                 this.setProgressIndicator(1.0D, rest.getString("app.title44"));
-                this.tableProfile.getSelectionModel().select(profile);
-                //this.therapyComplexItems.clear();
-                int nextIndex = this.therapyComplexItems.size();
-                List<TherapyComplex> lastTherapyComplexes = this.getModel().getLastTherapyComplexes(task.getValue());
-                if(!lastTherapyComplexes.isEmpty())
-                {
-                    this.therapyComplexItems.addAll(lastTherapyComplexes);
-                    this.tableComplex.getItems().addAll(this.therapyComplexItems.subList(nextIndex,this.therapyComplexItems.size()));
-                    //this.therapyComplexItems.clear();
-                }
 
-                this.btnGenerate.setDisable(false);
+                afterAction.accept(task.getValue());
+
             }
             else setProgressIndicator(rest.getString("app.title45"));
             hideProgressIndicator(true);
@@ -4721,6 +4764,8 @@ final ResourceBundle rest=res;
 
 
     }
+
+
     public void onImportProfileFromFolder()
     {
 
@@ -6907,6 +6952,31 @@ class ForceCopyProfile
 
 
     }
+
+    public void printComplexes(List<TherapyComplex> complexes)
+    {
+
+        if(complexes ==null)return;
+        if(complexes.isEmpty())return;
+        try {
+            openDialog(
+                    getApp().getMainWindow(),
+                    "/fxml/PrintContent.fxml",
+                    res.getString("app.menu.print_complex"),
+                    true,
+                    StageStyle.DECORATED,
+                    0,0,0,0,
+                    complexes.stream().map(value -> value.getId()).collect(Collectors.toList())
+                    ,2);
+
+
+        } catch (IOException e) {
+            logger.error("",e);
+        }
+
+
+    }
+
 
     public void onPrintProfile()
     {
