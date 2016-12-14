@@ -451,42 +451,39 @@
                                                                                <HBox.margin>
                                                                                    <Insets top="3.0" />
                                                                                </HBox.margin></Button>
+                                                                  <Button fx:id="bComplexEdit" layoutX="15.0" layoutY="13.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
+                                                                     <styleClass>
+                                                                        <String fx:value="EditBtn" />
+                                                                        <String fx:value="GenericBtn" />
+                                                                     </styleClass>
+                                                                     <HBox.margin>
+                                                                        <Insets top="3.0" />
+                                                                     </HBox.margin>
+                                                                  </Button>
 
 
                                                                            <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
                                                                                <children>
-                                                                                   <Button fx:id="bComplexDel" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
-                                                                                       <styleClass>
-                                                                                           <String fx:value="DelBtn" />
-                                                                                           <String fx:value="GenericBtn" />
-                                                                                       </styleClass>
+                                                                                   <Button fx:id="bComplexSort" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
+                                                                           <HBox.margin>
+                                                                              <Insets right="10.0" />
+                                                                           </HBox.margin>
+                                                                           <opaqueInsets>
+                                                                              <Insets />
+                                                                           </opaqueInsets>
                                                                                    </Button>
                                                                                </children>
                                                                            </HBox>
+                                                                  <Button fx:id="bComplexDel" layoutX="85.0" layoutY="13.0" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
+                                                                     <styleClass>
+                                                                        <String fx:value="DelBtn" />
+                                                                        <String fx:value="GenericBtn" />
+                                                                     </styleClass>
+                                                                  </Button>
                                                                        </children>
                                                                        <padding>
                                                                            <Insets left="5.0" right="5.0" />
                                                                        </padding>
-                                                                   </HBox>
-
-                                                                   <HBox fx:id="bundlesPanBiofon" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308">
-                                                                       <children>
-                                                                           <Label maxWidth="1.7976931348623157E308" text="%ui.bundles_length" HBox.hgrow="ALWAYS">
-                                                                               <HBox.margin>
-                                                                                   <Insets left="8.0" right="8.0" />
-                                                                               </HBox.margin>
-                                                                           </Label>
-                                                                           <Spinner fx:id="bundlesSpinnerBiofon" maxWidth="80.0" />
-                                                                           <VBox fx:id="bundlesBtnPanBiofon" spacing="3.0">
-                                                                               <children>
-                                                                                   <Button fx:id="btnOkBundlesBiofon" contentDisplay="CENTER" ellipsisString="" maxHeight="16.0" maxWidth="16.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0" />
-                                                                                   <Button fx:id="btnCancelBundlesBiofon" maxHeight="16.0" maxWidth="16.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0" />
-                                                                               </children>
-                                                                               <HBox.margin>
-                                                                                   <Insets left="5.0" right="5.0" />
-                                                                               </HBox.margin>
-                                                                           </VBox>
-                                                                       </children>
                                                                    </HBox>
                                                                    <HBox fx:id="spinnerPanBiofon" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308">
                                                                        <children>
@@ -505,6 +502,21 @@
                                                                                    <Insets left="5.0" right="5.0" />
                                                                                </HBox.margin>
                                                                            </VBox>
+                                                                       </children>
+                                                                   </HBox>
+
+                                                                   <HBox fx:id="bundlesPanBiofon" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308">
+                                                                       <children>
+                                                                           <Label maxWidth="1.7976931348623157E308" text="%ui.bundles_length" HBox.hgrow="ALWAYS">
+                                                                               <HBox.margin>
+                                                                                   <Insets left="8.0" right="8.0" />
+                                                                               </HBox.margin>
+                                                                           </Label>
+                                                                  <ComboBox fx:id="bundlesLengthComboBiofon">
+                                                                     <HBox.margin>
+                                                                        <Insets right="25.0" />
+                                                                     </HBox.margin>
+                                                                  </ComboBox>
                                                                        </children>
                                                                    </HBox>
                                                             <Label fx:id="biofonInsLangComplex" maxWidth="1.7976931348623157E308" text="Label" />

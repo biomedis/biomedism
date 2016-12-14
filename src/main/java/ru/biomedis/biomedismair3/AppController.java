@@ -39,6 +39,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.*;
 import javafx.util.Duration;
+import javafx.util.StringConverter;
 import ru.biomedis.biomedismair3.CellFactories.TextAreaTableCell;
 import ru.biomedis.biomedismair3.Converters.SectionConverter;
 import ru.biomedis.biomedismair3.DBImport.NewDBImport;
@@ -74,6 +75,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static ru.biomedis.biomedismair3.Log.logger;
 
@@ -1052,7 +1054,7 @@ public class AppController  extends BaseController {
                         TherapyComplex selectedTCBiofon = biofonCompexesList.getSelectionModel().getSelectedItem();
                         if(selectedTCBiofon==null) return;
                         try {
-                            TherapyProgram therapyProgram = getModel().createTherapyProgram(tableComplex.getSelectionModel().getSelectedItem(), name, descr, p.getFrequencies(),oname);
+                            TherapyProgram therapyProgram = getModel().createTherapyProgram(selectedTCBiofon, name, descr, p.getFrequencies(),oname);
                             addProgramToBiofonTab(selectedTCBiofon,therapyProgram);
                         } catch (Exception e) {
                             logger.error("",e);
@@ -1248,10 +1250,12 @@ initBiofon();
     @FXML private Button bComplexAdd;
     @FXML private Button bComplexMenu;
     @FXML private Button bComplexDel;
+    @FXML private Button bComplexEdit;
 
     @FXML private Button bProgramUp;
     @FXML private Button bProgramDown;
     @FXML private Button bProgramDel;
+
 
     @FXML private Spinner<Integer> timeToFreqSpinnerBiofon;
 
@@ -1260,14 +1264,15 @@ initBiofon();
     @FXML private Button  btnOkSpinnerBiofon;
     @FXML private Button  btnCancelSpinnerBiofon;
 
+    @FXML private Button bComplexSort;
+
     @FXML private Spinner<Integer> bundlesSpinnerBiofon;
 
     @FXML private HBox bundlesPanBiofon;
-    @FXML private VBox bundlesBtnPanBiofon;
-    @FXML private Button  btnOkBundlesBiofon;
-    @FXML private Button  btnCancelBundlesBiofon;
     @FXML private Label biofonInsLangComplex;
     @FXML private Label biofonInsLangProgram;
+
+    @FXML private  ComboBox<Integer> bundlesLengthComboBiofon;
 
     private BiofonUIUtil biofonUIUtil;
     private ContextMenu biofonComplexesMenu=new ContextMenu();
@@ -1281,7 +1286,7 @@ initBiofon();
         biofonUIUtil.addProgram(tp);
     }
 
-    private MenuItem biofonEditMi=new MenuItem();
+
     private MenuItem biofonPrintMi=new MenuItem();
     private MenuItem biofonImportMi=new MenuItem();
     private MenuItem biofonExportMi=new MenuItem();
@@ -1300,24 +1305,25 @@ initBiofon();
 
 
 
+
         biofonPrintMi.setText(" Печать комплексов");
 
 
         biofonImportMi.setText(" Импорт комплексов");
 
         biofonExportMi.setText(" Экспорт комплексов");
-        biofonEditMi.setText(" Редактирование имени комплекса");
+
 
 
 
         biofonExportMi.setOnAction(event -> biofonUIUtil.exportComplex());
         biofonImportMi.setOnAction(event -> biofonUIUtil.importComplex());
         biofonPrintMi.setOnAction(event -> biofonUIUtil.printComplex());
-        biofonEditMi.setOnAction(event -> biofonUIUtil.editComplex());
 
 
 
-        biofonComplexesMenu.getItems().addAll(biofonEditMi,biofonPrintMi,biofonImportMi,biofonExportMi);
+
+        biofonComplexesMenu.getItems().addAll(biofonPrintMi,biofonImportMi,biofonExportMi);
 
 
     }
@@ -1336,21 +1342,17 @@ initBiofon();
 
     }
 
-
-    private void hideBundlesSpinnerBTNPanBiofon(int val)
-    {
-        bundlesSpinnerBiofon.getValueFactory().setValue(val);
-        bundlesBtnPanBiofon.setVisible(false);
-
+    private void hideBundlesBiofon(){
+        bundlesPanBiofon.setVisible(false);
     }
-    private void hideBundlesSpinnerBTNPanBiofon()
-    {
 
-        bundlesBtnPanBiofon.setVisible(false);
 
-    }
 
     private void initBiofonSpinners(){
+
+
+
+
 
 
         /** Спиннер внемя на частоту **/
@@ -1377,9 +1379,9 @@ initBiofon();
         btnOkSpinnerBiofon.setOnAction(event ->
         {
 
-
-            if(!this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
-                List<TherapyComplex> items = new ArrayList<>(this.tableComplex.getSelectionModel().getSelectedItems());
+            ObservableList<TherapyComplex> selectedComplex = biofonCompexesList.getSelectionModel().getSelectedItems();
+            if(!biofonCompexesList.getSelectionModel().getSelectedItems().isEmpty()) {
+                List<TherapyComplex> items = new ArrayList<>(selectedComplex);
 
                 try {
 
@@ -1388,16 +1390,15 @@ initBiofon();
 
 
                         item.setTimeForFrequency(this.timeToFreqSpinnerBiofon.getValue());
-                        item.setChanged(true);
                         this.getModel().updateTherapyComplex(item);
-                        this.btnGenerate.setDisable(false);
+
                     }
 
-                    this.updateComplexsTime(items, true);
+
                 } catch (Exception var8) {
-                    this.hideTFSpinnerBTNPanBiofon(this.tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency().intValue());
+                    this.hideTFSpinnerBTNPanBiofon(biofonCompexesList.getSelectionModel().getSelectedItem().getTimeForFrequency().intValue());
                     Log.logger.error("", var8);
-                    showExceptionDialog("Ошибка обновления времени в терапевтическом комплексе", "", "", var8, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                    showExceptionDialog("Ошибка обновления времени на частоту в терапевтическом комплексе", "", "", var8, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                 } finally {
                     this.hideTFSpinnerBTNPanBiofon();
                 }
@@ -1411,54 +1412,56 @@ initBiofon();
 
 /*******************/
 
-        /** Спиннер пачек частот **/
+        /** Комбо пачек частот **/
 
-        bundlesSpinnerBiofon.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 1000, 1, 1));
-        bundlesSpinnerBiofon.setEditable(true);
-        bundlesPanBiofon.setVisible(false);
-        bundlesBtnPanBiofon.setVisible(false);
+        bundlesLengthComboBiofon.setConverter(new StringConverter<Integer>() {
+            @Override
+            public String toString(Integer object) {
+                if(object.intValue()==1) return " - ";
+                else return object.toString();
+            }
 
-        btnOkBundlesBiofon.setGraphic(new ImageView(new Image(okUrl.toExternalForm())));
-        btnCancelBundlesBiofon.setGraphic(new ImageView(new Image(cancelUrl.toExternalForm())));
+            @Override
+            public Integer fromString(String string) {
+                return null;
+            }
+        });
+
+        for(int i=1; i<20; i++) bundlesLengthComboBiofon.getItems().add(i);
+
+
+
 
 /*******************/
 
+        //обработчик нажатия на комплекс. Есть еще такой в BiofonUtils
+        biofonCompexesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 
-
-        //показывает кнопки при изменениях спинера
-        bundlesSpinnerBiofon.valueProperty().addListener((observable, oldValue, newValue) -> {if(oldValue!=newValue) bundlesBtnPanBiofon.setVisible(true);});
-        //кнопка отмены
-        btnCancelBundlesBiofon.setOnAction(event ->hideBundlesSpinnerBTNPanBiofon(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength()) );
+            if(newValue==null) {
+                hideTFSpinnerBTNPanBiofon();
+                return;
+            }
+            hideTFSpinnerBTNPanBiofon(newValue.getTimeForFrequency());
+            bundlesLengthComboBiofon.setValue(newValue.getBundlesLength());
+        });
 
         //принять изменения времени
-        btnOkBundlesBiofon.setOnAction(event ->
+        bundlesLengthComboBiofon.setOnAction(event ->
         {
 
 
-            if(!this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
-                List<TherapyComplex> items = new ArrayList<>(this.tableComplex.getSelectionModel().getSelectedItems());
-
-                try {
-
-
-                    for(TherapyComplex item:items) {
-
-
-                        item.setBundlesLength(this.bundlesSpinnerBiofon.getValue());
-                        item.setChanged(true);
-                        this.getModel().updateTherapyComplex(item);
-                        this.btnGenerate.setDisable(false);                   }
-
-                    this.updateComplexsTime(items, true);
-                } catch (Exception var8) {
-                    this.hideBundlesSpinnerBTNPanBiofon(this.tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
-                    Log.logger.error("", var8);
-                    showExceptionDialog("Ошибка обновления времени в терапевтическом комплексе", "", "", var8, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                } finally {
-                    this.hideTFSpinnerBTNPanBiofon();
+            ObservableList<TherapyComplex> selectedItems = biofonCompexesList.getSelectionModel().getSelectedItems();
+            if(selectedItems ==null) return;
+            try {
+                for (TherapyComplex complex : selectedItems) {
+                    complex.setBundlesLength(bundlesLengthComboBiofon.getValue());
+                    this.getModel().updateTherapyComplex(complex);
                 }
-
+            } catch (Exception e) {
+               Log.logger.error("Ошибка установки пачек частот", e);
+                showExceptionDialog("Ошибка установки пачек частот", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
             }
+
         });
 
 
@@ -1473,6 +1476,7 @@ initBiofon();
     private void initBiofon() {
 
         biofonUIUtil=new BiofonUIUtil(res,
+                getApp(),this,
                 getModel(),
                 getApp().getBiofonProfile(),
                 biofonCompexesList,
@@ -1495,7 +1499,8 @@ initBiofon();
     private void initBiofonButtons(){
         //bComplexAdd;
 
-         biofonEditMi.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
+
+        bComplexEdit.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
 
         biofonPrintMi.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
         bComplexDel.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
@@ -1507,13 +1512,27 @@ initBiofon();
         bComplexAdd.setOnAction(event -> biofonUIUtil.addComplex());
         bComplexMenu.setOnAction(event -> biofonComplexesMenu.show(bComplexMenu,Side.BOTTOM,0,0));
 
-
+        bComplexEdit.setOnAction(event -> biofonUIUtil.editComplex());
         bComplexDel.setOnAction(event -> biofonUIUtil.delComplex());
 
         bProgramUp.setOnAction(event -> biofonUIUtil.upProgram());
         bProgramDown.setOnAction(event -> biofonUIUtil.downProgram());
         bProgramDel.setOnAction(event -> biofonUIUtil.delProgram());
 
+        bComplexSort.getStyleClass().addAll("GenericBtn","SortTimeBtn");
+        bComplexSort.setOnAction(event -> {
+
+            if(bComplexSort.getStyleClass().contains("SortTimeBtn")){
+                bComplexSort.getStyleClass().remove("SortTimeBtn");
+                bComplexSort.getStyleClass().add("SortAlphBtn");
+                biofonUIUtil.changeComplexesSortType(BiofonUIUtil.SortType.NAME);
+            }else {
+                bComplexSort.getStyleClass().remove("SortAlphBtn");
+                bComplexSort.getStyleClass().add("SortTimeBtn");
+                biofonUIUtil.changeComplexesSortType(BiofonUIUtil.SortType.TIME);
+            }
+
+        });
 
 /*
         Tooltip t = new Tooltip("Добавить пустой комплекс");

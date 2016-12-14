@@ -45,6 +45,25 @@
 
 
 
+.SortTimeBtn
+{
+    -fx-background-image: url("../images/sort_time.png");
+    -fx-background-size: 30 30;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position:center;
+    -fx-background-insets: 0,1,2;
+    -fx-background-radius: 3,2,1;
+}
+.SortAlphBtn
+{
+    -fx-background-image: url("../images/sort_alph.png");
+    -fx-background-size: 30 30;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position:center;
+    -fx-background-insets: 0,1,2;
+    -fx-background-radius: 3,2,1;
+}
+
 .AddBtn
 {
     -fx-background-image: url("../images/add.png");
