@@ -158,7 +158,13 @@ public class AppController  extends BaseController {
 
 
     @FXML private HBox bundlesPan;
-    @FXML private ComboBox<Integer> bundlesCombo;
+    @FXML private Spinner<String> bundlesSpinner;
+
+    @FXML  private ObservableList<String>  bundlesSpinnerData;
+    @FXML  private VBox bundlesBtnPan;
+    @FXML private Button btnOkBundles;
+    @FXML private Button btnCancelBundles;
+
 
     @FXML private HBox onameBoxProgram;
     @FXML private HBox onameBoxComplex;
@@ -622,6 +628,10 @@ public class AppController  extends BaseController {
 
 
         bundlesPan.setVisible(false);
+        bundlesBtnPan.setVisible(false);
+
+        btnOkBundles.setGraphic(new ImageView(new Image(okUrl.toExternalForm())));
+        btnCancelBundles.setGraphic(new ImageView(new Image(cancelUrl.toExternalForm())));
 
 
 
@@ -2399,7 +2409,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
             if (oldValue != newValue) {
                 //закроем кнопки спинера времени на частоту
                 hideTFSpinnerBTNPan();
-
+                hideBundlesSpinnerBTNPan();
 
                 tableComplex.getItems().clear();
                 //добавляем через therapyComplexItems иначе не будет работать event на изменение элементов массива и не будут работать галочки мультичастот
@@ -2423,7 +2433,12 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
 
 
+                if( tableComplex.getSelectionModel().getSelectedItems().size()==1){
 
+                    if(tableComplex.getSelectionModel().getSelectedItem().isMulltyFreq())bundlesSpinner.setDisable(false);
+                    else bundlesSpinner.setDisable(true);
+
+                }else bundlesSpinner.setDisable(false);
 
             if (oldValue != newValue) {
 
@@ -2431,12 +2446,13 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                 if(newValue!=null) {
                     Platform.runLater(() -> {
                         hideTFSpinnerBTNPan(newValue.getTimeForFrequency());
-                        bundlesCombo.setValue(newValue.getBundlesLength());
+                        hideBundlesSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
                     });
 
                 }
                 else  {
                     hideTFSpinnerBTNPan();
+                    hideBundlesSpinnerBTNPan();
 
                 }
 
@@ -2508,28 +2524,20 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
         /** Комбо пачек частот **/
 
-        bundlesCombo.setConverter(new StringConverter<Integer>() {
-            @Override
-            public String toString(Integer object) {
-                if(object.intValue()==1) return " - ";
-                else return object.toString();
-            }
+        bundlesSpinnerData.add("-");
+        for(int i=2; i<20; i++)bundlesSpinnerData.add(String.valueOf(i));
+        bundlesSpinner.getValueFactory().setValue("-");
 
-            @Override
-            public Integer fromString(String string) {
-                return null;
-            }
-        });
-
-        for(int i=1; i<20; i++) bundlesCombo.getItems().add(i);
-
+        //показывает кнопки при изменениях спинера
+        bundlesSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {if(oldValue!=newValue) bundlesBtnPan.setVisible(true);});
+        //кнопка отмены
+        btnCancelBundles.setOnAction(event ->hideBundlesSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength()) );
 
 
 
         //принять изменения пачек частот
-        bundlesCombo.setOnAction(event ->
+        btnOkBundles.setOnAction(event ->
         {
-
 
             if(!this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
                 List<TherapyComplex> items = new ArrayList<>(this.tableComplex.getSelectionModel().getSelectedItems());
@@ -2540,16 +2548,18 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
                     for(TherapyComplex item:items) {
 
 
-                        item.setBundlesLength(bundlesCombo.getValue());
+                        item.setBundlesLength(bundlesSpinner.getValue().equals("-")?1:Integer.parseInt(bundlesSpinner.getValue()));
                         item.setChanged(true);
                         this.getModel().updateTherapyComplex(item);
                         this.btnGenerate.setDisable(false);                   }
 
                     this.updateComplexsTime(items, true);
                 } catch (Exception var8) {
-                    //this.hideBundlesSpinnerBTNPan(this.tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
+                    this.hideBundlesSpinnerBTNPan(this.tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
                     Log.logger.error("", var8);
                     showExceptionDialog("Ошибка обновления времени в терапевтическом комплексе", "", "", var8, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                } finally {
+                    this.hideTFSpinnerBTNPan();
                 }
 
             }
@@ -2758,10 +2768,17 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
     }
 
 
+
     private void hideBundlesSpinnerBTNPan(int val)
     {
-        bundlesCombo.setValue(val);
+        bundlesSpinner.getValueFactory().setValue(val==1 ? "-" : String.valueOf(val));
+        bundlesBtnPan.setVisible(false);
 
+    }
+    private void hideBundlesSpinnerBTNPan()
+    {
+
+        bundlesBtnPan.setVisible(false);
 
     }
 
