@@ -1485,6 +1485,15 @@ initBiofon();
 
     }
 
+    /**
+     * Копирует комплексы в профиль биофона
+     */
+    private void  complexesToBiofon(List<TherapyComplex> tcs){
+
+        biofonUIUtil.complexesToBiofon( tcs);
+
+    }
+
     private void initBiofon() {
 
         biofonUIUtil=new BiofonUIUtil(res,
@@ -1511,14 +1520,34 @@ initBiofon();
     private void initBiofonButtons(){
         //bComplexAdd;
 
+        bProgramDown.disableProperty().bind(new BooleanBinding() {
+            {super.bind(biofonProgramsList.getSelectionModel().selectedIndexProperty());}
+            @Override
+            protected boolean computeValue() {
+
+               if(biofonProgramsList.getSelectionModel().getSelectedItem()==null) return true;
+               if(biofonProgramsList.getSelectionModel().getSelectedIndex() == biofonProgramsList.getItems().size()-1)return true;
+               return false;
+            }
+        });
+        bProgramUp.disableProperty().bind(new BooleanBinding() {
+            {super.bind(biofonProgramsList.getSelectionModel().selectedIndexProperty());}
+            @Override
+            protected boolean computeValue() {
+
+                if(biofonProgramsList.getSelectionModel().getSelectedItem()==null) return true;
+                if(biofonProgramsList.getSelectionModel().getSelectedIndex() == 0)return true;
+                return false;
+            }
+        });
 
         bComplexEdit.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
 
         biofonPrintMi.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
         bComplexDel.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
         biofonExportMi.disableProperty().bind(biofonCompexesList.getSelectionModel().selectedItemProperty().isNull());
-        bProgramUp.disableProperty().bind(biofonProgramsList.getSelectionModel().selectedItemProperty().isNull());
-        bProgramDown.disableProperty().bind(biofonProgramsList.getSelectionModel().selectedItemProperty().isNull());
+        //bProgramUp.disableProperty().bind(biofonProgramsList.getSelectionModel().selectedItemProperty().isNull());
+        //bProgramDown.disableProperty().bind(biofonProgramsList.getSelectionModel().selectedItemProperty().isNull());
         bProgramDel.disableProperty().bind(biofonProgramsList.getSelectionModel().selectedItemProperty().isNull());
 
         bComplexAdd.setOnAction(event -> biofonUIUtil.addComplex());
@@ -1912,6 +1941,8 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         MenuItem mic1 = new MenuItem(this.res.getString("app.to_user_base"));
         MenuItem mic2 = new MenuItem(this.res.getString("app.ui_comlexes_generation"));
         MenuItem mic3 = new MenuItem(this.res.getString("app.upload_to_dir"));
+        MenuItem mic4 =new MenuItem(this.res.getString("app.to_biofon"));
+
         mic1.setOnAction((event2) -> {
             this.copyTherapyComplexToBase();
         });
@@ -1922,16 +1953,19 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         mic3.setOnAction((event2) -> {
             this.uploadComplexes();
         });
-        this.complexesMenu.getItems().addAll(new MenuItem[]{mic1, mic2, mic3});
+        mic4.setOnAction(event -> complexesToBiofon(tableComplex.getSelectionModel().getSelectedItems()));
+        this.complexesMenu.getItems().addAll(new MenuItem[]{mic1, mic2, mic3,mic4});
         this.tableComplex.setContextMenu(this.complexesMenu);
         this.complexesMenu.setOnShowing((event1) -> {
             mic1.setDisable(false);
             mic2.setDisable(true);
             mic3.setDisable(false);
+            mic4.setDisable(false);
             if(this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
                 mic1.setDisable(true);
                 mic2.setDisable(true);
                 mic3.setDisable(true);
+                mic4.setDisable(true);
             } else {
                 Iterator tag = this.tableComplex.getSelectionModel().getSelectedItems().iterator();
 

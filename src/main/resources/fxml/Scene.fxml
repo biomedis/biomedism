@@ -479,6 +479,9 @@
                                                                         <String fx:value="DelBtn" />
                                                                         <String fx:value="GenericBtn" />
                                                                      </styleClass>
+                                                                     <HBox.margin>
+                                                                        <Insets top="3.0" />
+                                                                     </HBox.margin>
                                                                   </Button>
                                                                        </children>
                                                                        <padding>

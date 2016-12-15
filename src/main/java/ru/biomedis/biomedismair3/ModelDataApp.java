@@ -1379,7 +1379,11 @@ public class ModelDataApp {
         try
         { 
          therapyComplexDAO.create(tc);
-        }catch(Exception e){Log.logger.error("",e);tc=null;throw new Exception("Ошибка создания терапевтического комплекса",e); }
+        }catch(Exception e){
+            Log.logger.error("",e);
+            tc=null;
+            throw new Exception("Ошибка создания терапевтического комплекса",e);
+        }
         return tc;
       }
 
@@ -1719,7 +1723,60 @@ public class ModelDataApp {
           return query.getResultList();
 
        }
- 
+
+
+    /**
+     *
+     * Создаст копию комплекса в указанном профиле
+     * @param profile
+     * @param tc
+     * @multyFreq изменяет этот параметр на установленный
+     */
+    public TherapyComplex copyTherapyComplexToProfile(Profile profile, TherapyComplex tc, boolean multyFreq) throws Exception {
+        TherapyComplex therapyComplex=null;
+        try {
+             therapyComplex = createTherapyComplex(profile,
+                    tc.getName(),
+                    tc.getDescription(),
+                    tc.getTimeForFrequency(),
+                     multyFreq,
+                    tc.getBundlesLength());
+
+            therapyComplex.setOname(tc.getOname());
+            updateTherapyComplex(therapyComplex);
+
+            for (TherapyProgram therapyProgram : findTherapyPrograms(tc)) {
+
+                createTherapyProgram(therapyComplex,
+                        therapyProgram.getName(),
+                        therapyProgram.getDescription(),
+                        therapyProgram.getFrequencies());
+
+
+
+            }
+
+
+        } catch (Exception e) {
+            Log.logger.error("",e);
+            tc=null;
+            throw new Exception("Ошибка копирования терапевтического комплекса",e);
+        }
+        return tc;
+
+    }
+
+    /**
+     *
+     * Создаст копию комплекса в указанном профиле
+     * @param profile
+     * @param tc
+     *
+     */
+    public TherapyComplex copyTherapyComplexToProfile(Profile profile, TherapyComplex tc) throws Exception {
+       return copyTherapyComplexToProfile(profile,tc,tc.isMulltyFreq());
+    }
+
        /******************************************/
        /************ Терапия программы ***/
       
