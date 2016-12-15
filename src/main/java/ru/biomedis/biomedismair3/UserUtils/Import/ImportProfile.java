@@ -3,6 +3,7 @@ package ru.biomedis.biomedismair3.UserUtils.Import;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+import ru.biomedis.biomedismair3.App;
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
 import ru.biomedis.biomedismair3.utils.Text.TextUtil;
@@ -127,7 +128,12 @@ public class ImportProfile {
         //если все хорошо можно импортировать объекты в базу
         try {
 
-               profile.profile= mda.createProfile(TextUtil.unEscapeXML(profile.name));
+            //если у нас профиль биофона, то нужно скопировать комплексы в профиль биофона
+            if(profile.name.equals(App.BIOFON_PROFILE_NAME)){
+                profile.profile=App.getBiofonProfile_();
+            }else  profile.profile= mda.createProfile(TextUtil.unEscapeXML(profile.name));
+
+
 
             for (Complex complex : listComplex) {
 

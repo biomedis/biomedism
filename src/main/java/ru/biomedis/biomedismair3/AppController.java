@@ -1105,7 +1105,6 @@ public class AppController  extends BaseController {
                         try {
                             TherapyComplex th = getModel().createTherapyComplex(getApp().getBiofonProfile(), c, 180, true,1,getInsertComplexLang());
 
-                            biofonInnerTab.getSelectionModel().select(0);
                             addComplexToBiofonTab(th);
 
                         } catch (Exception e) {
@@ -1244,7 +1243,7 @@ initBiofon();
 /******* Биофон *****/
 
 
-    @FXML TabPane biofonInnerTab;
+
     @FXML ListView<TherapyComplex> biofonCompexesList;
     @FXML ListView<TherapyProgram> biofonProgramsList;
 
@@ -1501,7 +1500,10 @@ initBiofon();
                 getModel(),
                 getApp().getBiofonProfile(),
                 biofonCompexesList,
-                biofonProgramsList);
+                biofonProgramsList,
+                biofonInsLangComplex,
+                biofonInsLangProgram);
+
         biofonUIUtil.init();
 
         initContextMenuComplexes();
@@ -8527,9 +8529,20 @@ return  true;
                 if(getModel().countProfile()!=0)
                 {
                     if(count_profiles==0){
-                        tableProfile.getItems().addAll(getModel().findAllProfiles());
+                        tableProfile.getItems().addAll(getModel().findAllProfiles().stream()
+                                                                 .filter(i->!i.getName().equals(App.BIOFON_PROFILE_NAME))
+                        .collect(Collectors.toList()));
+
+
                     }
-                    else if(count_profiles<getModel().countProfile())tableProfile.getItems().addAll(getModel().findAllProfiles().subList(count_profiles,getModel().countProfile()));
+                    else if(count_profiles<getModel().countProfile()){
+                        tableProfile.getItems().addAll( getModel().findAllProfiles().subList(count_profiles,getModel().countProfile()).stream()
+                                                                  .filter(i->!i.getName().equals(App.BIOFON_PROFILE_NAME))
+                                                                  .collect(Collectors.toList()));
+                    }
+
+                    biofonUIUtil.reloadComplexes();
+
 
                     int i = tableProfile.getItems().size()-1;
                     tableProfile.requestFocus();

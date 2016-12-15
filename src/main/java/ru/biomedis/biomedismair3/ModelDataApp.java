@@ -2407,17 +2407,28 @@ public class ModelDataApp {
 
     /**
      * Очистка пользовательской базы и профилей
+     * Профиль биофона не удаляется
      */
     public void clearUserBaseAndProfiles() throws Exception {
 
+        //очистка профилей
         for (Profile profile : findAllProfiles())
         {
-            removeProfile(profile);
+            if(profile.getName().equals(App.BIOFON_PROFILE_NAME)){
+
+
+                    for (TherapyComplex therapyComplex : findTherapyComplexes(profile)) removeTherapyComplex(therapyComplex);
+
+
+            }else   removeProfile(profile);
+
+
         }
 
 
 
 
+        //очистка пользовательской базы
         //найдем все программы с ownerSystem=false и удалим
         for (Program program : findAllUserProgramm()) {
             removeProgram(program);

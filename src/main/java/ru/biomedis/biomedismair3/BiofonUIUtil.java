@@ -40,6 +40,8 @@ public class BiofonUIUtil {
     private Profile biofonProfile;
     private final ListView<TherapyComplex> biofonCompexesList;
     private final ListView<TherapyProgram> biofonProgramsList;
+    private final Label complexOName;
+    private final Label programOName;
 
     private Image biofonComplexImage;
     private ImageView biofonComplexImageView;
@@ -56,7 +58,9 @@ public class BiofonUIUtil {
 
     private Tooltip tooltipComplex = new Tooltip();
 
-    public BiofonUIUtil(ResourceBundle resource, App app, BaseController bc, ModelDataApp mda, Profile biofonProfile, ListView<TherapyComplex> biofonCompexesList, ListView<TherapyProgram> biofonProgramsList) {
+    public BiofonUIUtil(ResourceBundle resource, App app, BaseController bc, ModelDataApp mda, Profile biofonProfile,
+                        ListView<TherapyComplex> biofonCompexesList, ListView<TherapyProgram> biofonProgramsList,
+                        Label complexOName,Label programOName) {
         this.resource = resource;
         this.app = app;
         this.bc = bc;
@@ -66,6 +70,17 @@ public class BiofonUIUtil {
         this.biofonProgramsList = biofonProgramsList;
 
 
+        this.complexOName = complexOName;
+        this.programOName = programOName;
+    }
+
+    /**
+     * Перезагрузить список комплексов в таблице
+     */
+    public void reloadComplexes(){
+
+        biofonComplexes.clear();
+        biofonComplexes.addAll(mda.findAllTherapyComplexByProfile(biofonProfile));
     }
 
     public void init() {
@@ -169,6 +184,15 @@ public class BiofonUIUtil {
             }
         });
 
+
+        //program Oname
+        biofonProgramsList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue==null) return;
+            if(!newValue.getOname().isEmpty()) programOName.setText(newValue.getOname());
+            else programOName.setText("");
+
+        });
+
         tooltipComplex.setHideOnEscape(true);
         tooltipComplex.setAutoHide(true);
 
@@ -188,7 +212,11 @@ public class BiofonUIUtil {
         biofonPrograms.clear();
         if (selectedItems.isEmpty()) return;
 
-        if (selectedItems.size() == 1) biofonPrograms.addAll(mda.findTherapyPrograms(selectedItems.get(0)));
+        if (selectedItems.size() == 1) {
+            biofonPrograms.addAll(mda.findTherapyPrograms(selectedItems.get(0)));
+            if(!selectedItems.get(0).getOname().isEmpty()) complexOName.setText(selectedItems.get(0).getOname());
+            else complexOName.setText("");
+        }
 
     }
 

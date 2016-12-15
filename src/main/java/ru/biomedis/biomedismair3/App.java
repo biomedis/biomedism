@@ -41,13 +41,17 @@ public class App extends Application {
       private  static  File dataDir;
       private  static  File innerDataDir;
       private  static  File tmpDir;
-      private Profile biofonProfile;
-    public static final  String BIOFON_PROFILE_NAME="BIOFON";
+      private static Profile biofonProfile;
+      public static final  String BIOFON_PROFILE_NAME="B_I_O_F_O_N";
+
     /**
      * Профиль биофона
      * @return
      */
     public Profile getBiofonProfile() {
+        return biofonProfile;
+    }
+    public  static Profile getBiofonProfile_() {
         return biofonProfile;
     }
 
