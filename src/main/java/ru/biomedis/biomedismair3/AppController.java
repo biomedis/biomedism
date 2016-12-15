@@ -155,13 +155,10 @@ public class AppController  extends BaseController {
     @FXML
     private Tab tab4;
 
-    @FXML private Spinner<Integer> bundlesSpinner;
+
 
     @FXML private HBox bundlesPan;
-    @FXML private VBox bundlesBtnPan;
-    @FXML private Button  btnOkBundles;
-    @FXML private Button  btnCancelBundles;
-
+    @FXML private ComboBox<Integer> bundlesCombo;
 
     @FXML private HBox onameBoxProgram;
     @FXML private HBox onameBoxComplex;
@@ -623,13 +620,10 @@ public class AppController  extends BaseController {
 
         /** Спиннер пачек частот **/
 
-        bundlesSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 1000, 1, 1));
-        bundlesSpinner.setEditable(true);
-        bundlesPan.setVisible(false);
-        bundlesBtnPan.setVisible(false);
 
-        btnOkBundles.setGraphic(new ImageView(new Image(okUrl.toExternalForm())));
-        btnCancelBundles.setGraphic(new ImageView(new Image(cancelUrl.toExternalForm())));
+        bundlesPan.setVisible(false);
+
+
 
 /*******************/
 
@@ -2405,7 +2399,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
             if (oldValue != newValue) {
                 //закроем кнопки спинера времени на частоту
                 hideTFSpinnerBTNPan();
-                hideBundlesSpinnerBTNPan();
+
 
                 tableComplex.getItems().clear();
                 //добавляем через therapyComplexItems иначе не будет работать event на изменение элементов массива и не будут работать галочки мультичастот
@@ -2429,10 +2423,22 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
 
 
+
+
             if (oldValue != newValue) {
+
                 //закроем кнопки спинера времени на частоту, при переключении компелекса
-                if(newValue!=null) {hideTFSpinnerBTNPan(newValue.getTimeForFrequency()); hideBundlesSpinnerBTNPan(newValue.getBundlesLength());}
-                else  {hideTFSpinnerBTNPan(); hideBundlesSpinnerBTNPan();}
+                if(newValue!=null) {
+                    Platform.runLater(() -> {
+                        hideTFSpinnerBTNPan(newValue.getTimeForFrequency());
+                        bundlesCombo.setValue(newValue.getBundlesLength());
+                    });
+
+                }
+                else  {
+                    hideTFSpinnerBTNPan();
+
+                }
 
                 tableProgram.getItems().clear();
 
@@ -2441,8 +2447,10 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
             }
 
+
         });
 
+        /*
 tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1, oldValue1, newValue1) ->
 {
     if(spinnerBtnPan.isVisible()) {
@@ -2450,11 +2458,12 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
       if(tableComplex.getSelectionModel().getSelectedItem()!=null)  {
           hideTFSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency());
-          hideBundlesSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
+          //hideBundlesSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
       }
-        else { hideTFSpinnerBTNPan();hideBundlesSpinnerBTNPan();}
+        else { hideTFSpinnerBTNPan();}
     }
 });
+*/
 
         /***** Спиннер времени на частоту ****/
 
@@ -2465,40 +2474,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
         //принять изменения времени
         btnOkSpinner.setOnAction(event ->
         {
-                /*
-            int oldTime= tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency();
 
-            try {
-
-                //если значение не равно исходному! тогда пересчет иначе ничего не делаем
-                if(oldTime!=timeToFreqSpinner.getValue())
-                {
-                    tableComplex.getSelectionModel().getSelectedItem().setTimeForFrequency(timeToFreqSpinner.getValue());
-                    tableComplex.getSelectionModel().getSelectedItem().setChanged(true);
-                    getModel().updateTherapyComplex(tableComplex.getSelectionModel().getSelectedItem());
-                    updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(), true);//также обновит другие поля если они изменялись!!
-                    //инициируем перещет поля для профиля. Нужно произвольно изменить забиндиную величину.
-
-
-                    btnGenerate.setDisable(false);
-
-                }
-
-
-                ///tableProgram
-
-            } catch (Exception e)
-            {
-                hideTFSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency());
-
-
-                logger.error("",e);
-                showExceptionDialog("Ошибка обновления времени в терапевтическом комплексе","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
-            }
-
-            hideTFSpinnerBTNPan();
-
-            */
 
             if(!this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
                 List<TherapyComplex> items = new ArrayList<>(this.tableComplex.getSelectionModel().getSelectedItems());
@@ -2530,15 +2506,28 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
         /***************/
 
-        /***** Спиннер пачек частот ****/
+        /** Комбо пачек частот **/
 
-        //показывает кнопки при изменениях спинера
-        bundlesSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {if(oldValue!=newValue) bundlesBtnPan.setVisible(true);});
-        //кнопка отмены
-        btnCancelBundles.setOnAction(event ->hideBundlesSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength()) );
+        bundlesCombo.setConverter(new StringConverter<Integer>() {
+            @Override
+            public String toString(Integer object) {
+                if(object.intValue()==1) return " - ";
+                else return object.toString();
+            }
 
-        //принять изменения времени
-        btnOkBundles.setOnAction(event ->
+            @Override
+            public Integer fromString(String string) {
+                return null;
+            }
+        });
+
+        for(int i=1; i<20; i++) bundlesCombo.getItems().add(i);
+
+
+
+
+        //принять изменения пачек частот
+        bundlesCombo.setOnAction(event ->
         {
 
 
@@ -2551,21 +2540,20 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
                     for(TherapyComplex item:items) {
 
 
-                        item.setBundlesLength(this.bundlesSpinner.getValue());
+                        item.setBundlesLength(bundlesCombo.getValue());
                         item.setChanged(true);
                         this.getModel().updateTherapyComplex(item);
                         this.btnGenerate.setDisable(false);                   }
 
                     this.updateComplexsTime(items, true);
                 } catch (Exception var8) {
-                    this.hideBundlesSpinnerBTNPan(this.tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
+                    //this.hideBundlesSpinnerBTNPan(this.tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
                     Log.logger.error("", var8);
                     showExceptionDialog("Ошибка обновления времени в терапевтическом комплексе", "", "", var8, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                } finally {
-                    this.hideTFSpinnerBTNPan();
                 }
 
             }
+
         });
 
 
@@ -2772,16 +2760,11 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
     private void hideBundlesSpinnerBTNPan(int val)
     {
-        bundlesSpinner.getValueFactory().setValue(val);
-        bundlesBtnPan.setVisible(false);
+        bundlesCombo.setValue(val);
+
 
     }
-    private void hideBundlesSpinnerBTNPan()
-    {
 
-        bundlesBtnPan.setVisible(false);
-
-    }
 
     /**
      * перерсчтет времени на профиль. Профиль инстанс из таблицы.
