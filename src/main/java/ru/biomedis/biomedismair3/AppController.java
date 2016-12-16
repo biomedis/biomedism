@@ -1261,6 +1261,8 @@ initBiofon();
     @FXML private Button bProgramDown;
     @FXML private Button bProgramDel;
 
+    @FXML private Button uploadBiofonBtn;
+
 
     @FXML private Spinner<Integer> timeToFreqSpinnerBiofon;
 
@@ -1568,7 +1570,7 @@ initBiofon();
         biofonBlueInd.setVisible(false);
         biofonGreenInd.setVisible(false);
 
-
+        uploadBiofonBtn.setDisable(true);
 
         biofonUIUtil=new BiofonUIUtil(res,
                 getApp(),this,
@@ -1584,6 +1586,7 @@ initBiofon();
 
         biofonUIUtil.init();
         biofonUIUtil.init3ComplexesButtons(biofonBtnComplex1,biofonBtnComplex2,biofonBtnComplex3);
+        biofonUIUtil.initUpload(uploadBiofonBtn);
 
         initContextMenuComplexes();
 

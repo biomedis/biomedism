@@ -19,6 +19,8 @@ import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import ru.biomedis.biomedismair3.Biofon.Biofon;
+import ru.biomedis.biomedismair3.Biofon.BiofonBinaryFile;
+import ru.biomedis.biomedismair3.Biofon.BiofonComplex;
 import ru.biomedis.biomedismair3.Dialogs.NameDescroptionDialogController;
 import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
@@ -70,6 +72,7 @@ public class BiofonUIUtil {
     private Button bDeviceComplex1;
     private Button bDeviceComplex2;
     private Button bDeviceComplex3;
+    private Button uploadBiofonBtn;
 
     public BiofonUIUtil(ResourceBundle resource, App app, BaseController bc, ModelDataApp mda, Profile biofonProfile,
                         ListView<TherapyComplex> biofonCompexesList, ListView<TherapyProgram> biofonProgramsList,
@@ -411,6 +414,7 @@ public class BiofonUIUtil {
 
 
                onAttach.run();
+               onLoad();
             }
 
             @Override
@@ -465,6 +469,43 @@ public class BiofonUIUtil {
             return;
         }
 
+    }
+
+
+    public void initUpload(Button uploadBiofonBtn) {
+        this.uploadBiofonBtn = uploadBiofonBtn;
+        this.uploadBiofonBtn.setDisable(true);
+
+        this.uploadBiofonBtn.setOnAction(this::onUpload);
+
+    }
+
+
+
+    //TODO еще нужно кнопку дизаблить если 3 компдекса не существуют. Нужно их в проперти положить. Проявлять сообщение, что все записано.
+    private void onUpload(Event e){
+            if(bComplex1 ==null || bComplex2==null || bComplex3==null) return;
+
+        BiofonBinaryFile file = createFile(bComplex1, bComplex2, bComplex3);
+        try {
+
+            Biofon.writeToDevice(file);
+        } catch (BiofonBinaryFile.MaxBytesBoundException e1) {
+
+        } catch (BiofonComplex.ZeroCountProgramBoundException e1) {
+
+        } catch (Biofon.WriteToDeviceException e1) {
+            e1.printStackTrace();
+        }
+    }
+
+    //TODO преобразовать в комплексы, активизировать кнопки или указать что прибор пустой!
+    private void onLoad(){
+        try {
+            BiofonBinaryFile file = Biofon.readFromDevice(false);
+        } catch (Biofon.ReadFromDeviceException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -787,5 +828,15 @@ public class BiofonUIUtil {
 
 
         }
+    }
+    /**
+     * Создает файл из трех комплексов
+     * @param tc1
+     * @param tc2
+     * @param tc3
+     * @return
+     */
+    public static BiofonBinaryFile createFile(TherapyComplex tc1, TherapyComplex tc2, TherapyComplex tc3){
+        return null;
     }
 }
