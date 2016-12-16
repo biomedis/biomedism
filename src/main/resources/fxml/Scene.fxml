@@ -375,9 +375,9 @@
                                        <bottom>
                                           <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="100.0" spacing="8.0" BorderPane.alignment="CENTER">
                                              <children>
-                                                <Button fx:id="biofonBtnComplex1" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="100.0" prefWidth="100.0" style="-fx-background-color: red;" styleClass="GenericBtn" text="Комплекс1" textFill="WHITE" />
-                                                <Button fx:id="biofonBtnComplex2" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="100.0" prefWidth="100.0" style="-fx-background-color: green;" styleClass="GenericBtn" text="Комплекс2" textFill="WHITE" />
-                                                <Button fx:id="biofonBtnComplex3" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="100.0" prefWidth="100.0" style="-fx-background-color: blue;" styleClass="GenericBtn" text="Комплекс3" textFill="WHITE" />
+                                                <Button fx:id="biofonBtnComplex1" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="100.0" prefWidth="100.0"  styleClass="GenericBtn GrayBackground" text="" textFill="WHITE" />
+                                                <Button fx:id="biofonBtnComplex2" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="100.0" prefWidth="100.0"  styleClass="GenericBtn  GrayBackground" text="" textFill="WHITE" />
+                                                <Button fx:id="biofonBtnComplex3" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="100.0" prefWidth="100.0"  styleClass="GenericBtn  GrayBackground" text="" textFill="WHITE" />
                                                 <HBox alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
                                                    <children>
                                                       <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="100.0" prefHeight="100.0" prefWidth="134.2">

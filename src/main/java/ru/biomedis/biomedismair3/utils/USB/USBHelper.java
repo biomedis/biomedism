@@ -258,7 +258,13 @@ private static IDeviceDetect deviceDetector;
         if(LibUsb.hasCapability(LibUsb.CAP_HAS_HOTPLUG)) deviceDetector=new HotPlugDeviceDetect(periodSec);
         else  deviceDetector=new FindDeviceDetector(periodSec);
 
-        deviceDetector.startDeviceDetecting();
+        try {
+            deviceDetector.startDeviceDetecting();
+        } catch (USBException e) {
+            e.printStackTrace();
+            closeContext();
+
+        }
     }
 
     /**
@@ -267,7 +273,12 @@ private static IDeviceDetect deviceDetector;
     public static synchronized void stopHotPlugListener()
     {
 
-        deviceDetector.stopDeviceDetecting();
+        try {
+            deviceDetector.stopDeviceDetecting();
+        } catch (USBException e) {
+            e.printStackTrace();
+            closeContext();
+        }
         deviceDetector=null;
 
 

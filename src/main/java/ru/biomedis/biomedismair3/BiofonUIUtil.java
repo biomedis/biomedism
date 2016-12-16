@@ -4,23 +4,29 @@ import javafx.beans.Observable;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
-import javafx.geometry.Insets;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.*;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
+import ru.biomedis.biomedismair3.Biofon.Biofon;
 import ru.biomedis.biomedismair3.Dialogs.NameDescroptionDialogController;
 import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
 import ru.biomedis.biomedismair3.entity.TherapyProgram;
+import ru.biomedis.biomedismair3.utils.USB.PlugDeviceListener;
+import ru.biomedis.biomedismair3.utils.USB.USBHelper;
 
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -42,6 +48,8 @@ public class BiofonUIUtil {
     private final ListView<TherapyProgram> biofonProgramsList;
     private final Label complexOName;
     private final Label programOName;
+    private final Runnable onAttach;
+    private final Runnable onDetach;
 
     private Image biofonComplexImage;
     private ImageView biofonComplexImageView;
@@ -56,11 +64,17 @@ public class BiofonUIUtil {
     private Comparator<TherapyProgram> comparatorBiofonProgram = Comparator.comparing(TherapyProgram::getPosition);
 
 
+
+
     private Tooltip tooltipComplex = new Tooltip();
+    private Button bDeviceComplex1;
+    private Button bDeviceComplex2;
+    private Button bDeviceComplex3;
 
     public BiofonUIUtil(ResourceBundle resource, App app, BaseController bc, ModelDataApp mda, Profile biofonProfile,
                         ListView<TherapyComplex> biofonCompexesList, ListView<TherapyProgram> biofonProgramsList,
-                        Label complexOName,Label programOName) {
+                        Label complexOName,Label programOName,
+                        Runnable onAttach, Runnable onDetach) {
         this.resource = resource;
         this.app = app;
         this.bc = bc;
@@ -72,6 +86,8 @@ public class BiofonUIUtil {
 
         this.complexOName = complexOName;
         this.programOName = programOName;
+        this.onAttach = onAttach;
+        this.onDetach = onDetach;
     }
 
     /**
@@ -83,7 +99,171 @@ public class BiofonUIUtil {
         biofonComplexes.addAll(mda.findAllTherapyComplexByProfile(biofonProfile));
     }
 
+
+
+    private TherapyComplex bComplex1;
+    private TherapyComplex bComplex2;
+    private TherapyComplex bComplex3;
+
+    static final DataFormat COMPLEXES__DATA_FORMAT = new DataFormat("biofon/complex");
+    private Image dragImage;
+
+    private  void viewComplexPrograms(TherapyComplex tc) {
+
+            biofonPrograms.clear();
+            biofonPrograms.addAll(mda.findTherapyPrograms(tc));
+            if(!tc.getOname().isEmpty()) complexOName.setText(tc.getOname());
+            else complexOName.setText("");
+
+
+    }
+    private void on3ComplexButtonClick(Event e){
+
+        if(e.getTarget() instanceof Button) {
+            Button btn = (Button) e.getTarget();
+
+            biofonCompexesList.getSelectionModel().clearSelection();
+
+            if (btn.getId().equals(bDeviceComplex1.getId())) {
+                viewComplexPrograms(bComplex1);
+
+            } else if (btn.getId().equals(bDeviceComplex2.getId())) {
+                viewComplexPrograms(bComplex2);
+            } else if (btn.getId().equals(bDeviceComplex3.getId())) {
+                viewComplexPrograms(bComplex3);
+            }
+
+        }
+    }
+
+    public void init3ComplexesButtons(Button bDeviceComplexBtn1,Button bDeviceComplexBtn2,Button bDeviceComplexBtn3){
+        URL dragImgUrl = getClass().getResource("/images/medical_record.png");
+        dragImage = new Image(dragImgUrl.toExternalForm());
+
+        this.bDeviceComplex1 = bDeviceComplexBtn1;
+        this.bDeviceComplex2 = bDeviceComplexBtn2;
+        this.bDeviceComplex3 = bDeviceComplexBtn3;
+
+        this.bDeviceComplex1.setWrapText(true);
+        this.bDeviceComplex2.setWrapText(true);
+        this.bDeviceComplex3.setWrapText(true);
+
+        this.bDeviceComplex1.setOnAction(this::on3ComplexButtonClick);
+        this.bDeviceComplex2.setOnAction(this::on3ComplexButtonClick);
+        this.bDeviceComplex3.setOnAction(this::on3ComplexButtonClick);
+
+        initComplexButtons(true);
+
+
+
+        biofonCompexesList.setOnDragDetected(event -> {
+            int selectedCount = biofonCompexesList.getSelectionModel().getSelectedIndices().size();
+            if (selectedCount == 0) {
+                event.consume();
+                return;
+            }
+            // Initiate a drag-and-drop gesture
+            Dragboard dragboard = biofonCompexesList.startDragAndDrop(TransferMode.COPY);
+            // Put the the selected items to the dragboard
+            TherapyComplex selectedItems = biofonCompexesList.getSelectionModel().getSelectedItem();
+            ClipboardContent content = new ClipboardContent();
+            content.put(COMPLEXES__DATA_FORMAT, selectedItems.getId());
+            dragboard.setContent(content);
+            dragboard.setDragView(dragImage);
+            event.consume();
+
+
+
+        });
+
+
+
+        bDeviceComplex1.setOnDragOver(this::onDragOverComplexesBtn);
+        bDeviceComplex2.setOnDragOver(this::onDragOverComplexesBtn);
+        bDeviceComplex3.setOnDragOver(this::onDragOverComplexesBtn);
+
+        bDeviceComplex1.setOnDragDropped(this::onDragDroppedComplexesBtn);
+        bDeviceComplex2.setOnDragDropped(this::onDragDroppedComplexesBtn);
+        bDeviceComplex3.setOnDragDropped(this::onDragDroppedComplexesBtn);
+
+    }
+
+
+
+    private void onDragDroppedComplexesBtn(DragEvent e){
+
+        if(e.getGestureTarget() instanceof Button){
+            Button btn =(Button)e.getGestureTarget();
+            if(!btn.getStyleClass().contains("OverBorder")){
+                btn.getStyleClass().remove("OverBorder");
+            }
+
+            boolean dragCompleted = false;
+            // Transfer the data to the target
+            Dragboard dragboard = e.getDragboard();
+
+            if(dragboard.hasContent(COMPLEXES__DATA_FORMAT)) {
+                Long draggedComplexID = (Long) dragboard.getContent(COMPLEXES__DATA_FORMAT);
+
+
+                TherapyComplex draggedComplex = mda.findTherapyComplex(draggedComplexID);
+
+                if(draggedComplex!=null){
+
+
+                    btn.setText(draggedComplex.getName());
+                    btn.getStyleClass().remove("GrayBackground");
+
+                    if(btn.getId().equals(bDeviceComplex1.getId())) {
+                        btn.getStyleClass().addAll("RedBackground");
+                        bComplex1=draggedComplex;
+                    }
+                    else  if(btn.getId().equals(bDeviceComplex2.getId())) {
+                        btn.getStyleClass().addAll("GreenBackground");
+                        bComplex2=draggedComplex;
+                    }
+                    else  if(btn.getId().equals(bDeviceComplex3.getId())) {
+                        btn.getStyleClass().addAll("BlueBackground");
+                        bComplex3=draggedComplex;
+                    }
+
+                    dragCompleted = true;
+                }
+
+
+            }
+
+            e.setDropCompleted(dragCompleted);
+            e.consume();
+
+
+
+        }
+
+    }
+
+    private void onDragOverComplexesBtn(DragEvent e){
+        // If drag board has an ITEM_LIST and it is not being dragged
+        // over itself, we accept the MOVE transfer mode
+                Dragboard dragboard = e.getDragboard();
+                if (e.getGestureSource() == biofonCompexesList && dragboard.hasContent(COMPLEXES__DATA_FORMAT)) {
+                    e.acceptTransferModes(TransferMode.COPY);
+                    if(e.getGestureTarget() instanceof Button){
+                        Button btn =(Button)e.getGestureTarget();
+                        if(!btn.getStyleClass().contains("OverBorder")){
+                            btn.getStyleClass().add("OverBorder");
+                        }
+
+                    }
+                }
+        e.consume();
+    }
+
+
     public void init() {
+
+        initUSBDetection();
+
 
 
         biofonCompexesList.setPlaceholder(new Label(resource.getString("app.table.complex_placeholder")));
@@ -197,6 +377,56 @@ public class BiofonUIUtil {
         tooltipComplex.setAutoHide(true);
 
 
+    }
+
+
+    private void initComplexButtons(boolean disable){
+        bDeviceComplex1.setDisable(disable);
+        bDeviceComplex1.setText(resource.getString("app.empty"));
+        if(!bDeviceComplex1.getStyleClass().contains("GrayBackground"))bDeviceComplex1.getStyleClass().add("GrayBackground");
+        bDeviceComplex1.setText(resource.getString("app.empty"));
+
+        bDeviceComplex2.setDisable(disable);
+        bDeviceComplex2.setText(resource.getString("app.empty"));
+        if(!bDeviceComplex2.getStyleClass().contains("GrayBackground"))bDeviceComplex2.getStyleClass().add("GrayBackground");
+        bDeviceComplex2.setText(resource.getString("app.empty"));
+
+        bDeviceComplex3.setDisable(disable);
+        bDeviceComplex3.setText(resource.getString("app.empty"));
+        if(!bDeviceComplex3.getStyleClass().contains("GrayBackground"))bDeviceComplex3.getStyleClass().add("GrayBackground");
+        bDeviceComplex3.setText(resource.getString("app.empty"));
+    }
+
+    private void initUSBDetection() {
+        USBHelper.addPlugEventHandler(Biofon.productId, Biofon.vendorId, new PlugDeviceListener() {
+            @Override
+            public void onAttachDevice() {
+                System.out.println("Устройство Biofon подключено");
+
+                initComplexButtons(false);
+
+                bComplex1=null;
+                bComplex2=null;
+                bComplex3=null;
+
+
+               onAttach.run();
+            }
+
+            @Override
+            public void onDetachDevice() {
+
+                System.out.println("Устройство Biofon отключено");
+
+                initComplexButtons(true);
+
+                bComplex1=null;
+                bComplex2=null;
+                bComplex3=null;
+
+                onDetach.run();
+            }
+        });
     }
 
 

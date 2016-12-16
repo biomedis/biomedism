@@ -1428,7 +1428,7 @@ public class ModelDataApp {
       }
 
     /**
-     *  Создаст терапевтический комплекс из комплекса complex, с учетом языка вставки
+     *  Создаст терапевтический комплекс из комплекса complex, с учетом языка вставки. Также создаст соответствующие программы
      * @param profile профиль
      * @param complex комплекс из которого создается тер.комплекс
      * @param timeForFreq время на частоту
@@ -1507,13 +1507,27 @@ public class ModelDataApp {
             therapyComplexDAO.create(tc);//создадим компелекс
             if(il.equals(lp))
             {
-                for(Program itm: findAllProgramByComplex) createTherapyProgram(tc, itm.getNameString(),itm.getDescriptionString(),itm.getFrequencies());//создадим програмы из комплекса
+                for(Program itm: findAllProgramByComplex){
+                    createTherapyProgram(tc,
+                            itm.getNameString(),
+                            itm.getDescriptionString(),
+                            itm.getFrequencies());//создадим програмы из комплекса
+                }
             }else {
-                for(Program itm: findAllProgramByComplex) createTherapyProgram(tc, itm.getNameString(),itm.getDescriptionString(),itm.getFrequencies(),onameP.get(itm.getId()));
+                for(Program itm: findAllProgramByComplex){
+                    createTherapyProgram(tc,
+                            itm.getNameString(),
+                            itm.getDescriptionString(),
+                            itm.getFrequencies(),
+                            onameP.get(itm.getId()));
+                }
             }
 
 
-        }catch(Exception e){Log.logger.error("",e);tc=null;throw new Exception("Ошибка создания терапевтического комплекса",e); }
+        }catch(Exception e){
+            Log.logger.error("",e);
+            tc=null;
+            throw new Exception("Ошибка создания терапевтического комплекса",e); }
         return tc;
     }
 

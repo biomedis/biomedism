@@ -21,7 +21,7 @@ public class HotPlugDeviceDetect implements IDeviceDetect {
     }
 
     @Override
-    public  void startDeviceDetecting(){
+    public  void startDeviceDetecting() throws USBHelper.USBException {
         if(thread!=null) return;
         if(callbackHandle!=null)return;
         thread = new EventHandlingThread(periodDetection);
@@ -40,8 +40,7 @@ public class HotPlugDeviceDetect implements IDeviceDetect {
                     new Callback(), null, callbackHandle);
             if (result != LibUsb.SUCCESS)
             {
-                throw new LibUsbException("Unable to register hotplug callback",
-                        result);
+                throw new USBHelper.USBException("Unable to register hotplug callback",result);
             }
 
     }
@@ -56,6 +55,7 @@ public class HotPlugDeviceDetect implements IDeviceDetect {
          thread.join();
      } catch (InterruptedException e) {
          e.printStackTrace();
+
      }finally {
          thread=null;
          callbackHandle=null;
@@ -93,8 +93,9 @@ public class HotPlugDeviceDetect implements IDeviceDetect {
                 // or the specified time of 1 second (Specified in
                 // Microseconds) has passed.
                 int result = LibUsb.handleEventsTimeout(USBHelper.getContext(), periodDetection *1000000);
-                if (result != LibUsb.SUCCESS)
-                    throw new LibUsbException("Unable to handle events", result);
+                if (result != LibUsb.SUCCESS){
+                    new USBHelper.USBException("Unable to handle events", result).printStackTrace();
+                }
             }
         }
     }
@@ -109,7 +110,11 @@ public class HotPlugDeviceDetect implements IDeviceDetect {
             DeviceDescriptor descriptor = new DeviceDescriptor();
 
             int result = LibUsb.getDeviceDescriptor(device, descriptor);
-            if (result != LibUsb.SUCCESS)  throw new LibUsbException("Unable to read device descriptor",result);
+            if (result != LibUsb.SUCCESS)  {
+                new USBHelper.USBException("Unable to read device descriptor", result).printStackTrace();
+            return -1;
+            }
+
 
             for (USBHelper.PlugListenerContainer al : USBHelper.getPlugDeviceListenerList()) {
                 if(al.checkID(descriptor.idProduct(),descriptor.idVendor())){

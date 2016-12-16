@@ -1041,7 +1041,7 @@ public class AppController  extends BaseController {
                         name=p.getNameString();
                         descr=p.getDescriptionString();
                     }else {
-                        //вставим имя на языке вставки.
+                        //вставим имя на языке вставки. oname - на языке который программа
                         oname=p.getNameString();
                         try {
                             name = getModel().getString2(p.getName(),getModel().getLanguage(il));
@@ -1151,6 +1151,7 @@ public class AppController  extends BaseController {
                 }
 
         });
+
         sectionTree.setCellFactory(param -> new TreeCell<INamed>() {
             @Override
             protected void updateItem(INamed item, boolean empty) {
@@ -1525,7 +1526,49 @@ initBiofon();
 
     }
 
+
+    @FXML private Label biofonRedInd;
+    @FXML private Label biofonBlueInd;
+    @FXML private Label biofonGreenInd;
+    @FXML private  ProgressIndicator biofonProgressIndicator;
+    @FXML private  Button biofonBtnComplex1;
+    @FXML private  Button biofonBtnComplex2;
+    @FXML private  Button biofonBtnComplex3;
+
+    /**
+     * Обработчик подключения биофона
+     */
+    void onAttachBiofon(){
+        biofonRedInd.setVisible(true);
+        biofonBlueInd.setVisible(true);
+        biofonGreenInd.setVisible(true);
+    }
+
+    /**
+     * Обработчик отключения биофона
+     */
+    void onDetachBiofon(){
+        biofonRedInd.setVisible(false);
+        biofonBlueInd.setVisible(false);
+        biofonGreenInd.setVisible(false);
+    }
+
+    void showBiofonProgressIndicator(){
+        biofonProgressIndicator.setVisible(true);
+    }
+    void hideBiofonProgressIndicator(){
+        biofonProgressIndicator.setVisible(false);
+    }
+
+
+
     private void initBiofon() {
+
+        biofonRedInd.setVisible(false);
+        biofonBlueInd.setVisible(false);
+        biofonGreenInd.setVisible(false);
+
+
 
         biofonUIUtil=new BiofonUIUtil(res,
                 getApp(),this,
@@ -1534,9 +1577,13 @@ initBiofon();
                 biofonCompexesList,
                 biofonProgramsList,
                 biofonInsLangComplex,
-                biofonInsLangProgram);
+                biofonInsLangProgram,
+                this::onAttachBiofon,
+                this::onDetachBiofon
+        );
 
         biofonUIUtil.init();
+        biofonUIUtil.init3ComplexesButtons(biofonBtnComplex1,biofonBtnComplex2,biofonBtnComplex3);
 
         initContextMenuComplexes();
 

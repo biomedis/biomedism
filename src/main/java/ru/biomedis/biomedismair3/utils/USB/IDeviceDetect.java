@@ -5,10 +5,10 @@ public interface IDeviceDetect {
     /**
      * Запускает поток детектирования устройст
      */
-     void startDeviceDetecting();
+     void startDeviceDetecting()throws USBHelper.USBException;
 
     /**
      * Останавливает поток детектирования устройств
      */
-    void stopDeviceDetecting();
+    void stopDeviceDetecting()throws USBHelper.USBException;
 }

@@ -31,7 +31,11 @@
 
     -fx-border-color: rgba(102,152,254,0.6);
 }
+.OverBorder
+{
 
+    -fx-border-color: rgb(149, 10, 254);
+}
 .DelBtn
 {
     -fx-background-image: url("../images/delete.png");
@@ -43,7 +47,23 @@
 }
 
 
+.GrayBackground{
+    -fx-background-color: #242424;
+}
 
+
+.RedBackground{
+    -fx-background-color: red;
+}
+
+.GreenBackground{
+
+    -fx-background-color: green;
+}
+.BlueBackground{
+
+    -fx-background-color: blue;
+}
 
 .SortTimeBtn
 {

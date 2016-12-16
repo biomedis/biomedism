@@ -14,6 +14,7 @@ import ru.biomedis.biomedismair3.DBImport.OldDBImport;
 import ru.biomedis.biomedismair3.Tests.TestsFramework.TestsManager;
 import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.entity.ProgramOptions;
+import ru.biomedis.biomedismair3.utils.USB.USBHelper;
 import ru.biomedis.biomedismair3.utils.UTF8Control;
 
 import javax.persistence.EntityManager;
@@ -402,6 +403,15 @@ https://gist.github.com/DemkaAge/8999236
 */
 
 
+
+
+        try {
+            USBHelper.initContext();
+        } catch (USBHelper.USBException e) {
+            throw new RuntimeException(e);
+        }
+
+
         BaseController.setApp(this);//установим ссылку на приложение для всех контроллеров
          stage.setTitle(this.strings.getString("app.name")+getUpdateVersion()+"."+currentMinorVersion);
         // stage.getIcons().add(new Image(App.class.getResourceAsStream("icon.png")));
@@ -431,8 +441,13 @@ https://gist.github.com/DemkaAge/8999236
 
 
 
-        //перед закрытием произойдет уведомление всех подписчиков
-        stage.setOnCloseRequest(event -> closeAppListeners.stream().forEach(listeners->listeners.onClose()));
+        //перед закрытием произойдет уведомление всех подписчиков и закрытие глобальных контекстов
+        stage.setOnCloseRequest(event -> {
+            closeAppListeners.stream().forEach(listeners->listeners.onClose());
+
+            USBHelper.stopHotPlugListener();
+            USBHelper.closeContext();
+        });
 
 
         stage.show();
@@ -460,7 +475,7 @@ https://gist.github.com/DemkaAge/8999236
 
 
 
-        
+        USBHelper.startHotPlugListener(2);
     }
 
 
