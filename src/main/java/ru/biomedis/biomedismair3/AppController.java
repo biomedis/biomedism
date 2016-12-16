@@ -1270,13 +1270,17 @@ initBiofon();
 
     @FXML private Button bComplexSort;
 
-    @FXML private Spinner<Integer> bundlesSpinnerBiofon;
+    @FXML private Spinner<String> bundlesSpinnerBiofon;
+    @FXML  private VBox bundlesBtnPanBiofon;
+    @FXML private Button btnOkBundlesBiofon;
+    @FXML private Button btnCancelBundlesBiofon;
+
 
     @FXML private HBox bundlesPanBiofon;
     @FXML private Label biofonInsLangComplex;
     @FXML private Label biofonInsLangProgram;
 
-    @FXML private  ComboBox<Integer> bundlesLengthComboBiofon;
+    @FXML  private ObservableList<String>  bundlesSpinnerDataBiofon;
 
     private BiofonUIUtil biofonUIUtil;
     private ContextMenu biofonComplexesMenu=new ContextMenu();
@@ -1357,8 +1361,18 @@ initBiofon();
 
     }
 
-    private void hideBundlesBiofon(){
-        bundlesPanBiofon.setVisible(false);
+    private void hideBundlesSpinnerBTNPanBiofon(int val)
+    {
+        bundlesSpinnerBiofon.getValueFactory().setValue(val==1 ? "-" : String.valueOf(val));
+        bundlesBtnPanBiofon.setVisible(false);
+
+    }
+
+    private void hideBundlesSpinnerBTNPanBiofon()
+    {
+
+        bundlesBtnPanBiofon.setVisible(false);
+
     }
 
 
@@ -1429,50 +1443,64 @@ initBiofon();
 
         /** Комбо пачек частот **/
 
-        bundlesLengthComboBiofon.setConverter(new StringConverter<Integer>() {
-            @Override
-            public String toString(Integer object) {
-                if(object.intValue()==1) return " - ";
-                else return object.toString();
-            }
-
-            @Override
-            public Integer fromString(String string) {
-                return null;
-            }
-        });
-
-        for(int i=1; i<20; i++) bundlesLengthComboBiofon.getItems().add(i);
 
 
+        bundlesSpinnerDataBiofon.add("-");
+        for(int i=2; i<20; i++)bundlesSpinnerDataBiofon.add(String.valueOf(i));
+        bundlesSpinnerBiofon.getValueFactory().setValue("-");
 
+        btnOkBundlesBiofon.setGraphic(new ImageView(new Image(okUrl.toExternalForm())));
+        btnCancelBundlesBiofon.setGraphic(new ImageView(new Image(cancelUrl.toExternalForm())));
+
+        //показывает кнопки при изменениях спинера
+        bundlesSpinnerBiofon.valueProperty().addListener((observable, oldValue, newValue) -> {if(oldValue!=newValue) bundlesBtnPanBiofon.setVisible(true);});
+        //кнопка отмены
+        btnCancelBundlesBiofon.setOnAction(event ->hideBundlesSpinnerBTNPanBiofon(biofonCompexesList.getSelectionModel().getSelectedItem().getBundlesLength()) );
 
 /*******************/
 
         //обработчик нажатия на комплекс. Есть еще такой в BiofonUtils
         biofonCompexesList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 
+            if( biofonCompexesList.getSelectionModel().getSelectedItems().size()==1){
+
+                if(biofonCompexesList.getSelectionModel().getSelectedItem().isMulltyFreq())bundlesSpinnerBiofon.setDisable(false);
+                else bundlesSpinnerBiofon.setDisable(true);
+
+            }else bundlesSpinnerBiofon.setDisable(false);
+
+
             if(newValue==null) {
                 hideTFSpinnerBTNPanBiofon();
+                hideBundlesSpinnerBTNPanBiofon();
                 return;
             }
             hideTFSpinnerBTNPanBiofon(newValue.getTimeForFrequency());
-            bundlesLengthComboBiofon.setValue(newValue.getBundlesLength());
+            hideBundlesSpinnerBTNPanBiofon(newValue.getBundlesLength());
         });
 
+
+
         //принять изменения времени
-        bundlesLengthComboBiofon.setOnAction(event ->
+        btnOkBundlesBiofon.setOnAction(event ->
         {
 
 
             ObservableList<TherapyComplex> selectedItems = biofonCompexesList.getSelectionModel().getSelectedItems();
             if(selectedItems ==null) return;
+
+
+
+
             try {
                 for (TherapyComplex complex : selectedItems) {
-                    complex.setBundlesLength(bundlesLengthComboBiofon.getValue());
+
+                    complex.setBundlesLength(bundlesSpinnerBiofon.getValue().equals("-")?1:Integer.parseInt(bundlesSpinnerBiofon.getValue()));
                     this.getModel().updateTherapyComplex(complex);
+                    hideBundlesSpinnerBTNPanBiofon();
                 }
             } catch (Exception e) {
+                hideBundlesSpinnerBTNPanBiofon();
                Log.logger.error("Ошибка установки пачек частот", e);
                 showExceptionDialog("Ошибка установки пачек частот", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
             }
@@ -2775,6 +2803,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
         bundlesBtnPan.setVisible(false);
 
     }
+
     private void hideBundlesSpinnerBTNPan()
     {
 

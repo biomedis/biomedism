@@ -514,7 +514,6 @@
                                                                            </VBox>
                                                                        </children>
                                                                    </HBox>
-
                                                                    <HBox fx:id="bundlesPanBiofon" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308">
                                                                        <children>
                                                                            <Label maxWidth="1.7976931348623157E308" text="%ui.bundles_length" HBox.hgrow="ALWAYS">
@@ -522,11 +521,20 @@
                                                                                    <Insets left="8.0" right="8.0" />
                                                                                </HBox.margin>
                                                                            </Label>
-                                                                  <ComboBox fx:id="bundlesLengthComboBiofon">
-                                                                     <HBox.margin>
-                                                                        <Insets right="25.0" />
-                                                                     </HBox.margin>
-                                                                  </ComboBox>
+                                                                           <fx:define>
+                                                                               <FXCollections fx:factory="observableArrayList" fx:id="bundlesSpinnerDataBiofon" />
+                                                                           </fx:define>
+
+                                                                           <Spinner fx:id="bundlesSpinnerBiofon" minWidth="70.0" prefWidth="70.0" items="$bundlesSpinnerDataBiofon"/>
+                                                                           <VBox fx:id="bundlesBtnPanBiofon" spacing="3.0">
+                                                                               <children>
+                                                                                   <Button fx:id="btnOkBundlesBiofon" contentDisplay="CENTER" ellipsisString="" maxHeight="16.0" maxWidth="16.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0" />
+                                                                                   <Button fx:id="btnCancelBundlesBiofon" maxHeight="16.0" maxWidth="16.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0" />
+                                                                               </children>
+                                                                               <HBox.margin>
+                                                                                   <Insets left="5.0" right="5.0" />
+                                                                               </HBox.margin>
+                                                                           </VBox>
                                                                        </children>
                                                                    </HBox>
                                                             <Label fx:id="biofonInsLangComplex" maxWidth="1.7976931348623157E308" text="Label" />
