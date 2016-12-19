@@ -7,6 +7,9 @@ import javafx.beans.property.SimpleStringProperty;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Access(AccessType.PROPERTY)
 @Entity
@@ -231,5 +234,19 @@ public class TherapyProgram implements Serializable {
         }
         return count;
     }
+
+    /**
+     * Список всех частот программы
+     * @return
+     */
+    @Transient
+    public List<Double> parseFrqeqs(){
+
+       return Arrays.stream( frequencies.get().split(";"))
+                    .flatMap(f->Arrays.stream(f.split("\\+")))
+                    .map(f->Double.parseDouble(f.replace(",",".")))
+                    .collect(Collectors.toList());
+    }
+
 
 }

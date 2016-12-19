@@ -2,7 +2,6 @@ package ru.biomedis.biomedismair3.Biofon;
 
 
 
-import ru.biomedis.biomedismair3.entity.TherapyComplex;
 import ru.biomedis.biomedismair3.utils.USB.ByteHelper;
 import ru.biomedis.biomedismair3.utils.USB.USBHelper;
 
@@ -76,6 +75,10 @@ public class Biofon
 
 
              biofonBinaryFile = new BiofonBinaryFile(deviceData);
+            if(debug) System.out.print("Ok");
+
+            if(debug) System.out.println(biofonBinaryFile.toString());
+
 
         } catch (BiofonBinaryFile.FileParseException e) {
            throw new ReadFromDeviceException(e);

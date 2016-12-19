@@ -28,8 +28,8 @@ public class BiofonComplex
     public BiofonComplex(int pauseBetweenPrograms, int timeByFrequency) throws MaxPauseBoundException, MaxTimeByFreqBoundException {
         this.pauseBetweenPrograms = pauseBetweenPrograms;
         this.timeByFrequency = timeByFrequency;
-        if(this.pauseBetweenPrograms>=MAX_PAUSE)  throw new MaxPauseBoundException();
-        if(this.timeByFrequency>=MAX_TIME_BY_FREQ) throw new MaxTimeByFreqBoundException();
+        if(this.pauseBetweenPrograms>MAX_PAUSE)  throw new MaxPauseBoundException();
+        if(this.timeByFrequency>MAX_TIME_BY_FREQ) throw new MaxTimeByFreqBoundException();
 
     }
 

@@ -1389,7 +1389,7 @@ initBiofon();
 
         /** Спиннер внемя на частоту **/
 
-        timeToFreqSpinnerBiofon.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(10, 1000, 180, 10));
+        timeToFreqSpinnerBiofon.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(10, 255, 180, 5));
         timeToFreqSpinnerBiofon.setEditable(true);
         spinnerPanBiofon.setVisible(false);
         spinnerBtnPanBiofon.setVisible(false);
