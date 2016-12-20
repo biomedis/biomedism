@@ -32,6 +32,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ru.biomedis.biomedismair3.Biofon.BiofonComplex.MAX_PROGRAM_COUNT_IN_COMPLEX;
 import static ru.biomedis.biomedismair3.Log.logger;
 
 /**
@@ -50,6 +51,8 @@ public class BiofonUIUtil {
     private final Label programOName;
     private final Runnable onAttach;
     private final Runnable onDetach;
+    private final Label tFInfo;
+    private final Label bundlesInfo;
 
     private Image biofonComplexImage;
     private ImageView biofonComplexImageView;
@@ -75,7 +78,8 @@ public class BiofonUIUtil {
     public BiofonUIUtil(ResourceBundle resource, App app, BaseController bc, ModelDataApp mda, Profile biofonProfile,
                         ListView<TherapyComplex> biofonCompexesList, ListView<TherapyProgram> biofonProgramsList,
                         Label complexOName,Label programOName,
-                        Runnable onAttach, Runnable onDetach) {
+                        Runnable onAttach, Runnable onDetach,
+                        Label tFInfo, Label bundlesInfo) {
         this.resource = resource;
         this.app = app;
         this.bc = bc;
@@ -89,6 +93,8 @@ public class BiofonUIUtil {
         this.programOName = programOName;
         this.onAttach = onAttach;
         this.onDetach = onDetach;
+        this.tFInfo = tFInfo;
+        this.bundlesInfo = bundlesInfo;
     }
 
     /**
@@ -112,6 +118,19 @@ public class BiofonUIUtil {
     static final DataFormat COMPLEXES__DATA_FORMAT = new DataFormat("biofon/complex");
     private Image dragImage;
 
+    private void setInfo(TherapyComplex tc){
+        if(tc==null) {hideInfo();return;}
+        tFInfo.getParent().setVisible(true);
+        bundlesInfo.getParent().setVisible(true);
+        tFInfo.setText(tc.getTimeForFrequency().toString());
+        bundlesInfo.setText(tc.getBundlesLength()==1?"-":String.valueOf(tc.getBundlesLength()));
+    }
+
+    private void hideInfo(){
+        tFInfo.getParent().setVisible(false);
+        bundlesInfo.getParent().setVisible(false);
+
+    }
     private  void viewComplexPrograms(TherapyComplex tc) {
 
             if(tc ==null) return;
@@ -120,6 +139,8 @@ public class BiofonUIUtil {
             biofonPrograms.addAll(mda.findTherapyPrograms(tc));
             if(!tc.getOname().isEmpty()) complexOName.setText(tc.getOname());
             else complexOName.setText("");
+            programOName.setText("");
+
 
 
     }
@@ -127,16 +148,19 @@ public class BiofonUIUtil {
 
         if(e.getTarget() instanceof Button) {
             Button btn = (Button) e.getTarget();
-
+            programOName.setText("");
             biofonCompexesList.getSelectionModel().clearSelection();
 
             if (btn.getId().equals(bDeviceComplex1.getId())) {
                 viewComplexPrograms(bComplex1.get());
+                setInfo(bComplex1.get());
 
             } else if (btn.getId().equals(bDeviceComplex2.getId())) {
                 viewComplexPrograms(bComplex2.get());
+                setInfo(bComplex2.get());
             } else if (btn.getId().equals(bDeviceComplex3.getId())) {
                 viewComplexPrograms(bComplex3.get());
+                setInfo(bComplex3.get());
             }
 
         }
@@ -270,7 +294,7 @@ public class BiofonUIUtil {
 
         initUSBDetection();
 
-
+        hideInfo();
 
         biofonCompexesList.setPlaceholder(new Label(resource.getString("app.table.complex_placeholder")));
         biofonProgramsList.setPlaceholder(new Label(resource.getString("app.table.programm_placeholder")));
@@ -444,7 +468,8 @@ public class BiofonUIUtil {
 
     public void viewBiofonProgramsOnComplexClick() {
 
-
+        hideInfo();
+        programOName.setText("");
         ObservableList<TherapyComplex> selectedItems = getSelectedComplexes();
         biofonPrograms.clear();
         if (selectedItems.isEmpty()) return;
@@ -489,12 +514,15 @@ public class BiofonUIUtil {
 
 
     private void onUpload(Event e){
+
             if(bComplex1.get() ==null || bComplex2.get()==null || bComplex3.get()==null) return;
 
 
 
         try {
             BiofonBinaryFile file = createFile(bComplex1.get(), bComplex2.get(), bComplex3.get());
+            if(file==null) throw new Exception("Отсутствуют комплексы");
+
             Biofon.writeToDevice(file);
             bc.showInfoDialog("Запись в прибор","Комплексы успешно записаны в прибор","",
                     app.getMainWindow(),Modality.WINDOW_MODAL);
@@ -510,18 +538,44 @@ public class BiofonUIUtil {
 
         } catch (Biofon.WriteToDeviceException e1) {
             Log.logger.error("Ошибка записи в биофон",e1);
-            bc.showExceptionDialog("Запись в прибор","Комплексы должны содержать хотябы одну программу","",e1,
+            bc.showExceptionDialog("Запись в прибор","Ошибка записи","",e1,
+                    app.getMainWindow(),Modality.WINDOW_MODAL);
+        } catch (BiofonComplex.MaxPauseBoundException e1) {
+            bc.showWarningDialog("Запись в прибор","Слишком большая пауза между программами","",
+                    app.getMainWindow(),Modality.WINDOW_MODAL);
+        } catch (BiofonComplex.MaxTimeByFreqBoundException e1) {
+            bc.showWarningDialog("Запись в прибор","Превышено время на частоту","Время не должно превышать 255 сек.",
+                    app.getMainWindow(),Modality.WINDOW_MODAL);
+        } catch (BiofonComplex.MaxCountProgramBoundException e1) {
+            bc.showWarningDialog("Запись в прибор","Превышено колличество программ в комплексе",
+                    "Должно быть не более "+MAX_PROGRAM_COUNT_IN_COMPLEX+" программ.",
+                    app.getMainWindow(),Modality.WINDOW_MODAL);
+        } catch (BiofonProgram.MaxProgramIDValueBoundException e1) {
+            bc.showWarningDialog("Запись в прибор","Достигнут предел числа идентификаторов программ.",
+                    "Обратитесь к разработчикам",
+                    app.getMainWindow(),Modality.WINDOW_MODAL);
+        } catch (BiofonProgram.MinFrequenciesBoundException e1) {
+            bc.showWarningDialog("Запись в прибор","Программа(мы) не содержит частот",
+                    "",
+                    app.getMainWindow(),Modality.WINDOW_MODAL);
+        } catch (BiofonProgram.MaxFrequenciesBoundException e1) {
+            bc.showWarningDialog("Запись в прибор","Превышено колличество частот в программе",
+                    "Колличестов частот не должно превышать 255",
                     app.getMainWindow(),Modality.WINDOW_MODAL);
         } catch (Exception e1) {
-            Log.logger.error("",e1);
-           return;
+            bc.showExceptionDialog("Запись в прибор","Программа(мы) не содержит частот",
+                    "",e1,
+                    app.getMainWindow(),Modality.WINDOW_MODAL);
         }
     }
 
     //TODO преобразовать в комплексы, активизировать кнопки или указать что прибор пустой!
     private void onLoad(){
         try {
-            BiofonBinaryFile file = Biofon.readFromDevice(false);
+            BiofonBinaryFile file = Biofon.readFromDevice(true);
+
+
+
 
 
 
@@ -545,6 +599,14 @@ public class BiofonUIUtil {
      */
     public void addComplex(TherapyComplex tc) {
         biofonComplexes.add(tc);
+        if(tc.getTimeForFrequency()> BiofonComplex.MAX_TIME_BY_FREQ) {
+            tc.setTimeForFrequency(255);
+            try {
+                mda.updateTherapyComplex(tc);
+            } catch (Exception e) {
+                Log.logger.error("",e);
+            }
+        }
     }
 
     /**
@@ -858,29 +920,20 @@ public class BiofonUIUtil {
      * @param tc3
      * @return
      */
-    public  BiofonBinaryFile createFile(TherapyComplex tc1, TherapyComplex tc2, TherapyComplex tc3) throws Exception {
+    public  BiofonBinaryFile createFile(TherapyComplex tc1, TherapyComplex tc2, TherapyComplex tc3) throws BiofonComplex.MaxTimeByFreqBoundException, BiofonComplex.MaxPauseBoundException, BiofonProgram.MaxProgramIDValueBoundException, BiofonProgram.MaxFrequenciesBoundException, BiofonProgram.MinFrequenciesBoundException, BiofonComplex.MaxCountProgramBoundException {
 
-        if(bComplex1.get() ==null || bComplex2.get()==null || bComplex3.get()==null) throw new Exception("Отстутствуют комплексы");
+        if(bComplex1.get() ==null || bComplex2.get()==null || bComplex3.get()==null) return null;
 
         BiofonComplex bc1=null;
         BiofonComplex bc2=null;
         BiofonComplex bc3=null;
-        try {
+
              bc1=new BiofonComplex(5, tc1.getTimeForFrequency());
-             bc1=new BiofonComplex(5, tc2.getTimeForFrequency());
-             bc1=new BiofonComplex(5, tc3.getTimeForFrequency());
+             bc2=new BiofonComplex(5, tc2.getTimeForFrequency());
+             bc3=new BiofonComplex(5, tc3.getTimeForFrequency());
 
 
-        } catch (BiofonComplex.MaxPauseBoundException e) {
-            bc.showErrorDialog("Запись в прибор","Превышено максимальное значение паузы между программами",
-                    "Значение должно быть не более 255",app.getMainWindow(),Modality.WINDOW_MODAL);
-            throw new Exception();
-        } catch (BiofonComplex.MaxTimeByFreqBoundException e) {
-           bc.showErrorDialog("Запись в прибор","Превышено максимальное значение времени на частоту",
-                   "Значение должно быть не более 255",app.getMainWindow(),Modality.WINDOW_MODAL);
-           throw new Exception();
 
-        }
 
         for (TherapyProgram therapyProgram : mda.findTherapyPrograms(tc1)) {
 
@@ -892,13 +945,13 @@ public class BiofonUIUtil {
         for (TherapyProgram therapyProgram : mda.findTherapyPrograms(tc2)) {
 
 
-            bc1.addProgram(new BiofonProgram(therapyProgram.parseFrqeqs(),therapyProgram.getId().intValue()));
+            bc2.addProgram(new BiofonProgram(therapyProgram.parseFrqeqs(),therapyProgram.getId().intValue()));
 
         }
         for (TherapyProgram therapyProgram : mda.findTherapyPrograms(tc3)) {
 
 
-            bc1.addProgram(new BiofonProgram(therapyProgram.parseFrqeqs(),therapyProgram.getId().intValue()));
+            bc3.addProgram(new BiofonProgram(therapyProgram.parseFrqeqs(),therapyProgram.getId().intValue()));
 
         }
 

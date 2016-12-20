@@ -15,7 +15,6 @@ import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.SortedList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
@@ -30,8 +29,10 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.*;
-import javafx.scene.layout.FlowPane;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -39,7 +40,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.*;
 import javafx.util.Duration;
-import javafx.util.StringConverter;
 import ru.biomedis.biomedismair3.CellFactories.TextAreaTableCell;
 import ru.biomedis.biomedismair3.Converters.SectionConverter;
 import ru.biomedis.biomedismair3.DBImport.NewDBImport;
@@ -76,7 +76,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static ru.biomedis.biomedismair3.Log.logger;
 
@@ -1283,6 +1282,10 @@ initBiofon();
     @FXML private Label biofonInsLangComplex;
     @FXML private Label biofonInsLangProgram;
 
+
+    @FXML private Label  tToFBiofonInfo;
+    @FXML private Label bundlesBiofonInfo;
+
     @FXML  private ObservableList<String>  bundlesSpinnerDataBiofon;
 
     private BiofonUIUtil biofonUIUtil;
@@ -1581,7 +1584,9 @@ initBiofon();
                 biofonInsLangComplex,
                 biofonInsLangProgram,
                 this::onAttachBiofon,
-                this::onDetachBiofon
+                this::onDetachBiofon,
+                tToFBiofonInfo,
+                bundlesBiofonInfo
         );
 
         biofonUIUtil.init();
