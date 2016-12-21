@@ -569,15 +569,102 @@ public class BiofonUIUtil {
         }
     }
 
-    //TODO преобразовать в комплексы, активизировать кнопки или указать что прибор пустой!
+
+
+    private int calcBundlesLength(  BiofonComplex biofonComplex){
+        int fCount=0;
+        int index=biofonComplex.getPrograms().get(0).getProgramID();
+        int bCount=0;
+        for (BiofonProgram biofonProgram : biofonComplex.getPrograms()){
+            if(biofonProgram.getProgramID() == index) {
+                fCount+=biofonProgram.getCountFrequencies();
+                bCount++;
+            }else break;
+        }
+        if(bCount==0)return 1;
+        return (int)Math.floor((double)fCount/(double)bCount);
+    }
+
+    private List<TherapyProgram> calcProgramsList(BiofonComplex bc){
+        List<TherapyProgram> res=new ArrayList<>();
+        Map<Integer,List<BiofonProgram>> compileList=new HashMap<>();
+        for (BiofonProgram biofonProgram : bc.getPrograms()){
+
+            if(!compileList.containsKey(biofonProgram.getProgramID())) compileList.put(biofonProgram.getProgramID(),new ArrayList<>());
+            compileList.get(biofonProgram.getProgramID()).add(biofonProgram);
+
+        }
+
+
+        long position=0;
+        for (Map.Entry<Integer, List<BiofonProgram>> entry : compileList.entrySet()) {
+
+            TherapyProgram tp=new TherapyProgram();
+            tp.setId(0L);
+            tp.setPosition(position++);
+            tp.setName("");
+            StringBuilder strb=new StringBuilder();
+            for (BiofonProgram bp : entry.getValue()) {
+
+                strb.append(bp.getFrequencies().stream().map(i->i.toString()).collect(Collectors.joining(";")));
+                if(entry.getValue().indexOf(bp) != entry.getValue().size()-1)strb.append(";");
+
+            }
+
+            tp.setFrequencies(strb.toString());
+
+            res.add(tp);
+
+
+        }
+        return res;
+    }
+
+
+
+    private List<List<TherapyProgram>> bReadedTherapyPrograms =new ArrayList<>();
+
     private void onLoad(){
         try {
             BiofonBinaryFile file = Biofon.readFromDevice(true);
 
+            TherapyComplex [] tcArray=new TherapyComplex[3];
+            if(bReadedTherapyPrograms.isEmpty()){
+                bReadedTherapyPrograms.add(new ArrayList<>());
+                bReadedTherapyPrograms.add(new ArrayList<>());
+                bReadedTherapyPrograms.add(new ArrayList<>());
+            }else {
+                bReadedTherapyPrograms.get(0).clear();
+                bReadedTherapyPrograms.get(1).clear();
+                bReadedTherapyPrograms.get(2).clear();
+            }
 
 
+            int ind=0;
+            for (BiofonComplex biofonComplex : file.getComplexesList()) {
 
+                tcArray[ind] = new TherapyComplex();
+                tcArray[ind].setName("Complex1");
+                tcArray[ind].setTimeForFrequency(biofonComplex.getTimeByFrequency());
+                tcArray[ind].setBundlesLength(calcBundlesLength(biofonComplex));
+                tcArray[ind].setId(0L);
+                tcArray[ind].setMulltyFreq(true);
+                tcArray[ind].setProfile(null);
+                tcArray[ind].setDescription("");
 
+                bReadedTherapyPrograms.get(ind).addAll(calcProgramsList(biofonComplex));
+
+                ind++;
+            }
+
+            bComplex1.setValue(tcArray[0]);
+            bComplex2.setValue(tcArray[1]);
+            bComplex3.setValue(tcArray[2]);
+
+            //доработать алгоритм получения числа пачек частот, нужно пройти по всем и выбрать макс получившиеся значение
+
+            //установить на кнопках названия
+            //доработать обработчик нажатия на кнопки, чтобы учесть если id комплекса =0 то брать программы не из базы а из списков
 
         } catch (Biofon.ReadFromDeviceException e) {
             e.printStackTrace();
