@@ -1285,6 +1285,7 @@ initBiofon();
 
     @FXML private Label  tToFBiofonInfo;
     @FXML private Label bundlesBiofonInfo;
+    @FXML private Label countProgramsBiofonInfo;
 
     @FXML  private ObservableList<String>  bundlesSpinnerDataBiofon;
 
@@ -1586,7 +1587,8 @@ initBiofon();
                 this::onAttachBiofon,
                 this::onDetachBiofon,
                 tToFBiofonInfo,
-                bundlesBiofonInfo
+                bundlesBiofonInfo,
+                countProgramsBiofonInfo
         );
 
         biofonUIUtil.init();

@@ -375,10 +375,30 @@
                                        <bottom>
                                           <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="100.0" spacing="8.0" BorderPane.alignment="CENTER">
                                              <children>
-                                                <Button fx:id="biofonBtnComplex1" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="100.0" prefWidth="100.0"  styleClass="GenericBtn GrayBackground" text="" textFill="WHITE" />
-                                                <Button fx:id="biofonBtnComplex2" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="100.0" prefWidth="100.0"  styleClass="GenericBtn  GrayBackground" text="" textFill="WHITE" />
-                                                <Button fx:id="biofonBtnComplex3" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="100.0" prefWidth="100.0"  styleClass="GenericBtn  GrayBackground" text="" textFill="WHITE" />
-                                                 <Button fx:id="uploadBiofonBtn" maxHeight="30" maxWidth="30" mnemonicParsing="false" prefHeight="30" prefWidth="30"  styleClass="GenericBtn" text="" textFill="WHITE" />
+                                                 <Button fx:id="biofonBtnComplex1" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="100.0" prefWidth="100.0"   text="" textFill="WHITE" >
+                                                     <styleClass>
+                                                         <String fx:value="GrayBackground" />
+                                                         <String fx:value="GenericBtn" />
+                                                     </styleClass>
+                                                 </Button>
+                                                 <Button fx:id="biofonBtnComplex2" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="100.0" prefWidth="100.0"   text="" textFill="WHITE" >
+                                                     <styleClass>
+                                                         <String fx:value="GrayBackground" />
+                                                         <String fx:value="GenericBtn" />
+                                                     </styleClass>
+                                                 </Button>
+                                                 <Button fx:id="biofonBtnComplex3" maxHeight="-Infinity" maxWidth="-Infinity" mnemonicParsing="false" prefHeight="100.0" prefWidth="100.0"   text="" textFill="WHITE" >
+                                                     <styleClass>
+                                                         <String fx:value="GrayBackground" />
+                                                         <String fx:value="GenericBtn" />
+                                                     </styleClass>
+                                                 </Button>
+                                                 <Button fx:id="uploadBiofonBtn" maxHeight="24" maxWidth="24" mnemonicParsing="false" minWidth="24" prefHeight="24" prefWidth="24"   text="" textFill="WHITE" >
+                                                     <styleClass>
+                                                         <String fx:value="UploadBtn" />
+                                                         <String fx:value="GenericBtn" />
+                                                     </styleClass>
+                                                 </Button>
 
                                                  <HBox alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
                                                    <children>
@@ -583,6 +603,12 @@
                                                                        <children>
                                                                            <Label  alignment="TOP_LEFT"   text="%ui.bundles_length" />
                                                                            <Label  alignment="TOP_LEFT"   text="-" fx:id="bundlesBiofonInfo" maxWidth="Infinity"/>
+                                                                       </children>
+                                                                   </HBox>
+                                                                   <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
+                                                                       <children>
+                                                                           <Label  alignment="TOP_LEFT"   text="%ui.program_count" />
+                                                                           <Label  alignment="TOP_LEFT"   text="-" fx:id="countProgramsBiofonInfo" maxWidth="Infinity"/>
                                                                        </children>
                                                                    </HBox>
                                                                    <Label fx:id="biofonInsLangProgram" alignment="TOP_LEFT" maxWidth="1.7976931348623157E308" minHeight="52.0" text="Label" />
