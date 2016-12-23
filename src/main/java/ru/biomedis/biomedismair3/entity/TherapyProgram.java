@@ -240,7 +240,7 @@ public class TherapyProgram implements Serializable {
      * @return
      */
     @Transient
-    public List<Double> parseFrqeqs(){
+    public List<Double> parseFreqs(){
 
        return Arrays.stream( frequencies.get().split(";"))
                     .flatMap(f->Arrays.stream(f.split("\\+")))
