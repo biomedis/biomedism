@@ -498,8 +498,8 @@ public class BiofonUIUtil {
                         name  = new Text(item.getName());
                         name.setFont(Font.font(null, FontWeight.BOLD, 12));
                         freqs = new Text(item.getFrequencies().replace(";","; ").replace("+","; "));
-                        freqs.setWrappingWidth(getListView().getWidth()); // Setting the wrapping width to the Text
-                        freqs.wrappingWidthProperty().bind(getListView().widthProperty());
+                        freqs.setWrappingWidth(getListView().getWidth()-30); // Setting the wrapping width to the Text
+                        freqs.wrappingWidthProperty().bind(getListView().widthProperty().subtract(30));
                         vbox=new VBox();
                         vbox.getChildren().addAll(name,freqs);
                         vbox.setSpacing(4);
