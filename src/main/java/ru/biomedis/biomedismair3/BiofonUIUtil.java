@@ -378,15 +378,16 @@ public class BiofonUIUtil {
                     btn.getStyleClass().remove("GrayBackground");
 
                     if(btn.getId().equals(bDeviceComplex1.getId())) {
-                        btn.getStyleClass().addAll("RedBackground");
+                        if( !btn.getStyleClass().contains("RedBackground"))btn.getStyleClass().addAll("RedBackground");
+
                         bComplex1.setValue(draggedComplex);
                     }
                     else  if(btn.getId().equals(bDeviceComplex2.getId())) {
-                        btn.getStyleClass().addAll("GreenBackground");
+                        if( !btn.getStyleClass().contains("GreenBackground")) btn.getStyleClass().addAll("GreenBackground");
                         bComplex2.setValue(draggedComplex);
                     }
                     else  if(btn.getId().equals(bDeviceComplex3.getId())) {
-                        btn.getStyleClass().addAll("BlueBackground");
+                        if( !btn.getStyleClass().contains("BlueBackground")) btn.getStyleClass().addAll("BlueBackground");
                         bComplex3.setValue(draggedComplex);
                     }
 
@@ -864,13 +865,22 @@ public class BiofonUIUtil {
             bComplex2.setValue(tcArray[1]);
             bComplex3.setValue(tcArray[2]);
 Platform.runLater(() -> {
-            if (tcArray[0] != null) bDeviceComplex1.setText(tcArray[0].getName());
+            if (tcArray[0] != null){
+                bDeviceComplex1.setText(tcArray[0].getName());
+                if( !bDeviceComplex1.getStyleClass().contains("RedBackground")) bDeviceComplex1.getStyleClass().addAll("RedBackground");
+            }
             else bDeviceComplex1.setText(resource.getString("app.empty"));
 
-            if (tcArray[1] != null) bDeviceComplex2.setText(tcArray[1].getName());
+            if (tcArray[1] != null) {
+                bDeviceComplex2.setText(tcArray[1].getName());
+                if( !bDeviceComplex2.getStyleClass().contains("GreenBackground")) bDeviceComplex2.getStyleClass().addAll("GreenBackground");
+            }
             else bDeviceComplex2.setText(resource.getString("app.empty"));
 
-            if (tcArray[2] != null) bDeviceComplex3.setText(tcArray[2].getName());
+            if (tcArray[2] != null) {
+                bDeviceComplex3.setText(tcArray[2].getName());
+                if( !bDeviceComplex3.getStyleClass().contains("BlueBackground")) bDeviceComplex3.getStyleClass().addAll("BlueBackground");
+            }
             else bDeviceComplex3.setText(resource.getString("app.empty"));
 
         } );

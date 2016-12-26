@@ -1410,7 +1410,7 @@ initBiofon();
         //показывает кнопки при изменениях спинера
         timeToFreqSpinnerBiofon.valueProperty().addListener((observable, oldValue, newValue) -> {if(oldValue!=newValue) spinnerBtnPanBiofon.setVisible(true);});
         //кнопка отмены
-        btnCancelSpinnerBiofon.setOnAction(event ->hideTFSpinnerBTNPanBiofon(tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency()) );
+        btnCancelSpinnerBiofon.setOnAction(event ->hideTFSpinnerBTNPanBiofon(biofonCompexesList.getSelectionModel().getSelectedItem().getTimeForFrequency()) );
         //принять изменения времени
         btnOkSpinnerBiofon.setOnAction(event ->
         {
