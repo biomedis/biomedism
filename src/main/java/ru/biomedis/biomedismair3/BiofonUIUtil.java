@@ -36,7 +36,6 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ru.biomedis.biomedismair3.Biofon.BiofonComplex.MAX_PROGRAM_COUNT_IN_COMPLEX;
 import static ru.biomedis.biomedismair3.Log.logger;
 
 /**
@@ -683,46 +682,47 @@ public class BiofonUIUtil {
             if(file==null) throw new Exception("Отсутствуют комплексы");
 
             Biofon.writeToDevice(file);
-            bc.showInfoDialog("Запись в прибор","Комплексы успешно записаны в прибор","",
+            bc.showInfoDialog(resource.getString("app.ui.record_to_device"), resource.getString("app.ui.complexes_successfully_written"),"",
                     app.getMainWindow(),Modality.WINDOW_MODAL);
         } catch (BiofonBinaryFile.MaxBytesBoundException e1) {
 
-            bc.showWarningDialog("Запись в прибор","Слишком большой объем комплексов","Необходимо уменьшить колличество программ\n или \nувеличить размер пачек частот для комплексов, если они используются",
+            bc.showWarningDialog(resource.getString("app.ui.record_to_device"),
+                    resource.getString("app.ui.mani_data_in_complexes"),resource.getString("app.ui.reduce_programs"),
                     app.getMainWindow(),Modality.WINDOW_MODAL);
 
         } catch (BiofonComplex.ZeroCountProgramBoundException e1) {
 
-            bc.showWarningDialog("Запись в прибор","Комплексы должны содержать хотябы одну программу","",
+            bc.showWarningDialog(resource.getString("app.ui.record_to_device"),resource.getString("app.ui.must_have_program"),"",
                     app.getMainWindow(),Modality.WINDOW_MODAL);
 
         } catch (Biofon.WriteToDeviceException e1) {
             Log.logger.error("Ошибка записи в биофон",e1);
-            bc.showExceptionDialog("Запись в прибор","Ошибка записи","",e1,
+            bc.showExceptionDialog(resource.getString("app.ui.record_to_device"),resource.getString("app.ui.write_error"),"",e1,
                     app.getMainWindow(),Modality.WINDOW_MODAL);
         } catch (BiofonComplex.MaxPauseBoundException e1) {
-            bc.showWarningDialog("Запись в прибор","Слишком большая пауза между программами","",
+            bc.showWarningDialog(resource.getString("app.ui.record_to_device"),resource.getString("app.ui.to_long_pause"),"",
                     app.getMainWindow(),Modality.WINDOW_MODAL);
         } catch (BiofonComplex.MaxTimeByFreqBoundException e1) {
-            bc.showWarningDialog("Запись в прибор","Превышено время на частоту","Время не должно превышать 255 сек.",
+            bc.showWarningDialog(resource.getString("app.ui.record_to_device"),resource.getString("app.ui.time_for_freq_many"),resource.getString("app.ui.time.must_not_exceed"),
                     app.getMainWindow(),Modality.WINDOW_MODAL);
         } catch (BiofonComplex.MaxCountProgramBoundException e1) {
-            bc.showWarningDialog("Запись в прибор","Превышено колличество программ в комплексе",
-                    "Должно быть не более "+MAX_PROGRAM_COUNT_IN_COMPLEX+" программ.",
+            bc.showWarningDialog(resource.getString("app.ui.record_to_device"),resource.getString("app.ui.exceed_numbers_program"),
+                    resource.getString("app.ui.must_less_255_progs"),
                     app.getMainWindow(),Modality.WINDOW_MODAL);
         } catch (BiofonProgram.MaxProgramIDValueBoundException e1) {
-            bc.showWarningDialog("Запись в прибор","Достигнут предел числа идентификаторов программ.",
+            bc.showWarningDialog(resource.getString("app.ui.record_to_device"),"Достигнут предел числа идентификаторов программ.",
                     "Обратитесь к разработчикам",
                     app.getMainWindow(),Modality.WINDOW_MODAL);
         } catch (BiofonProgram.MinFrequenciesBoundException e1) {
-            bc.showWarningDialog("Запись в прибор","Программа(мы) не содержит частот",
+            bc.showWarningDialog(resource.getString("app.ui.record_to_device"),resource.getString("app.ui.have_not_freqs"),
                     "",
                     app.getMainWindow(),Modality.WINDOW_MODAL);
         } catch (BiofonProgram.MaxFrequenciesBoundException e1) {
-            bc.showWarningDialog("Запись в прибор","Превышено колличество частот в программе",
-                    "Колличестов частот не должно превышать 255",
+            bc.showWarningDialog(resource.getString("app.ui.record_to_device"),resource.getString("app.ui.more_freqs"),
+                    resource.getString("app.ui.mores_freqs_255"),
                     app.getMainWindow(),Modality.WINDOW_MODAL);
         } catch (Exception e1) {
-            bc.showExceptionDialog("Запись в прибор","Программа(мы) не содержит частот",
+            bc.showExceptionDialog(resource.getString("app.ui.record_to_device"),resource.getString("app.ui.does_not_contain_freqs"),
                     "",e1,
                     app.getMainWindow(),Modality.WINDOW_MODAL);
         }finally {
@@ -890,12 +890,12 @@ Platform.runLater(() -> {
 
         } catch (Biofon.ReadFromDeviceException e) {
             Log.logger.error("Ошибка в процессе считывания прибора",e);
-            Platform.runLater(() ->bc.showExceptionDialog("Чтение прибора","Ошибка в процессе считывания прибора",
+            Platform.runLater(() ->bc.showExceptionDialog(resource.getString("app.ui.reading_device"),resource.getString("app.error"),
                     "",e,
                     app.getMainWindow(),Modality.WINDOW_MODAL));
         } catch (Exception e) {
             Log.logger.error("Ошибка в процессе анализа содержимого прибора",e);
-            Platform.runLater(() ->bc.showExceptionDialog("Запись в прибор","Ошибка в процессе анализа содержимого прибора",
+            Platform.runLater(() ->bc.showExceptionDialog(resource.getString("app.ui.reading_device"),resource.getString("app.ui.error_processing"),
                     "",e,
                     app.getMainWindow(),Modality.WINDOW_MODAL) );
 
@@ -1128,70 +1128,48 @@ Platform.runLater(() -> {
         }
 
     }
+private void changePositionProgram(boolean up){
+
+
+    TherapyProgram selectedItem = biofonProgramsList.getSelectionModel().getSelectedItem();
+    Long selectedItemPosition = selectedItem.getPosition();
+
+    int ind1 = biofonProgramsSorted.indexOf(selectedItem);
+    TherapyProgram item2 = biofonProgramsSorted.get(ind1 + (up?-1:1));
+    Long item2Position = item2.getPosition();
+
+        selectedItem.setPosition(item2Position);
+        item2.setPosition(selectedItemPosition);
+
+        try {
+
+        mda.updateTherapyProgram(selectedItem);
+        mda.updateTherapyProgram(item2);
+        biofonProgramsList.requestFocus();
+        biofonProgramsList.scrollTo(selectedItem);
+
+    } catch (Exception e) {
+        bc.showExceptionDialog("Ошибка перемещения программы",
+                "",
+                "",
+                e,
+                app.getMainWindow(),
+                Modality.WINDOW_MODAL);
+        selectedItem.setPosition(selectedItemPosition);
+        item2.setPosition(item2Position);
+    }
+
+}
 
 
     public void upProgram() {
 
-        TherapyProgram selectedItem = biofonProgramsList.getSelectionModel().getSelectedItem();
-        Long selectedItemPosition = selectedItem.getPosition();
-
-        int ind1 = biofonProgramsSorted.indexOf(selectedItem);
-        TherapyProgram item2 = biofonProgramsSorted.get(ind1 - 1);
-        Long item2Position = item2.getPosition();
-
-        selectedItem.setPosition(item2Position);
-        item2.setPosition(selectedItemPosition);
-
-        try {
-            mda.updateTherapyProgram(selectedItem);
-            mda.updateTherapyProgram(item2);
-
-            biofonProgramsList.requestFocus();
-            biofonProgramsList.scrollTo(selectedItem);
-        } catch (Exception e) {
-            bc.showExceptionDialog("Ошибка перемещения программы",
-                    "",
-                    "",
-                    e,
-                    app.getMainWindow(),
-                    Modality.WINDOW_MODAL);
-            selectedItem.setPosition(selectedItemPosition);
-            item2.setPosition(item2Position);
-        }
-
-
+        changePositionProgram(true);
     }
 
 
     public void downProgram() {
-        TherapyProgram selectedItem = biofonProgramsList.getSelectionModel().getSelectedItem();
-        Long selectedItemPosition = selectedItem.getPosition();
-
-        int ind1 = biofonProgramsSorted.indexOf(selectedItem);
-        TherapyProgram item2 = biofonProgramsSorted.get(ind1 + 1);
-        Long item2Position = item2.getPosition();
-
-        selectedItem.setPosition(item2Position);
-        item2.setPosition(selectedItemPosition);
-
-        try {
-
-            mda.updateTherapyProgram(selectedItem);
-            mda.updateTherapyProgram(item2);
-            biofonProgramsList.requestFocus();
-            biofonProgramsList.scrollTo(selectedItem);
-
-        } catch (Exception e) {
-            bc.showExceptionDialog("Ошибка перемещения программы",
-                    "",
-                    "",
-                    e,
-                    app.getMainWindow(),
-                    Modality.WINDOW_MODAL);
-            selectedItem.setPosition(selectedItemPosition);
-            item2.setPosition(item2Position);
-        }
-
+        changePositionProgram(false );
 
     }
 

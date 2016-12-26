@@ -1321,12 +1321,12 @@ initBiofon();
 
 
 
-        biofonPrintMi.setText(" Печать комплексов");
+        biofonPrintMi.setText(res.getString("app.ui.printing_complexes"));
 
 
-        biofonImportMi.setText(" Импорт комплексов");
+        biofonImportMi.setText(res.getString("app.ui.import_complexes"));
 
-        biofonExportMi.setText(" Экспорт комплексов");
+        biofonExportMi.setText(res.getString("app.ui.export_complexes"));
 
 
 
