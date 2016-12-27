@@ -47,8 +47,9 @@ public class Waiter extends BaseController
         dlg.initOwner(owner);
         dlg.initModality(Modality.WINDOW_MODAL);
 
+
         URL location = getApp().getClass().getResource("/fxml/waiter.fxml");
-        FXMLLoader fxmlLoader = new FXMLLoader(location, getApp().getResources());
+        FXMLLoader fxmlLoader = new FXMLLoader(location,getApp().getResources());
         Parent root=null;
         try {
             root = fxmlLoader.load();

@@ -289,7 +289,19 @@ public class LoadLanguageFiles
             {
                 if(attributes.getLength()!=0)
                 {
-                    listPrograms.add(new LoadLanguageFiles.Program(TextUtil.unEscapeXML(attributes.getValue("name")),TextUtil.unEscapeXML(attributes.getValue("description")),attributes.getValue("uuid"),TextUtil.unEscapeXML(attributes.getValue("nameRussian"))));
+                    String name = attributes.getValue("name");
+                    String description = attributes.getValue("description");
+                    String uuid = attributes.getValue("uuid");
+                    String nameRussian = attributes.getValue("nameRussian");
+
+                    if(name==null) System.out.println(uuid);
+                    if(description==null) System.out.println(uuid);
+
+                    listPrograms.add(new LoadLanguageFiles.Program(
+                            TextUtil.unEscapeXML(name),
+                            TextUtil.unEscapeXML(description),
+                            uuid,
+                            TextUtil.unEscapeXML(nameRussian)));
 
                 }
 

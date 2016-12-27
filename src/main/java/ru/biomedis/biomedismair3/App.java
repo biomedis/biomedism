@@ -2,6 +2,7 @@ package ru.biomedis.biomedismair3;
 
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -12,8 +13,10 @@ import ru.biomedis.biomedismair3.DBImport.AddonsDBImport;
 import ru.biomedis.biomedismair3.DBImport.NewDBImport;
 import ru.biomedis.biomedismair3.DBImport.OldDBImport;
 import ru.biomedis.biomedismair3.Tests.TestsFramework.TestsManager;
+import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadLanguageFiles;
 import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.entity.ProgramOptions;
+import ru.biomedis.biomedismair3.utils.Files.ResourceUtil;
 import ru.biomedis.biomedismair3.utils.USB.USBHelper;
 import ru.biomedis.biomedismair3.utils.UTF8Control;
 
@@ -82,7 +85,7 @@ public class App extends Application {
     public ResourceBundle getResources(){return strings;}
       private final boolean test=false;//указывает что будут проводиться интеграционные тесты. Соответсвенно будет подключена другая БД и запущенны тесты
       private final boolean importDB=false;//импорт базы данных
-        private final boolean updateBaseMenuVisible =true;//показ пункта обновления базы частот
+        private final boolean updateBaseMenuVisible =false;//показ пункта обновления базы частот
 
     public boolean isUpdateBaseMenuVisible() {
         return updateBaseMenuVisible;
@@ -237,15 +240,20 @@ public class App extends Application {
         if(!dataDir.exists())dataDir.mkdir();
         innerDataDir=dataDir;
 
-
+        //временная установка, нужно для обновлений
+        tmpDir=new File(dataDir,"tmp");
+        if(!tmpDir.exists()){
+            tmpDir.mkdir();
+            tmpDir=new File(dataDir,"tmp");
+        }
 
 
 
         /******** Обновления ************/
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
 
-        int currentUpdateFile=2;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=2;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentUpdateFile=3;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
+        int currentMinorVersion=0;//версия исправлений в пределах мажорной версии currentUpdateFile
 
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -253,8 +261,14 @@ public class App extends Application {
             if(getUpdateVersion()==0) {
                 update1(updateOption);
                 update2(updateOption);
+
+
             }
-            else if(getUpdateVersion()==1) update2(updateOption);
+            else if(getUpdateVersion()==1) {
+                update2(updateOption);
+
+            }
+
 
         }else if(getUpdateVersion() > currentUpdateFile){
             logger.error("Запуск апдейта "+currentUpdateFile+" ниже установленного "+getUpdateVersion()+"!");
@@ -284,6 +298,20 @@ public class App extends Application {
         }
 
         recursiveDeleteTMP();
+
+//доп. обновления требующие ModelDataApp
+        if(getUpdateVersion() < currentUpdateFile)
+        {
+            //обновим согласно полученной версии, учесть, что нужно на младшие накатывать все апдейты по порядку
+            if(getUpdateVersion()==2) update3(updateOption);
+
+        }else if(getUpdateVersion() > currentUpdateFile){
+            logger.error("Запуск апдейта "+currentUpdateFile+" ниже установленного "+getUpdateVersion()+"!");
+
+            BaseController.showInfoConfirmDialog(this.strings.getString("app.error"), "", this.strings.getString("app.update.incorrect_update_message"), null, Modality.APPLICATION_MODAL);
+            Platform.exit();
+            return;
+        }
 
 
         //проверка профиля биофона
@@ -477,6 +505,8 @@ https://gist.github.com/DemkaAge/8999236
 
         USBHelper.startHotPlugListener(2);
     }
+
+
 
 
     private void checkBiofonProfile() throws Exception {
@@ -675,9 +705,76 @@ https://gist.github.com/DemkaAge/8999236
     private void update2(ProgramOptions updateOption) {
         logger.info("ОБНОВЛЕНИЕ 2.");
 
+
         setUpdateVersion(updateOption,2);//установим новую версию обновления
 
         logger.info("ОБНОВЛЕНИЕ 2 ЗАВЕРШЕНО.");
+
+
+
+
+
+
+
+    }
+
+    private void update3(ProgramOptions updateOption) {
+        logger.info("ОБНОВЛЕНИЕ 3.");
+
+
+        //основное изменение в базе - обновление для фр. языка.
+        //сделается из файла
+
+
+        Task<Boolean> task =new Task<Boolean>()  {
+            @Override
+            protected Boolean call() throws Exception {
+                File base_translate=null;
+                try {
+                    ResourceUtil ru=new ResourceUtil();
+                    base_translate = ru.saveResource(getTmpDir(),"fr_translanion_bas.xml","/updates/update3/fr_translanion_bas.xml",true);
+
+                    if(base_translate==null) throw new Exception();
+
+                    LoadLanguageFiles ll=new LoadLanguageFiles();
+                    if( ll.parse(Arrays.asList(base_translate),getModel())){
+
+
+                        setUpdateVersion(updateOption,3);//установим новую версию обновления
+                        logger.info("ОБНОВЛЕНИЕ 3  ЗАВЕРШЕНО.");
+                        return true;
+                    }
+                    else  return false;
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    logger.info("ОБНОВЛЕНИЕ 3 НЕ ЗАВЕРШЕНО.");
+                    return false;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    logger.info("ОБНОВЛЕНИЕ 3 НЕ ЗАВЕРШЕНО.");
+                    return false;
+                }
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            if(!task.getValue().booleanValue())  BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL);
+
+            UpdateWaiter.close();
+        });
+        task.setOnFailed(event -> {
+            Platform.runLater(() -> BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
+            UpdateWaiter.close();
+        });
+
+        Thread threadTask=new Thread(task);
+        threadTask.setDaemon(true);
+        threadTask.start();
+        UpdateWaiter.show();
+
+
+
     }
 
     @Override
@@ -751,4 +848,8 @@ https://gist.github.com/DemkaAge/8999236
         }
 
     }
+
+
+
+
 }
