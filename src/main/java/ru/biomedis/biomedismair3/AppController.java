@@ -1286,6 +1286,7 @@ initBiofon();
     @FXML private Label  tToFBiofonInfo;
     @FXML private Label bundlesBiofonInfo;
     @FXML private Label countProgramsBiofonInfo;
+    @FXML private Label  complexTimeBiofon;
 
     @FXML  private ObservableList<String>  bundlesSpinnerDataBiofon;
 
@@ -1429,7 +1430,7 @@ initBiofon();
                         this.getModel().updateTherapyComplex(item);
 
                     }
-
+                    biofonUIUtil.viewComplexTime(biofonCompexesList.getSelectionModel().getSelectedItem(),biofonProgramsList.getItems());
 
                 } catch (Exception var8) {
                     this.hideTFSpinnerBTNPanBiofon(biofonCompexesList.getSelectionModel().getSelectedItem().getTimeForFrequency().intValue());
@@ -1496,7 +1497,7 @@ initBiofon();
             ObservableList<TherapyComplex> selectedItems = biofonCompexesList.getSelectionModel().getSelectedItems();
             if(selectedItems ==null) return;
 
-
+            if(biofonCompexesList.getSelectionModel().getSelectedItems().isEmpty()) { hideBundlesSpinnerBTNPanBiofon();return;}
 
 
             try {
@@ -1506,6 +1507,8 @@ initBiofon();
                     this.getModel().updateTherapyComplex(complex);
                     hideBundlesSpinnerBTNPanBiofon();
                 }
+                biofonUIUtil.viewComplexTime(biofonCompexesList.getSelectionModel().getSelectedItem(),biofonProgramsList.getItems());
+
             } catch (Exception e) {
                 hideBundlesSpinnerBTNPanBiofon();
                Log.logger.error("Ошибка установки пачек частот", e);
@@ -1588,7 +1591,8 @@ initBiofon();
                 this::onDetachBiofon,
                 tToFBiofonInfo,
                 bundlesBiofonInfo,
-                countProgramsBiofonInfo
+                countProgramsBiofonInfo,
+                complexTimeBiofon
         );
 
         biofonUIUtil.init();

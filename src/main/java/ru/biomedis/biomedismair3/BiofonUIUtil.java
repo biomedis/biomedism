@@ -28,6 +28,7 @@ import ru.biomedis.biomedismair3.Dialogs.NameDescroptionDialogController;
 import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
 import ru.biomedis.biomedismair3.entity.TherapyProgram;
+import ru.biomedis.biomedismair3.utils.Date.DateUtil;
 import ru.biomedis.biomedismair3.utils.USB.PlugDeviceListener;
 import ru.biomedis.biomedismair3.utils.USB.USBHelper;
 
@@ -57,6 +58,7 @@ public class BiofonUIUtil {
     private final Label tFInfo;
     private final Label bundlesInfo;
     private Label countProgramsBiofonInfo;
+    private Label complexTimeBiofon;
 
     private Image biofonComplexImage;
     private ImageView biofonComplexImageView;
@@ -82,12 +84,13 @@ public class BiofonUIUtil {
     private ContextMenu deviceBtnMenu1=new ContextMenu();
     private ContextMenu deviceBtnMenu2=new ContextMenu();
     private ContextMenu deviceBtnMenu3=new ContextMenu();
+    private static final int PAUSE_BETWEEN_PROGRAM=5;
 
     public BiofonUIUtil(ResourceBundle resource, App app, BaseController bc, ModelDataApp mda, Profile biofonProfile,
                         ListView<TherapyComplex> biofonCompexesList, ListView<TherapyProgram> biofonProgramsList,
                         Label complexOName,Label programOName,
                         Runnable onAttach, Runnable onDetach,
-                        Label tFInfo, Label bundlesInfo,Label countProgramsBiofonInfo) {
+                        Label tFInfo, Label bundlesInfo,Label countProgramsBiofonInfo,Label complexTimeBiofon) {
         this.resource = resource;
         this.app = app;
         this.bc = bc;
@@ -104,6 +107,7 @@ public class BiofonUIUtil {
         this.tFInfo = tFInfo;
         this.bundlesInfo = bundlesInfo;
         this.countProgramsBiofonInfo = countProgramsBiofonInfo;
+        this.complexTimeBiofon = complexTimeBiofon;
     }
 
     /**
@@ -154,6 +158,8 @@ public class BiofonUIUtil {
 
             }else  biofonPrograms.addAll(mda.findTherapyPrograms(tc));
 
+        viewComplexTime(tc,biofonPrograms);
+
             if(!tc.getOname().isEmpty()) complexOName.setText(tc.getOname());
             else complexOName.setText("");
             programOName.setText("");
@@ -164,7 +170,37 @@ public class BiofonUIUtil {
 
     }
 
+    public  void viewComplexTime(TherapyComplex tc,List<TherapyProgram> tpl){
+
+            complexTimeBiofon.setText(DateUtil.convertSecondsToHMmSs(calcComplexTime(biofonPrograms,
+                    tc.getBundlesLength(),
+                    PAUSE_BETWEEN_PROGRAM,
+                    tc.getTimeForFrequency())));
+    }
+
+    private int calcComplexTime(List<TherapyProgram> tpl,int bundlesLength,int pauseBetweenProgramm,int timeForFreq){
+        // количество программ
+
+        int resTimeSec=0;
+        for (TherapyProgram tp : tpl) {
+            if(bundlesLength!=1){
+                resTimeSec += splitFreqsByBundles(tp.parseFreqs(), bundlesLength)
+                        .stream()
+                         .mapToInt(l -> (l.size() * timeForFreq + pauseBetweenProgramm))
+                         .sum();
+
+
+            }else {
+                resTimeSec +=  tp.parseFreqs().size()*timeForFreq+pauseBetweenProgramm;
+            }
+
+        }
+        if(resTimeSec==0) return 0;
+        else  return resTimeSec-pauseBetweenProgramm;
+    }
+
     private void viewProgramCount() {
+
         countProgramsBiofonInfo.setText(String.valueOf(biofonPrograms.size()));
         if(biofonPrograms.size()> BiofonComplex.MAX_PROGRAM_COUNT_IN_COMPLEX) countProgramsBiofonInfo.setStyle("-fx-background-color: red;");
         else countProgramsBiofonInfo.setStyle("");
@@ -430,7 +466,11 @@ public class BiofonUIUtil {
         hideInfo();
 
 
-        biofonPrograms.addListener((ListChangeListener<TherapyProgram>) c -> viewProgramCount());
+        biofonPrograms.addListener((ListChangeListener<TherapyProgram>) c -> {
+            viewProgramCount();
+            if(!biofonPrograms.isEmpty())viewComplexTime(biofonPrograms.get(0).getTherapyComplex(),biofonPrograms);
+
+        });
 
         countProgramsBiofonInfo.getParent().visibleProperty().bind(new BooleanBinding() {
             {
@@ -443,6 +483,8 @@ public class BiofonUIUtil {
 
             }
         });
+
+        complexTimeBiofon.getParent().visibleProperty().bind( countProgramsBiofonInfo.getParent().visibleProperty());
 
 
         biofonCompexesList.setPlaceholder(new Label(resource.getString("app.table.complex_placeholder")));
@@ -771,7 +813,7 @@ public class BiofonUIUtil {
         return (int)Math.floor((double)fCount/(double)bCount);
     }
 
-    private List<TherapyProgram> calcProgramsList(BiofonComplex bc){
+    private List<TherapyProgram> calcProgramsList(BiofonComplex bc,TherapyComplex tc){
         List<TherapyProgram> res=new ArrayList<>();
         Map<Integer,List<BiofonProgram>> compileList=new LinkedHashMap<>();
         for (BiofonProgram biofonProgram : bc.getPrograms()){
@@ -813,7 +855,7 @@ public class BiofonUIUtil {
                 tp.setFrequencies(therapyProgram.getFrequencies());
                 tp.setId(therapyProgram.getId());
             }
-
+            tp.setTherapyComplex(tc);
 
 
             res.add(tp);
@@ -856,7 +898,7 @@ public class BiofonUIUtil {
                 tcArray[ind].setDescription("");
                 tcArray[ind].setOname("");
 
-                bReadedTherapyPrograms.get(ind).addAll(calcProgramsList(biofonComplex));
+                bReadedTherapyPrograms.get(ind).addAll(calcProgramsList(biofonComplex,tcArray[ind]));
 
                 ind++;
             }
@@ -1233,6 +1275,7 @@ private void changePositionProgram(boolean up){
         }else  res.add(fl);
         return res;
     }
+
     /**
      * Создает файл из трех комплексов
      * @param tc1
@@ -1248,9 +1291,9 @@ private void changePositionProgram(boolean up){
         BiofonComplex bc2=null;
         BiofonComplex bc3=null;
 
-             bc1=new BiofonComplex(5, tc1.getTimeForFrequency());
-             bc2=new BiofonComplex(5, tc2.getTimeForFrequency());
-             bc3=new BiofonComplex(5, tc3.getTimeForFrequency());
+             bc1=new BiofonComplex(PAUSE_BETWEEN_PROGRAM, tc1.getTimeForFrequency());
+             bc2=new BiofonComplex(PAUSE_BETWEEN_PROGRAM, tc2.getTimeForFrequency());
+             bc3=new BiofonComplex(PAUSE_BETWEEN_PROGRAM, tc3.getTimeForFrequency());
 
         List<TherapyProgram> therapyPrograms;
 

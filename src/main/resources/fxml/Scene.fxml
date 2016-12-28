@@ -559,7 +559,7 @@
                                                                            </VBox>
                                                                        </children>
                                                                    </HBox>
-                                                            <Label fx:id="biofonInsLangComplex" maxWidth="1.7976931348623157E308" text="Label" />
+                                                            <Label fx:id="biofonInsLangComplex" maxWidth="1.7976931348623157E308" text="Label" minHeight="23" />
                                                                    <ListView fx:id="biofonCompexesList" maxHeight="1.7976931348623157E308" prefWidth="250.0" VBox.vgrow="ALWAYS" />
                                                                </children>
                                                            </VBox>
@@ -612,7 +612,13 @@
                                                                            <Label  alignment="TOP_LEFT"   text="-" fx:id="countProgramsBiofonInfo" maxWidth="Infinity"/>
                                                                        </children>
                                                                    </HBox>
-                                                                   <Label fx:id="biofonInsLangProgram" alignment="TOP_LEFT" maxWidth="1.7976931348623157E308" minHeight="31.0" text="Label" />
+                                                                   <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
+                                                                       <children>
+                                                                           <Label  alignment="TOP_LEFT"   text="%ui.complexTime" />
+                                                                           <Label  alignment="TOP_LEFT"   text="-" fx:id="complexTimeBiofon" maxWidth="Infinity"/>
+                                                                       </children>
+                                                                   </HBox>
+                                                                   <Label fx:id="biofonInsLangProgram" alignment="TOP_LEFT" maxWidth="1.7976931348623157E308"  text="Label" />
 
                                                                    <ListView fx:id="biofonProgramsList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
                                                                </children>
