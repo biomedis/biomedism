@@ -135,7 +135,7 @@ public class BiofonUIUtil {
         if(tc==null) {hideInfo();return;}
         tFInfo.getParent().setVisible(true);
         bundlesInfo.getParent().setVisible(true);
-        tFInfo.setText(tc.getTimeForFrequency().toString());
+        tFInfo.setText(tc.getTimeForFrequency()/60+"");
         bundlesInfo.setText(tc.getBundlesLength()==1?"-":String.valueOf(tc.getBundlesLength()));
     }
 
@@ -405,7 +405,8 @@ public class BiofonUIUtil {
 
 
                 TherapyComplex draggedComplex = mda.findTherapyComplex(draggedComplexID);
-                if(draggedComplex.getTimeForFrequency()>BiofonComplex.MAX_TIME_BY_FREQ) draggedComplex.setTimeForFrequency(BiofonComplex.MAX_TIME_BY_FREQ);
+
+                if(draggedComplex.getTimeForFrequency()/60>BiofonComplex.MAX_TIME_BY_FREQ) draggedComplex.setTimeForFrequency(BiofonComplex.MAX_TIME_BY_FREQ);
                 if(draggedComplex!=null){
 
 
@@ -645,7 +646,7 @@ public class BiofonUIUtil {
                Platform.runLater(() -> initComplexButtons(true));
                 Platform.runLater(() ->{
                     if(biofonCompexesList.getSelectionModel().getSelectedItem()==null) biofonPrograms.clear();
-
+                    hideInfo();
                 });
                 bComplex1.setValue(null);
                 bComplex2.setValue(null);
@@ -661,7 +662,7 @@ public class BiofonUIUtil {
         return biofonCompexesList.getSelectionModel().getSelectedItems();
     }
 
-
+        //еще ест обработчик в appController, описан ниже настроек кнопок времени на частоту
     public void viewBiofonProgramsOnComplexClick() {
 
         hideInfo();
@@ -890,7 +891,7 @@ public class BiofonUIUtil {
 
                 tcArray[ind] = new TherapyComplex();
                 tcArray[ind].setName(resource.getString("ui.complex")+"-"+(ind+1));
-                tcArray[ind].setTimeForFrequency(biofonComplex.getTimeByFrequency());
+                tcArray[ind].setTimeForFrequency(biofonComplex.getTimeByFrequency()*60);
                 tcArray[ind].setBundlesLength(calcBundlesLength(biofonComplex));
                 tcArray[ind].setId(0L);
                 tcArray[ind].setMulltyFreq(true);
@@ -959,12 +960,23 @@ Platform.runLater(() -> {
      */
     public void addComplex(TherapyComplex tc) {
         biofonComplexes.add(tc);
-        if(tc.getTimeForFrequency()> BiofonComplex.MAX_TIME_BY_FREQ) {
+
+        if(tc.getTimeForFrequency()/60> BiofonComplex.MAX_TIME_BY_FREQ) {
             tc.setTimeForFrequency(255);
             try {
                 mda.updateTherapyComplex(tc);
             } catch (Exception e) {
                 Log.logger.error("",e);
+            }
+        }else {
+            int tm = tc.getTimeForFrequency() / 60;
+            if(tm*60!=tc.getTimeForFrequency()){
+                tc.setTimeForFrequency(tm*60);
+                try {
+                    mda.updateTherapyComplex(tc);
+                } catch (Exception e) {
+                    Log.logger.error("",e);
+                }
             }
         }
     }
@@ -1291,9 +1303,9 @@ private void changePositionProgram(boolean up){
         BiofonComplex bc2=null;
         BiofonComplex bc3=null;
 
-             bc1=new BiofonComplex(PAUSE_BETWEEN_PROGRAM, tc1.getTimeForFrequency());
-             bc2=new BiofonComplex(PAUSE_BETWEEN_PROGRAM, tc2.getTimeForFrequency());
-             bc3=new BiofonComplex(PAUSE_BETWEEN_PROGRAM, tc3.getTimeForFrequency());
+             bc1=new BiofonComplex(PAUSE_BETWEEN_PROGRAM, tc1.getTimeForFrequency()/60);
+             bc2=new BiofonComplex(PAUSE_BETWEEN_PROGRAM, tc2.getTimeForFrequency()/60);
+             bc3=new BiofonComplex(PAUSE_BETWEEN_PROGRAM, tc3.getTimeForFrequency()/60);
 
         List<TherapyProgram> therapyPrograms;
 

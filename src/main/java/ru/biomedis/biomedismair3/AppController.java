@@ -1394,7 +1394,7 @@ initBiofon();
 
         /** Спиннер внемя на частоту **/
 
-        timeToFreqSpinnerBiofon.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(10, 255, 180, 5));
+        timeToFreqSpinnerBiofon.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 30, 3, 1));
         timeToFreqSpinnerBiofon.setEditable(true);
         spinnerPanBiofon.setVisible(false);
         spinnerBtnPanBiofon.setVisible(false);
@@ -1411,7 +1411,7 @@ initBiofon();
         //показывает кнопки при изменениях спинера
         timeToFreqSpinnerBiofon.valueProperty().addListener((observable, oldValue, newValue) -> {if(oldValue!=newValue) spinnerBtnPanBiofon.setVisible(true);});
         //кнопка отмены
-        btnCancelSpinnerBiofon.setOnAction(event ->hideTFSpinnerBTNPanBiofon(biofonCompexesList.getSelectionModel().getSelectedItem().getTimeForFrequency()) );
+        btnCancelSpinnerBiofon.setOnAction(event ->hideTFSpinnerBTNPanBiofon(biofonCompexesList.getSelectionModel().getSelectedItem().getTimeForFrequency()/60) );
         //принять изменения времени
         btnOkSpinnerBiofon.setOnAction(event ->
         {
@@ -1426,14 +1426,14 @@ initBiofon();
                     for(TherapyComplex item:items) {
 
 
-                        item.setTimeForFrequency(this.timeToFreqSpinnerBiofon.getValue());
+                        item.setTimeForFrequency(this.timeToFreqSpinnerBiofon.getValue()*60);
                         this.getModel().updateTherapyComplex(item);
 
                     }
                     biofonUIUtil.viewComplexTime(biofonCompexesList.getSelectionModel().getSelectedItem(),biofonProgramsList.getItems());
 
                 } catch (Exception var8) {
-                    this.hideTFSpinnerBTNPanBiofon(biofonCompexesList.getSelectionModel().getSelectedItem().getTimeForFrequency().intValue());
+                    this.hideTFSpinnerBTNPanBiofon(biofonCompexesList.getSelectionModel().getSelectedItem().getTimeForFrequency().intValue()/60);
                     Log.logger.error("", var8);
                     showExceptionDialog("Ошибка обновления времени на частоту в терапевтическом комплексе", "", "", var8, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                 } finally {
@@ -1483,8 +1483,9 @@ initBiofon();
                 hideBundlesSpinnerBTNPanBiofon();
                 return;
             }
-            hideTFSpinnerBTNPanBiofon(newValue.getTimeForFrequency());
-            hideBundlesSpinnerBTNPanBiofon(newValue.getBundlesLength());
+
+            hideTFSpinnerBTNPanBiofon(newValue.getTimeForFrequency()/60);
+            hideBundlesSpinnerBTNPanBiofon(newValue.getBundlesLength()<1?1:newValue.getBundlesLength());
         });
 
 
