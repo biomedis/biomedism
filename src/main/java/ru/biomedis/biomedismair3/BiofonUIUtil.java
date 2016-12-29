@@ -1314,9 +1314,14 @@ private void changePositionProgram(boolean up){
 
         for (TherapyProgram therapyProgram : therapyPrograms) {
 
-            for (List<Double> fl : splitFreqsByBundles(therapyProgram.parseFreqs(), tc1.getBundlesLength())) {
-                bc1.addProgram(new BiofonProgram(fl,therapyProgram.getId().intValue()));
+            if(tc1.getBundlesLength()==1){
+                bc1.addProgram(new BiofonProgram(therapyProgram.parseFreqs(),therapyProgram.getId().intValue()));
+            }else {
+                for (List<Double> fl : splitFreqsByBundles(therapyProgram.parseFreqs(), tc1.getBundlesLength())) {
+                    bc1.addProgram(new BiofonProgram(fl,therapyProgram.getId().intValue()));
+                }
             }
+
 
         }
 
@@ -1326,8 +1331,12 @@ private void changePositionProgram(boolean up){
         for (TherapyProgram therapyProgram : therapyPrograms) {
 
 
-            for (List<Double> fl : splitFreqsByBundles(therapyProgram.parseFreqs(), tc2.getBundlesLength())) {
-                bc2.addProgram(new BiofonProgram(fl,therapyProgram.getId().intValue()));
+            if(tc2.getBundlesLength()==1){
+                bc2.addProgram(new BiofonProgram(therapyProgram.parseFreqs(),therapyProgram.getId().intValue()));
+            }else {
+                for (List<Double> fl : splitFreqsByBundles(therapyProgram.parseFreqs(), tc2.getBundlesLength())) {
+                    bc2.addProgram(new BiofonProgram(fl,therapyProgram.getId().intValue()));
+                }
             }
 
         }
@@ -1338,8 +1347,12 @@ private void changePositionProgram(boolean up){
         for (TherapyProgram therapyProgram : therapyPrograms) {
 
 
-            for (List<Double> fl : splitFreqsByBundles(therapyProgram.parseFreqs(), tc3.getBundlesLength())) {
-                bc3.addProgram(new BiofonProgram(fl,therapyProgram.getId().intValue()));
+            if(tc3.getBundlesLength()==1){
+                bc3.addProgram(new BiofonProgram(therapyProgram.parseFreqs(),therapyProgram.getId().intValue()));
+            }else {
+                for (List<Double> fl : splitFreqsByBundles(therapyProgram.parseFreqs(), tc3.getBundlesLength())) {
+                    bc3.addProgram(new BiofonProgram(fl,therapyProgram.getId().intValue()));
+                }
             }
 
         }
