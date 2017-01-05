@@ -393,13 +393,23 @@
                                                          <String fx:value="GenericBtn" />
                                                      </styleClass>
                                                  </Button>
-                                                 <Button fx:id="uploadBiofonBtn" maxHeight="24" maxWidth="24" mnemonicParsing="false" minWidth="24" prefHeight="24" prefWidth="24"   text="" textFill="WHITE" >
-                                                     <styleClass>
-                                                         <String fx:value="UploadBtn" />
-                                                         <String fx:value="GenericBtn" />
-                                                     </styleClass>
-                                                 </Button>
+                                                 <VBox spacing="5" >
+                                                     <children>
+                                                     <Button fx:id="uploadBiofonBtn" maxHeight="24" maxWidth="24" mnemonicParsing="false" minWidth="24" prefHeight="24" prefWidth="24"   text="" textFill="WHITE" >
+                                                         <styleClass>
+                                                             <String fx:value="UploadBtn" />
+                                                             <String fx:value="GenericBtn" />
+                                                         </styleClass>
+                                                     </Button>
+                                                         <Button fx:id="loadIndicator" maxHeight="24" maxWidth="24" mnemonicParsing="false" minWidth="24" prefHeight="24" prefWidth="24"   text=" " >
+<styleClass>
+    <String fx:value="roundedIndicator"/>
+    <String fx:value="GreenBackground"/>
 
+</styleClass>
+                                                         </Button>
+                                                     </children>
+                                                 </VBox>
                                                  <HBox alignment="CENTER_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
                                                    <children>
                                                       <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="100.0" prefHeight="100.0" prefWidth="134.2">

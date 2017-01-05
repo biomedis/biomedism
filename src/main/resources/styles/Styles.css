@@ -18,6 +18,15 @@
 }
 
 
+.roundedIndicator{
+            -fx-background-radius: 24;
+-fx-min-width: 24px;
+-fx-min-height: 24px;
+-fx-max-width: 24px;
+-fx-max-height: 24px;
+
+-fx-background-insets: 0px;
+}
 
 .GenericBtn{}
 

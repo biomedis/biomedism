@@ -59,6 +59,7 @@ public class BiofonUIUtil {
     private final Label bundlesInfo;
     private Label countProgramsBiofonInfo;
     private Label complexTimeBiofon;
+    private final Button loadIndicator;
 
     private Image biofonComplexImage;
     private ImageView biofonComplexImageView;
@@ -90,7 +91,7 @@ public class BiofonUIUtil {
                         ListView<TherapyComplex> biofonCompexesList, ListView<TherapyProgram> biofonProgramsList,
                         Label complexOName,Label programOName,
                         Runnable onAttach, Runnable onDetach,
-                        Label tFInfo, Label bundlesInfo,Label countProgramsBiofonInfo,Label complexTimeBiofon) {
+                        Label tFInfo, Label bundlesInfo,Label countProgramsBiofonInfo,Label complexTimeBiofon, Button loadIndicator) {
         this.resource = resource;
         this.app = app;
         this.bc = bc;
@@ -108,6 +109,7 @@ public class BiofonUIUtil {
         this.bundlesInfo = bundlesInfo;
         this.countProgramsBiofonInfo = countProgramsBiofonInfo;
         this.complexTimeBiofon = complexTimeBiofon;
+        this.loadIndicator = loadIndicator;
     }
 
     /**
@@ -186,12 +188,12 @@ public class BiofonUIUtil {
             if(bundlesLength!=1){
                 resTimeSec += splitFreqsByBundles(tp.parseFreqs(), bundlesLength)
                         .stream()
-                         .mapToInt(l -> (l.size() * timeForFreq + pauseBetweenProgramm))
+                         .mapToInt(l ->  (timeForFreq + pauseBetweenProgramm))
                          .sum();
 
 
             }else {
-                resTimeSec +=  tp.parseFreqs().size()*timeForFreq+pauseBetweenProgramm;
+                resTimeSec +=(timeForFreq+pauseBetweenProgramm);
             }
 
         }
@@ -460,8 +462,45 @@ public class BiofonUIUtil {
     }
 
 
-    public void init() {
+    private void loadIndicatorCalc(){
+        //-
+    }
 
+
+    private Tooltip loadIndicatorTooltip=new Tooltip();
+
+private enum LoadIndicatorType{RED,GREEN}
+    private void showLoadIndicator(LoadIndicatorType t){
+        if(t==LoadIndicatorType.RED){
+            if(!loadIndicator.getStyleClass().contains("RedBackground")) {
+                loadIndicator.getStyleClass().add("RedBackground");
+            }
+            if(loadIndicator.getStyleClass().contains("GreenBackground")) {
+                loadIndicator.getStyleClass().remove("GreenBackground");
+            }
+        }else {
+            if(!loadIndicator.getStyleClass().contains("GreenBackground")) {
+                loadIndicator.getStyleClass().add("GreenBackground");
+            }
+            if(loadIndicator.getStyleClass().contains("RedBackground")) {
+                loadIndicator.getStyleClass().remove("RedBackground");
+            }
+        }
+        loadIndicator.setVisible(true);
+    }
+    private void hideLoadIndicator(){
+        loadIndicator.setVisible(false);
+    }
+    public void init() {
+        loadIndicator.setVisible(false);
+        loadIndicator.setTooltip(loadIndicatorTooltip);
+        loadIndicatorTooltip.setOnShowing(event -> {
+            if(loadIndicator.getStyleClass().contains("GreenBackground")){
+                loadIndicatorTooltip.setText("Все хорошо");
+            }else {
+                loadIndicatorTooltip.setText("Слишком большой кусок дерьма");
+            }
+        });
         initUSBDetection();
 
         hideInfo();

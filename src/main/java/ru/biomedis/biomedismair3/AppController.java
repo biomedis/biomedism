@@ -1288,6 +1288,8 @@ initBiofon();
     @FXML private Label countProgramsBiofonInfo;
     @FXML private Label  complexTimeBiofon;
 
+    @FXML private Button loadIndicator;
+
     @FXML  private ObservableList<String>  bundlesSpinnerDataBiofon;
 
     private BiofonUIUtil biofonUIUtil;
@@ -1593,7 +1595,8 @@ initBiofon();
                 tToFBiofonInfo,
                 bundlesBiofonInfo,
                 countProgramsBiofonInfo,
-                complexTimeBiofon
+                complexTimeBiofon,
+                loadIndicator
         );
 
         biofonUIUtil.init();
