@@ -157,7 +157,7 @@ public class App extends Application {
        { 
            String puName="DB_UNIT";
            if(test)puName="DB_TEST_UNIT";//определение базы для тестов
-           
+
            if(emf==null)emf=Persistence.createEntityManagerFactory(puName);
        }
     
@@ -247,7 +247,7 @@ public class App extends Application {
             tmpDir=new File(dataDir,"tmp");
         }
 
-
+System.out.println("Data path: "+dataDir.getAbsolutePath());
 
         /******** Обновления ************/
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
