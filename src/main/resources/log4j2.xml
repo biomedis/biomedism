@@ -20,6 +20,11 @@
 
     </Appenders>
     <Loggers>
+        <Logger name="org.biomedis.mair" level="info"  additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFile" level="error"/>
+        </Logger>
+
         <Root>
 
             <AppenderRef ref="ConsoleHard" level="info"/>

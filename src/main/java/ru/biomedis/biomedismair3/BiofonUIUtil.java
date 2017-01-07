@@ -498,7 +498,7 @@ private enum LoadIndicatorType{RED,GREEN}
             if(loadIndicator.getStyleClass().contains("GreenBackground")){
                 loadIndicatorTooltip.setText("Все хорошо");
             }else {
-                loadIndicatorTooltip.setText("Слишком большой кусок дерьма");
+                loadIndicatorTooltip.setText("Слишком большой файл");
             }
         });
         initUSBDetection();
