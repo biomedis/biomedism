@@ -654,7 +654,20 @@ public class ModelDataApp {
         p.setDescriptionString(d==null?"":d);
 
     }
+    public void initStringsSection(Section p,Language lang,boolean defLang)
+    {
+        String name = getString(p.getName(), lang);
+        String d = getString(p.getDescription(), lang);
 
+        if(!defLang){
+            p.setNameString(name==null?"":name);
+            p.setDescriptionString(d==null?"":d);
+        }else {
+            p.setNameString(name == null ? getString(p.getName(),getDefaultLanguage()) : name);
+            p.setDescriptionString(d == null ? getString(p.getDescription(),getDefaultLanguage()) : d);
+        }
+
+    }
     /**
      * Инициализация выбранным языком. Если  нет перевода, будет пустая строка
      * @param sections

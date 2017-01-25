@@ -36,6 +36,9 @@ public class CreateBaseHelper{
 
             mda.initStringsSection(rootSections,language,true);
 
+            File contentDir=new File(langDir,"content");
+            contentDir.mkdir();
+
             for (Section rootSection : rootSections) {
                 List<Section> innerSections = mda.findAllSectionByParent(rootSection);
                 mda.initStringsSection(innerSections,language,true);
@@ -53,7 +56,7 @@ public class CreateBaseHelper{
                 for (Section section : innerSections) {
                     System.out.print("Раздел : "+section.getNameString()+"...");
                     fw.write("<a href='./"+section.getId()+".html'>"+section.getNameString()+"</a><br/>\n");
-                    exportSection(section,new File(langDir,section.getId()+".html"),mda, language,rootSection.getNameString()+""+section.getNameString());
+                    exportSection(section,new File(contentDir,section.getId()+".html"),mda, language,section.getNameString());
                     System.out.println("..OK");
                 }
 
@@ -112,6 +115,7 @@ public class CreateBaseHelper{
 
             fw.write("<!DOCTYPE html>\n");
             fw.write("<html><head>  <meta charset=\"utf-8\"/><title>"+name+"</title></head><body>\n");
+            fw.write("<h1 style='text-align:left;'>"+name+"</h1>");
            fw.write(tree);
             fw.write("</body></html>");
             fw.close();
@@ -146,7 +150,7 @@ public class CreateBaseHelper{
         StringBuilder strb=new StringBuilder();
 
 
-        md.initStringsProgram(list);
+        md.initStringsProgram(list,language,true);
         list.forEach(program -> {
             strb.append(noops[level]);
 
@@ -164,7 +168,7 @@ public class CreateBaseHelper{
     private static String getComplex(Complex complex, ModelDataApp md, int level,Language language)
     {
         StringBuilder strb=new StringBuilder();
-        md.initStringsComplex(complex);
+        md.initStringsComplex(complex,language,true);
 
         strb.append(noops[level]);
         int lvl=level+1;
@@ -178,7 +182,7 @@ public class CreateBaseHelper{
         strb.append(getProgramList(list, md,lvl,language));
 
         strb.append(noops[level]);
-        strb.append("</Complex>\n");
+        strb.append("</table>\n");
 
         return strb.toString();
     }
@@ -190,7 +194,7 @@ public class CreateBaseHelper{
         strb.append(noops[level]);
         if(level!=0)//исключаем стартовый раздел
         {
-            md.initStringsSection(section);
+            md.initStringsSection(section,language,true);
             strb.append("<br/><br/><table border='1' cellspacing='0' cellpadding='5'  width='100%'>")
                     .append( "<caption><h2>")
                     .append(TextUtil.escapeXML(section.getNameString()))
