@@ -655,7 +655,12 @@ public class ModelDataApp {
 
     }
 
-
+    /**
+     * Инициализация выбранным языком. Если  нет перевода, будет пустая строка
+     * @param sections
+     * @param lang
+     *
+     */
     public void initStringsSection(List<Section> sections,Language lang)
     {
         String name =null;
@@ -676,6 +681,36 @@ public class ModelDataApp {
 
     }
 
+    /**
+     * Инициализация выбранным языком. Если defLang==true, то если нет перевода, будет умная замена иначе пустая строка
+     * @param sections
+     * @param lang
+     * @param defLang если нет перевода то выбрать перевод по умолчанию
+     */
+    public void initStringsSection(List<Section> sections,Language lang,boolean defLang)
+    {
+        String name =null;
+        String d=null;
+        for(Section p : sections)
+        {
+            name =null;
+            d=null;
+
+            name = getString(p.getName(), lang);
+            d = getString(p.getDescription(), lang);
+
+            if(!defLang){
+                p.setNameString(name==null?"":name);
+                p.setDescriptionString(d==null?"":d);
+            }else {
+                p.setNameString(name == null ? getString(p.getName(),getDefaultLanguage()) : name);
+                p.setDescriptionString(d == null ? getString(p.getDescription(),getDefaultLanguage()) : d);
+            }
+
+
+        }
+
+    }
 
 
 
@@ -771,16 +806,31 @@ public class ModelDataApp {
 
     /**
      * Заполнить поля строк локализованных.
-     * @param section
+     * @param complex
      */
-    public void initStringsComplex(Complex section,Language l)
+    public void initStringsComplex(Complex complex,Language l)
     {
 
-        String name=getString(section.getName(),l);
-        String d=getString(section.getDescription(),l);
+        String name=getString(complex.getName(),l);
+        String d=getString(complex.getDescription(),l);
 
-        section.setNameString(name==null?"":name);
-        section.setDescriptionString(d==null?"":d);
+        complex.setNameString(name==null?"":name);
+        complex.setDescriptionString(d==null?"":d);
+
+    }
+    public void initStringsComplex(Complex complex,Language l, boolean defLang)
+    {
+
+        String name=getString(complex.getName(),l);
+        String d=getString(complex.getDescription(),l);
+
+        if(!defLang){
+            complex.setNameString(name==null?"":name);
+            complex.setDescriptionString(d==null?"":d);
+        }else {
+            complex.setNameString(name == null ? getString(complex.getName(),getDefaultLanguage()) : name);
+            complex.setDescriptionString(d == null ? getString(complex.getDescription(),getDefaultLanguage()) : d);
+        }
 
     }
 
@@ -798,6 +848,26 @@ public class ModelDataApp {
         }
 
     }
+    public void initStringsComplex(List<Complex> cs,Language l, boolean defLang)
+    {
+        for (Complex c : cs)
+        {
+
+            String name=getString(c.getName(),l);
+            String d=getString(c.getDescription(),l);
+            if(!defLang){
+                c.setNameString(name==null?"":name);
+                c.setDescriptionString(d==null?"":d);
+            }else {
+                c.setNameString(name == null ? getString(c.getName(),getDefaultLanguage()) : name);
+                c.setDescriptionString(d == null ? getString(c.getDescription(),getDefaultLanguage()) : d);
+            }
+
+
+        }
+
+    }
+
 
 
     public void updateComplex(Complex complex) throws Exception{complexDAO.edit(complex);}
@@ -886,34 +956,57 @@ public class ModelDataApp {
      */
     public void initStringsProgram(Program p,Language lang)
     {
+        initStringsProgram(p,lang,false);
+
+    }
+    public void initStringsProgram(Program p,Language lang,boolean defLang)
+    {
         String name = getString(p.getName(), lang);
         String d = getString(p.getDescription(), lang);
 
-        p.setNameString(name==null?"":name);
-        p.setDescriptionString(d==null?"":d);
+        if(!defLang){
+            p.setNameString(name==null?"":name);
+            p.setDescriptionString(d==null?"":d);
+        }else {
+            p.setNameString(name == null ? getString(p.getName(),getDefaultLanguage()) : name);
+            p.setDescriptionString(d == null ? getString(p.getDescription(),getDefaultLanguage()) : d);
+        }
 
     }
 
 
+
+
     public void initStringsProgram(List<Program> programms,Language lang)
+    {
+        initStringsProgram(programms,lang,false);
+
+    }
+    public void initStringsProgram(List<Program> programms,Language lang,boolean defLang)
     {
         String name =null;
         String d=null;
-       for(Program p : programms)
+        for(Program p : programms)
         {
-             name =null;
-             d=null;
+            name =null;
+            d=null;
 
-             name = getString(p.getName(), lang);
-             d = getString(p.getDescription(), lang);
+            name = getString(p.getName(), lang);
+            d = getString(p.getDescription(), lang);
 
-            p.setNameString(name==null?"":name);
-            p.setDescriptionString(d==null?"":d);
+            if(!defLang){
+                p.setNameString(name==null?"":name);
+                p.setDescriptionString(d==null?"":d);
+            }else {
+                p.setNameString(name == null ? getString(p.getName(),getDefaultLanguage()) : name);
+                p.setDescriptionString(d == null ? getString(p.getDescription(),getDefaultLanguage()) : d);
+            }
 
 
         }
 
     }
+
 
     public void initStringsProgram(List<Program> sections)
     {

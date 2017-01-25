@@ -51,6 +51,7 @@ import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.CreateFrequenciesFi
 import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.CreateLanguageFiles;
 import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadFrequenciesFile;
 import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadLanguageFiles;
+import ru.biomedis.biomedismair3.UserUtils.CreateBaseHelper;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportProfile;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportTherapyComplex;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportUserBase;
@@ -8289,6 +8290,30 @@ return  true;
            logger.error("Ошибка загрузки файла частот",e);
             showErrorDialog("Загрузка файла частот","","Файл не загружен",getApp().getMainWindow(),Modality.WINDOW_MODAL);
         }
+
+
+    }
+
+    /**
+     * Создает справочник по базе
+     */
+    public void onHeplCreate(){
+        File file=null;
+        DirectoryChooser dirChooser =new DirectoryChooser();
+        dirChooser.setTitle("Создание  справочников. Выбор директории");
+        dirChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        file= dirChooser.showDialog(getApp().getMainWindow());
+
+        if(file==null)return;
+        try {
+            CreateBaseHelper.createHelpFiles(file,getModel());
+            showInfoDialog("Создание  справочников","","Завершено",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        } catch (Exception e) {
+            e.printStackTrace();
+            showExceptionDialog("Создание  справочников","","Завершено",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        }
+
+
 
 
     }

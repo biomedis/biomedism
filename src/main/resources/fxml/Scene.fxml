@@ -66,8 +66,14 @@
           </Menu>
             <Menu mnemonicParsing="false" text="%app.menu.service">
               <items>
+
                   <Menu fx:id="updateBaseMenu" mnemonicParsing="false" text="Обновление базы частот">
                     <items>
+                        <Menu mnemonicParsing="false" text="Другое">
+                            <items>
+                                <MenuItem mnemonicParsing="false" onAction="#onHeplCreate" text="Создать справочники по базе" />
+                            </items>
+                        </Menu>
                         <Menu mnemonicParsing="false" text="Переводы">
                           <items>
                             <MenuItem mnemonicParsing="false" onAction="#onCreateLanguageFiles" text="Получить файлы для перевода" />
