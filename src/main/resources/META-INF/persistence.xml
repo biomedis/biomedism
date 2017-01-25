@@ -23,15 +23,16 @@ http://www.oracle.com/webfolder/technetwork/jsc/xml/ns/persistence/persistence_2
       <property name="javax.persistence.jdbc.url" value="jdbc:h2:./mAirDB"/>
       <property name="javax.persistence.jdbc.password" value="3278"/>
       <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
-      <property name="javax.persistence.jdbc.user" value="sa"/>    
+      <property name="javax.persistence.jdbc.user" value="sa"/>
+
+        <property name="useUnicode" value="true"/>
+        <property name="characterEncoding" value="UTF-8"/>
       
-      
-      <property name="eclipselink.target-database" value="org.eclipse.persistence.platform.database.H2Platform"/>      
-      <property name="eclipselink.ddl-generation" value="create-tables" />
-      <property name="eclipselink.ddl-generation.output-mode"  value="database" />
-       
-       
-      <property name="eclipselink.logging.logger" value="JavaLogger"/>
+      <property name="eclipselink.target-database" value="org.eclipse.persistence.platform.database.H2Platform"/>
+
+
+
+        <property name="eclipselink.logging.logger" value="JavaLogger"/>
       <property name="eclipselink.logging.level.sql" value="FINE"/>
         <property name="eclipselink.logging.parameters" value="true"/>
      
