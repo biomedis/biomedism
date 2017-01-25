@@ -55,7 +55,7 @@ public class CreateBaseHelper{
 
                 for (Section section : innerSections) {
                     System.out.print("Раздел : "+section.getNameString()+"...");
-                    fw.write("<a href='./"+section.getId()+".html'>"+section.getNameString()+"</a><br/>\n");
+                    fw.write("<a href='./content/"+section.getId()+".html'>"+section.getNameString()+"</a><br/>\n");
                     exportSection(section,new File(contentDir,section.getId()+".html"),mda, language,section.getNameString());
                     System.out.println("..OK");
                 }
