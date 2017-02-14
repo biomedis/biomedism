@@ -21,7 +21,6 @@ import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -82,7 +81,7 @@ import static ru.biomedis.biomedismair3.Log.logger;
 
 public class AppController  extends BaseController {
     
-    private static int MAX_BUNDLES=7;
+    private static int MAX_BUNDLES=10;
     @FXML private ImageView deviceIcon;//иконка устройства
     @FXML private ComboBox<Section> baseCombo;//первый уровень разделов( типа выбор базы)
     @FXML private ComboBox<Section> sectionCombo;//второй уровень разделов
@@ -372,14 +371,16 @@ public class AppController  extends BaseController {
     {
 
        // double summ=   splitOuter.getItems().stream().mapToDouble(node ->(node instanceof Parent )? ((Parent)node).minWidth(-1):  node.getBoundsInParent().getWidth()).sum();
-        double summ =
+      /*  double summ =
                 ((splitOuter.getItems().get(0) instanceof Parent )? ((Parent)splitOuter.getItems().get(0)).minWidth(-1):  splitOuter.getItems().get(0).getBoundsInParent().getWidth())+ ((splitOuter.getItems().get(1) instanceof Parent )? ((Parent)splitOuter.getItems().get(1)).minWidth(-1):  splitOuter.getItems().get(1).getBoundsInParent().getWidth());
 
         summ+=15;
         double w=  splitOuter.getWidth();
         SplitPane.Divider divider1 = splitOuter.getDividers().get(0);
-        if(divider1.getPosition()<=summ/w) divider1.setPosition(summ / w);
-
+       if(divider1.getPosition()<=summ/w) divider1.setPosition(summ / w);
+        */
+        SplitPane.Divider divider1 = splitOuter.getDividers().get(0);
+         divider1.setPosition(0.25);
 
 
 
@@ -1107,7 +1108,7 @@ public class AppController  extends BaseController {
                         //добавляется комплекс в биофон
                         Complex c = (Complex) selectedItem.getValue();
                         try {
-                            TherapyComplex th = getModel().createTherapyComplex(getApp().getBiofonProfile(), c, 180, true,1,getInsertComplexLang());
+                            TherapyComplex th = getModel().createTherapyComplex(getApp().getBiofonProfile(), c, 180, true,MAX_BUNDLES-3,getInsertComplexLang());
 
                             addComplexToBiofonTab(th);
 
@@ -1125,7 +1126,7 @@ public class AppController  extends BaseController {
                         Complex c = (Complex) selectedItem.getValue();
 
                         try {
-                            TherapyComplex th = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), c, 300, true,1,getInsertComplexLang());
+                            TherapyComplex th = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), c, 300, true,MAX_BUNDLES-3,getInsertComplexLang());
 
                             //therapyComplexItems.clear();
                             //therapyComplexItems содержит отслеживаемый список, элементы которого добавляются в таблицу. Его не нужно очищать
