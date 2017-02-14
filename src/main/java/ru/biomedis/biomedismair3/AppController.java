@@ -910,7 +910,8 @@ public class AppController  extends BaseController {
             sectionCombo.getItems().clear();
             sectionCombo.getItems().addAll(sectionsBase);
             rootItem.setValue(null);
-            sectionCombo.getSelectionModel().select(0);//автоматически очистит дерево, тк сработает sectionCombo.setOnAction(event....
+            if(baseCombo.getSelectionModel().getSelectedIndex()<=1)sectionCombo.getSelectionModel().select(1);
+            else sectionCombo.getSelectionModel().select(0);//автоматически очистит дерево, тк сработает sectionCombo.setOnAction(event....
 
         });
 
