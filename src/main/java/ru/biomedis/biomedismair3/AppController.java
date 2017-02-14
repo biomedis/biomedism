@@ -2280,11 +2280,11 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         tableProgram.placeholderProperty().setValue(new Label(res.getString("app.table.programm_placeholder")));
 
 
-        numProgCol.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.1));
-        nameColTP.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.3));
-        descColTP.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.3));
-        timeColTP.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.15));
-        fileCol.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.15));
+        numProgCol.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.033));
+        nameColTP.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.2));
+        descColTP.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.587));
+        timeColTP.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.1));
+        fileCol.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.08));
 
         numProgCol.setSortable(false);
         nameColTP.setSortable(false);
