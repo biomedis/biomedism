@@ -82,7 +82,7 @@ import static ru.biomedis.biomedismair3.Log.logger;
 
 public class AppController  extends BaseController {
     
-
+    private static int MAX_BUNDLES=7;
     @FXML private ImageView deviceIcon;//иконка устройства
     @FXML private ComboBox<Section> baseCombo;//первый уровень разделов( типа выбор базы)
     @FXML private ComboBox<Section> sectionCombo;//второй уровень разделов
@@ -160,7 +160,7 @@ public class AppController  extends BaseController {
     @FXML private HBox bundlesPan;
     @FXML private Spinner<String> bundlesSpinner;
 
-    @FXML  private ObservableList<String>  bundlesSpinnerData;
+    //@FXML  private ObservableList<String>  bundlesSpinnerData;
     @FXML  private VBox bundlesBtnPan;
     @FXML private Button btnOkBundles;
     @FXML private Button btnCancelBundles;
@@ -1291,7 +1291,7 @@ initBiofon();
 
     @FXML private Button loadIndicator;
 
-    @FXML  private ObservableList<String>  bundlesSpinnerDataBiofon;
+   // @FXML  private ObservableList<String>  bundlesSpinnerDataBiofon;
 
     private BiofonUIUtil biofonUIUtil;
     private ContextMenu biofonComplexesMenu=new ContextMenu();
@@ -1455,9 +1455,13 @@ initBiofon();
         /** Комбо пачек частот **/
 
 
+        ObservableList<String> bundlesSpinnerDataBiofon = FXCollections.observableArrayList();
+
+
 
         bundlesSpinnerDataBiofon.add("-");
-        for(int i=2; i<20; i++)bundlesSpinnerDataBiofon.add(String.valueOf(i));
+        for(int i=2; i<=MAX_BUNDLES; i++)bundlesSpinnerDataBiofon.add(String.valueOf(i));
+        bundlesSpinnerBiofon.setValueFactory(new SpinnerValueFactory.ListSpinnerValueFactory<String>(bundlesSpinnerDataBiofon));
         bundlesSpinnerBiofon.getValueFactory().setValue("-");
 
         btnOkBundlesBiofon.setGraphic(new ImageView(new Image(okUrl.toExternalForm())));
@@ -2509,6 +2513,15 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                 //добавляем через therapyComplexItems иначе не будет работать event на изменение элементов массива и не будут работать галочки мультичастот
                 therapyComplexItems.clear();
                 therapyComplexItems.addAll(getModel().findTherapyComplexes(newValue));
+
+                try {
+                    checkBundlesLength(therapyComplexItems);
+                } catch (Exception e) {
+                    Log.logger.error("",e);
+                   showExceptionDialog("Ошибка обновления комплексов","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                   return;
+                }
+
                 tableComplex.getItems().addAll(therapyComplexItems);
 
 
@@ -2617,9 +2630,12 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
         /***************/
 
         /** Комбо пачек частот **/
-
+        ObservableList<String> bundlesSpinnerData = FXCollections.observableArrayList();
         bundlesSpinnerData.add("-");
-        for(int i=2; i<20; i++)bundlesSpinnerData.add(String.valueOf(i));
+        for(int i=2; i<=MAX_BUNDLES; i++)bundlesSpinnerData.add(String.valueOf(i));
+        // Value factory.
+
+        bundlesSpinner.setValueFactory(new SpinnerValueFactory.ListSpinnerValueFactory<String>(bundlesSpinnerData));
         bundlesSpinner.getValueFactory().setValue("-");
 
         //показывает кнопки при изменениях спинера
@@ -2671,6 +2687,26 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
      //   loadVirtualFlowTableProgramm();
 
     }
+
+    /**
+     * Проверяет максимальное значение пачек частот в комплексах, если превышено ставит максимальное
+     * @param complexList
+     * @throws Exception
+     */
+    public static void checkBundlesLength(List<TherapyComplex> complexList) throws Exception {
+
+        List<TherapyComplex> edited = complexList.stream().filter(c -> c.getBundlesLength() > MAX_BUNDLES).collect(Collectors.toList());
+
+        for (TherapyComplex tc : edited) {
+                tc.setBundlesLength(MAX_BUNDLES);
+                App.getStaticModel().updateTherapyComplex(tc);
+
+        }
+
+
+    }
+
+
 
     private void editMP3ProgramPath()
     {

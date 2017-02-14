@@ -37,6 +37,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ru.biomedis.biomedismair3.AppController.checkBundlesLength;
 import static ru.biomedis.biomedismair3.Log.logger;
 
 /**
@@ -118,7 +119,16 @@ public class BiofonUIUtil {
     public void reloadComplexes(){
 
         biofonComplexes.clear();
-        biofonComplexes.addAll(mda.findAllTherapyComplexByProfile(biofonProfile));
+        List<TherapyComplex> allTherapyComplexByProfile = mda.findAllTherapyComplexByProfile(biofonProfile);
+        try {
+            checkBundlesLength(biofonComplexes);
+            biofonComplexes.addAll(allTherapyComplexByProfile);
+        } catch (Exception e) {
+            Log.logger.error("",e);
+            bc.showExceptionDialog("Ошибка обновления комплексов","","",e,bc.getControllerWindow(),Modality.WINDOW_MODAL);
+            return;
+        }
+
     }
 
 
@@ -538,7 +548,17 @@ private enum LoadIndicatorType{RED,GREEN}
         biofonComplexImageView = new ImageView(biofonComplexImage);
 
 
-        biofonComplexes.addAll(mda.findAllTherapyComplexByProfile(biofonProfile));
+       // biofonComplexes.addAll(mda.findAllTherapyComplexByProfile(biofonProfile));
+        List<TherapyComplex> allTherapyComplexByProfile = mda.findAllTherapyComplexByProfile(biofonProfile);
+        try {
+            checkBundlesLength(biofonComplexes);
+            biofonComplexes.addAll(allTherapyComplexByProfile);
+        } catch (Exception e) {
+            Log.logger.error("",e);
+            bc.showExceptionDialog("Ошибка обновления комплексов","","",e,bc.getControllerWindow(),Modality.WINDOW_MODAL);
+            return;
+        }
+
         biofonCompexesList.setCellFactory(param -> new ListCell<TherapyComplex>() {
             private ImageView imgv;
 
