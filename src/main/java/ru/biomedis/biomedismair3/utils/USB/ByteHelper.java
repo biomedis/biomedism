@@ -274,6 +274,39 @@ public class ByteHelper {
             else throw new Exception("Массив должен иметь не более 4 элементов и не менее 1");
         }
     }
+    /**
+     * Преобразует массив байт в список байт
+     * @param src Исходный массив байт
+     * @return
+     */
+    public static List<Byte> byteArrayToByteList(byte[] src){
+        List<Byte> dst=new ArrayList<>();
+        for(int i=0;i<src.length;i++) dst.add(src[i]);
+        return dst;
+    }
+
+    /**
+     * Получает строку из масиива байт, закодированную в кодировке  srcEncode
+     * @param val
+     * @param startPos
+     * @param size
+     * @param order
+     * @param srcEncode
+     * @return
+     * @throws Exception
+     */
+    public static String byteArrayToString(byte[] val, int startPos,int size, ByteOrder order, String srcEncode) throws Exception{
+
+        byte src[]=new byte[size];
+
+        if(order==ByteOrder.BIG_TO_SMALL){
+            for(int i=0;i<size;i++)src[i]=val[startPos+i];
+        }else  for(int i=size-1;i<=0;i--)src[i]=val[startPos+i];
+
+        return new String(src,srcEncode);
+
+
+    }
 
     /**
      * Преобразует байтовый массив в строку
