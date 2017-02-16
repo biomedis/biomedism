@@ -1,6 +1,11 @@
 package ru.biomedis.biomedismair3.m2;
 
 
+import ru.biomedis.biomedismair3.App;
+import ru.biomedis.biomedismair3.ModelDataApp;
+import ru.biomedis.biomedismair3.entity.Profile;
+import ru.biomedis.biomedismair3.entity.TherapyComplex;
+import ru.biomedis.biomedismair3.entity.TherapyProgram;
 import ru.biomedis.biomedismair3.utils.USB.ByteHelper;
 import ru.biomedis.biomedismair3.utils.USB.USBHelper;
 
@@ -149,6 +154,7 @@ public class M2
 
     private static void writeToDevice(byte[] dataToWrite, int langID,int countComplexes,boolean debug) throws WriteToDeviceException {
         USBHelper.USBDeviceHandle usbDeviceHandle=null;
+        clearDevice(false);
         try{
             System.out.print("Write command send..");
 
@@ -342,4 +348,54 @@ public class M2
         }
 
     }
+
+    private static String getLang(TherapyComplex tc){
+        return  getLangByOname(tc.getOname());
+    }
+
+    private static String getLang(TherapyProgram tc){
+        return getLangByOname( tc.getOname());
+    }
+
+    private static String getLangByOname( String oname) {
+        ModelDataApp mda = App.getStaticModel();
+        String lang;
+        if(oname.isEmpty()) lang=mda.getProgramLanguage().getAbbr();
+        else {
+            try {
+                lang = mda.getOption("app.lang_insert_complex");
+                if(lang==null) lang=mda.getDefaultLanguage().getAbbr();
+                else if(lang.isEmpty())lang=mda.getProgramLanguage().getAbbr();
+            } catch (Exception e) {
+                lang=mda.getProgramLanguage().getAbbr();
+            }
+        }
+        return lang;
+    }
+
+
+    public static void uploadProfile(Profile profile) throws M2Complex.MaxTimeByFreqBoundException, M2Complex.MaxPauseBoundException, M2Program.ZeroValueFreqException, M2Program.MaxProgramIDValueBoundException, M2Program.MinFrequenciesBoundException, M2Complex.MaxCountProgramBoundException, M2BinaryFile.MaxBytesBoundException, M2Complex.ZeroCountProgramBoundException, LanguageDevice.NoLangDeviceSupported, WriteToDeviceException {
+        ModelDataApp mda = App.getStaticModel();
+        M2BinaryFile bf=new M2BinaryFile();
+        M2Complex m2c;
+
+        for (TherapyComplex tc : mda.findAllTherapyComplexByProfile(profile))
+        {
+            m2c= new M2Complex(5,tc.getTimeForFrequency(),tc.getOname().isEmpty()?tc.getName():tc.getOname(),getLang(tc));
+
+            for (TherapyProgram tp : mda.findTherapyPrograms(tc)) {
+                m2c.addProgram(new M2Program(tp.parseFreqs(),tp.getId().intValue(),tp.getOname().isEmpty()?tp.getName():tp.getOname(),getLang(tp)));
+            }
+            bf.addComplex(m2c);
+        }
+
+
+        byte[] data = bf.getData();
+        LanguageDevice deviceLang = LanguageDevice.getDeviceLang(mda.getProgramLanguage().getAbbr());
+        if(deviceLang==null) throw new LanguageDevice.NoLangDeviceSupported(mda.getProgramLanguage().getAbbr());
+
+        writeToDevice(data,deviceLang.getDeviceLangID(),bf.getComplexesList().size(),false);
+    }
+
+
 }

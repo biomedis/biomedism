@@ -678,6 +678,8 @@ private enum LoadIndicatorType{RED,GREEN}
         bDeviceComplex3.setText(resource.getString("app.empty"));
     }
 
+
+
     private void initUSBDetection() {
         USBHelper.addPlugEventHandler(Biofon.productId, Biofon.vendorId, new PlugDeviceListener() {
             @Override

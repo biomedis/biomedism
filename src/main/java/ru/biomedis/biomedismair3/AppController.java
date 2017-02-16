@@ -58,6 +58,7 @@ import ru.biomedis.biomedismair3.UserUtils.Import.ImportProfile;
 import ru.biomedis.biomedismair3.UserUtils.Import.ImportTherapyComplex;
 import ru.biomedis.biomedismair3.UserUtils.Import.ImportUserBase;
 import ru.biomedis.biomedismair3.entity.*;
+import ru.biomedis.biomedismair3.m2.*;
 import ru.biomedis.biomedismair3.utils.Audio.MP3Encoder;
 import ru.biomedis.biomedismair3.utils.Date.DateUtil;
 import ru.biomedis.biomedismair3.utils.Disk.DiskDetector;
@@ -65,6 +66,8 @@ import ru.biomedis.biomedismair3.utils.Disk.DiskSpaceData;
 import ru.biomedis.biomedismair3.utils.Files.*;
 import ru.biomedis.biomedismair3.utils.OS.OSValidator;
 import ru.biomedis.biomedismair3.utils.Text.TextUtil;
+import ru.biomedis.biomedismair3.utils.USB.PlugDeviceListener;
+import ru.biomedis.biomedismair3.utils.USB.USBHelper;
 
 import java.io.File;
 import java.io.IOException;
@@ -513,10 +516,12 @@ public class AppController  extends BaseController {
         /** Контекстное меню загрузки в прибор **/
 
         btnUploadDir=new MenuItem(res.getString("app.upload_to_dir"));
+        MenuItem btnUploadM2=new MenuItem("Загрузить в M2");
+        btnUploadM2.setOnAction(event -> uploadM2(tableProfile.getSelectionModel().getSelectedItem()));
         btnUpload=new MenuItem(res.getString("app.uppload"));
         btnUpload.setOnAction(event -> onUploadProfile());
         btnUploadDir.setOnAction(event -> uploadInDir());
-        uploadMenu.getItems().addAll(btnUploadDir,btnUpload);
+        uploadMenu.getItems().addAll(btnUploadDir,btnUpload,btnUploadM2);
         btnUploadm.setOnAction(event4 ->
         {
             if(!uploadMenu.isShowing()) uploadMenu.show(btnUploadm, Side.BOTTOM, 0, 0);
@@ -524,6 +529,9 @@ public class AppController  extends BaseController {
 
         }
         );
+
+        btnUploadM2.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull().and(m2Connected.not()));
+        btnUploadM2.disableProperty().bind(m2Connected.and(tableProfile.getSelectionModel().selectedItemProperty().isNotNull()).not());
 
         /*********/
 
@@ -1192,6 +1200,7 @@ public class AppController  extends BaseController {
 
 initTables();
 initBiofon();
+initUSBDetectionM2();
 
 
         /** кнопки  таблиц **/
@@ -1245,9 +1254,51 @@ initBiofon();
         });
         /********************/
     }
+    private SimpleBooleanProperty m2Connected=new SimpleBooleanProperty(false);
+    private void initUSBDetectionM2() {
+        USBHelper.addPlugEventHandler(M2.productId, M2.vendorId, new PlugDeviceListener() {
+            @Override
+            public void onAttachDevice() {
+                System.out.println("Устройство M2 подключено");
+                m2Connected.setValue(true);
+
+            }
+
+            @Override
+            public void onDetachDevice() {
+                System.out.println("Устройство M2 отключено");
+                m2Connected.setValue(false);
+            }
+        });
+    }
+    private void uploadM2(Profile profile) {
+        try {
+            M2.uploadProfile(profile);
+        } catch (M2Complex.MaxTimeByFreqBoundException e) {
+            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        } catch (M2Complex.MaxPauseBoundException e) {
+            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        } catch (M2Program.ZeroValueFreqException e) {
+            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        } catch (M2Program.MaxProgramIDValueBoundException e) {
+            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        } catch (M2Program.MinFrequenciesBoundException e) {
+            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        } catch (M2Complex.MaxCountProgramBoundException e) {
+            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        } catch (M2BinaryFile.MaxBytesBoundException e) {
+            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        } catch (M2Complex.ZeroCountProgramBoundException e) {
+            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        } catch (LanguageDevice.NoLangDeviceSupported e) {
+            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        } catch (M2.WriteToDeviceException e) {
+            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        }
+    }
 
 
-/******* Биофон *****/
+    /******* Биофон *****/
 
 
 
