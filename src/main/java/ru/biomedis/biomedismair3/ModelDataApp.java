@@ -1882,7 +1882,7 @@ public class ModelDataApp {
             tc=null;
             throw new Exception("Ошибка копирования терапевтического комплекса",e);
         }
-        return tc;
+        return therapyComplex;
 
     }
 
