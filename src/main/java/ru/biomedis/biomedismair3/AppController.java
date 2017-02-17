@@ -32,6 +32,7 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -157,6 +158,8 @@ public class AppController  extends BaseController {
     @FXML
     private Tab tab4;
 
+    @FXML
+    private Tab tab5;
 
 
     @FXML private HBox bundlesPan;
@@ -221,6 +224,7 @@ public class AppController  extends BaseController {
 
     //создаем коллекцию с экстрактором, чтобы получать уведомления об изменениях
     private final ObservableList<TherapyComplex> therapyComplexItems =  FXCollections.observableArrayList(param ->  new Observable[]{param.mulltyFreqProperty()});
+    private M2UI m2ui;
 
     public boolean getConnectedDevice() {
         return connectedDevice.get();
@@ -1201,6 +1205,14 @@ public class AppController  extends BaseController {
 initTables();
 initBiofon();
 initUSBDetectionM2();
+//tab5.disableProperty().bind(connectedDevice.not());
+        try {
+            m2ui=(M2UI)replaceContent("/fxml/M2UI.fxml",tab5_content);
+            Test m2t=new Test();
+            m2ui.setContent(m2t.testData());
+        } catch (Exception e) {
+            showExceptionDialog("Ошибка инициализации M2UI","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        }
 
 
         /** кнопки  таблиц **/
@@ -1254,13 +1266,26 @@ initUSBDetectionM2();
         });
         /********************/
     }
+   @FXML private AnchorPane tab5_content;
     private SimpleBooleanProperty m2Connected=new SimpleBooleanProperty(false);
     private void initUSBDetectionM2() {
         USBHelper.addPlugEventHandler(M2.productId, M2.vendorId, new PlugDeviceListener() {
             @Override
             public void onAttachDevice() {
-                System.out.println("Устройство M2 подключено");
-                m2Connected.setValue(true);
+
+
+
+                try {
+                    M2BinaryFile m2BinaryFile = M2.readFromDevice(false);
+                    m2ui.setContent(m2BinaryFile);
+                    m2Connected.setValue(true);
+                    System.out.println("Устройство M2 подключено");
+                } catch (M2.ReadFromDeviceException e) {
+                   Platform.runLater(() -> {
+                       showExceptionDialog("Чтение устройства M2","Ошибка чтения с устройства","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                   });
+
+                }
 
             }
 
@@ -1268,6 +1293,7 @@ initUSBDetectionM2();
             public void onDetachDevice() {
                 System.out.println("Устройство M2 отключено");
                 m2Connected.setValue(false);
+                m2ui.cleanView();
             }
         });
     }

@@ -570,7 +570,7 @@
                                                                            </VBox>
                                                                        </children>
                                                                    </HBox>
-                                                            <Label fx:id="biofonInsLangComplex" maxWidth="1.7976931348623157E308" minHeight="23" text="Label" />
+                                                            <Label fx:id="biofonInsLangComplex" maxWidth="1.7976931348623157E308" minHeight="26.0" text="Label" />
                                                                    <ListView fx:id="biofonCompexesList" maxHeight="1.7976931348623157E308" prefWidth="250.0" VBox.vgrow="ALWAYS" />
                                                                </children>
                                                            </VBox>
@@ -648,6 +648,18 @@
                                  </children>
                             </AnchorPane>
                         </content>
+                        </Tab>
+                        <Tab fx:id="tab5" closable="false" text="M2">
+                            <content>
+                                <AnchorPane fx:id="tab5_content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                    <children>
+                                        <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                            <children>
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </AnchorPane>
+                            </content>
                         </Tab>
                     </tabs>
                   </TabPane>

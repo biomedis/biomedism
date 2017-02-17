@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ru.biomedis.biomedismair3.m2.M2Complex.BUNDLES_LENGTH;
 import static ru.biomedis.biomedismair3.utils.USB.ByteHelper.*;
 
 
@@ -25,6 +26,9 @@ public class M2Program {
     private static final int MAX_NAME_LENGTH=(int)Math.pow(2,Byte.SIZE)-1;
 
 
+    public String getName() {
+        return name;
+    }
 
     /**
      * @param frequencies
@@ -192,8 +196,8 @@ public class M2Program {
         List<Byte> res = new ArrayList<>();
         List<Byte> bytesName =  LanguageDevice.getBytesInDeviceLang(name,langAbbr);
 
-        int partition1=frequencies.size()/3;
-        int ostatok =frequencies.size()-partition1*3;
+        int partition1=frequencies.size()/BUNDLES_LENGTH;
+        int ostatok =frequencies.size()-partition1*BUNDLES_LENGTH;
 
         res.add((byte)bytesName.size());//размер строки названия
         res.addAll(bytesName);//имя программы
@@ -201,15 +205,15 @@ public class M2Program {
         //частоты
 
         for(int i=0;i<partition1;i++){
-            res.add((byte)3);
-            res.addAll(intToByteList(frequenciesInDeviceFormat.get(i*3), ByteOrder.BIG_TO_SMALL));
-            res.addAll(intToByteList(frequenciesInDeviceFormat.get(i*3+1), ByteOrder.BIG_TO_SMALL));
-            res.addAll(intToByteList(frequenciesInDeviceFormat.get(i*3+2), ByteOrder.BIG_TO_SMALL));
+            res.add((byte)BUNDLES_LENGTH);
+            res.addAll(intToByteList(frequenciesInDeviceFormat.get(i*BUNDLES_LENGTH), ByteOrder.BIG_TO_SMALL));
+            res.addAll(intToByteList(frequenciesInDeviceFormat.get(i*BUNDLES_LENGTH+1), ByteOrder.BIG_TO_SMALL));
+            res.addAll(intToByteList(frequenciesInDeviceFormat.get(i*BUNDLES_LENGTH+2), ByteOrder.BIG_TO_SMALL));
         }
 
         if( ostatok !=0){
             res.add((byte)ostatok);
-            for(int i=partition1*3;i<frequencies.size();i++){
+            for(int i=partition1*BUNDLES_LENGTH;i<frequencies.size();i++){
                 res.addAll(intToByteList(frequenciesInDeviceFormat.get(i), ByteOrder.BIG_TO_SMALL));
             }
         }

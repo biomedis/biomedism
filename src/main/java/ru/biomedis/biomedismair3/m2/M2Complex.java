@@ -25,6 +25,12 @@ public class M2Complex
    private String name;
    private String langAbbr;
 
+   public static final int BUNDLES_LENGTH =3;
+
+    public  int getBundlesLength() {
+        return BUNDLES_LENGTH;
+    }
+
     /**
      *
      * @param pauseBetweenPrograms время паузы между программами в секундах
