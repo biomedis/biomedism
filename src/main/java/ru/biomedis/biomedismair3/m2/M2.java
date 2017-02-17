@@ -26,7 +26,7 @@ public class M2
     private static final  byte LANG_LIST_COMMAND = 54;
     private static final  int REQUEST_TIMEOUT_MS = 10000;
     private static final  int DATA_PACKET_SIZE=64;
-
+    public static final int PAUSE_BETWEEN_PROGRAM=5;
 
 
 
@@ -381,7 +381,7 @@ public class M2
 
         for (TherapyComplex tc : mda.findAllTherapyComplexByProfile(profile))
         {
-            m2c= new M2Complex(5,tc.getTimeForFrequency(),tc.getOname().isEmpty()?tc.getName():tc.getOname(),getLang(tc));
+            m2c= new M2Complex(PAUSE_BETWEEN_PROGRAM,tc.getTimeForFrequency(),tc.getOname().isEmpty()?tc.getName():tc.getOname(),getLang(tc));
 
             for (TherapyProgram tp : mda.findTherapyPrograms(tc)) {
                 m2c.addProgram(new M2Program(tp.parseFreqs(),tp.getId().intValue(),tp.getOname().isEmpty()?tp.getName():tp.getOname(),getLang(tp)));

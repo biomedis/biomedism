@@ -17,6 +17,7 @@ public class M2BinaryFile {
     private  byte[] rawReadedData;
     private int systemLangID;
 
+
 public M2BinaryFile() {
     }
 

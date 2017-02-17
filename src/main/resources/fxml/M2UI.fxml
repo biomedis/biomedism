@@ -6,23 +6,49 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<HBox fx:id="root" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.72" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.M2UI">
+<VBox fx:id="root" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0" xmlns="http://javafx.com/javafx/8.0.72" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.M2UI">
    <children>
-      <VBox maxHeight="1.7976931348623157E308" maxWidth="250.0" spacing="8.0" HBox.hgrow="ALWAYS">
+      <HBox maxWidth="1.7976931348623157E308">
          <children>
-            <Label text="%app.ui.tab2" />
-            <ListView fx:id="complexesList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
+            <Label text="Общее время:" />
+            <Label fx:id="timeProfile" prefWidth="60.0">
+               <HBox.margin>
+                  <Insets left="4.0" right="20.0" />
+               </HBox.margin>
+            </Label>
+            <Label text="Время комплекса:">
+               <HBox.margin>
+                  <Insets right="4.0" />
+               </HBox.margin>
+            </Label>
+            <Label fx:id="timeComplex" />
          </children>
-      </VBox>
-      <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="8.0" HBox.hgrow="ALWAYS">
+         <VBox.margin>
+            <Insets left="8.0" right="8.0" />
+         </VBox.margin>
+      </HBox>
+      <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="10.0" VBox.vgrow="ALWAYS">
          <children>
-            <Label text="%app.ui.tab3" />
-            <ListView fx:id="programsesList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
+            <VBox maxHeight="1.7976931348623157E308" maxWidth="250.0" spacing="8.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <Label text="%app.ui.tab2" />
+                  <ListView fx:id="complexesList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
+               </children>
+            </VBox>
+            <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="8.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <Label text="%app.ui.tab3" />
+                  <ListView fx:id="programsesList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
+               </children>
+            </VBox>
          </children>
-      </VBox>
+         <padding>
+            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+         </padding>
+      
+      </HBox>
    </children>
    <padding>
-      <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+      <Insets top="8.0" />
    </padding>
-
-</HBox>
+</VBox>

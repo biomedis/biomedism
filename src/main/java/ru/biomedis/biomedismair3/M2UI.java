@@ -17,10 +17,13 @@ import ru.biomedis.biomedismair3.entity.TherapyProgram;
 import ru.biomedis.biomedismair3.m2.M2BinaryFile;
 import ru.biomedis.biomedismair3.m2.M2Complex;
 import ru.biomedis.biomedismair3.m2.M2Program;
+import ru.biomedis.biomedismair3.utils.Date.DateUtil;
 
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static ru.biomedis.biomedismair3.m2.M2.PAUSE_BETWEEN_PROGRAM;
 
 /**
  * Created by Ananta on 17.02.2017.
@@ -29,6 +32,8 @@ public class M2UI extends BaseController {
 
 @FXML private ListView<TherapyComplex> complexesList;
     @FXML private ListView<TherapyProgram> programsesList;
+    @FXML private Label timeComplex;
+    @FXML private Label timeProfile;
     private Image m2ComplexImage;
     private ImageView m2ComplexImageView;
     private ResourceBundle resources;
@@ -46,7 +51,8 @@ public class M2UI extends BaseController {
         m2Complexes.clear();
         m2Programs.clear();
         programsCache.clear();
-
+        timeComplex.setText("");
+        timeProfile.setText("");
     }
 
     /**
@@ -56,7 +62,7 @@ public class M2UI extends BaseController {
     public void setContent(M2BinaryFile m2BinaryFile){
         cleanView();
 
-
+        int totalTime=0;
         long i=0;//фейковые ID для комплексов
         TherapyComplex tc;
         for (M2Complex complex : m2BinaryFile.getComplexesList()) {
@@ -84,7 +90,10 @@ public class M2UI extends BaseController {
             else programsCache.put(tc.getId(),ltp);
 
             m2Complexes.add(tc);
+            totalTime+=calcComplexTime(programsCache.get(tc.getId()),tc.getBundlesLength(),PAUSE_BETWEEN_PROGRAM,tc.getTimeForFrequency());
         }
+
+        timeProfile.setText(DateUtil.convertSecondsToHMmSs(totalTime));
 
     }
 
@@ -145,6 +154,8 @@ public class M2UI extends BaseController {
         m2Programs.clear();
         m2Programs.addAll(programsCache.get(selectedItem.getId()));
 
+       int time=calcComplexTime(programsCache.get(selectedItem.getId()),selectedItem.getBundlesLength(),PAUSE_BETWEEN_PROGRAM,selectedItem.getTimeForFrequency());
+        timeComplex.setText(DateUtil.convertSecondsToHMmSs(time));
     }
 
     private void initListPrograms() {
@@ -189,5 +200,26 @@ public class M2UI extends BaseController {
 
         });
         programsesList.setItems(m2Programs);
+    }
+
+
+    private int calcComplexTime(List<TherapyProgram> tpl,int bundlesLength,int pauseBetweenProgramm,int timeForFreq){
+        // количество программ
+
+        int resTimeSec=0;
+        for (TherapyProgram tp : tpl) {
+            if(bundlesLength!=1){
+
+                int numFreqsForce = tp.getNumFreqsForce();
+                int freqBundlesCount=(int)Math.ceil((float)numFreqsForce/(float)bundlesLength);
+                resTimeSec += freqBundlesCount * timeForFreq ;
+                resTimeSec+=pauseBetweenProgramm;
+            }else {
+                resTimeSec +=(timeForFreq+pauseBetweenProgramm);
+            }
+
+        }
+        if(resTimeSec==0) return 0;
+        else  return resTimeSec-pauseBetweenProgramm;
     }
 }
