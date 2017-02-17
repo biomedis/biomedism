@@ -196,11 +196,7 @@ public class BiofonUIUtil {
         int resTimeSec=0;
         for (TherapyProgram tp : tpl) {
             if(bundlesLength!=1){
-                resTimeSec += splitFreqsByBundles(tp.parseFreqs(), bundlesLength)
-                        .stream()
-                         .mapToInt(l ->  (timeForFreq + pauseBetweenProgramm))
-                         .sum();
-
+                resTimeSec += splitFreqsByBundles(tp.parseFreqs(), bundlesLength).size()*(timeForFreq + pauseBetweenProgramm);
 
             }else {
                 resTimeSec +=(timeForFreq+pauseBetweenProgramm);
@@ -746,7 +742,10 @@ private enum LoadIndicatorType{RED,GREEN}
         try {
         for (TherapyComplex tc : tcs) {
 
+            int timeForFrequency = tc.getTimeForFrequency();
+            tc.setTimeForFrequency((int)Math.round(timeForFrequency/60.0)*60);
             TherapyComplex therapyComplex = mda.copyTherapyComplexToProfile(app.getBiofonProfile(), tc, true);
+            tc.setTimeForFrequency(timeForFrequency);
             addComplex(therapyComplex);
 
 
