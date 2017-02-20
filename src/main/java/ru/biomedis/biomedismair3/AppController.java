@@ -2445,88 +2445,12 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
 
                 ClipboardContent content = new ClipboardContent();
-                content.put(PROGRAM_CUT_ITEM, tableProgram.getSelectionModel().getSelectedIndices());
+                content.put(PROGRAM_CUT_ITEM, tableProgram.getSelectionModel().getSelectedIndices().toArray(new Integer[0]));
                 clipboard.setContent(content);
 
         });
 
-        mi2.setOnAction(e ->
-        {
-
-            //в выбранный индекс вставляется новый элемент а все сдвигаются на 1 индекс  вырезанного индекса
-            if (tableProgram.getSelectionModel().getSelectedItem() == null) return;
-            Clipboard clipboard = Clipboard.getSystemClipboard();
-
-            if (!clipboard.hasContent(PROGRAM_CUT_ITEM)) return;
-            int ind = (Integer) clipboard.getContent(PROGRAM_CUT_ITEM);
-            int dropIndex = tableProgram.getSelectionModel().getSelectedIndex();
-            TherapyProgram therapyProgram = tableProgram.getItems().get(ind);
-            if(ind!=dropIndex)
-            {
-    //элементы всегда будут оказываться выше чем индекс по которому вставляли, те визуально вставляются над выбираемым элементом
-                try {
-                    //обновление базы
-                    if(dropIndex>ind) {
-
-                        //если перетащили выше исходного положения, то нужно обновить позиции от новой позиции до исходной увеличив на 1
-
-
-
-
-                        tableProgram.getItems().add(dropIndex, therapyProgram);
-                        tableProgram.getSelectionModel().select(dropIndex);
-                        tableProgram.getItems().remove(ind);
-
-                        therapyProgram.setPosition(tableProgram.getItems().get(dropIndex).getPosition());//здесь dropIndex указ уже на след элемент после вставки
-                        getModel().updateTherapyProgram(therapyProgram);
-
-
-                        for(int i=dropIndex;i<tableProgram.getItems().size();i++)
-                        {
-                            tableProgram.getItems().get(i).setPosition(tableProgram.getItems().get(i).getPosition()+1);
-                            getModel().updateTherapyProgram( tableProgram.getItems().get(i));
-
-                        }
-
-                    }else
-                    {
-                        //элемент будет на месте вставки а все сдвинется ниже
-
-                        tableProgram.getItems().remove(ind);
-                        tableProgram.getItems().add(dropIndex, therapyProgram);
-                        tableProgram.getSelectionModel().select(dropIndex);
-
-
-                        therapyProgram.setPosition(tableProgram.getItems().get(dropIndex+1).getPosition());//dropIndex это точный индекс вставки
-                        getModel().updateTherapyProgram(therapyProgram);
-
-                        for(int i=dropIndex+1;i<tableProgram.getItems().size();i++)
-                        {
-                            tableProgram.getItems().get(i).setPosition(tableProgram.getItems().get(i).getPosition()+1);
-                            getModel().updateTherapyProgram( tableProgram.getItems().get(i));
-
-                        }
-
-                    }
-
-                } catch (Exception e1) {
-                    logger.error(e1);
-                    showExceptionDialog("Ошибка обновления позиции программы","","",e1,getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                    therapyProgram = null;
-                    clipboard.clear();
-                    return;
-                }
-
-
-
-
-
-
-            }
-            therapyProgram = null;
-            clipboard.clear();
-
-        });
+        mi2.setOnAction(e -> pasteTherapyPrograms());
 
         programmMenu.getItems().addAll(mi2, mi1,mi3,mi4,mi5,mi6);
 
@@ -2552,8 +2476,25 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                     mi2.setDisable(true);
                     mi1.setDisable(false);
                 } else {
-                    mi2.setDisable(false);
-                    mi1.setDisable(false);
+                    if(tableProgram.getSelectionModel().getSelectedIndices().size()==1){
+
+                        Integer[] ind = (Integer[]) clipboard.getContent(PROGRAM_CUT_ITEM);
+                        if(ind!=null) {
+                            if (ind.length!=0) {
+                                int dropIndex = tableProgram.getSelectionModel().getSelectedIndex();
+                                mi1.setDisable(false);
+                                if(Arrays.stream(ind).filter(i->i.intValue()==dropIndex).count()==0) {
+                                    int startIndex=ind[0];
+                                    int lastIndex=ind[ind.length-1];
+                                    if(dropIndex < startIndex || dropIndex > lastIndex){
+                                        mi2.setDisable(false);
+
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                 }
 
                 if(this.tableProgram.getSelectionModel().getSelectedItem() == null) {
@@ -2781,6 +2722,140 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
         //помогает узнать видимые строки
      //   loadVirtualFlowTableProgramm();
 
+    }
+
+    /**
+     * Перемещение терапквтических программ через буффер обмена
+     */
+    private void pasteTherapyPrograms() {
+        //в выбранный индекс вставляется новый элемент а все сдвигаются на 1 индекс  вырезанного индекса
+        if (tableProgram.getSelectionModel().getSelectedItems().isEmpty()) return;
+        if (tableProgram.getSelectionModel().getSelectedItems().size()!=1) return;
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+
+        if (!clipboard.hasContent(PROGRAM_CUT_ITEM)) return;
+        Integer[] indexes = (Integer[]) clipboard.getContent(PROGRAM_CUT_ITEM);
+        if(indexes==null) return;
+        if(indexes.length==0) return;
+        List<Integer> ind = Arrays.stream(indexes).collect(Collectors.toList());
+        int dropIndex = tableProgram.getSelectionModel().getSelectedIndex();
+        if(ind.contains(dropIndex)) return;//если выбранный индекс есть в вырезанных индексах
+        List<TherapyProgram> therapyPrograms = ind.stream().map(i->tableProgram.getItems().get(i)).collect(Collectors.toList());
+        int startIndex=ind.get(0);//первый индекс вырезки
+        int lastIndex=ind.get(ind.size()-1);
+
+//элементы всегда будут оказываться выше чем индекс по которому вставляли, те визуально вставляются над выбираемым элементом
+            try {
+                if(dropIndex < startIndex){
+
+                    for (TherapyProgram i : therapyPrograms) {
+                        tableProgram.getItems().remove(i);
+                    }
+                    //вставка программ в dropIndex; Изменение их позиции
+                    tableProgram.getItems().addAll(dropIndex,therapyPrograms);
+
+                }else if(dropIndex > lastIndex){
+
+                    TherapyProgram dropProgram = tableProgram.getItems().get(dropIndex);
+                    for (TherapyProgram i : therapyPrograms) {
+                        tableProgram.getItems().remove(i);
+                    }
+                    dropIndex= tableProgram.getItems().indexOf(dropProgram);
+                    tableProgram.getItems().addAll(dropIndex,therapyPrograms);
+
+
+                }else return;
+
+
+
+
+
+
+            } catch (Exception e1) {
+                logger.error(e1);
+                showExceptionDialog("Ошибка обновления позиции программ","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                therapyPrograms.clear();
+                clipboard.clear();
+                return;
+            }
+
+        therapyPrograms.clear();
+        clipboard.clear();
+      /*
+        //в выбранный индекс вставляется новый элемент а все сдвигаются на 1 индекс  вырезанного индекса
+        if (tableProgram.getSelectionModel().getSelectedItems().isEmpty()) return;
+        if (tableProgram.getSelectionModel().getSelectedItems().size()!=1) return;
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+
+        if (!clipboard.hasContent(PROGRAM_CUT_ITEM)) return;
+        int ind = (Integer) clipboard.getContent(PROGRAM_CUT_ITEM);
+        int dropIndex = tableProgram.getSelectionModel().getSelectedIndex();
+        TherapyProgram therapyProgram = tableProgram.getItems().get(ind);
+        if(ind!=dropIndex)
+        {
+//элементы всегда будут оказываться выше чем индекс по которому вставляли, те визуально вставляются над выбираемым элементом
+            try {
+                //обновление базы
+                if(dropIndex>ind) {
+
+                    //если перетащили выше исходного положения, то нужно обновить позиции от новой позиции до исходной увеличив на 1
+
+
+
+
+                    tableProgram.getItems().add(dropIndex, therapyProgram);
+                    tableProgram.getSelectionModel().select(dropIndex);
+                    tableProgram.getItems().remove(ind);
+
+                    therapyProgram.setPosition(tableProgram.getItems().get(dropIndex).getPosition());//здесь dropIndex указ уже на след элемент после вставки
+                    getModel().updateTherapyProgram(therapyProgram);
+
+
+                    for(int i=dropIndex;i<tableProgram.getItems().size();i++)
+                    {
+                        tableProgram.getItems().get(i).setPosition(tableProgram.getItems().get(i).getPosition()+1);
+                        getModel().updateTherapyProgram( tableProgram.getItems().get(i));
+
+                    }
+
+                }else
+                {
+                    //элемент будет на месте вставки а все сдвинется ниже
+
+                    tableProgram.getItems().remove(ind);
+                    tableProgram.getItems().add(dropIndex, therapyProgram);
+                    tableProgram.getSelectionModel().select(dropIndex);
+
+
+                    therapyProgram.setPosition(tableProgram.getItems().get(dropIndex+1).getPosition());//dropIndex это точный индекс вставки
+                    getModel().updateTherapyProgram(therapyProgram);
+
+                    for(int i=dropIndex+1;i<tableProgram.getItems().size();i++)
+                    {
+                        tableProgram.getItems().get(i).setPosition(tableProgram.getItems().get(i).getPosition()+1);
+                        getModel().updateTherapyProgram( tableProgram.getItems().get(i));
+
+                    }
+
+                }
+
+            } catch (Exception e1) {
+                logger.error(e1);
+                showExceptionDialog("Ошибка обновления позиции программы","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                therapyProgram = null;
+                clipboard.clear();
+                return;
+            }
+
+
+
+
+
+
+        }
+        therapyProgram = null;
+        clipboard.clear();
+        */
     }
 
     /**

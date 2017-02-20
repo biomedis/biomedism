@@ -158,7 +158,7 @@ public class M2
         try{
             System.out.print("Write command send..");
 
-            if(debug) usbDeviceHandle = USBHelper.openDevice(productId, vendorId, 0);
+            usbDeviceHandle = USBHelper.openDevice(productId, vendorId, 0);
             byte[] commandWrite = new byte[DATA_PACKET_SIZE];
             commandWrite[0]=WRITE_COMMAND;
 

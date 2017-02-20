@@ -38,7 +38,7 @@ public M2BinaryFile() {
     public M2BinaryFile(byte[] fileData,int systemLangID) throws FileParseException {
         rawReadedData = fileData;
         this.systemLangID=systemLangID;
-
+        if(fileData.length==0) throw new FileParseException("Пустой массиив данных!");
         //4 байта - позиция перед началом первого комплекса
 
         try {
@@ -116,6 +116,10 @@ public M2BinaryFile() {
     public static class FileParseException extends Exception{
         public FileParseException(Throwable cause) {
             super(cause);
+        }
+
+        public FileParseException(String message) {
+            super(message);
         }
     }
 
