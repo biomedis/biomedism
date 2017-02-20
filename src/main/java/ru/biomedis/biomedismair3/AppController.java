@@ -1226,21 +1226,34 @@ tab5.disableProperty().bind(m2Connected.not());
 
 
          btnDeleteProgram.disableProperty().bind(tableProgram.getSelectionModel().selectedItemProperty().isNull());
-         btnUpProgram.disableProperty().bind(tableProgram.getSelectionModel().selectedItemProperty().isNull().or(tableProgram.getSelectionModel().selectedIndexProperty().isEqualTo(0)));
+
+
+        btnUpProgram.disableProperty().bind(new BooleanBinding() {
+            {bind(tableProgram.getSelectionModel().selectedItemProperty());}
+            @Override
+            protected boolean computeValue() {
+                if(tableProgram.getSelectionModel().getSelectedIndices().size()==0)return true;
+                 if(tableProgram.getSelectionModel().getSelectedIndices().size()>1) return true;
+                 if(tableProgram.getSelectionModel().getSelectedIndex()==0) return true;//верхний элемент
+                 return false;
+            }
+        });
+
         btnDownProgram.disableProperty().bind(new BooleanBinding() {
             {
                 //заставит этот биндинг обновляться при изменении свойства selectedIndexProperty
-              super.bind(tableProgram.getSelectionModel().selectedIndexProperty());
+              super.bind(tableProgram.getSelectionModel().selectedItemProperty());
 
             }
              @Override
              protected boolean computeValue()
              {
 
-                 if(tableProgram.getSelectionModel().getSelectedItem()==null) return true;
+                 if(tableProgram.getSelectionModel().getSelectedIndices().size()==0)return true;
+                 if(tableProgram.getSelectionModel().getSelectedIndices().size()>1) return true;
 
                 if( tableProgram.getSelectionModel().getSelectedIndex() == tableProgram.getItems().size()-1) return true;
-                 else return false;
+                return false;
              }
          });
 
@@ -2403,7 +2416,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
         });
         tableProgram.setOnKeyReleased(e ->{
-            if(e.getCode()==KeyCode.DELETE) onRemoveProgram();
+            if(e.getCode()==KeyCode.DELETE) onRemovePrograms();
             if(e.getCode()==KeyCode.LEFT) {
                 therapyTabPane.getSelectionModel().select(1);
                 tableComplex.requestFocus();
@@ -5343,32 +5356,33 @@ private void setInfoMessage(String message)
         tp2=null;
 
     }
-    public void onRemoveProgram()
+
+    /**
+     * Удаление программи из таблиц терапевтических программ
+     */
+    public void onRemovePrograms()
     {
 
-        if(tableProgram.getSelectionModel().getSelectedItem()==null)return;
-
-       TherapyProgram p = tableProgram.getSelectionModel().getSelectedItem();
+        List<TherapyProgram> selectedItems = tableProgram.getSelectionModel().getSelectedItems().stream().collect(Collectors.toList());
+        if(selectedItems.isEmpty())return;
 
         Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.title66"), "", res.getString("app.title67"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
 
         if(buttonType.isPresent() ? buttonType.get()==okButtonType: false)
         {
             try {
-                getModel().removeTherapyProgram(p);
+                for (TherapyProgram p : selectedItems) {
+                    getModel().removeTherapyProgram(p);
+                    File   temp=new File(getApp().getDataDir(),p.getId()+".dat");
+                    if(temp.exists())temp.delete();
+                    tableProgram.getItems().remove(p);
 
-                File   temp=new File(getApp().getDataDir(),p.getId()+".dat");
-                if(temp.exists())temp.delete();
+                }
 
-                tableProgram.getItems().remove(p);
-
-
-
-
-
-
+                selectedItems.clear();
 
               updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(), false);
+                tableProgram.getSelectionModel().clearSelection();
 
             } catch (Exception e) {
                 logger.error("",e);
@@ -5377,7 +5391,7 @@ private void setInfoMessage(String message)
 
             }
 
-            p=null;
+
         }
 
 

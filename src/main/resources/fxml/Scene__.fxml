@@ -232,7 +232,7 @@
                            <children>
                               <HBox maxWidth="1.7976931348623157E308" prefWidth="200.0" spacing="8.0">
                                  <children>
-                                    <Button fx:id="btnDeleteProgram" mnemonicParsing="false" onAction="#onRemoveProgram" text="%ui.main.remove_program" />
+                                    <Button fx:id="btnDeleteProgram" mnemonicParsing="false" onAction="#onRemovePrograms" text="%ui.main.remove_program" />
                                     <Button fx:id="btnUpProgram" mnemonicParsing="false" onAction="#onUpProgram" text="%app.up" />
                                     <Button fx:id="btnDownProgram" mnemonicParsing="false" onAction="#onDownProgram" text="%app.down" />
                                  </children>

@@ -345,7 +345,7 @@
                                                 <Button fx:id="btnUpProgram" mnemonicParsing="false" onAction="#onUpProgram" text="%app.up" />
                                                 <Button fx:id="btnDownProgram" mnemonicParsing="false" onAction="#onDownProgram" text="%app.down" />
                                                 <Button mnemonicParsing="false" onAction="#onAddMP3" text="%app.ui.program_by_mp3" />
-                                                <Button fx:id="btnDeleteProgram" mnemonicParsing="false" onAction="#onRemoveProgram" text="%ui.main.remove_program" />
+                                                <Button fx:id="btnDeleteProgram" mnemonicParsing="false" onAction="#onRemovePrograms" text="%ui.main.remove_program" />
                                              </children>
                                              <padding>
                                                 <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
