@@ -1205,11 +1205,11 @@ public class AppController  extends BaseController {
 initTables();
 initBiofon();
 initUSBDetectionM2();
-//tab5.disableProperty().bind(connectedDevice.not());
+tab5.disableProperty().bind(m2Connected.not());
         try {
             m2ui=(M2UI)replaceContent("/fxml/M2UI.fxml",tab5_content);
-            Test m2t=new Test();
-            m2ui.setContent(m2t.testData());
+            //Test m2t=new Test();
+           // m2ui.setContent(m2t.testData());
         } catch (Exception e) {
             showExceptionDialog("Ошибка инициализации M2UI","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
         }
@@ -1276,7 +1276,7 @@ initUSBDetectionM2();
 
 
                 try {
-                    M2BinaryFile m2BinaryFile = M2.readFromDevice(false);
+                    M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
                     m2ui.setContent(m2BinaryFile);
                     m2Connected.setValue(true);
                     System.out.println("Устройство M2 подключено");
