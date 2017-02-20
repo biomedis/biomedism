@@ -2357,6 +2357,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         tableProgram.getColumns().addAll(numProgCol, nameColTP, descColTP, timeColTP, fileCol);
         tableProgram.placeholderProperty().setValue(new Label(res.getString("app.table.programm_placeholder")));
 
+        tableProgram.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         numProgCol.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.033));
         nameColTP.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.2));
@@ -2426,12 +2427,12 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
         mi1.setOnAction(e ->
         {
-            if (tableProgram.getSelectionModel().getSelectedItem() == null) return;
+            if (tableProgram.getSelectionModel().getSelectedItems().isEmpty()) return;
             Clipboard clipboard = Clipboard.getSystemClipboard();
 
 
                 ClipboardContent content = new ClipboardContent();
-                content.put(PROGRAM_CUT_ITEM, tableProgram.getSelectionModel().getSelectedIndex());
+                content.put(PROGRAM_CUT_ITEM, tableProgram.getSelectionModel().getSelectedIndices());
                 clipboard.setContent(content);
 
         });
@@ -2532,6 +2533,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                 mi4.setDisable(true);
                 mi5.setDisable(true);
                 mi6.setDisable(true);
+
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 if(!clipboard.hasContent(this.PROGRAM_CUT_ITEM)) {
                     mi2.setDisable(true);
@@ -2558,7 +2560,8 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                         mi4.setDisable(true);
                     }
 
-                    if(((TherapyProgram)this.tableProgram.getSelectionModel().getSelectedItem()).isMp3()) {
+                    if(((TherapyProgram)this.tableProgram.getSelectionModel().getSelectedItem()).isMp3()
+                            && tableProgram.getSelectionModel().getSelectedItems().size()==1) {
                         mi4.setDisable(true);
                         mi6.setDisable(false);
                     }
@@ -2834,21 +2837,38 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
     private void copyTherapyProgramToBase()
     {
 
-        TherapyProgram therapyProgram = tableProgram.getSelectionModel().getSelectedItem();
+        ObservableList<TherapyProgram> selectedItems = tableProgram.getSelectionModel().getSelectedItems();
         NamedTreeItem treeItem = (NamedTreeItem) sectionTree.getSelectionModel().getSelectedItem();
-        if(therapyProgram==null || treeItem==null) return;
-        if(therapyProgram.isMp3())return;
+        if(selectedItems.isEmpty()|| treeItem==null) return;
+
+        List<TherapyProgram> src=selectedItems.stream().filter(i->!i.isMp3()).collect(Collectors.toList());
 
 
-        Program p= null;
+        List<Program> tpl=new ArrayList<>();
         try {
 
-            if(treeItem.getValue() instanceof Section) p = getModel().createProgram(therapyProgram.getName(), therapyProgram.getDescription(), therapyProgram.getFrequencies(),(Section)treeItem.getValue(), false, getModel().getUserLanguage());
-            else if(treeItem.getValue() instanceof Complex) p = getModel().createProgram(therapyProgram.getName(), therapyProgram.getDescription(), therapyProgram.getFrequencies(),(Complex)treeItem.getValue(), false, getModel().getUserLanguage());
+            if(treeItem.getValue() instanceof Section) {
+                for (TherapyProgram therapyProgram : src) {
+                    Program p = getModel().createProgram(therapyProgram.getName(), therapyProgram.getDescription(), therapyProgram.getFrequencies(),(Section)treeItem.getValue(), false, getModel().getUserLanguage());
+                    tpl.add(p);
+                }
+
+
+            }
+            else if(treeItem.getValue() instanceof Complex){
+                for (TherapyProgram therapyProgram : src){
+
+                Program p = getModel().createProgram(therapyProgram.getName(), therapyProgram.getDescription(), therapyProgram.getFrequencies(),(Complex)treeItem.getValue(), false, getModel().getUserLanguage());
+                tpl.add(p);
+                }
+            }
             else throw new Exception();
 
 
-            if (!treeItem.isLeaf())  {getModel().initStringsProgram(p); treeItem.getChildren().add(new NamedTreeItem(p));}
+            if (!treeItem.isLeaf())  {
+                getModel().initStringsProgram(tpl);
+                treeItem.getChildren().addAll(tpl.stream().map(NamedTreeItem::new).collect(Collectors.toList()));
+            }
 
 
             boolean isleaf=treeItem.isLeaf();
