@@ -2755,7 +2755,6 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
                     }
                     //вставка программ в dropIndex; Изменение их позиции
                     tableProgram.getItems().addAll(dropIndex,therapyPrograms);
-
                 }else if(dropIndex > lastIndex){
 
                     TherapyProgram dropProgram = tableProgram.getItems().get(dropIndex);
@@ -2768,8 +2767,11 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
                 }else return;
 
-
-
+                int i=0;
+                for (TherapyProgram tp : tableProgram.getItems()) {
+                    tp.setPosition((long)(i++));
+                    getModel().updateTherapyProgram(tp);
+                }
 
 
 
