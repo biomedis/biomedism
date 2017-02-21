@@ -521,7 +521,7 @@ public class AppController  extends BaseController {
 
         btnUploadDir=new MenuItem(res.getString("app.upload_to_dir"));
         MenuItem btnUploadM2=new MenuItem("Загрузить в M2");
-        btnUploadM2.setOnAction(event -> uploadM2(tableProfile.getSelectionModel().getSelectedItem()));
+        btnUploadM2.setOnAction(event -> Platform.runLater(() -> uploadM2(tableProfile.getSelectionModel().getSelectedItem())));
         btnUpload=new MenuItem(res.getString("app.uppload"));
         btnUpload.setOnAction(event -> onUploadProfile());
         btnUploadDir.setOnAction(event -> uploadInDir());
@@ -1209,7 +1209,7 @@ tab5.disableProperty().bind(m2Connected.not());
         try {
             m2ui=(M2UI)replaceContent("/fxml/M2UI.fxml",tab5_content);
             //Test m2t=new Test();
-           // m2ui.setContent(m2t.testData());
+            //m2ui.setContent(m2t.testData());
         } catch (Exception e) {
             showExceptionDialog("Ошибка инициализации M2UI","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
         }
@@ -1312,7 +1312,9 @@ tab5.disableProperty().bind(m2Connected.not());
     }
     private void uploadM2(Profile profile) {
         try {
-            M2.uploadProfile(profile);
+            System.out.println("Запись на прибор");
+            M2.uploadProfile(profile,true);
+            showInfoDialog("Запись в прибор M2","","Запись произошла успешно", this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
         } catch (M2Complex.MaxTimeByFreqBoundException e) {
             showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
         } catch (M2Complex.MaxPauseBoundException e) {

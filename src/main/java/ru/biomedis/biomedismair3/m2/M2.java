@@ -154,7 +154,7 @@ public class M2
 
     private static void writeToDevice(byte[] dataToWrite, int langID,int countComplexes,boolean debug) throws WriteToDeviceException {
         USBHelper.USBDeviceHandle usbDeviceHandle=null;
-        clearDevice(false);
+        clearDevice(debug);
         try{
             System.out.print("Write command send..");
 
@@ -240,11 +240,11 @@ public class M2
      * Очистка устройства
      */
     public static void clearDevice(boolean debug) throws WriteToDeviceException {
-
+        if(debug)System.out.print("CLEAR_DEVICE...");
         USBHelper.USBDeviceHandle usbDeviceHandle=null;
         try{
 
-            if(debug) usbDeviceHandle = USBHelper.openDevice(productId, vendorId, 0);
+            usbDeviceHandle = USBHelper.openDevice(productId, vendorId, 0);
             byte[] commandWrite = new byte[DATA_PACKET_SIZE];
             commandWrite[0]=CLEAR_COMMAND;
 
@@ -374,27 +374,36 @@ public class M2
     }
 
 
-    public static void uploadProfile(Profile profile) throws M2Complex.MaxTimeByFreqBoundException, M2Complex.MaxPauseBoundException, M2Program.ZeroValueFreqException, M2Program.MaxProgramIDValueBoundException, M2Program.MinFrequenciesBoundException, M2Complex.MaxCountProgramBoundException, M2BinaryFile.MaxBytesBoundException, M2Complex.ZeroCountProgramBoundException, LanguageDevice.NoLangDeviceSupported, WriteToDeviceException {
+    public static void uploadProfile(Profile profile,boolean debug) throws M2Complex.MaxTimeByFreqBoundException, M2Complex.MaxPauseBoundException, M2Program.ZeroValueFreqException, M2Program.MaxProgramIDValueBoundException, M2Program.MinFrequenciesBoundException, M2Complex.MaxCountProgramBoundException, M2BinaryFile.MaxBytesBoundException, M2Complex.ZeroCountProgramBoundException, LanguageDevice.NoLangDeviceSupported, WriteToDeviceException {
         ModelDataApp mda = App.getStaticModel();
         M2BinaryFile bf=new M2BinaryFile();
         M2Complex m2c;
 
         for (TherapyComplex tc : mda.findAllTherapyComplexByProfile(profile))
         {
+
             m2c= new M2Complex(PAUSE_BETWEEN_PROGRAM,tc.getTimeForFrequency(),tc.getOname().isEmpty()?tc.getName():tc.getOname(),getLang(tc));
 
             for (TherapyProgram tp : mda.findTherapyPrograms(tc)) {
+
                 m2c.addProgram(new M2Program(tp.parseFreqs(),tp.getId().intValue(),tp.getOname().isEmpty()?tp.getName():tp.getOname(),getLang(tp)));
+
             }
             bf.addComplex(m2c);
         }
 
 
         byte[] data = bf.getData();
-        LanguageDevice deviceLang = LanguageDevice.getDeviceLang(mda.getProgramLanguage().getAbbr());
-        if(deviceLang==null) throw new LanguageDevice.NoLangDeviceSupported(mda.getProgramLanguage().getAbbr());
 
-        writeToDevice(data,deviceLang.getDeviceLangID(),bf.getComplexesList().size(),false);
+
+
+        LanguageDevice deviceLang = LanguageDevice.getDeviceLang(mda.getProgramLanguage().getAbbr());
+
+
+
+        if(deviceLang==null) throw new LanguageDevice.NoLangDeviceSupported(mda.getProgramLanguage().getAbbr());
+        if(debug)System.out.println("Начало записи");
+        writeToDevice(data,deviceLang.getDeviceLangID(),bf.getComplexesList().size(),debug);
     }
 
 

@@ -73,7 +73,7 @@ public class M2UI extends BaseController {
             tc.setTimeForFrequency(complex.getTimeByFrequency());
             tc.setDescription("");
 
-            List<TherapyProgram> ltp=null;
+            List<TherapyProgram> ltp=new ArrayList<>();
             TherapyProgram tp;
             long j=0;//фейковые ID для программ
             for (M2Program program : complex.getPrograms()) {
@@ -83,7 +83,6 @@ public class M2UI extends BaseController {
                 tp.setName(program.getName());
                 tp.setDescription("");
                 tp.setFrequencies(program.getFrequencies().stream().map(String::valueOf).collect(Collectors.joining(";")));
-                ltp=new ArrayList<>();
                 ltp.add(tp);
             }
             if(complex.getCountPrograms()==0) programsCache.put(tc.getId(),Collections.EMPTY_LIST);
