@@ -147,6 +147,8 @@ public class AppController  extends BaseController {
     @FXML private MenuItem   dataPathMenuItem;
     @FXML TabPane therapyTabPane;
 
+    @FXML Button   uploadComplexesBtn;
+    private ContextMenu uploadComplexesMenu=new ContextMenu();
 
     @FXML
     private Tab tab1;
@@ -2139,7 +2141,10 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         MenuItem mic1 = new MenuItem(this.res.getString("app.to_user_base"));
         MenuItem mic2 = new MenuItem(this.res.getString("app.ui_comlexes_generation"));
         MenuItem mic3 = new MenuItem(this.res.getString("app.upload_to_dir"));
+        MenuItem mic5 = new MenuItem(this.res.getString("app.upload_to_biomedism"));
         MenuItem mic4 =new MenuItem(this.res.getString("app.to_biofon"));
+        MenuItem mic6=new SeparatorMenuItem();
+        MenuItem mic7=new SeparatorMenuItem();
 
         mic1.setOnAction((event2) -> {
             this.copyTherapyComplexToBase();
@@ -2149,21 +2154,27 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
             this.generateComplexes();
         });
         mic3.setOnAction((event2) -> {
-            this.uploadComplexes();
+            this.uploadComplexesToDir();
+        });
+        mic5.setOnAction((event2) -> {
+            this.uploadComplexesToM();
         });
         mic4.setOnAction(event -> complexesToBiofon(tableComplex.getSelectionModel().getSelectedItems()));
-        this.complexesMenu.getItems().addAll(new MenuItem[]{mic1, mic2, mic3,mic4});
+        this.complexesMenu.getItems().addAll(new MenuItem[]{mic1, mic2,mic6, mic3, mic5, mic7, mic4});
         this.tableComplex.setContextMenu(this.complexesMenu);
         this.complexesMenu.setOnShowing((event1) -> {
             mic1.setDisable(false);
             mic2.setDisable(true);
             mic3.setDisable(false);
             mic4.setDisable(false);
+            mic5.setDisable(false);
+
             if(this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
                 mic1.setDisable(true);
                 mic2.setDisable(true);
                 mic3.setDisable(true);
                 mic4.setDisable(true);
+                mic5.setDisable(true);
             } else {
                 Iterator tag = this.tableComplex.getSelectionModel().getSelectedItems().iterator();
 
@@ -2172,6 +2183,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                     if( therapyComplex.isChanged() || this.getModel().hasNeedGenerateProgramInComplex(therapyComplex) ) {
                         mic2.setDisable(false);
                         mic3.setDisable(true);
+                        mic5.setDisable(true);
                         break;
                     }
                 }
@@ -2191,9 +2203,45 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                     mic1.setDisable(true);
                 }
 
+
+                if(devicePath!=null && !mic5.isDisable() )   mic5.setDisable(false);
+                else  mic5.setDisable(true);
+            }
+        });
+        MenuItem mic3_ = new MenuItem(this.res.getString("app.upload_to_dir"));
+        MenuItem mic5_ = new MenuItem(this.res.getString("app.upload_to_biomedism"));
+        uploadComplexesMenu.setOnShowing(event -> {
+            mic3_.setDisable(false);
+            mic5_.setDisable(false);
+            if(this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
+
+                mic3_.setDisable(true);
+                mic5_.setDisable(true);
+            } else{
+                Iterator tag = this.tableComplex.getSelectionModel().getSelectedItems().iterator();
+
+                while(tag.hasNext()) {
+                    TherapyComplex therapyComplex = (TherapyComplex)tag.next();
+                    if( therapyComplex.isChanged() || this.getModel().hasNeedGenerateProgramInComplex(therapyComplex) ) {
+                        mic3_.setDisable(true);
+                        mic5_.setDisable(true);
+                        break;
+                    }
+                }
+                if(devicePath!=null && !mic5_.isDisable() )   mic5_.setDisable(false);
+                else  mic5_.setDisable(true);
             }
         });
 
+
+        uploadComplexesMenu.getItems().addAll(new MenuItem[]{ mic3_, mic5_});
+        uploadComplexesBtn.setOnAction(event ->
+                {
+                    if(!uploadComplexesMenu.isShowing()) uploadComplexesMenu.show(uploadComplexesBtn, Side.BOTTOM, 0, 0);
+                    else uploadComplexesMenu.hide();
+
+                }
+        );
 
 
         /**********/
@@ -2590,8 +2638,15 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                 //закроем кнопки спинера времени на частоту, при переключении компелекса
                 if(newValue!=null) {
                     Platform.runLater(() -> {
-                        hideTFSpinnerBTNPan(newValue.getTimeForFrequency());
-                        hideBundlesSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
+                        if(newValue!=null){
+                            hideTFSpinnerBTNPan(newValue.getTimeForFrequency());
+                            hideBundlesSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
+                        }else {
+                            hideTFSpinnerBTNPan();
+                            hideBundlesSpinnerBTNPan();
+                        }
+
+
                     });
 
                 }
@@ -5529,7 +5584,7 @@ private void setInfoMessage(String message)
     }
     public void onRemoveComplex()
     {
-        ObservableList<TherapyComplex> selectedItems = this.tableComplex.getSelectionModel().getSelectedItems();
+        List<TherapyComplex> selectedItems = this.tableComplex.getSelectionModel().getSelectedItems().stream().collect(Collectors.toList());
 
         if(!selectedItems.isEmpty()) {
             Optional buttonType = showConfirmationDialog(this.res.getString("app.title69"), "", this.res.getString("app.title70"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
@@ -8127,9 +8182,18 @@ return  true;
         }
     }
 
+    private void uploadComplexesToDir(){
+        uploadComplexes(null);
+    }
+    private void uploadComplexesToM(){
 
+        if(devicePath!=null){
+            uploadComplexes(devicePath.toFile());
+        }
 
-    private void uploadComplexes() {
+    }
+
+    private void uploadComplexes(File dst) {
        final ObservableList<TherapyComplex> selectedItems = this.tableComplex.getSelectionModel().getSelectedItems();
 
         if(!selectedItems.isEmpty()) {
@@ -8157,10 +8221,21 @@ return  true;
                 showWarningDialog(this.res.getString("app.title87"), dirChooser1, this.res.getString("app.ui.mp3_not_avaliable"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
             } else
             {
-                //нужно найти есть ли в выбранной папке комплексы(соответствующие директории), если есть то дописать с верной нумерацией
-                DirectoryChooser dirChooser = new DirectoryChooser();
-                dirChooser.setTitle(this.res.getString("app.upload_to_dir"));
-                final File dir = dirChooser.showDialog(getApp().getMainWindow());
+                File dirT;
+                if(dst==null ) {
+
+                    //нужно найти есть ли в выбранной папке комплексы(соответствующие директории), если есть то дописать с верной нумерацией
+                    DirectoryChooser dirChooser = new DirectoryChooser();
+                    dirChooser.setTitle(this.res.getString("app.upload_to_dir"));
+                    dirT = dirChooser.showDialog(getApp().getMainWindow());
+                }else {
+                    if(!dst.exists()){
+                        DirectoryChooser dirChooser = new DirectoryChooser();
+                        dirChooser.setTitle(this.res.getString("app.upload_to_dir"));
+                        dirT = dirChooser.showDialog(getApp().getMainWindow());
+                    }else dirT=dst;
+                }
+                final File dir=dirT;
                 if(dir != null)
                 {
                     if(!dir.exists()) {
