@@ -2210,6 +2210,8 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         });
         MenuItem mic3_ = new MenuItem(this.res.getString("app.upload_to_dir"));
         MenuItem mic5_ = new MenuItem(this.res.getString("app.upload_to_biomedism"));
+        mic3_.setOnAction(event -> uploadComplexesToDir());
+        mic5_.setOnAction(event -> uploadComplexesToM());
         uploadComplexesMenu.setOnShowing(event -> {
             mic3_.setDisable(false);
             mic5_.setDisable(false);
