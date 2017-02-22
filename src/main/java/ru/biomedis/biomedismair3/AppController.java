@@ -523,7 +523,7 @@ public class AppController  extends BaseController {
 
         btnUploadDir=new MenuItem(res.getString("app.upload_to_dir"));
         MenuItem btnUploadM2=new MenuItem("Загрузить в M2");
-        btnUploadM2.setOnAction(event -> Platform.runLater(() -> uploadM2(tableProfile.getSelectionModel().getSelectedItem())));
+        btnUploadM2.setOnAction(event ->  uploadM2(tableProfile.getSelectionModel().getSelectedItem()));
         btnUpload=new MenuItem(res.getString("app.uppload"));
         btnUpload.setOnAction(event -> onUploadProfile());
         btnUploadDir.setOnAction(event -> uploadInDir());
@@ -1313,31 +1313,69 @@ tab5.disableProperty().bind(m2Connected.not());
         });
     }
     private void uploadM2(Profile profile) {
-        try {
-            System.out.println("Запись на прибор");
-            M2.uploadProfile(profile,true);
-            showInfoDialog("Запись в прибор M2","","Запись произошла успешно", this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
-        } catch (M2Complex.MaxTimeByFreqBoundException e) {
-            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
-        } catch (M2Complex.MaxPauseBoundException e) {
-            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
-        } catch (M2Program.ZeroValueFreqException e) {
-            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
-        } catch (M2Program.MaxProgramIDValueBoundException e) {
-            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
-        } catch (M2Program.MinFrequenciesBoundException e) {
-            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
-        } catch (M2Complex.MaxCountProgramBoundException e) {
-            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
-        } catch (M2BinaryFile.MaxBytesBoundException e) {
-            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
-        } catch (M2Complex.ZeroCountProgramBoundException e) {
-            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
-        } catch (LanguageDevice.NoLangDeviceSupported e) {
-            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
-        } catch (M2.WriteToDeviceException e) {
-            showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, this.getApp().getMainWindow(),Modality.WINDOW_MODAL);
+
+        //проверка установленных пачек частот и если есть отличные от 3, то нужно указать, на это
+        long  cnt=getModel().findAllTherapyComplexByProfile(profile).stream().filter(c->c.getBundlesLength()!=M2Complex.BUNDLES_LENGTH).count();
+        if(cnt!=0){
+            showWarningDialog("Запись в прибор M2","Внимание!","Прибор работает с фиксированным колличеством частот в пачке. Значение равно трем.\nПрограмма автоматически преобразует ваши комплексы при записи на прибор\nПри составлении комплексов для прибора выставляйте значение колличества частот в пачке равное трем, для того чтобы получить правильную оценку времени исполнения профиля",getApp().getMainWindow(),Modality.WINDOW_MODAL);
         }
+
+
+        Task task = new Task() {
+            protected Boolean call() {
+                boolean res=false;
+                try {
+                    System.out.println("Запись на прибор");
+                    M2.uploadProfile(profile,true);
+                   Platform.runLater(() -> showInfoDialog("Запись в прибор M2","","Запись произошла успешно", getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    res=true;
+                } catch (M2Complex.MaxTimeByFreqBoundException e) {
+                    Platform.runLater(() -> showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                } catch (M2Complex.MaxPauseBoundException e) {
+                    Platform.runLater(() -> showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                } catch (M2Program.ZeroValueFreqException e) {
+                    Platform.runLater(() -> showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                } catch (M2Program.MaxProgramIDValueBoundException e) {
+                    Platform.runLater(() ->  showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                } catch (M2Program.MinFrequenciesBoundException e) {
+                    Platform.runLater(() -> showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                } catch (M2Complex.MaxCountProgramBoundException e) {
+                    Platform.runLater(() ->  showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                } catch (M2BinaryFile.MaxBytesBoundException e) {
+                    Platform.runLater(() -> showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                } catch (M2Complex.ZeroCountProgramBoundException e) {
+                    Platform.runLater(() -> showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                } catch (LanguageDevice.NoLangDeviceSupported e) {
+                    Platform.runLater(() -> showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                } catch (M2.WriteToDeviceException e) {
+                    Platform.runLater(() -> showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                }
+                return res;
+            }
+        };
+
+        task.setOnScheduled((event) -> {
+            Waiter.openLayer(getApp().getMainWindow(), true);
+        });
+        task.setOnFailed(ev -> {
+            Waiter.closeLayer();
+            showErrorDialog("Ошибка записи", "", "", getApp().getMainWindow(), Modality.WINDOW_MODAL);
+        });
+        task.setOnSucceeded(ev -> {
+            Waiter.closeLayer();
+            if(((Boolean)task.getValue()).booleanValue()) {
+                showInfoDialog(res.getString("app.ui.uploadM2"), "",res.getString("app.ui.upload_ok"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
+            } else {
+                showErrorDialog("Ошибка записи", "", "", getApp().getMainWindow(), Modality.WINDOW_MODAL);
+            }
+
+        });
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
+
+
+
     }
 
 
