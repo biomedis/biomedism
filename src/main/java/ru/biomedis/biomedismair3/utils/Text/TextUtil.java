@@ -73,6 +73,9 @@ public class TextUtil
                 } else if (text.startsWith("&gt;", i)) {
                     result.append('>');
                     i += 4;
+                } else if (text.startsWith("&prime;", i)) {
+                    result.append('>');
+                    i += 4;
                 } else i++;
             }
         }

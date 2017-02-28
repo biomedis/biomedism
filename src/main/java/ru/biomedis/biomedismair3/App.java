@@ -252,7 +252,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         /******** Обновления ************/
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
-        int currentUpdateFile=3;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
+        int currentUpdateFile=4;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
         int currentMinorVersion=0;//версия исправлений в пределах мажорной версии currentUpdateFile
 
         if(getUpdateVersion() < currentUpdateFile)
@@ -303,7 +303,10 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         if(getUpdateVersion() < currentUpdateFile)
         {
             //обновим согласно полученной версии, учесть, что нужно на младшие накатывать все апдейты по порядку
-            if(getUpdateVersion()==2) update3(updateOption);
+            if(getUpdateVersion()==2) {
+                update3(updateOption);
+                update4(updateOption);
+            }else if(getUpdateVersion()==3)update4(updateOption);
 
         }else if(getUpdateVersion() > currentUpdateFile){
             logger.error("Запуск апдейта "+currentUpdateFile+" ниже установленного "+getUpdateVersion()+"!");
@@ -777,6 +780,64 @@ https://gist.github.com/DemkaAge/8999236
 
     }
 
+    private void update4(ProgramOptions updateOption) {
+        logger.info("ОБНОВЛЕНИЕ 4.");
+
+
+        //основное изменение в базе - обновление для итальянского. языка.
+        //сделается из файла
+
+
+        Task<Boolean> task =new Task<Boolean>()  {
+            @Override
+            protected Boolean call() throws Exception {
+                File base_translate=null;
+                try {
+                    ResourceUtil ru=new ResourceUtil();
+                    base_translate = ru.saveResource(getTmpDir(),"it_translanion_bas.xml","/updates/update4/it_base.xml",true);
+
+                    if(base_translate==null) throw new Exception();
+
+                    LoadLanguageFiles ll=new LoadLanguageFiles();
+                    if( ll.parse(Arrays.asList(base_translate),getModel())){
+
+
+                        setUpdateVersion(updateOption,4);//установим новую версию обновления
+                        logger.info("ОБНОВЛЕНИЕ 4  ЗАВЕРШЕНО.");
+                        return true;
+                    }
+                    else  return false;
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    logger.info("ОБНОВЛЕНИЕ 4 НЕ ЗАВЕРШЕНО.");
+                    return false;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    logger.info("ОБНОВЛЕНИЕ 4 НЕ ЗАВЕРШЕНО.");
+                    return false;
+                }
+            }
+        };
+
+        task.setOnSucceeded(event -> {
+            if(!task.getValue().booleanValue())  BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL);
+
+            UpdateWaiter.close();
+        });
+        task.setOnFailed(event -> {
+            Platform.runLater(() -> BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
+            UpdateWaiter.close();
+        });
+
+        Thread threadTask=new Thread(task);
+        threadTask.setDaemon(true);
+        threadTask.start();
+        UpdateWaiter.show();
+
+
+
+    }
     @Override
     public void stop() throws Exception {       
         closePersisenceContext();        

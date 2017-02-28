@@ -326,6 +326,16 @@ public class LoadLanguageFiles
             {
                 if(attributes.getLength()!=0)
                 {
+                    if(attributes.getValue("name")==null) {
+                        System.out.println(attributes.getValue("uuid")+" --name");
+                    }
+                    if(attributes.getValue("description")==null) {
+                        System.out.println(attributes.getValue("uuid")+" --description");
+                    }
+                    if(attributes.getValue("nameRussian")==null) {
+                        System.out.println(attributes.getValue("uuid")+" --nameRussian");
+                    }
+
                     listSection.add(new LoadLanguageFiles.Section(TextUtil.unEscapeXML(attributes.getValue("name")),TextUtil.unEscapeXML(attributes.getValue("description")),attributes.getValue("uuid"),TextUtil.unEscapeXML(attributes.getValue("nameRussian"))));
 
                 }
