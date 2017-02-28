@@ -102,7 +102,7 @@ public class ModelDataApp {
             findAllLanguage.add(createLanguage("sk", "словацкий"));
             findAllLanguage.add(createLanguage("uk", "украинский"));
             findAllLanguage.add(createLanguage("da", "датский"));
-            findAllLanguage.add(createLanguage("it", "итальянский"));
+            findAllLanguage.add(createLanguage("it", "Italiano",true));
             findAllLanguage.add(createLanguage("sr", "сербский"));
             findAllLanguage.add(createLanguage("iw", "иврит"));
             findAllLanguage.add(createLanguage("ko", "корейский"));

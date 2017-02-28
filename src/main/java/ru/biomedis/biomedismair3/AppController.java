@@ -1317,40 +1317,45 @@ tab5.disableProperty().bind(m2Connected.not());
         //проверка установленных пачек частот и если есть отличные от 3, то нужно указать, на это
         long  cnt=getModel().findAllTherapyComplexByProfile(profile).stream().filter(c->c.getBundlesLength()!=M2Complex.BUNDLES_LENGTH).count();
         if(cnt!=0){
-            showWarningDialog("Запись в прибор Trinity","Внимание!","Прибор работает с фиксированным колличеством частот в пачке. Значение равно трем.\nПрограмма автоматически преобразует ваши комплексы при записи на прибор\nПри составлении комплексов для прибора выставляйте значение колличества частот в пачке равное трем, для того чтобы получить правильную оценку времени исполнения профиля",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+            showWarningDialog(
+                    res.getString("app.ui.record_on_trinity"),
+                    res.getString("app.ui.attention"),
+                    "Прибор работает с фиксированным колличеством частот в пачке. Значение равно трем.\nПрограмма автоматически преобразует ваши комплексы при записи на прибор\nПри составлении комплексов для прибора выставляйте значение колличества частот в пачке равное трем, для того чтобы получить правильную оценку времени исполнения профиля",
+                    getApp().getMainWindow(),Modality.WINDOW_MODAL);
         }
 
 
         Task task = new Task() {
             protected Boolean call() {
-                boolean res=false;
+                boolean res1=false;
                 try {
                     System.out.println("Запись на прибор");
                     M2.uploadProfile(profile,true);
-                   Platform.runLater(() -> showInfoDialog("Запись в прибор Trinity","","Запись произошла успешно", getApp().getMainWindow(),Modality.WINDOW_MODAL));
-                    res=true;
+                   Platform.runLater(() -> showInfoDialog(  res.getString("app.ui.record_on_trinity"),"","Запись произошла успешно", getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    res1=true;
                 } catch (M2Complex.MaxTimeByFreqBoundException e) {
-                    Platform.runLater(() -> showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),
+                            res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2Complex.MaxPauseBoundException e) {
-                    Platform.runLater(() -> showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2Program.ZeroValueFreqException e) {
-                    Platform.runLater(() -> showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2Program.MaxProgramIDValueBoundException e) {
-                    Platform.runLater(() ->  showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() ->  showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2Program.MinFrequenciesBoundException e) {
-                    Platform.runLater(() -> showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2Complex.MaxCountProgramBoundException e) {
-                    Platform.runLater(() ->  showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() ->  showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2BinaryFile.MaxBytesBoundException e) {
-                    Platform.runLater(() -> showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2Complex.ZeroCountProgramBoundException e) {
-                    Platform.runLater(() -> showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (LanguageDevice.NoLangDeviceSupported e) {
-                    Platform.runLater(() -> showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2.WriteToDeviceException e) {
-                    Platform.runLater(() -> showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 }
-                return res;
+                return res1;
             }
         };
 
