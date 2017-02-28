@@ -52,6 +52,13 @@ public class M2
             int size= ByteHelper.byteArray4ToInt(response.getPayload(),0, ByteHelper.ByteOrder.BIG_TO_SMALL);
             int langID=ByteHelper.byteArray1ToInt(response.getPayload(),4);
 
+            if(size==0){
+                //если прибор пустой, то создадим пустой файл
+               return new M2BinaryFile();
+
+            }
+
+
             int packets = (int)Math.ceil(size / DATA_PACKET_SIZE);
             if(debug) System.out.println("packets = "+packets);
             if(debug) System.out.println("___________________");
