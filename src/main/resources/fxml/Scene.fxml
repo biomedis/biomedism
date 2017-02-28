@@ -650,7 +650,7 @@
                             </AnchorPane>
                         </content>
                         </Tab>
-                        <Tab fx:id="tab5" closable="false" text="M2">
+                        <Tab fx:id="tab5" closable="false" text="Biomedis &quot;Trinity&quot;">
                             <content>
                                 <AnchorPane fx:id="tab5_content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                                     <children>

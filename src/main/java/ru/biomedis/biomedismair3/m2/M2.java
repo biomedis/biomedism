@@ -389,11 +389,11 @@ public class M2
         for (TherapyComplex tc : mda.findAllTherapyComplexByProfile(profile))
         {
 
-            m2c= new M2Complex(PAUSE_BETWEEN_PROGRAM,tc.getTimeForFrequency(),tc.getOname().isEmpty()?tc.getName():tc.getOname(),getLang(tc));
+            m2c= new M2Complex(PAUSE_BETWEEN_PROGRAM,tc.getTimeForFrequency(),tc.getName(),getLang(tc));
 
             for (TherapyProgram tp : mda.findTherapyPrograms(tc)) {
 
-                m2c.addProgram(new M2Program(tp.parseFreqs(),tp.getId().intValue(),tp.getOname().isEmpty()?tp.getName():tp.getOname(),getLang(tp)));
+                m2c.addProgram(new M2Program(tp.parseFreqs(),tp.getId().intValue(),tp.getOname(),getLang(tp)));
 
             }
             bf.addComplex(m2c);

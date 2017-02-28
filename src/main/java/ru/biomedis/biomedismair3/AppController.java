@@ -522,7 +522,7 @@ public class AppController  extends BaseController {
         /** Контекстное меню загрузки в прибор **/
 
         btnUploadDir=new MenuItem(res.getString("app.upload_to_dir"));
-        MenuItem btnUploadM2=new MenuItem("Загрузить в M2");
+        MenuItem btnUploadM2=new MenuItem("Загрузить в \"Trinity\"");
         btnUploadM2.setOnAction(event ->  uploadM2(tableProfile.getSelectionModel().getSelectedItem()));
         btnUpload=new MenuItem(res.getString("app.uppload"));
         btnUpload.setOnAction(event -> onUploadProfile());
@@ -536,8 +536,8 @@ public class AppController  extends BaseController {
         }
         );
 
-        btnUploadM2.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull().and(m2Connected.not()));
-        btnUploadM2.disableProperty().bind(m2Connected.and(tableProfile.getSelectionModel().selectedItemProperty().isNotNull()).not());
+        //btnUploadM2.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull().and(m2Connected.not()));
+        //btnUploadM2.disableProperty().bind(m2Connected.and(tableProfile.getSelectionModel().selectedItemProperty().isNotNull()).not());
 
         /*********/
 
@@ -1294,10 +1294,10 @@ tab5.disableProperty().bind(m2Connected.not());
                     M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
                     m2ui.setContent(m2BinaryFile);
                     m2Connected.setValue(true);
-                    System.out.println("Устройство M2 подключено");
+                    System.out.println("Устройство Trinity подключено");
                 } catch (M2.ReadFromDeviceException e) {
                    Platform.runLater(() -> {
-                       showExceptionDialog("Чтение устройства M2","Ошибка чтения с устройства","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                       showExceptionDialog("Чтение устройства Trinity","Ошибка чтения с устройства","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
                    });
 
                 }
@@ -1306,7 +1306,7 @@ tab5.disableProperty().bind(m2Connected.not());
 
             @Override
             public void onDetachDevice() {
-                System.out.println("Устройство M2 отключено");
+                System.out.println("Устройство Trinity отключено");
                 m2Connected.setValue(false);
                 m2ui.cleanView();
             }
@@ -1317,7 +1317,7 @@ tab5.disableProperty().bind(m2Connected.not());
         //проверка установленных пачек частот и если есть отличные от 3, то нужно указать, на это
         long  cnt=getModel().findAllTherapyComplexByProfile(profile).stream().filter(c->c.getBundlesLength()!=M2Complex.BUNDLES_LENGTH).count();
         if(cnt!=0){
-            showWarningDialog("Запись в прибор M2","Внимание!","Прибор работает с фиксированным колличеством частот в пачке. Значение равно трем.\nПрограмма автоматически преобразует ваши комплексы при записи на прибор\nПри составлении комплексов для прибора выставляйте значение колличества частот в пачке равное трем, для того чтобы получить правильную оценку времени исполнения профиля",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+            showWarningDialog("Запись в прибор Trinity","Внимание!","Прибор работает с фиксированным колличеством частот в пачке. Значение равно трем.\nПрограмма автоматически преобразует ваши комплексы при записи на прибор\nПри составлении комплексов для прибора выставляйте значение колличества частот в пачке равное трем, для того чтобы получить правильную оценку времени исполнения профиля",getApp().getMainWindow(),Modality.WINDOW_MODAL);
         }
 
 
@@ -1327,28 +1327,28 @@ tab5.disableProperty().bind(m2Connected.not());
                 try {
                     System.out.println("Запись на прибор");
                     M2.uploadProfile(profile,true);
-                   Platform.runLater(() -> showInfoDialog("Запись в прибор M2","","Запись произошла успешно", getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                   Platform.runLater(() -> showInfoDialog("Запись в прибор Trinity","","Запись произошла успешно", getApp().getMainWindow(),Modality.WINDOW_MODAL));
                     res=true;
                 } catch (M2Complex.MaxTimeByFreqBoundException e) {
-                    Platform.runLater(() -> showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2Complex.MaxPauseBoundException e) {
-                    Platform.runLater(() -> showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2Program.ZeroValueFreqException e) {
-                    Platform.runLater(() -> showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2Program.MaxProgramIDValueBoundException e) {
-                    Platform.runLater(() ->  showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() ->  showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2Program.MinFrequenciesBoundException e) {
-                    Platform.runLater(() -> showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2Complex.MaxCountProgramBoundException e) {
-                    Platform.runLater(() ->  showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() ->  showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2BinaryFile.MaxBytesBoundException e) {
-                    Platform.runLater(() -> showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2Complex.ZeroCountProgramBoundException e) {
-                    Platform.runLater(() -> showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (LanguageDevice.NoLangDeviceSupported e) {
-                    Platform.runLater(() -> showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2.WriteToDeviceException e) {
-                    Platform.runLater(() -> showExceptionDialog("Запись в прибор M2","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showExceptionDialog("Запись в прибор Trinity","Ошибка!",e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 }
                 return res;
             }
