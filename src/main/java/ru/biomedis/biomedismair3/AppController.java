@@ -537,7 +537,7 @@ public class AppController  extends BaseController {
         );
 
         //btnUploadM2.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull().and(m2Connected.not()));
-        //btnUploadM2.disableProperty().bind(m2Connected.and(tableProfile.getSelectionModel().selectedItemProperty().isNotNull()).not());
+        btnUploadM2.disableProperty().bind(m2Connected.and(tableProfile.getSelectionModel().selectedItemProperty().isNotNull()).not());
 
         /*********/
 
@@ -2680,7 +2680,8 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                     Platform.runLater(() -> {
                         if(newValue!=null){
                             hideTFSpinnerBTNPan(newValue.getTimeForFrequency());
-                            hideBundlesSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
+                            if(tableComplex.getSelectionModel().getSelectedItem()==null) hideBundlesSpinnerBTNPan();
+                            else  hideBundlesSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
                         }else {
                             hideTFSpinnerBTNPan();
                             hideBundlesSpinnerBTNPan();
