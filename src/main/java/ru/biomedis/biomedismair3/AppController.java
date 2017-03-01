@@ -6913,7 +6913,147 @@ class ForceCopyProfile
      * Загрузка профиля в папку или на устройство
      *
      */
-   public void onUploadProfile()
+    public void onUploadProfile()
+    {
+        //проверим что действительно все файлы сгенерированны.
+        //проверим что прибор подключен
+
+        if(!getConnectedDevice()){
+            showWarningDialog(res.getString("app.title87"), "", res.getString("app.title96"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
+            return;
+        }
+        if(tableProfile.getSelectionModel().getSelectedItem()==null) return;
+
+        if(getModel().isNeedGenerateFilesInProfile(tableProfile.getSelectionModel().getSelectedItem()))
+        {
+            showWarningDialog(res.getString("app.title87"), "", res.getString("app.title97"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
+            return;
+        }
+
+        if(devicePath==null )
+        {
+            showErrorDialog(res.getString("app.title87"),"",res.getString("app.title98"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
+            return;
+        }
+
+        //проверим нет ли мп3 с неверными путями
+        List<TherapyProgram> failedMp3=new ArrayList<>();
+        long count = getModel().mp3ProgramInProfile(tableProfile.getSelectionModel().getSelectedItem()).stream().filter(itm ->
+        {
+            File ff=new File(itm.getFrequencies());//в частотах прописан путь к файлу
+            if(!ff.exists()) { failedMp3.add(itm); return true;}
+            else return false;
+        }).count();
+
+        //напишим в окне список путей невверных
+        if(count>0) {
+            String failed = failedMp3.stream().map(tt -> tt.getFrequencies()).collect(Collectors.joining("\n"));
+            updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
+            showWarningDialog(res.getString("app.title87"),failed,res.getString("app.ui.mp3_not_avaliable"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
+
+            return;
+        }
+
+        File f=new   File( devicePath.toFile(),"profile.txt");
+            Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.uppload_"), res.getString("app.title99"), res.getString("app.title100"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+            if(buttonType.isPresent())
+            {
+                if(buttonType.get()==okButtonType)
+                {
+                    //здесь стирание всего и запись нового
+                    ForceCopyProfile fcp=new ForceCopyProfile();
+
+
+
+                    Task<Boolean> task =new Task<Boolean>() {
+                        @Override
+                        protected Boolean call() throws Exception {
+                            fcp.setUpdateHandler((progress, total) -> updateProgress(progress, total));
+                            fcp.setFailHandler(failMessage -> failed());
+                            boolean r=false;
+                            try
+                            {
+                                r=  fcp.forceCopyProfile(f,false);
+                            }catch (Exception e)
+                            {
+                                logger.error("",e);
+                            }
+                            return r;
+
+                        }
+                    };
+
+
+
+                    CalcLayer.openLayer(() -> Platform.runLater(() ->
+                    {
+                        //отмена генерации. Что успело нагенериться то успело
+                        //скрытие произойдет по окончании работы  ниже
+                        CalcLayer.setInfoLayer(res.getString("app.title76"));
+                        fcp.cancel();
+
+                    }), getApp().getMainWindow(),false);
+
+
+                    task.progressProperty().addListener((observable, oldValue, newValue) -> setProgressBar(newValue.doubleValue(),res.getString("app.title101"),""));
+                    task.setOnRunning(event1 -> setProgressBar(0.0, res.getString("app.title102"),""));
+
+                    task.setOnSucceeded(event ->
+                    {
+                        CalcLayer.closeLayer();
+
+                        if (task.getValue()) {
+                            hideProgressBar(false);
+                            setProgressIndicator(1.0, res.getString("app.title103"));
+
+                        } else {
+
+                            hideProgressBar(false);
+                            if(fcp.isCancel()) setProgressIndicator(res.getString("app.title104"));
+                            else setProgressIndicator(res.getString("app.title93"));
+                        }
+                        hideProgressIndicator(true);
+                    });
+
+                    task.setOnFailed(event -> {
+                        CalcLayer.closeLayer();
+                        hideProgressBar(false);
+                        setProgressIndicator(res.getString("app.title93"));
+                        hideProgressIndicator(true);
+
+
+                    });
+
+
+                    Thread threadTask=new Thread(task);
+                    threadTask.setDaemon(true);
+                    setProgressBar(0.01, res.getString("app.title102"), "");
+
+                    threadTask.start();
+                    CalcLayer.showLayer();
+
+
+
+
+
+
+
+                }else return;
+
+            }else
+            {
+
+                showErrorDialog(res.getString("app.title87"),"","Ошибка выбора",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                return;
+            }
+
+
+
+
+
+    }
+  /* public void onUploadProfile()
    {
         //проверим что действительно все файлы сгенерированны.
        //проверим что прибор подключен
@@ -7095,18 +7235,7 @@ class ForceCopyProfile
             long idProf=Long.parseLong(profileParam.get(0));
            String uuidP=profileParam.get(1);
 
-/*
-            Map<Long,String> pCMap=new LinkedHashMap<>();
-           for (String s : profileParam.get(2).split("#"))
-           {
 
-                   String[] split = s.split("@");
-                   pCMap.put(Long.parseLong(split[0]),split[1]);
-
-
-           }
-
-*/
            String nameP=profileParam.get(2);
 
 
@@ -7381,6 +7510,7 @@ class ForceCopyProfile
 
 
    }
+   */
 
 
 
