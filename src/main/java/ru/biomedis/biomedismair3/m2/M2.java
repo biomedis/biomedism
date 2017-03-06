@@ -393,7 +393,7 @@ public class M2
 
             for (TherapyProgram tp : mda.findTherapyPrograms(tc)) {
 
-                m2c.addProgram(new M2Program(tp.parseFreqs(),tp.getId().intValue(),tp.getOname(),getLang(tp)));
+                m2c.addProgram(new M2Program(tp.parseFreqs(),tp.getId().intValue(),tp.getName(),getLang(tp)));
 
             }
             bf.addComplex(m2c);
@@ -406,7 +406,22 @@ public class M2
 
         LanguageDevice deviceLang = LanguageDevice.getDeviceLang(mda.getProgramLanguage().getAbbr());
 
+        if(debug){
+            System.out.println(ByteHelper.bytesToHex(data,32,' '));
 
+            for (byte dt : data) {
+
+                System.out.println(dt<0?dt+256:dt);
+            }
+
+            try {
+                M2BinaryFile bf2=new M2BinaryFile(data,deviceLang.getDeviceLangID());
+                System.out.println(bf2);
+            } catch (M2BinaryFile.FileParseException e) {
+                e.printStackTrace();
+            }
+
+        }
 
         if(deviceLang==null) throw new LanguageDevice.NoLangDeviceSupported(mda.getProgramLanguage().getAbbr());
         if(debug)System.out.println("Начало записи");
