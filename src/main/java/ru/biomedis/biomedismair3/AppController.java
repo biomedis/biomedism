@@ -1292,12 +1292,14 @@ tab5.disableProperty().bind(m2Connected.not());
 
                 try {
                     M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
-                    m2ui.setContent(m2BinaryFile);
-                    m2Connected.setValue(true);
+                    Platform.runLater(() -> {
+                                m2ui.setContent(m2BinaryFile);
+                                m2Connected.setValue(true);
+                            });
                     System.out.println("Устройство Trinity подключено");
                 } catch (M2.ReadFromDeviceException e) {
                    Platform.runLater(() -> {
-                       showExceptionDialog("Чтение устройства Trinity","Ошибка чтения с устройства","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                       showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
                    });
 
                 }
@@ -1331,7 +1333,7 @@ tab5.disableProperty().bind(m2Connected.not());
                 try {
                     System.out.println("Запись на прибор");
                     M2.uploadProfile(profile,true);
-                   Platform.runLater(() -> showInfoDialog(  res.getString("app.ui.record_on_trinity"),"","Запись произошла успешно", getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                   //Platform.runLater(() -> showInfoDialog(  res.getString("app.ui.record_on_trinity"),"","Запись произошла успешно", getApp().getMainWindow(),Modality.WINDOW_MODAL));
                     res1=true;
                 } catch (M2Complex.MaxTimeByFreqBoundException e) {
                     Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),
@@ -1349,9 +1351,9 @@ tab5.disableProperty().bind(m2Connected.not());
                 } catch (M2BinaryFile.MaxBytesBoundException e) {
                     Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2Complex.ZeroCountProgramBoundException e) {
-                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showErrorDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),res.getString("app.ui.must_have_program"), getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (LanguageDevice.NoLangDeviceSupported e) {
-                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showErrorDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),res.getString("app.ui.lang_not_support"), getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2.WriteToDeviceException e) {
                     Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 }
@@ -1370,8 +1372,17 @@ tab5.disableProperty().bind(m2Connected.not());
             Waiter.closeLayer();
             if(((Boolean)task.getValue()).booleanValue()) {
                 showInfoDialog(res.getString("app.ui.uploadM2"), "",res.getString("app.ui.upload_ok"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-            } else {
-                showErrorDialog("Ошибка записи", "", "", getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+                try {
+                    M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
+                    Platform.runLater(() ->m2ui.setContent(m2BinaryFile));
+
+                } catch (M2.ReadFromDeviceException e) {
+                    Platform.runLater(() -> {
+                        showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                    });
+
+                }
             }
 
         });
