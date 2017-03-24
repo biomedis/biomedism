@@ -56,12 +56,13 @@ public class M2UI extends BaseController {
     }
 
     /**
-     * Установка контента по файлу с устройства
+     * Парсит файл с прибора
      * @param m2BinaryFile
+     * @param dstComplexes куда поместить компоексы
+     * @param dstProgramsCache программы комплексов
+     * @return общее время
      */
-    public void setContent(M2BinaryFile m2BinaryFile){
-        cleanView();
-
+    public int parseFile(M2BinaryFile m2BinaryFile,List<TherapyComplex> dstComplexes,Map<Long,List<TherapyProgram>> dstProgramsCache){
         int totalTime=0;
         long i=0;//фейковые ID для комплексов
         TherapyComplex tc;
@@ -72,6 +73,7 @@ public class M2UI extends BaseController {
             tc.setBundlesLength(complex.getBundlesLength());
             tc.setTimeForFrequency(complex.getTimeByFrequency());
             tc.setDescription("");
+            tc.setMulltyFreq(true);
 
             List<TherapyProgram> ltp=new ArrayList<>();
             TherapyProgram tp;
@@ -85,13 +87,24 @@ public class M2UI extends BaseController {
                 tp.setFrequencies(program.getFrequencies().stream().map(String::valueOf).collect(Collectors.joining(";")));
                 ltp.add(tp);
             }
-            if(complex.getCountPrograms()==0) programsCache.put(tc.getId(),Collections.EMPTY_LIST);
-            else programsCache.put(tc.getId(),ltp);
+            if(complex.getCountPrograms()==0) dstProgramsCache.put(tc.getId(),Collections.EMPTY_LIST);
+            else dstProgramsCache.put(tc.getId(),ltp);
 
-            m2Complexes.add(tc);
-            totalTime+=calcComplexTime(programsCache.get(tc.getId()),tc.getBundlesLength(),PAUSE_BETWEEN_PROGRAM,tc.getTimeForFrequency());
+            dstComplexes.add(tc);
+            totalTime+=calcComplexTime(dstProgramsCache.get(tc.getId()),tc.getBundlesLength(),PAUSE_BETWEEN_PROGRAM,tc.getTimeForFrequency());
         }
+        return totalTime;
+    }
 
+
+    /**
+     * Установка контента по файлу с устройства
+     * @param m2BinaryFile
+     */
+    public void setContent(M2BinaryFile m2BinaryFile){
+
+        cleanView();
+        int totalTime=parseFile(m2BinaryFile,m2Complexes,programsCache);
         timeProfile.setText(DateUtil.convertSecondsToHMmSs(totalTime));
 
     }

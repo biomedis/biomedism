@@ -33,7 +33,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="500.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.72" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.AppController">
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="500.0" minWidth="800.0" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.AppController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -92,6 +92,7 @@
                   <MenuItem fx:id="menuDelGeneratedFiles" mnemonicParsing="false" onAction="#onRemoveProfileFiles" text="%app.menu.del_files" />
                   <MenuItem mnemonicParsing="false" onAction="#onLoadProfileDir" text="%app.menu.read_profile_from_dir" />
                   <MenuItem fx:id="menuImportComplex" mnemonicParsing="false" onAction="#onImportComplex" text="%app.menu.read_complex_from_dir" />
+                  <MenuItem fx:id="readFromTrinityMenu" mnemonicParsing="false" onAction="#onReadProfileFromTrinity" text="%app.menu.read_profile_from_trinity" />
                   <Menu mnemonicParsing="false" text="%ui.menu.base_recovery">
                     <items>
                       <MenuItem mnemonicParsing="false" onAction="#onRecoveryCreate" text="%ui.backup.create_backup" />

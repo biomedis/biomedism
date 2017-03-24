@@ -76,6 +76,7 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -1207,6 +1208,7 @@ public class AppController  extends BaseController {
 initTables();
 initBiofon();
 initUSBDetectionM2();
+        readFromTrinityMenu.disableProperty().bind(m2Connected.not());
 tab5.disableProperty().bind(m2Connected.not());
         try {
             m2ui=(M2UI)replaceContent("/fxml/M2UI.fxml",tab5_content);
@@ -7064,6 +7066,54 @@ class ForceCopyProfile
 
 
     }
+
+
+    @FXML private MenuItem readFromTrinityMenu;
+    public void onReadProfileFromTrinity(){
+
+        try {
+            M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
+            List<TherapyComplex> tcs=new ArrayList<>();
+            Map<Long,List<TherapyProgram>> programsCache=new HashMap<>();
+            m2ui.parseFile(m2BinaryFile,tcs,programsCache);
+
+
+            SimpleDateFormat sdf=new SimpleDateFormat("yyyy_mm_dd");
+            Profile profile = getModel().createProfile("Trinity_" + sdf.format(Calendar.getInstance().getTime()));
+            for (TherapyComplex tc : tcs) {
+                TherapyComplex tcn=getModel().createTherapyComplex(profile,tc.getName(),tc.getDescription(),tc.getTimeForFrequency(),tc.isMulltyFreq(),tc.getBundlesLength());
+                if(tcn==null) break;
+                for (TherapyProgram tp : programsCache.get(tc.getId())) {
+                    getModel().createTherapyProgram(tcn,tp.getName(),"",tp.getFrequencies());
+                }
+            }
+
+
+
+            Platform.runLater(() -> {
+
+            tableProfile.getItems().add(profile);
+            tableProfile.getSelectionModel().select(profile);
+            tableProfile.scrollTo(profile);
+            therapyTabPane.getSelectionModel().select(0);
+
+            });
+
+        } catch (M2.ReadFromDeviceException e) {
+            Platform.runLater(() -> {
+                showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+            });
+
+        } catch (Exception e) {
+         logger.error("Ошибка парсинга времени",e);
+            Platform.runLater(() -> {
+                showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.title116"),"",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+            });
+        }
+
+    }
+
+
   /* public void onUploadProfile()
    {
         //проверим что действительно все файлы сгенерированны.
