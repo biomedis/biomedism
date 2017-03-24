@@ -299,7 +299,7 @@
                                                       <Insets left="3.0" right="3.0" top="-4.0" />
                                                    </HBox.margin>
                                                    <children>
-                                                      <Label alignment="CENTER" text="%ui.time_to_freq">
+                                                      <Label alignment="CENTER" text="%ui.time_to_freq_m">
                                                          <HBox.margin>
                                                             <Insets left="8.0" right="8.0" />
                                                          </HBox.margin>

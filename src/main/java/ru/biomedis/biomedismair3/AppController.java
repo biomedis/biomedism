@@ -121,7 +121,7 @@ public class AppController  extends BaseController {
     @FXML private Button  btnDeleteProgram;
     @FXML private Button  btnUpProgram;
     @FXML private Button  btnDownProgram;
-    @FXML private Spinner<Integer> timeToFreqSpinner;
+    @FXML private Spinner<Double> timeToFreqSpinner;
 
     @FXML private HBox spinnerPan;
     @FXML private VBox spinnerBtnPan;
@@ -627,8 +627,9 @@ public class AppController  extends BaseController {
 
 /** Спиннер внемя на частоту **/
 
-        timeToFreqSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(10, 1000, 180, 10));
-        timeToFreqSpinner.setEditable(true);
+        //timeToFreqSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(10, 1000, 180, 10));
+        timeToFreqSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(1.0,10.0,3.0,0.5));
+        timeToFreqSpinner.setEditable(false);
         spinnerPan.setVisible(false);
         spinnerBtnPan.setVisible(false);
 
@@ -2741,9 +2742,30 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 */
 
         /***** Спиннер времени на частоту ****/
-
         //показывает кнопки при изменениях спинера
-        timeToFreqSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {if(oldValue!=newValue) spinnerBtnPan.setVisible(true);});
+        timeToFreqSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(oldValue!=newValue) {
+                spinnerBtnPan.setVisible(true);
+            }
+            //коррекция значения не кратного 30сек
+            int newTime=(int)(newValue*60);
+            if(newTime%30!=0){
+                TherapyComplex sCompl = tableComplex.getSelectionModel().getSelectedItem();
+                if(sCompl!=null) {
+                    int st=0;
+                    if( newTime % 30 >15)st=newTime + (30-newTime % 30);
+                    else st=newTime - newTime % 30;
+                    sCompl.setTimeForFrequency(st);
+                    try {
+                        this.getModel().updateTherapyComplex(sCompl);
+                        timeToFreqSpinner.getValueFactory().setValue(st / 60.0);
+                    } catch (Exception e) {
+                      logger.error("",e);
+                    }
+
+                }
+            }
+        });
         //кнопка отмены
         btnCancelSpinner.setOnAction(event ->hideTFSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency()) );
         //принять изменения времени
@@ -2760,7 +2782,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
                    for(TherapyComplex item:items) {
 
 
-                        item.setTimeForFrequency(this.timeToFreqSpinner.getValue());
+                        item.setTimeForFrequency((int)(this.timeToFreqSpinner.getValue()*60));
                         item.setChanged(true);
                         this.getModel().updateTherapyComplex(item);
                         this.btnGenerate.setDisable(false);
@@ -3191,8 +3213,10 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
     private void hideTFSpinnerBTNPan(int val)
     {
-        timeToFreqSpinner.getValueFactory().setValue(val);
+        timeToFreqSpinner.getValueFactory().setValue(val/60.0);
         spinnerBtnPan.setVisible(false);
+        System.out.println(val+"==="+val/60.0);
+
 
     }
     private void hideTFSpinnerBTNPan()
