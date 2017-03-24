@@ -264,8 +264,9 @@
                                           <HBox maxWidth="1.7976931348623157E308" prefWidth="200.0" spacing="8.0">
                                              <children>
                                                 <Button fx:id="btnCreateTherapy" mnemonicParsing="false" onAction="#onCreateComplex" text="%ui.main.create_complex" />
-                                                <Button fx:id="btnDeleteTherapy" mnemonicParsing="false" onAction="#onRemoveComplex" text="%ui.main.remove_complex" />
-                                                <Button fx:id="uploadComplexesBtn" mnemonicParsing="false" text="%app.ui.btn_upload" />
+
+                                                <Button fx:id="uploadComplexesBtn" mnemonicParsing="false" text="%app.ui.upload_complexex" />
+                                                 <Button fx:id="btnDeleteTherapy" mnemonicParsing="false" onAction="#onRemoveComplex" text="%ui.main.remove_complex" />
                                                  <HBox fx:id="bundlesPan" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
                                                      <HBox.margin>
                                                          <Insets left="3.0" right="3.0" top="-4.0" />
