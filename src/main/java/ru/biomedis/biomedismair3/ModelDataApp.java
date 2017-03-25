@@ -1899,6 +1899,42 @@ public class ModelDataApp {
 
        /******************************************/
        /************ Терапия программы ***/
+
+
+       public TherapyProgram copyTherapyProgramToComplex(TherapyComplex complex, TherapyProgram tp) throws Exception{
+           TherapyProgram therapyProgram=null;
+           try {
+               therapyProgram =createTherapyProgram(complex,tp.getName(),tp.getDescription(),tp.getFrequencies());
+               therapyProgram.setPosition(therapyProgram.getId());
+               therapyProgram.setOname(tp.getOname());
+               updateTherapyProgram(therapyProgram);
+
+
+           } catch (Exception e) {
+               Log.logger.error("",e);
+
+               throw new Exception("Ошибка копирования терапевтическогй программы",e);
+           }
+           return therapyProgram;
+       }
+
+       public TherapyProgram copyTherapyProgramToComplex(TherapyComplex complex, TherapyProgram tp,long position) throws Exception {
+           TherapyProgram therapyProgram=null;
+           try {
+               therapyProgram =createTherapyProgram(complex,tp.getName(),tp.getDescription(),tp.getFrequencies());
+               therapyProgram.setPosition(position);
+               therapyProgram.setOname(tp.getOname());
+               updateTherapyProgram(therapyProgram);
+
+
+           } catch (Exception e) {
+               Log.logger.error("",e);
+
+               throw new Exception("Ошибка копирования терапевтическогй программы",e);
+           }
+           return therapyProgram;
+
+       }
       
       public TherapyProgram createTherapyProgram(TherapyComplex therapyComplex, String name,String description, String freqs) throws Exception
       {
