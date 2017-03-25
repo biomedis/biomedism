@@ -1106,6 +1106,7 @@ public class AppController  extends BaseController {
 
 
                             Platform.runLater(() -> {
+                                tableProgram.getSelectionModel().clearSelection();
                                 tableProgram.requestFocus();
                                 tableProgram.getSelectionModel().select(tableProgram.getItems().size() - 1);
                                 tableProgram.getFocusModel().focus(tableProgram.getItems().size() - 1);
@@ -1154,6 +1155,7 @@ public class AppController  extends BaseController {
                             //therapyComplexItems содержит отслеживаемый список, элементы которого добавляются в таблицу. Его не нужно очищать
                             therapyComplexItems.add(th);
                             tableComplex.getItems().addAll(therapyComplexItems.get(therapyComplexItems.size()-1));
+                            tableComplex.getSelectionModel().clearSelection();
                             therapyTabPane.getSelectionModel().select(2);//выберем таб с программами
                             tableComplex.getSelectionModel().select(tableComplex.getItems().size() - 1);
                             updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
