@@ -97,7 +97,10 @@ private static final boolean debug=false;
     private boolean encode(CODEC_TYPE codecType,int sampleRate,TherapyProgram programm)
    {
         boolean res=false;
-       FreqsContainer fk=new FreqsContainer(programm.getFrequencies().replace(",","."),programm.getTherapyComplex().getTimeForFrequency(),sampleRate,programm.getTherapyComplex().isMulltyFreq(),programm.getTherapyComplex().getBundlesLength(),16);
+        boolean multyfreq=programm.getTherapyComplex().isMulltyFreq();
+        if(programm.getTherapyComplex().isMulltyFreq())multyfreq=programm.isMultyFreq();
+
+       FreqsContainer fk=new FreqsContainer(programm.getFrequencies().replace(",","."),programm.getTherapyComplex().getTimeForFrequency(),sampleRate,multyfreq,programm.getTherapyComplex().getBundlesLength(),16);
 
        System.out.print("Temp File Generating...");
        File	outputWavFile;
@@ -129,7 +132,6 @@ private static final boolean debug=false;
 
        if(res==false) return false;
        System.out.println("OK");
-
        if(isStop())return true;//остановка по требованию
 
     try {
