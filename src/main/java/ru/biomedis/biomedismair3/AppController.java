@@ -201,6 +201,9 @@ public class AppController  extends BaseController {
     private Image imageDone;
     private Image imageCancel;
 
+    private Image imageSeq;
+    private Image imageParallel;
+
     private Image imageDeviceOff;
     private Image imageDeviceOn;
     private List<Section> allRootSection;// разделы старая и новая база
@@ -785,6 +788,11 @@ public class AppController  extends BaseController {
         imageDone=new Image(location.toExternalForm());
          location = getClass().getResource("/images/cancel.png");
         imageCancel=new Image(location.toExternalForm());
+
+        location = getClass().getResource("/images/seq_16.png");
+        imageSeq=new Image(location.toExternalForm());
+        location = getClass().getResource("/images/parallel_16.png");
+        imageParallel=new Image(location.toExternalForm());
 
         //при закрытии приложения мы закроем сервис детектирования диска
         getApp().addCloseApplistener(()->{setStopGCthread(); DiskDetector.stopDetectingService();} );
@@ -2493,8 +2501,8 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                                     }
                                 }else
                                 {
-                                    if(((TherapyProgram) this.getTableRow().getItem()).isMultyFreq())  iv2.setImage(imageDone);
-                                    else  iv2.setImage(imageCancel);
+                                    if(((TherapyProgram) this.getTableRow().getItem()).isMultyFreq())  iv2.setImage(imageParallel);
+                                    else  iv2.setImage(imageSeq);
 
                                     if (item) {
                                         iv.setImage(imageCancel);
