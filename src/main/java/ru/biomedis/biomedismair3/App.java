@@ -16,6 +16,7 @@ import ru.biomedis.biomedismair3.Tests.TestsFramework.TestsManager;
 import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadLanguageFiles;
 import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.entity.ProgramOptions;
+import ru.biomedis.biomedismair3.entity.TherapyProgram;
 import ru.biomedis.biomedismair3.utils.Files.ResourceUtil;
 import ru.biomedis.biomedismair3.utils.USB.USBHelper;
 import ru.biomedis.biomedismair3.utils.UTF8Control;
@@ -252,7 +253,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         /******** Обновления ************/
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
-        int currentUpdateFile=4;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
+        int currentUpdateFile=5;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
         int currentMinorVersion=0;//версия исправлений в пределах мажорной версии currentUpdateFile
 
         if(getUpdateVersion() < currentUpdateFile)
@@ -306,7 +307,13 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
             if(getUpdateVersion()==2) {
                 update3(updateOption);
                 update4(updateOption);
-            }else if(getUpdateVersion()==3)update4(updateOption);
+                update5(updateOption);
+            }else if(getUpdateVersion()==3){
+                update4(updateOption);
+                update5(updateOption);
+            }else if(getUpdateVersion()==4){
+                update5(updateOption);
+            }
 
         }else if(getUpdateVersion() > currentUpdateFile){
             logger.error("Запуск апдейта "+currentUpdateFile+" ниже установленного "+getUpdateVersion()+"!");
@@ -837,6 +844,47 @@ https://gist.github.com/DemkaAge/8999236
 
 
 
+    }
+
+
+    private void update5(ProgramOptions opt)
+    {
+        logger.info("ОБНОВЛЕНИЕ 5.");
+        try
+        {
+            logger.info("Проверка наличия столбца MULTYFREQ  в THERAPYPROGRAM ");
+            Object singleResult = emf.createEntityManager().createNativeQuery("SELECT MULTYFREQ FROM THERAPYPROGRAM LIMIT 1").getSingleResult();
+            logger.info("Столбец  MULTYFREQ  найден.");
+        }catch (Exception e){
+            logger.info("Столбец  MULTYFREQ не найден.");
+            logger.info("Создается  столбец MULTYFREQ  в THERAPYPROGRAM ");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            try{
+                em.createNativeQuery("ALTER TABLE THERAPYPROGRAM ADD MULTYFREQ BOOLEAN(1) DEFAULT 1").executeUpdate();
+                em.getTransaction().commit();
+                logger.info("Столбец  MULTYFREQ создан.");
+
+                for (TherapyProgram tp : getModel().findAllTherapyPrograms()) {
+                   if( tp.getTherapyComplex().isMulltyFreq()!=tp.isMultyFreq()){
+                       tp.setMultyFreq(tp.getTherapyComplex().isMulltyFreq());
+                       getModel().updateTherapyProgram(tp);
+                   }
+                }
+                logger.info("Столбец  MULTYFREQ обновлен.");
+
+                //добавление базы чстот Тринити
+
+
+
+            }catch (Exception ex){
+                throw new RuntimeException("Не удалось выполнить ALTER TABLE THERAPYPROGRAM ADD MULTYFREQ BOOLEAN(1) DEFAULT 1");
+            }finally {
+                if(em!=null) em.close();
+            }
+
+
+        }
     }
     @Override
     public void stop() throws Exception {       

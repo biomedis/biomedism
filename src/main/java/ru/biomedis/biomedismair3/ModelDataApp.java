@@ -1454,6 +1454,13 @@ public class ModelDataApp {
         query.setParameter("tc", idTherapyComplex);
         return query.getResultList();
     }
+
+    public List<TherapyProgram> findAllTherapyPrograms()
+    {
+        Query query = emf.createEntityManager().createQuery("Select t from TherapyProgram t ");
+
+        return query.getResultList();
+    }
       /******************************************/
       /************ Терапия Комплексы ***/
 
@@ -1666,6 +1673,7 @@ public class ModelDataApp {
         Query query=null;
         List<String> results=null;
         //если все частоты мульти, подсчитаем все без мп3 и умножим на время частоты, mp3 считает ся ниже отдельно
+        /*
         if(th.isMulltyFreq())
         {
 
@@ -1698,6 +1706,63 @@ public class ModelDataApp {
             results = query.getResultList();
             res = results.stream().mapToInt(value -> value.split(";").length).sum() * th.getTimeForFrequency();
         }
+*/
+
+        //в не мультичастотном режиме комплекса мультичастотность программ игнорируется!!!
+        //если все частоты мульти, подсчитаем все без мп3 и умножим на время частоты, mp3 считает ся ниже отдельно
+        if(th.isMulltyFreq())
+        {
+
+            //посчитаем пачки частот для всех программ комплекса
+            int freqBundlesCount=0;//сколько пачек получем из частот программ
+
+
+
+            if(   th.getBundlesLength()>=2){
+
+
+                for (TherapyProgram tp : findTherapyPrograms(th))
+                {
+                    if(!tp.isMultyFreq()){
+                        res+=tp.getNumFreqs()*th.getTimeForFrequency();
+                    }else {
+                    int numFreqsForce = tp.getNumFreqsForce();
+                    freqBundlesCount+=(int)Math.ceil((float)numFreqsForce/(float)th.getBundlesLength());
+                    }
+                }
+
+
+                res += (int)(th.getTimeForFrequency() * freqBundlesCount);
+            }else {
+
+                for (TherapyProgram tp : findTherapyPrograms(th))
+                {
+                    if(!tp.isMultyFreq()){
+                        res+=tp.getNumFreqs()*th.getTimeForFrequency();
+                    }else {
+                       res+=th.getTimeForFrequency();
+                    }
+                }
+
+
+            }
+
+
+        }
+        else {
+            query = emf.createEntityManager().createQuery("Select t.frequencies from TherapyProgram t where t.therapyComplex = :tc and t.mp3 <> true");
+            query.setParameter("tc", th);
+            results = query.getResultList();
+            res = results.stream().mapToInt(value -> value.split(";").length).sum() * th.getTimeForFrequency();
+        }
+
+
+
+
+
+
+
+
 
         //получим программы комплекса с mp3 файлами
          query = emf.createEntityManager().createQuery("Select t.frequencies from TherapyProgram t where t.therapyComplex = :tc and t.mp3 = true");
@@ -1867,13 +1932,7 @@ public class ModelDataApp {
 
             for (TherapyProgram therapyProgram : findTherapyPrograms(tc)) {
 
-                createTherapyProgram(therapyComplex,
-                        therapyProgram.getName(),
-                        therapyProgram.getDescription(),
-                        therapyProgram.getFrequencies());
-
-
-
+                copyTherapyProgramToComplex(therapyComplex,therapyProgram);
             }
 
 
@@ -1907,6 +1966,8 @@ public class ModelDataApp {
                therapyProgram =createTherapyProgram(complex,tp.getName(),tp.getDescription(),tp.getFrequencies());
                therapyProgram.setPosition(therapyProgram.getId());
                therapyProgram.setOname(tp.getOname());
+               therapyProgram.setMp3(tp.isMp3());
+               therapyProgram.setMultyFreq(tp.isMultyFreq());
                updateTherapyProgram(therapyProgram);
 
 
@@ -1924,7 +1985,10 @@ public class ModelDataApp {
                therapyProgram =createTherapyProgram(complex,tp.getName(),tp.getDescription(),tp.getFrequencies());
                therapyProgram.setPosition(position);
                therapyProgram.setOname(tp.getOname());
+               therapyProgram.setMp3(tp.isMp3());
+               therapyProgram.setMultyFreq(tp.isMultyFreq());
                updateTherapyProgram(therapyProgram);
+
 
 
            } catch (Exception e) {

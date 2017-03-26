@@ -31,6 +31,7 @@ public class TherapyProgram implements Serializable {
 
     private final SimpleBooleanProperty mp3=new SimpleBooleanProperty();//свойство для указания что программа  - на основе mp3 файла, путь к файлу будет в поле частот
     private final SimpleStringProperty oname=new SimpleStringProperty();
+    private final SimpleBooleanProperty multyFreq=new SimpleBooleanProperty();
 
     private String uuid;
    
@@ -45,6 +46,18 @@ public class TherapyProgram implements Serializable {
     {
 
 
+    }
+
+    public boolean isMultyFreq() {
+        return multyFreq.get();
+    }
+    @Transient
+    public SimpleBooleanProperty multyFreqProperty() {
+        return multyFreq;
+    }
+
+    public void setMultyFreq(boolean multyFreq) {
+        this.multyFreq.set(multyFreq);
     }
 
     public String getOname() {

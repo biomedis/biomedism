@@ -32,10 +32,7 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCode;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.*;
@@ -2152,13 +2149,22 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         //слушаем изменения в списке комплексов и его полях
         therapyComplexItems.addListener((ListChangeListener<TherapyComplex>) c -> {
             try {
+                TherapyComplex tc=null;
                 while (c.next()) {
                     if (c.wasUpdated()) {
                         //обновленные элементы сохраним(цикл - если у нас множественные изменения)
                         for (int i = c.getFrom(); i < c.getTo(); i++)
+                            tc = c.getList().get(c.getFrom());
 
-                            c.getList().get(c.getFrom()).setChanged(true);
-                        getModel().updateTherapyComplex(c.getList().get(c.getFrom()));
+                        for (TherapyProgram tp : tableProgram.getItems()) {
+                            if(tp.isMultyFreq()!=tc.isMulltyFreq()){
+                                tp.setMultyFreq(tc.isMulltyFreq());
+                                tp.setChanged(true);
+                                getModel().updateTherapyProgram(tp);
+                            }
+                        }
+                        tc.setChanged(true);
+                        getModel().updateTherapyComplex(tc);
                         btnGenerate.setDisable(false);
 
                         //тут мы должны пресчитать все длительности!!!!!!!!!!!!!!!!
@@ -2400,10 +2406,11 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                     freqBundlesCount=(int)Math.ceil((float)numFreqsForce/(float)selectedComplex.getBundlesLength());
                 }
 
+                long tSec;
+                if(param.getValue().isMultyFreq()) tSec = selectedComplex.getTimeForFrequency()*freqBundlesCount;
+                else tSec = param.getValue().getNumFreqs() * selectedComplex.getTimeForFrequency();
 
-
-                return new SimpleStringProperty(DateUtil.convertSecondsToHMmSs(
-                        selectedComplex.isMulltyFreq() ? selectedComplex.getTimeForFrequency()*freqBundlesCount : param.getValue().getNumFreqs() * selectedComplex.getTimeForFrequency()));
+                return new SimpleStringProperty(DateUtil.convertSecondsToHMmSs(tSec));
             }
         });
 
@@ -2425,12 +2432,30 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                             this.setText(null);
                             this.setGraphic(null);
 
-
-                            ImageView iv;
+                            HBox hbox=null;
+                            ImageView iv=null;
+                            ImageView iv2=null;
                             if( this.getUserData()!=null)
                             {
-                                iv=(ImageView)this.getUserData();
-                            }else iv=new ImageView(imageCancel);
+                                hbox=(HBox)this.getUserData();
+                                if(hbox!=null){
+                                    iv=(ImageView)hbox.getChildren().get(0);
+                                    iv2=(ImageView)hbox.getChildren().get(1);
+                                }else {
+                                    iv=new ImageView();
+                                    iv2=new ImageView();
+                                    hbox=new HBox();
+                                    hbox.setSpacing(3);
+                                    hbox.getChildren().addAll(iv,iv2);
+                                }
+                            }else {
+                                iv=new ImageView(imageCancel);
+                                iv2=new ImageView(imageDone);
+                                hbox=new HBox();
+                                hbox.setSpacing(3);
+                                hbox.getChildren().addAll(iv,iv2);
+                                this.setUserData(hbox);
+                            }
 
 
                             if (!empty) {
@@ -2439,7 +2464,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                                 File f;
                                 if(((TherapyProgram) this.getTableRow().getItem()).isMp3())
                                 {
-
+                                    iv2.setImage(null);
                                     //в любом случае проверим наличие файла
                                     f = new File(((TherapyProgram) this.getTableRow().getItem()).getFrequencies());
 
@@ -2448,12 +2473,12 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                                     {
                                         setText(Math.ceil((double) f.length() / 1048576.0) + " Mb");
                                         iv.setImage(imageDone);
-                                        setGraphic(iv);}
+                                       }
                                     else
                                     {
                                         setText("");
                                         iv.setImage(imageCancel);
-                                        setGraphic(iv);
+
 
                                         //если установленно что не требуется генерация, а файла нет, то изменим флаг генерации и иконку
                                         if(((TherapyProgram) this.getTableRow().getItem()).isChanged()==false)
@@ -2468,9 +2493,11 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                                     }
                                 }else
                                 {
+                                    if(((TherapyProgram) this.getTableRow().getItem()).isMultyFreq())  iv2.setImage(imageDone);
+                                    else  iv2.setImage(imageCancel);
+
                                     if (item) {
                                         iv.setImage(imageCancel);
-                                        setGraphic(iv);
                                         setText("");
                                     } else
                                     {
@@ -2482,16 +2509,16 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                                         {
                                             setText(Math.ceil((double) f.length() / 1048576.0) + " Mb");
                                             iv.setImage(imageDone);
-                                            setGraphic(iv);
+
                                         }
-                                        else{ setText("");    iv.setImage(imageCancel); setGraphic(iv);}
+                                        else{ setText("");    iv.setImage(imageCancel);}
 
 
 
                                     }
 
                                 }
-
+                                setGraphic(hbox);
                             }
                         }
                     };
@@ -2509,9 +2536,9 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
         numProgCol.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.033));
         nameColTP.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.2));
-        descColTP.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.587));
+        descColTP.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.557));
         timeColTP.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.1));
-        fileCol.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.08));
+        fileCol.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.11));
 
         numProgCol.setSortable(false);
         nameColTP.setSortable(false);
@@ -2568,6 +2595,9 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         MenuItem mi5=new SeparatorMenuItem();
         MenuItem mi6=new MenuItem(res.getString("app.ui.edit_file_path"));
         MenuItem mi7=new MenuItem(res.getString("app.ui.copy"));
+        MenuItem mi8=new MenuItem(res.getString("app.ui.multy_switch_on"));
+        MenuItem mi9=new MenuItem(res.getString("app.ui.multy_switch_off"));
+        MenuItem mi10=new SeparatorMenuItem();
 
 
         mi4.setOnAction(event2 -> copyTherapyProgramToBase());
@@ -2590,10 +2620,11 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
             mi1.getOnAction().handle(e);
             therapyProgramsCopied=true;
         });
-
+        mi8.setOnAction(e-> multyFreqProgramSwitchOn());
+        mi9.setOnAction(e->multyFreqProgramSwitchOff());
         mi2.setOnAction(e -> pasteTherapyPrograms());
 
-        programmMenu.getItems().addAll(mi2, mi7,mi1,mi3,mi4,mi5,mi6);
+        programmMenu.getItems().addAll(mi2, mi7,mi1,mi3,mi4,mi5,mi6,mi10,mi8,mi9);
 
         tableProgram.setContextMenu(programmMenu);
         this.programmMenu.setOnShowing((event1) -> {
@@ -2605,9 +2636,12 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                 mi5.setDisable(true);
                 mi6.setDisable(true);
                 mi7.setDisable(true);
+                mi8.setDisable(true);
+                mi9.setDisable(true);
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 if(clipboard.hasContent(this.PROGRAM_CUT_ITEM))if(therapyProgramsCopied)   mi2.setDisable(false);
             } else {
+
                 mi2.setDisable(true);
                 mi1.setDisable(true);
                 mi3.setDisable(true);
@@ -2615,6 +2649,13 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                 mi5.setDisable(true);
                 mi6.setDisable(true);
                 mi7.setDisable(false);
+                if(tableComplex.getSelectionModel().getSelectedItem().isMulltyFreq()){
+                    mi8.setDisable(false);
+                    mi9.setDisable(false);
+                }else {
+                    mi8.setDisable(true);
+                    mi9.setDisable(true);
+                }
 
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 if(clipboard.hasContent(this.PROGRAM_CUT_ITEM)) {
@@ -2899,6 +2940,59 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
         //помогает узнать видимые строки
      //   loadVirtualFlowTableProgramm();
+
+    }
+
+    private void multyFreqProgramSwitchOff() {
+        List<TherapyProgram> selectedItems = tableProgram.getSelectionModel().getSelectedItems().stream().collect(Collectors.toList());
+        if(selectedItems.size()==0) return;
+        try {
+
+            for (TherapyProgram selectedItem : selectedItems) {
+                if(selectedItem.isMultyFreq()){
+                    selectedItem.setChanged(true);
+                    selectedItem.setMultyFreq(false);
+                    getModel().updateTherapyProgram(selectedItem);
+                    int ind=tableProgram.getItems().indexOf(selectedItem);
+                    tableProgram.getItems().set(ind,null);
+                    tableProgram.getItems().set(ind,selectedItem);
+                   // tableProgram.getSelectionModel().select(ind);
+                }
+
+            }
+            updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(),false);
+            updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
+            tableProgram.getSelectionModel().clearSelection();
+
+        } catch (Exception e) {
+            logger.error("Ошибка обновления MultyFreq в терапевтической программе",e);
+        }
+    }
+
+    private void multyFreqProgramSwitchOn() {
+        List<TherapyProgram> selectedItems = tableProgram.getSelectionModel().getSelectedItems().stream().collect(Collectors.toList());
+        if(selectedItems.size()==0) return;
+        try {
+
+        for (TherapyProgram selectedItem : selectedItems) {
+            if(!selectedItem.isMultyFreq()){
+                selectedItem.setChanged(true);
+                selectedItem.setMultyFreq(true);
+                getModel().updateTherapyProgram(selectedItem);
+                int ind=tableProgram.getItems().indexOf(selectedItem);
+                tableProgram.getItems().set(ind,null);
+                tableProgram.getItems().set(ind,selectedItem);
+                tableProgram.getSelectionModel().select(ind);
+            }
+
+
+        }
+            updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(),false);
+            updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
+            tableProgram.getSelectionModel().clearSelection();
+        } catch (Exception e) {
+            logger.error("Ошибка обновления MultyFreq в терапевтической программе",e);
+        }
 
     }
 
