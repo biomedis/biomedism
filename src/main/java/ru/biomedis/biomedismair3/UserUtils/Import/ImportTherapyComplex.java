@@ -140,7 +140,7 @@ public class ImportTherapyComplex
             ImportTherapyComplex.Program prog;
             while(it.hasNext()) {
                 prog = it.next();
-                mda.createTherapyProgram(this.complexes.get(prog.complexIndex).complex, prog.name, prog.descr, prog.freqs);
+                mda.createTherapyProgram(this.complexes.get(prog.complexIndex).complex, prog.name, prog.descr, prog.freqs,prog.multy);
             }
 
             resSize = this.complexes.size();
@@ -240,7 +240,13 @@ public class ImportTherapyComplex
                 } else if(qName.equals("Program")) {
                     if(!ImportTherapyComplex.this.complexes.isEmpty() && this.inComplex) {
                         if(attributes.getLength() != 0) {
-                            ImportTherapyComplex.this.listProgram.add(ImportTherapyComplex.this.new Program(TextUtil.unEscapeXML(attributes.getValue("name")), TextUtil.unEscapeXML(attributes.getValue("description")), attributes.getValue("frequencies"), ImportTherapyComplex.this.complexes.size() - 1));
+
+                            boolean multy;
+                            String multy_s = attributes.getValue("multy");
+                            if(multy_s==null)multy=true;
+                            else multy=Boolean.valueOf(multy_s);
+
+                            ImportTherapyComplex.this.listProgram.add(ImportTherapyComplex.this.new Program(TextUtil.unEscapeXML(attributes.getValue("name")), TextUtil.unEscapeXML(attributes.getValue("description")), attributes.getValue("frequencies"), ImportTherapyComplex.this.complexes.size() - 1,multy));
                         }
 
                         super.startElement(uri, localName, qName, attributes);
@@ -299,14 +305,16 @@ public class ImportTherapyComplex
         String name;
         String descr;
         String freqs;
+        boolean multy;
         int complexIndex;
         ru.biomedis.biomedismair3.entity.Program program;
 
-        public Program(String name, String descr, String freqs, int complexIndex) {
+        public Program(String name, String descr, String freqs, int complexIndex,  boolean multy) {
             this.name = name;
             this.descr = descr;
             this.freqs = freqs;
             this.complexIndex = complexIndex;
+            this.multy=multy;
         }
     }
 

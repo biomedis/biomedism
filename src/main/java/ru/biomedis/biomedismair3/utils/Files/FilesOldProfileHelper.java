@@ -202,7 +202,7 @@ long k=0;
 
             }
 
-            res.put(k--, new ProgramFileData(-1,-1,time,"", strB.toString().replace(",","."), file.getName().substring(ind2+1, ind), file,  null,false,1));
+            res.put(k--, new ProgramFileData(-1,-1,time,"", strB.toString().replace(",","."), file.getName().substring(ind2+1, ind), file,  null,false,1,true));
         }
 
         return res;

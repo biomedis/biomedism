@@ -189,7 +189,10 @@ public class FilesProfileHelper
                             progrParam.get(6).replace(",","."),
                             progrParam.get(5),
                             file,
-                            bssFile.exists() ? bssFile : (File)null, Boolean.parseBoolean(progrParam.get(7)),bundlesLength));
+                            bssFile.exists() ? bssFile : (File)null,
+                            Boolean.parseBoolean(progrParam.get(7)),
+                            bundlesLength,
+                            Boolean.valueOf(progrParam.get(9))));
 
         }
 
@@ -208,9 +211,10 @@ public class FilesProfileHelper
      * @param txtPath
      *  @param uuid
      *  @param mp3  mp3 программа
+     *  @programmMulty мультичастотна ли программа
      * @throws Exception
      */
-    public static void copyTxt(String freqs,int timeForFreq,long idProgram, String uuid,long idComplex, boolean mullty, int bundlesLength, String nameProgram, boolean mp3,File txtPath) throws Exception {
+    public static void copyTxt(String freqs,int timeForFreq,long idProgram, String uuid,long idComplex, boolean mullty, int bundlesLength, String nameProgram, boolean mp3,File txtPath,boolean programmMulty) throws Exception {
         txtPath=new File(txtPath.toURI());
 
         try(PrintWriter writer = new PrintWriter(txtPath,"UTF-8"))
@@ -225,6 +229,8 @@ public class FilesProfileHelper
             writer.println(freqs+"@");
             writer.println(mp3?"true":"false");
             writer.println(bundlesLength+"");
+            writer.println(programmMulty?"true":"false");
+
         }catch (Exception e)
         {
 

@@ -91,7 +91,9 @@ public class ExportProfile {
         list.stream().filter(p->!p.isMp3()).forEach(program -> {
             strb.append(noops[level]);
             strb.append("<Program ").append("name=\"").append(TextUtil.escapeXML(program.getName())).append("\" description=\"").append(TextUtil.escapeXML(program.getDescription())).
-                    append("\" ").append("frequencies=\"").append(program.getFrequencies().replace(",",".")).append("\"/>\n");
+                    append("\" ").append("frequencies=\"").append(program.getFrequencies().replace(",",".")).append("\" ")
+                    .append("multy=\"").append(program.isMultyFreq()).append("\" ")
+                    .append("/>\n");
         });
 
         return strb.toString();

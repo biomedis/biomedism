@@ -1903,7 +1903,7 @@ public class ModelDataApp {
 
        public List<TherapyComplex> findAllTherapyComplexByProfile(Profile profile)
        {
-           Query query = emf.createEntityManager().createQuery("Select t from TherapyComplex t where t.profile = :p");
+           Query query = emf.createEntityManager().createQuery("Select t from TherapyComplex t where t.profile = :p order by t.id");
            query.setParameter("p", profile);
           return query.getResultList();
 
@@ -2002,20 +2002,26 @@ public class ModelDataApp {
       
       public TherapyProgram createTherapyProgram(TherapyComplex therapyComplex, String name,String description, String freqs) throws Exception
       {
-          TherapyProgram tc=new TherapyProgram();
-          tc.setTherapyComplex(therapyComplex);
-          tc.setName(name);
-          tc.setDescription(description);
-          tc.setFrequencies(freqs);
-          tc.setTimeMarker(0);
-          tc.setChanged(true);//по умолчанию файлы не генерятся, значит установим этот флажек
-          tc.setMp3(false);
-          tc.setOname("");
+         return createTherapyProgram( therapyComplex,  name, description,  freqs, true);
+      }
+
+    public TherapyProgram createTherapyProgram(TherapyComplex therapyComplex, String name,String description, String freqs,boolean multy) throws Exception
+    {
+        TherapyProgram tc=new TherapyProgram();
+        tc.setTherapyComplex(therapyComplex);
+        tc.setName(name);
+        tc.setDescription(description);
+        tc.setFrequencies(freqs);
+        tc.setTimeMarker(0);
+        tc.setChanged(true);//по умолчанию файлы не генерятся, значит установим этот флажек
+        tc.setMp3(false);
+        tc.setOname("");
+        tc.setMultyFreq(multy);
 
 
         try
         {
-        
+
             therapyProgramDAO.create(tc);
             tc.setPosition(tc.getId());
             therapyProgramDAO.edit(tc);
@@ -2027,8 +2033,9 @@ public class ModelDataApp {
             tc=null;
             throw new Exception("Ошибка создания терапевтической программы",e);
         }
-        return tc;  
-      }
+        return tc;
+    }
+
 
     /**
      *
@@ -2042,6 +2049,11 @@ public class ModelDataApp {
      */
     public TherapyProgram createTherapyProgram(TherapyComplex therapyComplex, String name,String description, String freqs,String oName) throws Exception
     {
+       return createTherapyProgram( therapyComplex,  name, description,  freqs, oName,true);
+    }
+
+    public TherapyProgram createTherapyProgram(TherapyComplex therapyComplex, String name,String description, String freqs,String oName,boolean multy) throws Exception
+    {
         TherapyProgram tc=new TherapyProgram();
         tc.setTherapyComplex(therapyComplex);
         tc.setName(name);
@@ -2051,7 +2063,7 @@ public class ModelDataApp {
         tc.setChanged(true);//по умолчанию файлы не генерятся, значит установим этот флажек
         tc.setMp3(false);
         tc.setOname(oName);
-
+        tc.setMultyFreq(multy);
         try
         {
 

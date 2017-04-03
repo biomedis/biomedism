@@ -142,7 +142,7 @@ public class ImportProfile {
 
             for (Program program : listProgram) {
 
-                mda.createTherapyProgram(listComplex.get(program.complexIndex).complex,TextUtil.unEscapeXML(program.name),TextUtil.unEscapeXML(program.descr),program.freqs);
+                mda.createTherapyProgram(listComplex.get(program.complexIndex).complex,TextUtil.unEscapeXML(program.name),TextUtil.unEscapeXML(program.descr),program.freqs,program.multy);
             }
 
 
@@ -280,7 +280,11 @@ public class ImportProfile {
 
                 if(attributes.getLength()!=0)
                 {
-                    listProgram.add(new Program(attributes.getValue("name"),attributes.getValue("description"),attributes.getValue("frequencies"),indexCompl));
+                    boolean multy;
+                    String multy_s = attributes.getValue("multy");
+                    if(multy_s==null)multy=true;
+                    else multy=Boolean.valueOf(multy_s);
+                    listProgram.add(new Program(attributes.getValue("name"),attributes.getValue("description"),attributes.getValue("frequencies"),indexCompl,multy));
 
                 }
 
@@ -383,15 +387,16 @@ TherapyComplex  complex;
         String name;
         String descr;
         String freqs;
+        boolean multy;
         int complexIndex=-1;
         ru.biomedis.biomedismair3.entity.TherapyProgram program;
 
 
-        public Program(String name, String descr, String freqs,  int complexIndex) {
+        public Program(String name, String descr, String freqs,  int complexIndex,boolean multy) {
             this.name = name;
             this.descr = descr;
             this.freqs = freqs;
-
+            this.multy = multy;
             this.complexIndex = complexIndex;
         }
     }

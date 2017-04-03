@@ -22,5 +22,6 @@ public class ProgramFileData
     private File bssFile;
     private boolean mp3;
     private int bundlesLenght;
+    private boolean multy;
 
 }
