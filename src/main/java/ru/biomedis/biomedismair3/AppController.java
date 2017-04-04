@@ -1907,6 +1907,25 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
          Platform.runLater(() -> therapyTabPane.getTabs().get(1).setText(val));
 
     }
+
+    /**
+     * Считает время терапевтической программы
+     * @param tp
+     * @return
+     */
+    private long calcTherapyProgramTime(TherapyProgram tp){
+        final TherapyComplex selectedComplex = tp.getTherapyComplex();
+        int freqBundlesCount=1;//сколько пачек получем из частот программы
+        if(tp.isMultyFreq() &&  selectedComplex.getBundlesLength()>=2){
+            int numFreqsForce =tp.getNumFreqsForce();
+            freqBundlesCount=(int)Math.ceil((float)numFreqsForce/(float)selectedComplex.getBundlesLength());
+        }
+
+        long tSec;
+        if(tp.isMultyFreq()) tSec = selectedComplex.getTimeForFrequency()*freqBundlesCount;
+        else tSec = tp.getNumFreqs() * selectedComplex.getTimeForFrequency();
+        return tSec;
+    }
     private void initTables()
     {
 
@@ -2418,18 +2437,8 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
             }else
             {
-                final TherapyComplex selectedComplex = tableComplex.getSelectionModel().getSelectedItem();
-                int freqBundlesCount=1;//сколько пачек получем из частот программы
-                if( selectedComplex.isMulltyFreq() &&  selectedComplex.getBundlesLength()>=2){
-                    int numFreqsForce = param.getValue().getNumFreqsForce();
-                    freqBundlesCount=(int)Math.ceil((float)numFreqsForce/(float)selectedComplex.getBundlesLength());
-                }
 
-                long tSec;
-                if(param.getValue().isMultyFreq()) tSec = selectedComplex.getTimeForFrequency()*freqBundlesCount;
-                else tSec = param.getValue().getNumFreqs() * selectedComplex.getTimeForFrequency();
-
-                return new SimpleStringProperty(DateUtil.convertSecondsToHMmSs(tSec));
+                return new SimpleStringProperty(DateUtil.convertSecondsToHMmSs(calcTherapyProgramTime(param.getValue())));
             }
         });
 
@@ -8832,7 +8841,9 @@ return  true;
                                             StringBuilder strb2;
 
                                             if(!therapyProgram.isMp3()) {
-                                                mp3file = DateUtil.convertSecondsToHMmSs(therapyComplex.isMulltyFreq()?(long)therapyComplex.getTimeForFrequency().intValue():(long)(therapyProgram.getNumFreqs() * therapyComplex.getTimeForFrequency().intValue()));
+
+
+                                                mp3file = DateUtil.convertSecondsToHMmSs(calcTherapyProgramTime(therapyProgram));
                                                 strb2 = new StringBuilder();
                                                 ++count2;
                                                 timeP = strb2.append(count2).append("-").append(TextUtil.replaceWinPathBadSymbols(therapyProgram.getName())).append(" (").append(DateUtil.replaceTime(mp3file,res)).append(")").toString();
