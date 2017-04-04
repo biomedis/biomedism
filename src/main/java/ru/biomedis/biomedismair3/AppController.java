@@ -224,6 +224,7 @@ public class AppController  extends BaseController {
 
     private final DataFormat PROGRAM_DRAG_ITEM=new DataFormat("biomedis/programitem");
     private final DataFormat PROGRAM_CUT_ITEM=new DataFormat("biomedis/cut_programitem");
+    private final DataFormat PROGRAM_COPY_ITEM=new DataFormat("biomedis/copy_programitem");
 
     private DropShadow borderGlow;
 
@@ -2625,8 +2626,15 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         });
 
         mi7.setOnAction(e->{
-            mi1.getOnAction().handle(e);
+            if (tableProgram.getSelectionModel().getSelectedItems().isEmpty()) return;
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.put(PROGRAM_COPY_ITEM, tableProgram.getSelectionModel()
+                    .getSelectedItems().stream().map(i->i.getId()).collect(Collectors.toList()).toArray(new Long[0]));
+            clipboard.setContent(content);
             therapyProgramsCopied=true;
+
+
         });
         mi8.setOnAction(e-> multyFreqProgramSwitchOn());
         mi9.setOnAction(e->multyFreqProgramSwitchOff());
@@ -2647,7 +2655,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                 mi8.setDisable(true);
                 mi9.setDisable(true);
                 Clipboard clipboard = Clipboard.getSystemClipboard();
-                if(clipboard.hasContent(this.PROGRAM_CUT_ITEM))if(therapyProgramsCopied)   mi2.setDisable(false);
+                if(clipboard.hasContent(this.PROGRAM_COPY_ITEM))if(therapyProgramsCopied)   mi2.setDisable(false);
             } else {
 
                 mi2.setDisable(true);
@@ -2666,10 +2674,10 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                 }
 
                 Clipboard clipboard = Clipboard.getSystemClipboard();
-                if(clipboard.hasContent(this.PROGRAM_CUT_ITEM)) {
+                if(clipboard.hasContent(this.PROGRAM_CUT_ITEM) || clipboard.hasContent(this.PROGRAM_COPY_ITEM)) {
 
 
-                    if (therapyProgramsCopied) mi2.setDisable(false);
+                    if (clipboard.hasContent(this.PROGRAM_COPY_ITEM)) mi2.setDisable(false);
                    else  if(tableProgram.getSelectionModel().getSelectedIndices().size()==1) {
 
                             Integer[] ind = (Integer[]) clipboard.getContent(PROGRAM_CUT_ITEM);
@@ -3042,13 +3050,17 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
         if (tableProgram.getSelectionModel().getSelectedItems().size()>1) return;
         Clipboard clipboard = Clipboard.getSystemClipboard();
 
-        if (!clipboard.hasContent(PROGRAM_CUT_ITEM)) return;
-        Integer[] indexes = (Integer[]) clipboard.getContent(PROGRAM_CUT_ITEM);
-        if(indexes==null) return;
-        if(indexes.length==0) return;
-        List<Integer> ind = Arrays.stream(indexes).collect(Collectors.toList());
+        if (!clipboard.hasContent(PROGRAM_COPY_ITEM)) return;
+        Long[] ids = (Long[]) clipboard.getContent(PROGRAM_COPY_ITEM);
+        if(ids==null) return;
+        if(ids.length==0) return;
+
         int dropIndex = tableProgram.getSelectionModel().getSelectedIndex();
-        List<TherapyProgram> therapyPrograms = ind.stream().map(i->tableProgram.getItems().get(i)).collect(Collectors.toList());
+
+        List<TherapyProgram> therapyPrograms =  Arrays.stream(ids)
+                .map(i->getModel().getTherapyProgram(i))
+                .filter(i->i!=null)
+                .collect(Collectors.toList());
 
 
         if (tableProgram.getSelectionModel().getSelectedItems().isEmpty()) {
