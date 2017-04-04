@@ -6428,28 +6428,6 @@ public void onAbout()
     }
 
 
-    private String replaceTime(String time)
-    {
-        StringBuilder strb=new StringBuilder();
-
-
-        String[] split = time.split(":");
-        if(split.length==3)
-        {
-            strb.append(split[0]); strb.append(res.getString("app.hour"));strb.append(" ");
-            strb.append(split[1]); strb.append(res.getString("app.minute"));strb.append(" ");
-            strb.append(split[2]); strb.append(res.getString("app.secunde"));
-            return strb.toString();
-        }else return time.replace(":","_");
-
-
-
-
-
-
-
-    }
-
 class ForceCopyProfile
 {
     private UpdateHandler updateHandler;
@@ -6563,7 +6541,7 @@ class ForceCopyProfile
         tableComplex.getItems().forEach(itm ->
                 {
 
-                    cMap.put(itm.getId(), TextUtil.replaceWinPathBadSymbols(itm.getName()) + " (" + replaceTime(timeTableColumn.getCellObservableValue(itm).getValue().toString()) + ")");
+                    cMap.put(itm.getId(), TextUtil.replaceWinPathBadSymbols(itm.getName()) + " (" + DateUtil.replaceTime(timeTableColumn.getCellObservableValue(itm).getValue().toString(),res) + ")");
                     cMap2.put(itm.getId(), itm.getTimeForFrequency());
                 }
         );
@@ -6650,7 +6628,7 @@ class ForceCopyProfile
                                 therapyComplex.isMulltyFreq() ? therapyComplex.getTimeForFrequency() : therapyProgram.getNumFreqs() * therapyComplex.getTimeForFrequency());
 
 
-                    String nameFile = (++count2) + "-" + TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()) + " (" + replaceTime(timeP) + ")";
+                    String nameFile = (++count2) + "-" + TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()) + " (" + DateUtil.replaceTime(timeP,res) + ")";
 
                     // System.out.print("Создание программы: " + nameFile + ".bss...");
 
@@ -6675,7 +6653,7 @@ class ForceCopyProfile
                             //если файл существует
                             String timeP =DateUtil.convertSecondsToHMmSs(mp3file.getLengthInSeconds());
 
-                            String nameFile = (++count2) + "-" + TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()) + " (" + replaceTime(timeP) + ")";
+                            String nameFile = (++count2) + "-" + TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()) + " (" + DateUtil.replaceTime(timeP,res) + ")";
 
                             FilesProfileHelper.copyBSS(new File(therapyProgram.getFrequencies()),new File(tempFile, nameFile + ".bss"));
 
@@ -6804,7 +6782,7 @@ class ForceCopyProfile
         tableComplex.getItems().forEach(itm ->
                 {
 
-                    cMap.put(itm.getId(), TextUtil.replaceWinPathBadSymbols(itm.getName()) + " (" + replaceTime(timeTableColumn.getCellObservableValue(itm).getValue().toString()) + ")");
+                    cMap.put(itm.getId(), TextUtil.replaceWinPathBadSymbols(itm.getName()) + " (" + DateUtil.replaceTime(timeTableColumn.getCellObservableValue(itm).getValue().toString(),res) + ")");
                     cMap2.put(itm.getId(), itm.getTimeForFrequency());
                 }
         );
@@ -6918,7 +6896,7 @@ class ForceCopyProfile
                                         therapyComplex.isMulltyFreq() ? therapyComplex.getTimeForFrequency() : program.getNumFreqs() * therapyComplex.getTimeForFrequency());
 
 
-                                String nameFile = (++cnt) + "-" + TextUtil.replaceWinPathBadSymbols(program.getName()) + " (" + replaceTime(timeP) + ").bss";
+                                String nameFile = (++cnt) + "-" + TextUtil.replaceWinPathBadSymbols(program.getName()) + " (" + DateUtil.replaceTime(timeP,res) + ").bss";
                                 String nameFile1 = cnt + "-" + TextUtil.replaceWinPathBadSymbols(program.getName()) + ".txt";
                                 //  System.out.print("Создание программы: " + nameFile + "...");
 
@@ -6944,7 +6922,7 @@ class ForceCopyProfile
                                     //если файл существует
                                     String timeP =DateUtil.convertSecondsToHMmSs(mp3file.getLengthInSeconds());
 
-                                    String nameFile = (++cnt) + "-" + TextUtil.replaceWinPathBadSymbols(program.getName()) + " (" + replaceTime(timeP) + ").bss";
+                                    String nameFile = (++cnt) + "-" + TextUtil.replaceWinPathBadSymbols(program.getName()) + " (" + DateUtil.replaceTime(timeP,res) + ").bss";
                                     String nameFile1 = cnt + "-" + TextUtil.replaceWinPathBadSymbols(program.getName()) + ".txt";
 
                                     FilesProfileHelper.copyBSS(new File(program.getFrequencies()),new File(tDComplex.getFile(), nameFile + ".bss"));
@@ -6975,7 +6953,7 @@ class ForceCopyProfile
                                         therapyComplex.isMulltyFreq() ? therapyComplex.getTimeForFrequency() : program.getNumFreqs() * therapyComplex.getTimeForFrequency());
 
 
-                                String nameFile = (++cnt) + "-" + TextUtil.replaceWinPathBadSymbols(program.getName()) + " (" + replaceTime(timeP) + ").bss";
+                                String nameFile = (++cnt) + "-" + TextUtil.replaceWinPathBadSymbols(program.getName()) + " (" + DateUtil.replaceTime(timeP,res) + ").bss";
                                 String nameFile1 = cnt + "-" + TextUtil.replaceWinPathBadSymbols(program.getName()) + ".txt";
                                 // System.out.print("Переименование программы: " + nameFile + "...");
 
@@ -7006,7 +6984,7 @@ class ForceCopyProfile
                                     //если файл существует
                                     String timeP =DateUtil.convertSecondsToHMmSs(mp3file.getLengthInSeconds());
 
-                                    String nameFile = (++cnt) + "-" + TextUtil.replaceWinPathBadSymbols(program.getName()) + " (" + replaceTime(timeP) + ").bss";
+                                    String nameFile = (++cnt) + "-" + TextUtil.replaceWinPathBadSymbols(program.getName()) + " (" + DateUtil.replaceTime(timeP,res) + ").bss";
                                     String nameFile1 = cnt + "-" + TextUtil.replaceWinPathBadSymbols(program.getName()) + ".txt";
 
                                     File nf = new File(tDComplex.getFile(), nameFile);
@@ -7035,7 +7013,7 @@ class ForceCopyProfile
                                     therapyComplex.isMulltyFreq() ? therapyComplex.getTimeForFrequency() : program.getNumFreqs() * therapyComplex.getTimeForFrequency());
 
 
-                            String nameFile = (++cnt) + "-" + TextUtil.replaceWinPathBadSymbols(program.getName()) + " (" + replaceTime(timeP) + ").bss";
+                            String nameFile = (++cnt) + "-" + TextUtil.replaceWinPathBadSymbols(program.getName()) + " (" + DateUtil.replaceTime(timeP,res) + ").bss";
                             String nameFile1 = cnt + "-" + TextUtil.replaceWinPathBadSymbols(program.getName()) + ".txt";
                             // System.out.print("Создание программы: " + nameFile + "...");
 
@@ -7067,7 +7045,7 @@ class ForceCopyProfile
                                 //если файл существует
                                 String timeP =DateUtil.convertSecondsToHMmSs(mp3file.getLengthInSeconds());
 
-                                String nameFile = (++cnt) + "-" + TextUtil.replaceWinPathBadSymbols(program.getName()) + " (" + replaceTime(timeP) + ").bss";
+                                String nameFile = (++cnt) + "-" + TextUtil.replaceWinPathBadSymbols(program.getName()) + " (" + DateUtil.replaceTime(timeP,res) + ").bss";
                                 String nameFile1 = cnt + "-" + TextUtil.replaceWinPathBadSymbols(program.getName()) + ".txt";
 
                                 FilesProfileHelper.copyBSS(new File(program.getFrequencies()),new File(tDComplex.getFile(), nameFile + ".bss"));
@@ -8821,7 +8799,7 @@ return  true;
 
                                 TableColumn<TherapyComplex, ?> timeTableColumn = (TableColumn)AppController.this.tableComplex.getColumns().get(3);
                                 selectedItems.forEach((itm) -> {
-                                    cMap.put(itm.getId(), TextUtil.replaceWinPathBadSymbols(itm.getName()) + " (" + AppController.this.replaceTime(timeTableColumn.getCellObservableValue(itm).getValue().toString()) + ")");
+                                    cMap.put(itm.getId(), TextUtil.replaceWinPathBadSymbols(itm.getName()) + " (" + DateUtil.replaceTime(timeTableColumn.getCellObservableValue(itm).getValue().toString(),res) + ")");
                                     cMap2.put(itm.getId(), itm.getTimeForFrequency());
                                 });
                                 File bDir = dir;
@@ -8857,7 +8835,7 @@ return  true;
                                                 mp3file = DateUtil.convertSecondsToHMmSs(therapyComplex.isMulltyFreq()?(long)therapyComplex.getTimeForFrequency().intValue():(long)(therapyProgram.getNumFreqs() * therapyComplex.getTimeForFrequency().intValue()));
                                                 strb2 = new StringBuilder();
                                                 ++count2;
-                                                timeP = strb2.append(count2).append("-").append(TextUtil.replaceWinPathBadSymbols(therapyProgram.getName())).append(" (").append(AppController.this.replaceTime(mp3file)).append(")").toString();
+                                                timeP = strb2.append(count2).append("-").append(TextUtil.replaceWinPathBadSymbols(therapyProgram.getName())).append(" (").append(DateUtil.replaceTime(mp3file,res)).append(")").toString();
                                                 FilesProfileHelper.copyBSS(new File(BaseController.getApp().getDataDir(), therapyProgram.getId() + ".dat"), new File(tempFile, timeP + ".bss"));
                                                 FilesProfileHelper.copyTxt(therapyProgram.getFrequencies(),
                                                         (cMap2.get(entry.getKey())).intValue(),
@@ -8884,7 +8862,7 @@ return  true;
                                                     timeP = DateUtil.convertSecondsToHMmSs(mp3.getLengthInSeconds());
                                                     strb2 = new StringBuilder();
                                                     ++count2;
-                                                    String nameFile = strb2.append(count2).append("-").append(TextUtil.replaceWinPathBadSymbols(therapyProgram.getName())).append(" (").append(AppController.this.replaceTime(timeP)).append(")").toString();
+                                                    String nameFile = strb2.append(count2).append("-").append(TextUtil.replaceWinPathBadSymbols(therapyProgram.getName())).append(" (").append(DateUtil.replaceTime(timeP,res)).append(")").toString();
                                                     FilesProfileHelper.copyBSS(new File(therapyProgram.getFrequencies()), new File(tempFile, nameFile + ".bss"));
                                                     FilesProfileHelper.copyTxt(therapyProgram.getFrequencies(),
                                                             (cMap2.get(entry.getKey())).intValue(),

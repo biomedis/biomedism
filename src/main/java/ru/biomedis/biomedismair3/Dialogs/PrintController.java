@@ -16,6 +16,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+
 import static ru.biomedis.biomedismair3.Log.logger;
 
 /**
@@ -23,9 +24,13 @@ import static ru.biomedis.biomedismair3.Log.logger;
  */
 public class PrintController extends BaseController {
 
-    private @FXML    WebView webView;
+    private
+    @FXML
+    WebView webView;
     private WebEngine webEngine;
-    private @FXML  Node root;
+    private
+    @FXML
+    Node root;
 
     private Long id;
     private int type;
@@ -33,19 +38,16 @@ public class PrintController extends BaseController {
     private ResourceBundle res;
 
     @Override
-    public void setParams(Object... params)
-    {
+    public void setParams(Object... params) {
 
-        if(params.length==2)
-        {
+        if (params.length == 2) {
 
-            type=(Integer)params[1];
-            if(type==2){
+            type = (Integer) params[1];
+            if (type == 2) {
 
-                ids=(List<Long>)params[0];
+                ids = (List<Long>) params[0];
 
-            }else id=(Long)params[0];
-
+            } else id = (Long) params[0];
 
 
         }
@@ -53,38 +55,35 @@ public class PrintController extends BaseController {
     }
 
     @Override
-    public void initialize(URL location, ResourceBundle resources)
-    {
+    public void initialize(URL location, ResourceBundle resources) {
 
-        res=resources;
-        webEngine =   webView.getEngine();
+        res = resources;
+        webEngine = webView.getEngine();
 
         Platform.runLater(() -> webEngine.loadContent(getContent()));
 
 
     }
 
-    private String getContent()
-    {
+    private String getContent() {
 
-        StringBuilder strB=new StringBuilder();
+        StringBuilder strB = new StringBuilder();
         strB.append("<html>");
         strB.append("<title></title>");
         strB.append("<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/></head>");
         strB.append("<body>");
 
-        switch (type)
-        {
+        switch (type) {
 
             case 1:
-                profileContent(strB,id);
+                profileContent(strB, id);
                 break;
 
             case 0:
-                complexContent(strB,id,false);
+                complexContent(strB, id, false);
                 break;
             case 2:
-                ids.forEach(itm -> complexContent(strB,itm,true));
+                ids.forEach(itm -> complexContent(strB, itm, true));
                 break;
         }
 
@@ -94,96 +93,72 @@ public class PrintController extends BaseController {
         return strB.toString();
     }
 
-    public void onPrint()
-    {
+    public void onPrint() {
 
         PrinterJob job = PrinterJob.createPrinterJob();
 
         if (job != null) {
             try {
-                if (job.showPrintDialog(root.getScene().getWindow()))
-                {
+                if (job.showPrintDialog(root.getScene().getWindow())) {
 
                     webEngine.print(job);
                     job.endJob();
                 }
-            }catch (Exception e)
-            {
-                logger.error("",e);
-                BaseController.showInfoDialog(res.getString("app.print"),res.getString("app.print_error_message"),"",root.getScene().getWindow(), Modality.WINDOW_MODAL);
+            } catch (Exception e) {
+                logger.error("", e);
+                BaseController.showInfoDialog(res.getString("app.print"), res.getString("app.print_error_message"), "", root.getScene().getWindow(), Modality.WINDOW_MODAL);
             }
 
         }
     }
 
 
-    private void complexContent(StringBuilder strb,long idComplex,boolean part)
-    {
+    private void complexContent(StringBuilder strb, long idComplex, boolean part) {
         TherapyComplex therapyComplex = getModel().findTherapyComplex(idComplex);
-        if(getModel().countTherapyPrograms(therapyComplex,false)==0) return;
+        if (getModel().countTherapyPrograms(therapyComplex, false) == 0) return;
         strb.append("<p></p>");
 
-        if(part)   strb.append("<h2>"+res.getString("app.therapy_complex")+" - "+therapyComplex.getName() +"</h2>");
-        else  strb.append("<h1>"+res.getString("app.therapy_complex")+" - "+therapyComplex.getName() +"</h1>");
+        if (part)
+            strb.append("<h2>" + res.getString("app.therapy_complex") + " - " + therapyComplex.getName() + "</h2>");
+        else strb.append("<h1>" + res.getString("app.therapy_complex") + " - " + therapyComplex.getName() + "</h1>");
 
-        strb.append("<p>"+res.getString("ui.time_to_freq")+": "+therapyComplex.getTimeForFrequency() + res.getString("app.secunde")+"<br/>");
-        strb.append( res.getString("app.table.complex_descr")+": "+therapyComplex.getDescription()+"<br/>");
-        strb.append(res.getString("app.table.mulltyfreqs")+": "+(therapyComplex.isMulltyFreq()?res.getString("app.yes"):res.getString("app.no"))+"<br/>");
-        strb.append( res.getString("app.table.delay")+": "+ replaceTime(DateUtil.convertSecondsToHMmSs(getModel().getTimeTherapyComplex(therapyComplex)))+"</p>");
+        strb.append("<p>" + res.getString("ui.time_to_freq") + ": " + therapyComplex.getTimeForFrequency() + res.getString("app.secunde") + "<br/>");
+        strb.append(res.getString("app.table.complex_descr") + ": " + therapyComplex.getDescription() + "<br/>");
+        strb.append(res.getString("app.table.mulltyfreqs") + ": " + (therapyComplex.isMulltyFreq() ? res.getString("app.yes") : res.getString("app.no")) + "<br/>");
+        strb.append(res.getString("app.table.delay") + ": " + DateUtil.replaceTime(DateUtil.convertSecondsToHMmSs(getModel().getTimeTherapyComplex(therapyComplex)), res) + "</p>");
 
         strb.append("<p></p>");
 
-       // strb.append("<table border=\"1\" cellspacing=\"0\" cellpadding=\"5\" style=\"max-width:600px;\">");
+        // strb.append("<table border=\"1\" cellspacing=\"0\" cellpadding=\"5\" style=\"max-width:600px;\">");
         strb.append("<table border=\"1\" cellspacing=\"0\" cellpadding=\"5\" width=\"100%\">");
         strb.append("<tr>");
         strb.append("<th width=20%>" + res.getString("app.table.program_name") + "</th>");
-        strb.append("<th width=80%>"+res.getString("app.table.freqs")+"</th>");
+        strb.append("<th width=80%>" + res.getString("app.table.freqs") + "</th>");
         strb.append("</tr>");
 
         getModel().findTherapyPrograms(therapyComplex).forEach(itm ->
         {
             strb.append("<tr>");
-              strb.append("<td>"+itm.getName()+"</td>");
-              strb.append("<td>"+itm.getFrequencies().replace(";","; ")+"</td>");
+            strb.append("<td>" + itm.getName() + "</td>");
+            strb.append("<td>" + itm.getFrequencies().replace(";", "; ") + "</td>");
             strb.append("</tr>");
         });
 
         strb.append("</table>");
 
     }
-    private void profileContent(StringBuilder strb,long idProfile)
-    {
+
+    private void profileContent(StringBuilder strb, long idProfile) {
         Profile profile = getModel().findProfile(idProfile);
         strb.append("<p></p>");
-        strb.append("<h1>"+res.getString("app.profile")+" - "+profile.getName() +"</h1>");
-        strb.append("<p>" + res.getString("app.table.delay")+": "+ replaceTime(DateUtil.convertSecondsToHMmSs(getModel().getTimeProfile(profile)))+"</p>");
+        strb.append("<h1>" + res.getString("app.profile") + " - " + profile.getName() + "</h1>");
+        strb.append("<p>" + res.getString("app.table.delay") + ": " + DateUtil.replaceTime(DateUtil.convertSecondsToHMmSs(getModel().getTimeProfile(profile)), res) + "</p>");
 
         strb.append("<p></p>");
-        getModel().findAllTherapyComplexByProfile(profile).forEach(itm->complexContent(strb,itm.getId(),true));
+        getModel().findAllTherapyComplexByProfile(profile).forEach(itm -> complexContent(strb, itm.getId(), true));
 
     }
 
-    private String replaceTime(String time)
-    {
-        StringBuilder strb=new StringBuilder();
-
-
-        String[] split = time.split(":");
-        if(split.length==3)
-        {
-            strb.append(split[0]); strb.append(res.getString("app.hour"));strb.append(" ");
-            strb.append(split[1]); strb.append(res.getString("app.minute"));strb.append(" ");
-            strb.append(split[2]); strb.append(res.getString("app.secunde"));
-            return strb.toString();
-        }else return time.replace(":","_");
-
-
-
-
-
-
-
-    }
 }
 
 /*

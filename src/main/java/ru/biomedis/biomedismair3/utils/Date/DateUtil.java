@@ -9,6 +9,7 @@ package ru.biomedis.biomedismair3.utils.Date;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ResourceBundle;
 
 /**
  * Helper functions for handling dates.
@@ -69,7 +70,24 @@ public class DateUtil {
     public static String convertSecondsToHMmSs(long seconds) {
         long s = seconds % 60;
         long m = (seconds / 60) % 60;
-        long h = (seconds / (60 * 60)) % 24;
-        return String.format("%d:%02d:%02d", h,m,s);
+        long h = (seconds / (60 * 60));
+        return String.format("%02d:%02d:%02d", h,m,s);
+
     }
+
+    public static String replaceTime(String time, ResourceBundle res)
+    {
+        StringBuilder strb=new StringBuilder();
+
+        String[] split = time.split(":");
+        if(split.length==3)
+        {
+            strb.append(split[0]); strb.append(res.getString("app.hour"));strb.append(" ");
+            strb.append(split[1]); strb.append(res.getString("app.minute"));strb.append(" ");
+            strb.append(split[2]); strb.append(res.getString("app.secunde"));
+            return strb.toString();
+        }else   return time.replace(":","_");
+
+    }
+
 }
