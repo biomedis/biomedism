@@ -14,8 +14,10 @@ import ru.biomedis.biomedismair3.DBImport.NewDBImport;
 import ru.biomedis.biomedismair3.DBImport.OldDBImport;
 import ru.biomedis.biomedismair3.Tests.TestsFramework.TestsManager;
 import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadLanguageFiles;
+import ru.biomedis.biomedismair3.UserUtils.Import.ImportUserBase;
 import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.entity.ProgramOptions;
+import ru.biomedis.biomedismair3.entity.Section;
 import ru.biomedis.biomedismair3.entity.TherapyProgram;
 import ru.biomedis.biomedismair3.utils.Files.ResourceUtil;
 import ru.biomedis.biomedismair3.utils.USB.USBHelper;
@@ -875,17 +877,105 @@ https://gist.github.com/DemkaAge/8999236
 
                 //добавление базы чстот Тринити
 
+               // logger.info("Добавление раздела Trinity");
+               // addTrinityBase();
+                //logger.info("Добавление раздела Trinity --- успешно");
+
 
 
             }catch (Exception ex){
-                throw new RuntimeException("Не удалось выполнить ALTER TABLE THERAPYPROGRAM ADD MULTYFREQ BOOLEAN(1) DEFAULT 1");
+                throw new RuntimeException("Не удалось выполнить обновление",ex);
             }finally {
                 if(em!=null) em.close();
             }
 
 
         }
+
+
+        try {
+            logger.info("Добавление раздела Trinity");
+            addTrinityBase();
+            logger.info("Добавление раздела Trinity --- успешно");
+        } catch (Exception ex) {
+            throw new RuntimeException("Не удалось выполнить добавление Trinity",ex);
+        }
+
+
+
+        logger.info("ОБНОВЛЕНИЕ 5. Завершено");
     }
+
+    private void addTrinityBase() throws Exception {
+        Section section=null;
+        try {
+            if(model.findAllSectionByTag("TRINITY")!=null) return;
+             section = model.createSection(null, "Trinity", "", "TRINITY", true, model.getDefaultLanguage());
+            if(section==null) throw new Exception("Ошибка создания раздела Trinity");
+            ImportUserBase iUB=new ImportUserBase();
+
+            ResourceUtil ru=new ResourceUtil();
+            File trinityBaseFile = ru.saveResource(getTmpDir(),"trinity.xmlb","/updates/update5/trinity.xmlb",true);
+
+            if(trinityBaseFile==null) throw new Exception("Не удалось создать файл для импорта базы");
+
+            iUB.setListener(new ImportUserBase.Listener() {
+                @Override
+                public void onStartParse() {
+
+                }
+
+                @Override
+                public void onEndParse() {
+
+                }
+
+                @Override
+                public void onStartAnalize() {
+
+                }
+
+                @Override
+                public void onEndAnalize() {
+
+                }
+
+                @Override
+                public void onStartImport() {
+
+                }
+
+                @Override
+                public void onEndImport() {
+
+                }
+
+                @Override
+                public void onSuccess() {
+
+                }
+
+                @Override
+                public void onError(boolean fileTypeMissMatch) {
+
+                }
+            });
+            boolean res = iUB.parse(trinityBaseFile, model, section);
+            if(res==false) {
+                model.removeSection(section);
+                throw new Exception("Ошибка импорта программ");
+            }
+        }catch (Exception e){
+
+           if(section!=null) model.removeSection(section);
+            throw new Exception("Ошибка импорта программ",e);
+        }
+
+
+
+
+    }
+
     @Override
     public void stop() throws Exception {       
         closePersisenceContext();        

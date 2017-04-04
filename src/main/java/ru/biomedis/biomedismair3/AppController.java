@@ -940,6 +940,16 @@ public class AppController  extends BaseController {
             if(baseCombo.getSelectionModel().getSelectedIndex()<=1)sectionCombo.getSelectionModel().select(1);
             else sectionCombo.getSelectionModel().select(0);//автоматически очистит дерево, тк сработает sectionCombo.setOnAction(event....
 
+            //если список подразделов пуст, то попробуем заполнить дерево из корня, те из выбранной базы. Для тринити сейчас так
+            if(sectionsBase.size()<=1 && !tag.equals("USER")){
+                clearSearch(false,false);//очистка состояния поиска
+                Section selectedItem = baseCombo.getSelectionModel().getSelectedItem();
+                programDescription.setText("");
+                programInfo.setText("");
+                fillTree(selectedItem);//очистит и заполнит дерево, родительский раздел передается как параметр
+            }
+
+
         });
 
         //откроем первую базу

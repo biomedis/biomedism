@@ -605,8 +605,9 @@ public class ModelDataApp {
             query.setParameter("tag",tag);
         }
 
-
-        return (Section)query.getSingleResult();
+        List<Section> res = (List<Section>)query.getResultList();
+        if(res.size()!=0) return  res.get(0);
+        else return null;
     }
 
 
