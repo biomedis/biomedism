@@ -1230,6 +1230,7 @@ public class AppController  extends BaseController {
         sectionCombo.getOnAction().handle(new ActionEvent());
 
 initTables();
+        initProgramSearch();
 initBiofon();
 initUSBDetectionM2();
         readFromTrinityMenu.disableProperty().bind(m2Connected.not());
@@ -9595,6 +9596,56 @@ return  true;
         } catch (IOException e) {
             logger.error("",e);
         }
+    }
+
+    @FXML private Button searchReturnBtnPrograms;
+    @FXML private Button searchBtnProgram;
+
+    @FXML private TextField  nameProgramSearch;
+    @FXML private TextField freqProgramSearch;
+    private SimpleBooleanProperty programSearch =new SimpleBooleanProperty(false);
+
+    private void initProgramSearch(){
+
+        searchReturnBtnPrograms.disableProperty().bind(programSearch.not());
+        searchBtnProgram.disableProperty().bind(nameProgramSearch.textProperty().isEmpty().and(freqProgramSearch.textProperty().isEmpty()));
+        programSearch.bind(nameProgramSearch.textProperty().isNotEmpty().or(freqProgramSearch.textProperty().isNotEmpty()));
+    }
+    /*
+    Поиск по тер. программам в таблице
+     */
+    public void onSearchReturnPrograms(){
+         nameProgramSearch.setText("");
+         freqProgramSearch.setText("");
+         tableProgram.getSelectionModel().clearSelection();
+         tableProgram.scrollTo(0);
+
+    }
+
+    public void onSearchProgram(){
+        String name = nameProgramSearch.getText();
+        String freqs = freqProgramSearch.getText();
+        if(name.length()<=2) { showInfoDialog(res.getString("app.search"),res.getString("app.search_1"),"",getApp().getMainWindow(),Modality.WINDOW_MODAL);return;}
+
+        List<TherapyProgram> searched = tableProgram.getItems().stream().filter(p -> {
+            if(!name.isEmpty() && !freqs.isEmpty())  return p.getName().contains(name)|| p.getOname().contains(name)||p.getFrequencies().contains(freqs);
+                else  if(name.isEmpty() && !freqs.isEmpty())  return p.getFrequencies().contains(freqs);
+            else   if(!name.isEmpty() && freqs.isEmpty()) return p.getName().contains(name)|| p.getOname().contains(name);
+            else   return false;
+
+        }).collect(Collectors.toList());
+
+        if(searched.isEmpty()){
+            showInfoDialog(res.getString("app.search_res"),res.getString("app.search_res_1"),"",
+                    getApp().getMainWindow(),Modality.WINDOW_MODAL);
+            return;
+        }
+
+        tableProgram.getSelectionModel().clearSelection();
+
+        searched.forEach(tp -> tableProgram.getSelectionModel().select(tp));
+        tableProgram.scrollTo(searched.get(0));
+        tableProgram.getFocusModel().focus(tableProgram.getItems().indexOf(searched.get(0)));
     }
     /***************************************************/
 

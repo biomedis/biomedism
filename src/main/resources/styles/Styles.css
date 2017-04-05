@@ -5,8 +5,20 @@
     -fx-background-repeat: no-repeat;
     -fx-background-position:center;
 }
-
-
+.searchButton2
+{
+    -fx-background-image: url("../images/search.png");
+    -fx-background-size: 24 24;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position:center;
+}
+.nextButton
+{
+    -fx-background-image: url("../images/next.png");
+    -fx-background-size: 24 24;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position:center;
+}
 .searchReturnButton
 {
     -fx-background-image: url("../images/undo.png");
