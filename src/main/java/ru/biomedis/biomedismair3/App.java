@@ -771,12 +771,16 @@ https://gist.github.com/DemkaAge/8999236
         };
 
         task.setOnSucceeded(event -> {
-            if(!task.getValue().booleanValue())  BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL);
+            if(!task.getValue().booleanValue()) {
+                BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL);
+                Platform.exit();
+            }
 
             UpdateWaiter.close();
         });
         task.setOnFailed(event -> {
             Platform.runLater(() -> BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
+            Platform.exit();
             UpdateWaiter.close();
         });
 
@@ -830,12 +834,16 @@ https://gist.github.com/DemkaAge/8999236
         };
 
         task.setOnSucceeded(event -> {
-            if(!task.getValue().booleanValue())  BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL);
+            if(!task.getValue().booleanValue())  {
+                BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL);
+                Platform.exit();
+            }
 
             UpdateWaiter.close();
         });
         task.setOnFailed(event -> {
             Platform.runLater(() -> BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
+            Platform.exit();
             UpdateWaiter.close();
         });
 
@@ -849,9 +857,12 @@ https://gist.github.com/DemkaAge/8999236
     }
 
 
-    private void update5(ProgramOptions opt)
+    private void update5(ProgramOptions updateOption)
     {
         logger.info("ОБНОВЛЕНИЕ 5.");
+        Task<Boolean> task =new Task<Boolean>()  {
+            @Override
+            protected Boolean call() throws Exception {
         try
         {
             logger.info("Проверка наличия столбца MULTYFREQ  в THERAPYPROGRAM ");
@@ -884,7 +895,8 @@ https://gist.github.com/DemkaAge/8999236
 
 
             }catch (Exception ex){
-                throw new RuntimeException("Не удалось выполнить обновление",ex);
+                logger.error("ошибка обновления ALTER TABLE THERAPYPROGRAM ADD MULTYFREQ BOOLEAN(1) DEFAULT 1",ex);
+                return false;
             }finally {
                 if(em!=null) em.close();
             }
@@ -897,13 +909,41 @@ https://gist.github.com/DemkaAge/8999236
             logger.info("Добавление раздела Trinity");
             addTrinityBase();
             logger.info("Добавление раздела Trinity --- успешно");
+
         } catch (Exception ex) {
-            throw new RuntimeException("Не удалось выполнить добавление Trinity",ex);
+            logger.error("Не удалось выполнить добавление Trinity",ex);
+            return false;
         }
 
+                setUpdateVersion(updateOption,5);
+            return true;
+
+            }
+        };
 
 
-        logger.info("ОБНОВЛЕНИЕ 5. Завершено");
+        task.setOnSucceeded(event -> {
+            if(!task.getValue().booleanValue())  {
+                BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL);
+                Platform.exit();
+            }
+            else  logger.info("ОБНОВЛЕНИЕ 5. Завершено");
+
+            UpdateWaiter.close();
+        });
+        task.setOnFailed(event -> {
+            Platform.runLater(() -> BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
+            Platform.exit();
+            UpdateWaiter.close();
+        });
+
+        Thread threadTask=new Thread(task);
+        threadTask.setDaemon(true);
+        threadTask.start();
+        UpdateWaiter.show();
+
+
+
     }
 
     private void addTrinityBase() throws Exception {

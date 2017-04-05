@@ -3504,7 +3504,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
     {
         timeToFreqSpinner.getValueFactory().setValue(val/60.0);
         spinnerBtnPan.setVisible(false);
-        System.out.println(val+"==="+val/60.0);
+
 
 
     }
