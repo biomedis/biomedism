@@ -15,10 +15,7 @@ import ru.biomedis.biomedismair3.DBImport.OldDBImport;
 import ru.biomedis.biomedismair3.Tests.TestsFramework.TestsManager;
 import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadLanguageFiles;
 import ru.biomedis.biomedismair3.UserUtils.Import.ImportUserBase;
-import ru.biomedis.biomedismair3.entity.Profile;
-import ru.biomedis.biomedismair3.entity.ProgramOptions;
-import ru.biomedis.biomedismair3.entity.Section;
-import ru.biomedis.biomedismair3.entity.TherapyProgram;
+import ru.biomedis.biomedismair3.entity.*;
 import ru.biomedis.biomedismair3.utils.Files.ResourceUtil;
 import ru.biomedis.biomedismair3.utils.USB.USBHelper;
 import ru.biomedis.biomedismair3.utils.UTF8Control;
@@ -877,12 +874,18 @@ https://gist.github.com/DemkaAge/8999236
                 em.createNativeQuery("ALTER TABLE THERAPYPROGRAM ADD MULTYFREQ BOOLEAN(1) DEFAULT 1").executeUpdate();
                 em.getTransaction().commit();
                 logger.info("Столбец  MULTYFREQ создан.");
-
+                TherapyComplex therapyComplex;
+                boolean multyCompl=false;
                 for (TherapyProgram tp : getModel().findAllTherapyPrograms()) {
-                   if( tp.getTherapyComplex().isMulltyFreq()!=tp.isMultyFreq()){
-                       tp.setMultyFreq(tp.getTherapyComplex().isMulltyFreq());
-                       getModel().updateTherapyProgram(tp);
-                   }
+
+                     therapyComplex = tp.getTherapyComplex();
+
+                     if(therapyComplex==null)  tp.setMultyFreq(true);
+                     else   if( therapyComplex.isMulltyFreq()!=tp.isMultyFreq()){
+                         tp.setMultyFreq(therapyComplex.isMulltyFreq());
+                     }
+                    getModel().updateTherapyProgram(tp);
+
                 }
                 logger.info("Столбец  MULTYFREQ обновлен.");
 
