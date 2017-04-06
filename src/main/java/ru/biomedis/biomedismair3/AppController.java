@@ -2627,7 +2627,48 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         MenuItem mi8=new MenuItem(res.getString("app.ui.multy_switch_on"));
         MenuItem mi9=new MenuItem(res.getString("app.ui.multy_switch_off"));
         MenuItem mi10=new SeparatorMenuItem();
+        MenuItem mi11=new MenuItem(res.getString("app.ui.copy_program_name"));
+        MenuItem mi12=new MenuItem(res.getString("app.ui.copy_program_name_main"));
+        MenuItem mi13=new MenuItem(res.getString("app.ui.copy_program_freq"));
+        MenuItem mi14=new MenuItem(res.getString("app.ui.invert_seletion"));
+        MenuItem mi15=new SeparatorMenuItem();
 
+        mi11.setOnAction(e->{
+            TherapyProgram selectedItem = tableProgram.getSelectionModel().getSelectedItem();
+            if(selectedItem==null) return;
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(selectedItem.getName());
+            clipboard.setContent(content);
+
+        });
+        mi12.setOnAction(e->{
+            TherapyProgram selectedItem = tableProgram.getSelectionModel().getSelectedItem();
+            if(selectedItem==null) return;
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(selectedItem.getOname());
+            clipboard.setContent(content);
+
+        });
+        mi13.setOnAction(e->{
+            TherapyProgram selectedItem = tableProgram.getSelectionModel().getSelectedItem();
+            if(selectedItem==null) return;
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(selectedItem.getFrequencies());
+            clipboard.setContent(content);
+
+        });
+        mi14.setOnAction(e->{
+            List<Integer> selected = tableProgram.getSelectionModel().getSelectedIndices().stream().collect(Collectors.toList());
+            tableProgram.getSelectionModel().selectAll();
+            for (Integer ind : selected) {
+                tableProgram.getSelectionModel().clearSelection(ind);
+            }
+
+
+        });
 
         mi4.setOnAction(event2 -> copyTherapyProgramToBase());
         mi6.setOnAction(event2 -> editMP3ProgramPath());
@@ -2636,9 +2677,8 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         {
             if (tableProgram.getSelectionModel().getSelectedItems().isEmpty()) return;
             Clipboard clipboard = Clipboard.getSystemClipboard();
-
-
                 ClipboardContent content = new ClipboardContent();
+                content.clear();
                 content.put(PROGRAM_CUT_ITEM, tableProgram.getSelectionModel().getSelectedIndices().toArray(new Integer[0]));
                 clipboard.setContent(content);
                 therapyProgramsCopied=false;
@@ -2649,6 +2689,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
             if (tableProgram.getSelectionModel().getSelectedItems().isEmpty()) return;
             Clipboard clipboard = Clipboard.getSystemClipboard();
             ClipboardContent content = new ClipboardContent();
+            content.clear();
             content.put(PROGRAM_COPY_ITEM, tableProgram.getSelectionModel()
                     .getSelectedItems().stream().map(i->i.getId()).collect(Collectors.toList()).toArray(new Long[0]));
             clipboard.setContent(content);
@@ -2660,7 +2701,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         mi9.setOnAction(e->multyFreqProgramSwitchOff());
         mi2.setOnAction(e -> pasteTherapyPrograms());
 
-        programmMenu.getItems().addAll(mi2, mi7,mi1,mi3,mi4,mi5,mi6,mi10,mi8,mi9);
+        programmMenu.getItems().addAll(mi2, mi7,mi1,mi3,mi4,mi5,mi6,mi10,mi8,mi9,mi15,mi11,mi12,mi13,mi14);
 
         tableProgram.setContextMenu(programmMenu);
         this.programmMenu.setOnShowing((event1) -> {
@@ -2674,12 +2715,27 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                 mi7.setDisable(true);
                 mi8.setDisable(true);
                 mi9.setDisable(true);
+                mi11.setDisable(true);
+                mi12.setDisable(true);
+                mi13.setDisable(true);
+                mi14.setDisable(true);
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 if(clipboard.hasContent(this.PROGRAM_COPY_ITEM))if(therapyProgramsCopied)   mi2.setDisable(false);
             } else {
+                if(tableProgram.getSelectionModel().getSelectedIndices().size()==1){
+                    mi11.setDisable(false);
+                    mi12.setDisable(false);
+                    mi13.setDisable(false);
 
+                }else {
+                    mi11.setDisable(true);
+                    mi12.setDisable(true);
+                    mi13.setDisable(true);
+
+                }
+                mi14.setDisable(false);
                 mi2.setDisable(true);
-                mi1.setDisable(true);
+                mi1.setDisable(false);//всегда можно вырезать
                 mi3.setDisable(true);
                 mi4.setDisable(true);
                 mi5.setDisable(true);
@@ -2697,14 +2753,17 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                 if(clipboard.hasContent(this.PROGRAM_CUT_ITEM) || clipboard.hasContent(this.PROGRAM_COPY_ITEM)) {
 
 
-                    if (clipboard.hasContent(this.PROGRAM_COPY_ITEM)) mi2.setDisable(false);
+                    if (clipboard.hasContent(this.PROGRAM_COPY_ITEM)) {
+                      if(tableProgram.getSelectionModel().getSelectedIndices().size()==1) mi2.setDisable(false);
+                        else mi2.setDisable(true);
+                    }
                    else  if(tableProgram.getSelectionModel().getSelectedIndices().size()==1) {
 
                             Integer[] ind = (Integer[]) clipboard.getContent(PROGRAM_CUT_ITEM);
                         if (ind != null) {
                             if (ind.length != 0) {
                                 int dropIndex = tableProgram.getSelectionModel().getSelectedIndex();
-                                mi1.setDisable(false);
+
                                 if (Arrays.stream(ind).filter(i -> i.intValue() == dropIndex).count() == 0) {
                                     int startIndex = ind[0];
                                     int lastIndex = ind[ind.length - 1];
@@ -9623,14 +9682,16 @@ return  true;
     }
 
     public void onSearchProgram(){
-        String name = nameProgramSearch.getText();
-        String freqs = freqProgramSearch.getText();
-        if(name.length()<=2) { showInfoDialog(res.getString("app.search"),res.getString("app.search_1"),"",getApp().getMainWindow(),Modality.WINDOW_MODAL);return;}
+        String name = nameProgramSearch.getText().trim();
+        String freqs = freqProgramSearch.getText().trim().replaceAll(" ","");
+        if(name.length()<=2 && freqs.length()==0) { showInfoDialog(res.getString("app.search"),res.getString("app.search_1"),"",getApp().getMainWindow(),Modality.WINDOW_MODAL);return;}
 
         List<TherapyProgram> searched = tableProgram.getItems().stream().filter(p -> {
-            if(!name.isEmpty() && !freqs.isEmpty())  return p.getName().contains(name)|| p.getOname().contains(name)||p.getFrequencies().contains(freqs);
-                else  if(name.isEmpty() && !freqs.isEmpty())  return p.getFrequencies().contains(freqs);
-            else   if(!name.isEmpty() && freqs.isEmpty()) return p.getName().contains(name)|| p.getOname().contains(name);
+            String frequencies = p.getFrequencies();
+            String pName = p.getName();
+            if(!name.isEmpty() && !freqs.isEmpty())  return pName.contains(name)|| p.getOname().contains(name)|| frequencies.contains(freqs);
+                else  if(name.isEmpty() && !freqs.isEmpty())  return frequencies.contains(freqs);
+            else   if(!name.isEmpty() && freqs.isEmpty()) return pName.contains(name)|| p.getOname().contains(name);
             else   return false;
 
         }).collect(Collectors.toList());
