@@ -28,10 +28,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.DataFormat;
-import javafx.scene.input.KeyCode;
+import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -2841,6 +2838,26 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
 
 
+
+        tableProfile.setOnMouseClicked(event -> {
+            if(event.getClickCount()==2) {
+                event.consume();
+                //int selectedIndex = tableProfile.getSelectionModel().getSelectedIndex();
+               // tableProfile.getSelectionModel().clearSelection();
+                //tableProfile.getSelectionModel().select(selectedIndex);
+                if(tableProfile.getSelectionModel().getSelectedItem()!=null) therapyTabPane.getSelectionModel().select(1);
+
+            }
+        });
+
+        tableComplex.setOnMouseClicked(event -> {
+            if(event.getClickCount()==2) {
+                event.consume();
+
+                if(tableProfile.getSelectionModel().getSelectedItem()!=null)therapyTabPane.getSelectionModel().select(2);
+
+            }
+        });
 
         tableProfile.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
         {
