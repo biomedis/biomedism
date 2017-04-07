@@ -2039,7 +2039,9 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
             return property;
         });
 
-
+        timeCol.setStyle( "-fx-alignment: CENTER;");
+        numProfileCol.setStyle( "-fx-alignment: CENTER;");
+        weightCol.setStyle( "-fx-alignment: CENTER;");
         tableProfile.getColumns().addAll(numProfileCol, nameCol, timeCol, weightCol);
         tableProfile.placeholderProperty().setValue(new Label(res.getString("app.table.profile_not_avaliable")));
         tableProfile.setEditable(true);
@@ -2224,7 +2226,8 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         });
 
 
-
+        numComplexCol.setStyle( "-fx-alignment: CENTER;");
+        timeColTC.setStyle( "-fx-alignment: CENTER;");
         this.tableComplex.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         tableComplex.getColumns().addAll(numComplexCol, nameColTC, descColTC, timeColTC, mulltyCol);
         tableComplex.placeholderProperty().setValue(new Label(res.getString("app.table.complex_placeholder")));
@@ -2574,7 +2577,8 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         );
 
 
-
+        numProgCol.setStyle( "-fx-alignment: CENTER;");
+        timeColTP.setStyle( "-fx-alignment: CENTER;");
         tableProgram.getColumns().addAll(numProgCol, nameColTP, descColTP, timeColTP, fileCol);
         tableProgram.placeholderProperty().setValue(new Label(res.getString("app.table.programm_placeholder")));
 
