@@ -83,7 +83,7 @@ import static ru.biomedis.biomedismair3.Log.logger;
 
 public class AppController  extends BaseController {
     
-    private static int MAX_BUNDLES=10;
+    private static int MAX_BUNDLES=7;
     @FXML private ImageView deviceIcon;//иконка устройства
     @FXML private ComboBox<Section> baseCombo;//первый уровень разделов( типа выбор базы)
     @FXML private ComboBox<Section> sectionCombo;//второй уровень разделов
@@ -111,7 +111,7 @@ public class AppController  extends BaseController {
     @FXML private TableView<TherapyComplex> tableComplex;
     @FXML private TableView<TherapyProgram> tableProgram;
     @FXML private Button btnDeleteProfile;
-
+    @FXML private Button  generationComplexesBtn;
     @FXML private Button  btnCreateTherapy;
     @FXML private Button btnDeleteTherapy;
 
@@ -634,7 +634,7 @@ public class AppController  extends BaseController {
 /** Спиннер внемя на частоту **/
 
         //timeToFreqSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(10, 1000, 180, 10));
-        timeToFreqSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(1.0,10.0,3.0,0.5));
+        timeToFreqSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0.5,10.0,3.0,0.5));
         timeToFreqSpinner.setEditable(false);
         spinnerPan.setVisible(false);
         spinnerBtnPan.setVisible(false);
@@ -1147,7 +1147,7 @@ public class AppController  extends BaseController {
                         //добавляется комплекс в биофон
                         Complex c = (Complex) selectedItem.getValue();
                         try {
-                            TherapyComplex th = getModel().createTherapyComplex(getApp().getBiofonProfile(), c, 180, true,MAX_BUNDLES-3,getInsertComplexLang());
+                            TherapyComplex th = getModel().createTherapyComplex(getApp().getBiofonProfile(), c, 180, true,3,getInsertComplexLang());
 
                             addComplexToBiofonTab(th);
 
@@ -1165,7 +1165,7 @@ public class AppController  extends BaseController {
                         Complex c = (Complex) selectedItem.getValue();
 
                         try {
-                            TherapyComplex th = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), c, 300, true,MAX_BUNDLES-3,getInsertComplexLang());
+                            TherapyComplex th = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), c, 300, true,3,getInsertComplexLang());
 
                             //therapyComplexItems.clear();
                             //therapyComplexItems содержит отслеживаемый список, элементы которого добавляются в таблицу. Его не нужно очищать
@@ -1574,7 +1574,7 @@ tab5.disableProperty().bind(m2Connected.not());
 
         /** Спиннер внемя на частоту **/
 
-        timeToFreqSpinnerBiofon.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 30, 3, 1));
+        timeToFreqSpinnerBiofon.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 7, 3, 1));
         timeToFreqSpinnerBiofon.setEditable(true);
         spinnerPanBiofon.setVisible(false);
         spinnerBtnPanBiofon.setVisible(false);
@@ -2246,6 +2246,23 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
         mulltyCol.setEditable(true);
 
+        generationComplexesBtn.disableProperty().bind(new BooleanBinding() {
+            {super.bind(tableComplex.getSelectionModel().selectedItemProperty());}
+            @Override
+            protected boolean computeValue() {
+                boolean res=true;
+                for (TherapyComplex therapyComplex : tableComplex.getSelectionModel().getSelectedItems()) {
+                    if( therapyComplex.isChanged() || getModel().hasNeedGenerateProgramInComplex(therapyComplex) ){
+                       res=false;
+                       break;
+                    }
+                }
+
+                return res;
+
+            }
+        });
+        generationComplexesBtn.setOnAction(e->generateComplexes());
 
         MenuItem mic1 = new MenuItem(this.res.getString("app.to_user_base"));
         MenuItem mic2 = new MenuItem(this.res.getString("app.ui_comlexes_generation"));
@@ -5991,7 +6008,7 @@ private void setInfoMessage(String message)
         {
 
             try {
-                TherapyComplex therapyComplex = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), data.getNewName(), data.getNewDescription(), 300, true,1);
+                TherapyComplex therapyComplex = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), data.getNewName(), data.getNewDescription(), 300, true,3);
                 //therapyComplexItems.clear();
                 therapyComplexItems.add(therapyComplex);
                 tableComplex.getItems().add(therapyComplexItems.get(therapyComplexItems.size()-1));
@@ -8209,7 +8226,7 @@ class ForceCopyProfile
                 for (Map.Entry<ComplexFileData, Map<Long, ProgramFileData>> complexFileDataMapEntry : data.entrySet())
                 {
 
-                    th=  getModel().createTherapyComplex(profile, complexFileDataMapEntry.getKey().getName(), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(), complexFileDataMapEntry.getKey().isMullty(),1);
+                    th=  getModel().createTherapyComplex(profile, complexFileDataMapEntry.getKey().getName(), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(), complexFileDataMapEntry.getKey().isMullty(),3);
 
 
 
@@ -8385,7 +8402,7 @@ return  true;
 
 
 
-                        getModel().createTherapyComplex(profile, name, "", 300, true,1);
+                        getModel().createTherapyComplex(profile, name, "", 300, true,3);
 
 
                     }else

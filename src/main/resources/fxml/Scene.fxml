@@ -262,32 +262,33 @@
                                  <children>
                                     <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                        <children>
-                                          <HBox maxWidth="1.7976931348623157E308" prefWidth="200.0" spacing="8.0">
+                                          <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
                                              <children>
                                                 <Button fx:id="btnCreateTherapy" mnemonicParsing="false" onAction="#onCreateComplex" text="%ui.main.create_complex" />
 
                                                 <Button fx:id="uploadComplexesBtn" mnemonicParsing="false" text="%app.ui.upload_complexex" />
+                                                <Button fx:id="generationComplexesBtn" mnemonicParsing="false" text="%app.ui_comlexes_generation" />
                                                  <Button fx:id="btnDeleteTherapy" mnemonicParsing="false" onAction="#onRemoveComplex" text="%ui.main.remove_complex" />
                                                  <HBox fx:id="bundlesPan" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
                                                      <HBox.margin>
-                                                         <Insets left="3.0" right="3.0" top="-4.0" />
+                                                         <Insets top="-4.0" />
                                                      </HBox.margin>
                                                      <children>
 
                                                          <Label alignment="CENTER" text="%ui.bundles_length">
                                                              <HBox.margin>
-                                                                 <Insets left="8.0" right="3.0" />
+                                                                 <Insets right="3.0" />
                                                              </HBox.margin>
                                                          </Label>
 
-                                                      <Spinner fx:id="bundlesSpinner" minWidth="70.0" prefWidth="70.0" />
+                                                      <Spinner fx:id="bundlesSpinner" minWidth="60.0" prefWidth="60.0" />
                                                          <VBox fx:id="bundlesBtnPan" spacing="3.0">
                                                              <children>
                                                                  <Button fx:id="btnOkBundles" contentDisplay="CENTER" ellipsisString="" maxHeight="16.0" maxWidth="16.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0" />
                                                                  <Button fx:id="btnCancelBundles" maxHeight="16.0" maxWidth="16.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0" />
                                                              </children>
                                                              <HBox.margin>
-                                                                 <Insets left="5.0" right="5.0" />
+                                                                 <Insets left="3.0" />
                                                              </HBox.margin>
                                                          </VBox>
 
@@ -296,29 +297,29 @@
                                                  </HBox>
                                                 <HBox fx:id="spinnerPan" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
                                                    <HBox.margin>
-                                                      <Insets left="3.0" right="3.0" top="-4.0" />
+                                                      <Insets top="-4.0" />
                                                    </HBox.margin>
                                                    <children>
                                                       <Label alignment="CENTER" text="%ui.time_to_freq_m">
                                                          <HBox.margin>
-                                                            <Insets left="8.0" right="8.0" />
+                                                            <Insets right="3.0" />
                                                          </HBox.margin>
                                                       </Label>
-                                                      <Spinner fx:id="timeToFreqSpinner" maxWidth="80.0" minWidth="70.0" />
+                                                      <Spinner fx:id="timeToFreqSpinner" maxWidth="80.0" minWidth="60.0" prefWidth="60.0" />
                                                       <VBox fx:id="spinnerBtnPan" spacing="3.0">
                                                          <children>
                                                             <Button fx:id="btnOkSpinner" contentDisplay="CENTER" ellipsisString="" maxHeight="16.0" maxWidth="16.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0" />
                                                             <Button fx:id="btnCancelSpinner" maxHeight="16.0" maxWidth="16.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0" />
                                                          </children>
                                                          <HBox.margin>
-                                                            <Insets left="5.0" right="5.0" />
+                                                            <Insets left="3.0" />
                                                          </HBox.margin>
                                                       </VBox>
                                                    </children>
                                                 </HBox>
                                              </children>
                                              <padding>
-                                                <Insets left="8.0" right="8.0" top="8.0" />
+                                                <Insets left="5.0" top="8.0" />
                                              </padding>
                                           </HBox>
                                           <HBox fx:id="onameBoxComplex" spacing="6.0">
