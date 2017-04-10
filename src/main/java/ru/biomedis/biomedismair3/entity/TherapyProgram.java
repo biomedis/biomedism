@@ -261,5 +261,13 @@ public class TherapyProgram implements Serializable {
                     .collect(Collectors.toList());
     }
 
+    @Transient
+    public List<String> parseFreqsStrings(){
+
+        return Arrays.stream( frequencies.get().split(";"))
+                .flatMap(f->Arrays.stream(f.split("\\+")))
+                .map(f->f.replace(",","."))
+                .collect(Collectors.toList());
+    }
 
 }

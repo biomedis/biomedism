@@ -20,6 +20,7 @@ import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Side;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -2227,6 +2228,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
         numComplexCol.setStyle( "-fx-alignment: CENTER;");
         timeColTC.setStyle( "-fx-alignment: CENTER;");
+        nameColTC.setStyle( "-fx-alignment: CENTER-LEFT;");
         this.tableComplex.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         tableComplex.getColumns().addAll(numComplexCol, nameColTC, descColTC, timeColTC, mulltyCol);
         tableComplex.placeholderProperty().setValue(new Label(res.getString("app.table.complex_placeholder")));
@@ -2423,18 +2425,51 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         descColTP.setCellFactory(param1 -> {
 
             TableCell<TherapyProgram, String> cell = new TableCell<TherapyProgram, String>() {
-                private Text text;
+                //private Text text;
+                private  FlowPane textFlow;
 
                 @Override
                 protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
+
+                    if(this.getUserData()!=null)textFlow= (FlowPane)this.getUserData();
+                    else {
+                        textFlow=new FlowPane();
+                        textFlow.setPrefSize(USE_COMPUTED_SIZE,20);
+                        textFlow.setPadding(new Insets(0));
+                        textFlow.setMaxWidth(Double.MAX_VALUE);
+                        this.setUserData(textFlow);
+                    }
                     this.setText(null);
                     this.setGraphic(null);
                     if (!empty) {
-                        text = new Text(item.toString());
+                       /* text = new Text(item.toString());
                         text.setWrappingWidth((getTableColumn().getWidth())); // Setting the wrapping width to the Text
                         text.wrappingWidthProperty().bind(getTableColumn().widthProperty());
                         setGraphic(text);
+                        */
+
+
+
+                       textFlow.getChildren().clear();
+
+                        setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+
+                      if(!programSearch.get()) {
+
+                         for (String fr : ((TherapyProgram) getTableRow().getItem()).parseFreqsStrings()) {
+                              textFlow.getChildren().add(new Label(fr+" "));
+                          }
+
+                      }else {
+
+                          for (String fr : ((TherapyProgram) getTableRow().getItem()).parseFreqsStrings()) {
+                              textFlow.getChildren().add(new Label(fr+" "));
+                          }
+
+                      }
+
+                        setGraphic(textFlow);
                     }
                 }
             };
@@ -2586,6 +2621,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
         numProgCol.setStyle( "-fx-alignment: CENTER;");
         timeColTP.setStyle( "-fx-alignment: CENTER;");
+        nameColTP.setStyle( "-fx-alignment: CENTER-LEFT;");
         tableProgram.getColumns().addAll(numProgCol, nameColTP, descColTP, timeColTP, fileCol);
         tableProgram.placeholderProperty().setValue(new Label(res.getString("app.table.programm_placeholder")));
 
