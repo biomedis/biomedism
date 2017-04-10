@@ -2276,6 +2276,11 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
         MenuItem mic9 = new MenuItem(this.res.getString("app.ui.copy"));
         MenuItem mic10 =new MenuItem(this.res.getString("app.ui.paste"));
+        MenuItem mic11 =new MenuItem(this.res.getString("app.cut"));
+        MenuItem mic12 =new MenuItem(this.res.getString("app.delete"));
+
+        mic11.setOnAction(e->cutComplexes());
+        mic12.setOnAction(e->onRemoveComplex());
 
         mic1.setOnAction((event2) -> {
             this.copyTherapyComplexToBase();
@@ -2293,7 +2298,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         mic9.setOnAction(event -> copyTherapyComplexes());
         mic10.setOnAction(event -> pasteTherapyComplexes());
         mic4.setOnAction(event -> complexesToBiofon(tableComplex.getSelectionModel().getSelectedItems()));
-        this.complexesMenu.getItems().addAll(new MenuItem[]{mic1, mic2,mic6, mic3, mic5, mic7, mic4,mic8,mic9,mic10});
+        this.complexesMenu.getItems().addAll(new MenuItem[]{mic1, mic2,mic6, mic3, mic5, mic7, mic4,mic8,mic11,mic9,mic10,mic12});
         this.tableComplex.setContextMenu(this.complexesMenu);
         this.complexesMenu.setOnShowing((event1) -> {
             mic1.setDisable(false);
@@ -2313,13 +2318,16 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                 mic4.setDisable(true);
                 mic5.setDisable(true);
                 mic9.setDisable(true);
+                mic11.setDisable(true);
+                mic12.setDisable(true);
                 if(therapyComplexesClipboard.size()!=0)  mic10.setDisable(false);//вставить можно и в пустую таблицу
 
             } else {
                 mic9.setDisable(false);
                 if(therapyComplexesClipboard.size()!=0) mic10.setDisable(false);
 
-
+                mic11.setDisable(false);
+                mic12.setDisable(false);
 
                 Iterator tag = this.tableComplex.getSelectionModel().getSelectedItems().iterator();
 
@@ -2636,12 +2644,13 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 //контекстное меню для программ - вырезать и вставить, зависит от выбрано или нет
 
         MenuItem mi1=new MenuItem(res.getString("app.cut"));
+        MenuItem mi6=new MenuItem(res.getString("app.ui.edit_file_path"));
+        MenuItem mi7=new MenuItem(res.getString("app.ui.copy"));
         MenuItem mi2=new MenuItem(res.getString("app.paste"));
+        MenuItem mi16=new MenuItem(res.getString("app.delete"));
         MenuItem mi3=new SeparatorMenuItem();
         MenuItem mi4=new MenuItem(res.getString("app.to_user_base"));
         MenuItem mi5=new SeparatorMenuItem();
-        MenuItem mi6=new MenuItem(res.getString("app.ui.edit_file_path"));
-        MenuItem mi7=new MenuItem(res.getString("app.ui.copy"));
         MenuItem mi8=new MenuItem(res.getString("app.ui.multy_switch_on"));
         MenuItem mi9=new MenuItem(res.getString("app.ui.multy_switch_off"));
         MenuItem mi10=new SeparatorMenuItem();
@@ -2718,8 +2727,8 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         mi8.setOnAction(e-> multyFreqProgramSwitchOn());
         mi9.setOnAction(e->multyFreqProgramSwitchOff());
         mi2.setOnAction(e -> pasteTherapyPrograms());
-
-        programmMenu.getItems().addAll(mi2, mi7,mi1,mi3,mi4,mi5,mi6,mi10,mi8,mi9,mi15,mi11,mi12,mi13,mi14);
+        mi16.setOnAction(e->onRemovePrograms());
+        programmMenu.getItems().addAll(mi1, mi7,mi2,mi16,mi3,mi4,mi5,mi6,mi10,mi8,mi9,mi15,mi11,mi12,mi13,mi14);
 
         tableProgram.setContextMenu(programmMenu);
         this.programmMenu.setOnShowing((event1) -> {
@@ -3073,6 +3082,13 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
         //помогает узнать видимые строки
      //   loadVirtualFlowTableProgramm();
+
+    }
+
+    /**
+     * Вырезать комплексы
+     */
+    private void cutComplexes() {
 
     }
 
