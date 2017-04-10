@@ -3326,7 +3326,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
             int dropIndex = tableProgram.getSelectionModel().getSelectedIndex();
 
             if(!isEnablePasteProgram(dropIndex,indexes)) {
-                showWarningDialog("Перемещение элементов","","Переместить элементы в выбранную позицию невозможно",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                showWarningDialog(res.getString("app.ui.moving_items"),"",res.getString("app.ui.can_not_move_to_pos"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
                 return;
             }
 
@@ -3410,7 +3410,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
     private void pasteTherapyPrograms(){
         if(tableProgram.getSelectionModel().getSelectedItems().size()>1){
-            showWarningDialog("Вставка элементов","Вставка элементов невозможна - выбрано несколько строк таблицы","Для вставки элементов необходимо выбрать одну позицию в таблице или не выбирать ни одной",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+            showWarningDialog(res.getString("app.ui.insertion_elements"),"Вставка элементов невозможна - выбрано несколько строк таблицы",res.getString("app.ui.ins_not_av_mess"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
             return;
         }
         if(therapyProgramsCopied)pasteTherapyProgramsByCopy();
