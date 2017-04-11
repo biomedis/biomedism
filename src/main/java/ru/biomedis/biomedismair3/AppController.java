@@ -32,6 +32,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.*;
 import javafx.util.Duration;
@@ -2427,49 +2429,67 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
             TableCell<TherapyProgram, String> cell = new TableCell<TherapyProgram, String>() {
                 //private Text text;
                 private  FlowPane textFlow;
-
+                //private  Font normalFont = Font.font(null, FontWeight.NORMAL, 12);
+                private  Font boldFont = Font.font(null, FontWeight.BOLD, 12);
+                private  Text text;
+                private Insets padding =new Insets(0,3,0,0);
                 @Override
                 protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
 
-                    if(this.getUserData()!=null)textFlow= (FlowPane)this.getUserData();
-                    else {
+                    if(textFlow==null) {
                         textFlow=new FlowPane();
-                        textFlow.setPrefSize(USE_COMPUTED_SIZE,20);
+                        textFlow.setPrefSize(USE_COMPUTED_SIZE,17);
                         textFlow.setPadding(new Insets(0));
                         textFlow.setMaxWidth(Double.MAX_VALUE);
-                        this.setUserData(textFlow);
+
                     }
                     this.setText(null);
                     this.setGraphic(null);
                     if (!empty) {
-                       /* text = new Text(item.toString());
-                        text.setWrappingWidth((getTableColumn().getWidth())); // Setting the wrapping width to the Text
-                        text.wrappingWidthProperty().bind(getTableColumn().widthProperty());
-                        setGraphic(text);
-                        */
 
 
+                        TherapyProgram thisProgram = (TherapyProgram) getTableRow().getItem();
+                        if(thisProgram==null) return;
+                        textFlow.getChildren().clear();
 
-                       textFlow.getChildren().clear();
 
                         setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 
-                      if(!programSearch.get()) {
+                      if(thisProgram.isMatched()) {
+                          Label lbl;
+                          for (SearchFreqs.Freq freq : thisProgram.getFreqs()) {
+                              if(freq.isMatched()){
 
-                         for (String fr : ((TherapyProgram) getTableRow().getItem()).parseFreqsStrings()) {
-                              textFlow.getChildren().add(new Label(fr+" "));
+                                  lbl =  new Label(freq.getFreq());
+                                  lbl.setFont(boldFont);
+                                 // lbl.setTextFill(Color.FORESTGREEN);
+                                  textFlow.getChildren().add(lbl);
+                                  lbl=new Label(freq.getDelmitter());
+                                  if(freq.getDelmitter().equals(";"))  lbl.setPadding(padding);
+                                  textFlow.getChildren().add(lbl);
+
+
+                              }else {
+                                 lbl = new Label(freq.getFreq().concat(freq.getDelmitter()));
+                                  if(freq.getDelmitter().equals(";"))  lbl.setPadding(padding);
+                                  textFlow.getChildren().add(lbl);
+                              }
                           }
 
+
+                          setGraphic(textFlow);
                       }else {
+                          if(text==null) {
+                              text = new Text(item);
+                              text.setWrappingWidth((getTableColumn().getWidth())); // Setting the wrapping width to the Text
+                              text.wrappingWidthProperty().bind(getTableColumn().widthProperty());
+                          }else text.setText(item);
 
-                          for (String fr : ((TherapyProgram) getTableRow().getItem()).parseFreqsStrings()) {
-                              textFlow.getChildren().add(new Label(fr+" "));
-                          }
-
+                          setGraphic(text);
                       }
 
-                        setGraphic(textFlow);
+
                     }
                 }
             };
@@ -9776,19 +9796,50 @@ return  true;
         searchReturnBtnPrograms.disableProperty().bind(programSearch.not());
         searchBtnProgram.disableProperty().bind(nameProgramSearch.textProperty().isEmpty().and(freqProgramSearch.textProperty().isEmpty()));
         programSearch.bind(nameProgramSearch.textProperty().isNotEmpty().or(freqProgramSearch.textProperty().isNotEmpty()));
+
+        programSearch.addListener((observable, oldValue, newValue) -> {
+           if(newValue==false){
+               TherapyProgram tp;
+               for(int i=0;i< tableProgram.getItems().size();i++) {
+                   tp = tableProgram.getItems().get(i);
+                   if(tp.isMatched()){
+                       tp.cleanSearch();
+                       tableProgram.getItems().set(i,null);
+                       tableProgram.getItems().set(i,tp);
+                   }
+               }
+           }
+        });
+
+        Predicate<String> characterFilter= c-> TextUtil.match(c,"[0-9. ]");
+
+
+
+        freqProgramSearch.addEventFilter(KeyEvent.KEY_TYPED, event ->
+        {
+            if(!characterFilter.test( event.getCharacter())) {event.consume();}
+        });
+        nameProgramSearch.setOnAction(event ->onSearchProgram());
+        freqProgramSearch.setOnAction(event ->onSearchProgram());
     }
     /*
     Поиск по тер. программам в таблице
      */
-    public void onSearchReturnPrograms(){
-         nameProgramSearch.setText("");
-         freqProgramSearch.setText("");
-         tableProgram.getSelectionModel().clearSelection();
-         tableProgram.scrollTo(0);
 
+
+    /**
+     * Сброс режима поиска
+     * programSearch зависит от содержимого полей поиска
+     */
+    public void onSearchReturnPrograms(){
+        nameProgramSearch.setText("");
+        freqProgramSearch.setText("");
+        tableProgram.getSelectionModel().clearSelection();
+        tableProgram.scrollTo(0);
     }
 
     public void onSearchProgram(){
+        /*
         String name = nameProgramSearch.getText().trim();
         String freqs = freqProgramSearch.getText().trim().replaceAll(" ","");
         if(name.length()<=2 && freqs.length()==0) { showInfoDialog(res.getString("app.search"),res.getString("app.search_1"),"",getApp().getMainWindow(),Modality.WINDOW_MODAL);return;}
@@ -9814,6 +9865,50 @@ return  true;
         searched.forEach(tp -> tableProgram.getSelectionModel().select(tp));
         tableProgram.scrollTo(searched.get(0));
         tableProgram.getFocusModel().focus(tableProgram.getItems().indexOf(searched.get(0)));
+        */
+        String name = nameProgramSearch.getText().trim();
+        String freqs = freqProgramSearch.getText().trim();
+        if(name.length()<=2 && freqs.length()==0) { showInfoDialog(res.getString("app.search"),res.getString("app.search_1"),"",getApp().getMainWindow(),Modality.WINDOW_MODAL);return;}
+
+        tableProgram.getSelectionModel().clearSelection();
+
+        freqs=freqs.replaceAll("\\s+\\.",".");//исключим посторонние дырки в паттерне
+        freqProgramSearch.setText(freqs);
+
+        boolean first=true;
+        TherapyProgram tp;
+        for(int i=0;i< tableProgram.getItems().size();i++){
+            tp = tableProgram.getItems().get(i);
+            if(tp.search(freqs)){
+                tableProgram.getItems().set(i,null);
+                tableProgram.getItems().set(i,tp);
+
+                if(first){
+                    tableProgram.scrollTo(i);
+                    first=false;
+                }
+            }
+
+        }
+
+
+
+        if(first){
+            showInfoDialog(res.getString("app.search_res"),res.getString("app.search_res_1"),"",
+                    getApp().getMainWindow(),Modality.WINDOW_MODAL);
+            return;
+        }else {
+
+            for(int i=0;i< tableProgram.getItems().size();i++) {
+                tp = tableProgram.getItems().get(i);
+                if(tp.isMatched())tableProgram.getSelectionModel().select(i);
+            }
+
+            tableProgram.requestFocus();
+        }
+
+
+
     }
     /***************************************************/
 

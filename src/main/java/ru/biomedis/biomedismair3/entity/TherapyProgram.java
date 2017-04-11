@@ -36,9 +36,43 @@ public class TherapyProgram implements Serializable {
     private String uuid;
    
    
-   
-   
-   
+   //в таблице даные отображаются черех этот объект
+   private SearchFreqs search=new SearchFreqs();
+
+    /**
+     * Было ли совпадение при последнем поиске
+     * @return
+     */
+   @Transient
+   public boolean isMatched(){return search.hasMatching();}
+
+    /**
+     * поиск по частотам. Частоты - строка с частотами через пробел
+     * @param pattern
+     * @return
+     */
+    @Transient
+    public List<SearchFreqs.Freq> searchResult(String pattern){return search.searchFreqsResult(pattern);}
+
+    /**
+     * поиск по частотам. Частоты - строка с частотами через пробел
+     * @param pattern
+     * @return
+     */
+    @Transient
+    public boolean search(String pattern){return search.searchFreqs(pattern);}
+
+    /**
+     * Вернет частоты с разделителями и указание совпали ли они с прошлым поиском. Рекомендуется проверка с isMatched(), чтобы упростить алг.отображения
+     * @return
+     */
+    @Transient
+    public List<SearchFreqs.Freq> getFreqs(){return search.getFreqs();}
+    /**
+     * Очистить состояние поиска и данные
+     */
+    @Transient
+    public void cleanSearch( ){ search.clean();}
    
     
 
@@ -160,6 +194,7 @@ public class TherapyProgram implements Serializable {
 
     public void setFrequencies(String frequencies) {
         this.frequencies.set(frequencies);
+        search.parseFreqString(frequencies);
     }
 
     @Transient
@@ -269,5 +304,7 @@ public class TherapyProgram implements Serializable {
                 .map(f->f.replace(",","."))
                 .collect(Collectors.toList());
     }
+
+
 
 }
