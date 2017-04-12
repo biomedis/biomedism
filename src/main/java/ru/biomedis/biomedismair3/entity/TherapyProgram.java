@@ -53,7 +53,7 @@ public class TherapyProgram implements Serializable {
      * @return
      */
     @Transient
-    public boolean isMatchedAnyName(){return searchName.hasMatched();}
+    public boolean isMatchedAnyName(){return searchName.hasMatching();}
     /**
      * Было ли совпадение при последнем поиске
      * @return
@@ -93,7 +93,7 @@ public class TherapyProgram implements Serializable {
      */
     @Transient
     public void cleanSearch( ){
-        searchFreqs.clean();
+       searchFreqs.clean();
         searchName.clean();
     }
 

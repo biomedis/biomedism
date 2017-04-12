@@ -9791,6 +9791,17 @@ return  true;
     @FXML private TextField freqProgramSearch;
     private SimpleBooleanProperty programSearch =new SimpleBooleanProperty(false);
 
+    private void cleanSearchedProgram(){
+        TherapyProgram tp;
+        for(int i=0;i< tableProgram.getItems().size();i++) {
+            tp = tableProgram.getItems().get(i);
+            if(tp.isMatchedFreqs() || tp.isMatchedAnyName()){
+                tp.cleanSearch();
+                tableProgram.getItems().set(i,null);
+                tableProgram.getItems().set(i,tp);
+            }
+        }
+    }
     private void initProgramSearch(){
 
         searchReturnBtnPrograms.disableProperty().bind(programSearch.not());
@@ -9798,17 +9809,7 @@ return  true;
         programSearch.bind(nameProgramSearch.textProperty().isNotEmpty().or(freqProgramSearch.textProperty().isNotEmpty()));
 
         programSearch.addListener((observable, oldValue, newValue) -> {
-           if(newValue==false){
-               TherapyProgram tp;
-               for(int i=0;i< tableProgram.getItems().size();i++) {
-                   tp = tableProgram.getItems().get(i);
-                   if(tp.isMatchedFreqs()){
-                       tp.cleanSearch();
-                       tableProgram.getItems().set(i,null);
-                       tableProgram.getItems().set(i,tp);
-                   }
-               }
-           }
+           if(newValue==false)cleanSearchedProgram();
         });
 
         Predicate<String> characterFilter= c-> TextUtil.match(c,"[0-9. ]");
@@ -9839,33 +9840,7 @@ return  true;
     }
 
     public void onSearchProgram(){
-        /*
-        String name = nameProgramSearch.getText().trim();
-        String freqs = freqProgramSearch.getText().trim().replaceAll(" ","");
-        if(name.length()<=2 && freqs.length()==0) { showInfoDialog(res.getString("app.searchFreqs"),res.getString("app.search_1"),"",getApp().getMainWindow(),Modality.WINDOW_MODAL);return;}
 
-        List<TherapyProgram> searched = tableProgram.getItems().stream().filter(p -> {
-            String frequencies = p.getFrequencies();
-            String pName = p.getName();
-            if(!name.isEmpty() && !freqs.isEmpty())  return pName.contains(name)|| p.getOname().contains(name)|| frequencies.contains(freqs);
-                else  if(name.isEmpty() && !freqs.isEmpty())  return frequencies.contains(freqs);
-            else   if(!name.isEmpty() && freqs.isEmpty()) return pName.contains(name)|| p.getOname().contains(name);
-            else   return false;
-
-        }).collect(Collectors.toList());
-
-        if(searched.isEmpty()){
-            showInfoDialog(res.getString("app.search_res"),res.getString("app.search_res_1"),"",
-                    getApp().getMainWindow(),Modality.WINDOW_MODAL);
-            return;
-        }
-
-        tableProgram.getSelectionModel().clearSelection();
-
-        searched.forEach(tp -> tableProgram.getSelectionModel().select(tp));
-        tableProgram.scrollTo(searched.get(0));
-        tableProgram.getFocusModel().focus(tableProgram.getItems().indexOf(searched.get(0)));
-        */
         String name = nameProgramSearch.getText().trim();
         String freqs = freqProgramSearch.getText().trim();
         if(name.length()<=2 && freqs.length()==0) { showInfoDialog(res.getString("app.search"),res.getString("app.search_1"),"",getApp().getMainWindow(),Modality.WINDOW_MODAL);return;}
@@ -9875,11 +9850,18 @@ return  true;
         freqs=freqs.replaceAll("\\s+\\.",".");//исключим посторонние дырки в паттерне
         freqProgramSearch.setText(freqs);
 
+        cleanSearchedProgram();
+
         boolean first=true;
         TherapyProgram tp;
         for(int i=0;i< tableProgram.getItems().size();i++){
             tp = tableProgram.getItems().get(i);
-            if(tp.searchFreqs(freqs)){
+            boolean searchRes=false;
+            if(!name.isEmpty() && freqs.isEmpty())searchRes = tp.searchNames(name);
+            else if(!name.isEmpty() && !freqs.isEmpty()) searchRes = tp.searchFreqs(freqs) & tp.searchNames(name);
+            else if(name.isEmpty() && !freqs.isEmpty()) searchRes = tp.searchFreqs(freqs);
+
+            if(searchRes){
                 tableProgram.getItems().set(i,null);
                 tableProgram.getItems().set(i,tp);
 
@@ -9901,7 +9883,14 @@ return  true;
 
             for(int i=0;i< tableProgram.getItems().size();i++) {
                 tp = tableProgram.getItems().get(i);
-                if(tp.isMatchedFreqs())tableProgram.getSelectionModel().select(i);
+
+                boolean searchRes=false;
+
+                if(!name.isEmpty() && freqs.isEmpty())  searchRes = tp.isMatchedAnyName();
+                else if(!name.isEmpty() && !freqs.isEmpty())searchRes = tp.isMatchedFreqs() && tp.isMatchedAnyName();
+                else if(name.isEmpty() && !freqs.isEmpty())searchRes = tp.isMatchedFreqs();
+
+                if(searchRes)tableProgram.getSelectionModel().select(i);
             }
 
             tableProgram.requestFocus();
