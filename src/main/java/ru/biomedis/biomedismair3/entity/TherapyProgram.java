@@ -37,14 +37,42 @@ public class TherapyProgram implements Serializable {
    
    
    //в таблице даные отображаются черех этот объект
-   private SearchFreqs search=new SearchFreqs();
+   private SearchFreqs searchFreqs =new SearchFreqs();
+   private SearchName searchName =new SearchName();
 
     /**
      * Было ли совпадение при последнем поиске
      * @return
      */
    @Transient
-   public boolean isMatched(){return search.hasMatching();}
+   public boolean isMatchedFreqs(){return searchFreqs.hasMatching();}
+
+
+    /**
+     * Было ли совпадение вообще в любом имени
+     * @return
+     */
+    @Transient
+    public boolean isMatchedAnyName(){return searchName.hasMatched();}
+    /**
+     * Было ли совпадение при последнем поиске
+     * @return
+     */
+    @Transient
+    public boolean isMatchedName(){return searchName.isMatchedName();}
+    /**
+     * Было ли совпадение при последнем поиске
+     * @return
+     */
+    @Transient
+    public boolean isMatchedOName(){return searchName.isMatchedOName();}
+    /**
+     * поиск по частотам. Частоты - строка с частотами через пробел
+     * @param pattern
+     * @return
+     */
+    @Transient
+    public List<SearchFreqs.Freq> searchFreqsResult(String pattern){return searchFreqs.searchFreqsResult(pattern);}
 
     /**
      * поиск по частотам. Частоты - строка с частотами через пробел
@@ -52,29 +80,40 @@ public class TherapyProgram implements Serializable {
      * @return
      */
     @Transient
-    public List<SearchFreqs.Freq> searchResult(String pattern){return search.searchFreqsResult(pattern);}
+    public boolean searchFreqs(String pattern){return searchFreqs.searchFreqs(pattern);}
 
     /**
-     * поиск по частотам. Частоты - строка с частотами через пробел
-     * @param pattern
+     * Вернет частоты с разделителями и указание совпали ли они с прошлым поиском. Рекомендуется проверка с isMatchedFreqs(), чтобы упростить алг.отображения
      * @return
      */
     @Transient
-    public boolean search(String pattern){return search.searchFreqs(pattern);}
-
-    /**
-     * Вернет частоты с разделителями и указание совпали ли они с прошлым поиском. Рекомендуется проверка с isMatched(), чтобы упростить алг.отображения
-     * @return
-     */
-    @Transient
-    public List<SearchFreqs.Freq> getFreqs(){return search.getFreqs();}
+    public List<SearchFreqs.Freq> getSearchResultFreqs(){return searchFreqs.getFreqs();}
     /**
      * Очистить состояние поиска и данные
      */
     @Transient
-    public void cleanSearch( ){ search.clean();}
-   
-    
+    public void cleanSearch( ){
+        searchFreqs.clean();
+        searchName.clean();
+    }
+
+    @Transient
+    public List<SearchName.NamePart> getSearchResultName(){
+        return searchName.getNameParts();
+    }
+    @Transient
+    public List<SearchName.NamePart> getSearchResultOName(){
+        return searchName.getONameParts();
+    }
+
+    /**
+     * Поиск по name и oname
+     * @param pattern
+     * @return
+     */
+    @Transient
+    public boolean searchNames(String pattern){return searchName.search(getName(),getOname(),pattern);}
+
 
     public TherapyProgram()
     {
@@ -194,7 +233,7 @@ public class TherapyProgram implements Serializable {
 
     public void setFrequencies(String frequencies) {
         this.frequencies.set(frequencies);
-        search.parseFreqString(frequencies);
+        searchFreqs.parseFreqString(frequencies);
     }
 
     @Transient

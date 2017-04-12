@@ -995,7 +995,7 @@ public class Quantize {
 
 			if (gfc.noise_shaping_amp == 3) {
 				if (!bRefine) {
-					/* refine search */
+					/* refine searchFreqs */
 					cod_info_w.assign(cod_info);
 					System.arraycopy(save_xrpow, 0, xrpow, 0, 576);
 					age = 0;
@@ -1003,7 +1003,7 @@ public class Quantize {
 
 					bRefine = true;
 				} else {
-					/* search already refined, stop */
+					/* searchFreqs already refined, stop */
 					bEndOfSearch = true;
 				}
 

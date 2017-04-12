@@ -510,11 +510,11 @@ public class Lame {
 			gfc.use_best_huffman = 1;
 			/*
 			 * type 2 disabled because of it slowness, in favor of full outer
-			 * loop search
+			 * loop searchFreqs
 			 */
 			gfc.full_outer_loop = 0;
 			/*
-			 * full outer loop search disabled because of audible distortions it
+			 * full outer loop searchFreqs disabled because of audible distortions it
 			 * may generate rh 060629
 			 */
 			break;
@@ -1593,7 +1593,7 @@ public class Lame {
 			pc = "best (inside loop, slow)";
 			break;
 		}
-		System.err.printf("\thuffman search: %s\n", pc);
+		System.err.printf("\thuffman searchFreqs: %s\n", pc);
 		System.err.printf("\texperimental Y=%d\n", gfp.experimentalY);
 		System.err.printf("\t...\n");
 

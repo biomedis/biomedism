@@ -2456,9 +2456,9 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
                         setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
 
-                      if(thisProgram.isMatched()) {
+                      if(thisProgram.isMatchedFreqs()) {
                           Label lbl;
-                          for (SearchFreqs.Freq freq : thisProgram.getFreqs()) {
+                          for (SearchFreqs.Freq freq : thisProgram.getSearchResultFreqs()) {
                               if(freq.isMatched()){
 
                                   lbl =  new Label(freq.getFreq());
@@ -9802,7 +9802,7 @@ return  true;
                TherapyProgram tp;
                for(int i=0;i< tableProgram.getItems().size();i++) {
                    tp = tableProgram.getItems().get(i);
-                   if(tp.isMatched()){
+                   if(tp.isMatchedFreqs()){
                        tp.cleanSearch();
                        tableProgram.getItems().set(i,null);
                        tableProgram.getItems().set(i,tp);
@@ -9842,7 +9842,7 @@ return  true;
         /*
         String name = nameProgramSearch.getText().trim();
         String freqs = freqProgramSearch.getText().trim().replaceAll(" ","");
-        if(name.length()<=2 && freqs.length()==0) { showInfoDialog(res.getString("app.search"),res.getString("app.search_1"),"",getApp().getMainWindow(),Modality.WINDOW_MODAL);return;}
+        if(name.length()<=2 && freqs.length()==0) { showInfoDialog(res.getString("app.searchFreqs"),res.getString("app.search_1"),"",getApp().getMainWindow(),Modality.WINDOW_MODAL);return;}
 
         List<TherapyProgram> searched = tableProgram.getItems().stream().filter(p -> {
             String frequencies = p.getFrequencies();
@@ -9879,7 +9879,7 @@ return  true;
         TherapyProgram tp;
         for(int i=0;i< tableProgram.getItems().size();i++){
             tp = tableProgram.getItems().get(i);
-            if(tp.search(freqs)){
+            if(tp.searchFreqs(freqs)){
                 tableProgram.getItems().set(i,null);
                 tableProgram.getItems().set(i,tp);
 
@@ -9901,7 +9901,7 @@ return  true;
 
             for(int i=0;i< tableProgram.getItems().size();i++) {
                 tp = tableProgram.getItems().get(i);
-                if(tp.isMatched())tableProgram.getSelectionModel().select(i);
+                if(tp.isMatchedFreqs())tableProgram.getSelectionModel().select(i);
             }
 
             tableProgram.requestFocus();
