@@ -176,7 +176,7 @@ public class AppController  extends BaseController {
     @FXML private HBox onameBoxProgram;
     @FXML private HBox onameBoxComplex;
 
-    @FXML private Label onameProgram;
+
     @FXML private Label onameComplex;
     @FXML private Menu updateBaseMenu;
     @FXML private Button searchReturn;
@@ -305,13 +305,7 @@ public class AppController  extends BaseController {
     private void setOnameComplex(String name){
         onameComplex.setText(name);
     }
-    /**
-     * Установка текста над табл программ
-     * @param name
-     */
-    private void setOnameProgram(String name){
-        onameProgram.setText(name);
-    }
+
     /**
      * Статус поиска по базе
      * Раздел открытый до поиска чиатается из ComboBox тк любое его изменение отменит поиск
@@ -443,16 +437,7 @@ public class AppController  extends BaseController {
             }
         });
 
-        onameProgram.textProperty().bind(new StringBinding() {
-            {
-                bind(tableProgram.getSelectionModel().selectedItemProperty());
-            }
-            @Override
-            protected String computeValue() {
-                if (tableProgram.getSelectionModel().getSelectedItem()==null) return "";
-                return tableProgram.getSelectionModel().getSelectedItem().getOname();
-            }
-        });
+
 
 
         //настройка подписей в табах
