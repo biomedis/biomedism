@@ -2465,6 +2465,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                                     lbl = new Label(namePart.getPart());
                                     if (namePart.isMatched()) lbl.setFont(boldFont);
                                     else  lbl.setFont(italicFont);
+                                    lbl.setTextFill(Color.DARKSLATEGRAY);
                                     bHbox.getChildren().add(lbl);
                                 }
                             }else {
@@ -2472,6 +2473,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                                     vbox.getChildren().add(bHbox);
                                     lbl = new Label(thisProgram.getOname());
                                     lbl.setFont(italicFont);
+                                    lbl.setTextFill(Color.DARKSLATEGRAY);
                                     bHbox.getChildren().add(lbl);
                                 }
 
@@ -2484,6 +2486,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                                 vbox.getChildren().add(bHbox);
                                 lbl = new Label(thisProgram.getOname());
                                 lbl.setFont(italicFont);
+                                lbl.setTextFill(Color.DARKSLATEGRAY);
                                 bHbox.getChildren().add(lbl);
                             }
                             lbl = new Label(thisProgram.getName());
