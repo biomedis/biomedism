@@ -21,6 +21,7 @@ import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -33,6 +34,7 @@ import javafx.scene.input.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.*;
@@ -2420,7 +2422,97 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         //имя
         TableColumn<TherapyProgram,String> nameColTP=new TableColumn<>(res.getString("app.table.program_name"));
         nameColTP.cellValueFactoryProperty().setValue(new PropertyValueFactory<TherapyProgram, String>("name"));
+        nameColTP.setCellFactory(param1 -> {
 
+            TableCell<TherapyProgram, String> cell = new TableCell<TherapyProgram, String>() {
+                private VBox vbox = new VBox(3);
+                private HBox tHbox = new HBox();
+                private HBox bHbox = new HBox();
+                private Font boldFont = Font.font(null, FontWeight.BOLD, 12);
+                private Font italicFont = Font.font(null, FontPosture.ITALIC, 12);
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+
+                    if (vbox == null) {
+                        vbox = new VBox();
+                        vbox.setMaxWidth(Double.MAX_VALUE);
+                        vbox.setAlignment(Pos.CENTER_LEFT);
+
+                        tHbox = new HBox();
+                        tHbox.setMaxWidth(Double.MAX_VALUE);
+                        bHbox.setAlignment(Pos.CENTER_LEFT);
+
+                        bHbox = new HBox();
+                        bHbox.setMaxWidth(Double.MAX_VALUE);
+                        bHbox.setAlignment(Pos.CENTER_LEFT);
+                    }
+                    this.setText(null);
+                    this.setGraphic(null);
+                    if (!empty) {
+                        TherapyProgram thisProgram = (TherapyProgram) getTableRow().getItem();
+                        if (thisProgram == null) return;
+                        vbox.getChildren().clear();
+                        tHbox.getChildren().clear();
+                        bHbox.getChildren().clear();
+
+                        // setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                        vbox.getChildren().add(tHbox);
+                        if (thisProgram.isMatchedAnyName()) {
+
+                            Label lbl;
+                            if (thisProgram.isMatchedName()) {
+
+                                for (SearchName.NamePart namePart : thisProgram.getSearchResultName()) {
+                                    lbl = new Label(namePart.getPart());
+                                    if (namePart.isMatched()) lbl.setFont(boldFont);
+                                    tHbox.getChildren().add(lbl);
+                                }
+                            }else {
+
+                                lbl = new Label(thisProgram.getName());
+                                tHbox.getChildren().add(lbl);
+                            }
+
+                            if (thisProgram.isMatchedOName()) {
+                                vbox.getChildren().add(bHbox);
+                                for (SearchName.NamePart namePart : thisProgram.getSearchResultOName()) {
+                                    lbl = new Label(namePart.getPart());
+                                    if (namePart.isMatched()) lbl.setFont(boldFont);
+                                    else  lbl.setFont(italicFont);
+                                    bHbox.getChildren().add(lbl);
+                                }
+                            }else {
+                                if(!thisProgram.getOname().isEmpty()){
+                                    vbox.getChildren().add(bHbox);
+                                    lbl = new Label(thisProgram.getOname());
+                                    lbl.setFont(italicFont);
+                                    bHbox.getChildren().add(lbl);
+                                }
+
+                            }
+
+
+                        } else {
+                            Label lbl;
+                            if(!thisProgram.getOname().isEmpty()){
+                                vbox.getChildren().add(bHbox);
+                                lbl = new Label(thisProgram.getOname());
+                                lbl.setFont(italicFont);
+                                bHbox.getChildren().add(lbl);
+                            }
+                            lbl = new Label(thisProgram.getName());
+                            tHbox.getChildren().add(lbl);
+                        }
+
+                        setGraphic(vbox);
+                    }
+                }
+            };
+
+
+            return cell;
+        });
         //частоты
         TableColumn<TherapyProgram,String> descColTP=new TableColumn<>(res.getString("app.table.freqs"));
         descColTP.cellValueFactoryProperty().setValue(param -> new SimpleStringProperty(param.getValue().getFrequencies().replace(";", ";  ")));
@@ -9853,12 +9945,21 @@ return  true;
         cleanSearchedProgram();
 
         boolean first=true;
+
         TherapyProgram tp;
         for(int i=0;i< tableProgram.getItems().size();i++){
             tp = tableProgram.getItems().get(i);
             boolean searchRes=false;
             if(!name.isEmpty() && freqs.isEmpty())searchRes = tp.searchNames(name);
-            else if(!name.isEmpty() && !freqs.isEmpty()) searchRes = tp.searchFreqs(freqs) & tp.searchNames(name);
+            else if(!name.isEmpty() && !freqs.isEmpty()) {
+
+                searchRes = tp.searchFreqs(freqs) & tp.searchNames(name);
+                if(!searchRes){
+                    if(tp.isMatchedAnyName())tp.cleanSearch();
+                    else if(tp.isMatchedFreqs())tp.cleanSearch();
+                }
+
+            }
             else if(name.isEmpty() && !freqs.isEmpty()) searchRes = tp.searchFreqs(freqs);
 
             if(searchRes){
@@ -9875,11 +9976,8 @@ return  true;
 
 
 
-        if(first){
-            showInfoDialog(res.getString("app.search_res"),res.getString("app.search_res_1"),"",
-                    getApp().getMainWindow(),Modality.WINDOW_MODAL);
-            return;
-        }else {
+
+        if(!first){
 
             for(int i=0;i< tableProgram.getItems().size();i++) {
                 tp = tableProgram.getItems().get(i);
@@ -9894,6 +9992,11 @@ return  true;
             }
 
             tableProgram.requestFocus();
+        }else  {
+            showInfoDialog(res.getString("app.search_res"),res.getString("app.search_res_1"),"",
+                    getApp().getMainWindow(),Modality.WINDOW_MODAL);
+            return;
+
         }
 
 
