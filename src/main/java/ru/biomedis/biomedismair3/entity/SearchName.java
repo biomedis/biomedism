@@ -19,9 +19,12 @@ public class SearchName {
     private boolean matched;
 
    private boolean search(String target,  String pattern, List<NamePart> dstParts){
+       String noCaseTarget=target.toLowerCase();
+       String noCasePattern=pattern.toLowerCase();
+
        if(!dstParts.isEmpty()) dstParts.clear();
         if(target.isEmpty()) return false;
-       if (!target.contains(pattern)) return false;
+       if (!noCaseTarget.contains(noCasePattern)) return false;
        if(pattern.length() == target.length()){
            //если строки равны по длине и найдено вхождение, значит они вообще равны
            dstParts.add(new NamePart(target,true));
@@ -34,7 +37,7 @@ public class SearchName {
        //используется тот факт что есть совпадение и они меньше всей строки и хотябы одно есть
        int ind;
        while(true){
-           ind = target.indexOf(pattern,start);
+           ind = noCaseTarget.indexOf(noCasePattern,start);
            if(ind !=-1){
                if(ind==start){
                    dstParts.add(new NamePart(pattern,true));
