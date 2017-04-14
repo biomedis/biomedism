@@ -153,6 +153,13 @@ public class App extends Application {
     }
 
     public void closePersisenceContext() {/*if(model!=null) model.flush();*/  emf.close();  emf=null;}
+
+    public void reopenPersistentContext(){
+       closePersisenceContext();
+       openPersisenceContext();
+       model=new ModelDataApp(emf);
+       modelStatic =model;
+    }
        public void openPersisenceContext()
        { 
            String puName="DB_UNIT";
@@ -252,8 +259,8 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         /******** Обновления ************/
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
-        int currentUpdateFile=5;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=2;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentUpdateFile=6;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
+        int currentMinorVersion=0;//версия исправлений в пределах мажорной версии currentUpdateFile
 
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -307,11 +314,16 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                 update3(updateOption);
                 update4(updateOption);
                 update5(updateOption);
+                update6(updateOption);
             }else if(getUpdateVersion()==3){
                 update4(updateOption);
                 update5(updateOption);
+                update6(updateOption);
             }else if(getUpdateVersion()==4){
                 update5(updateOption);
+                update6(updateOption);
+            }else if(getUpdateVersion()==5){
+                update6(updateOption);
             }
 
         }else if(getUpdateVersion() > currentUpdateFile){
@@ -874,6 +886,7 @@ https://gist.github.com/DemkaAge/8999236
                 em.createNativeQuery("ALTER TABLE THERAPYPROGRAM ADD MULTYFREQ BOOLEAN(1) DEFAULT 1").executeUpdate();
                 em.getTransaction().commit();
                 logger.info("Столбец  MULTYFREQ создан.");
+                reopenPersistentContext();
                 TherapyComplex therapyComplex;
                 boolean multyCompl=false;
                 for (TherapyProgram tp : getModel().findAllTherapyPrograms()) {
@@ -931,6 +944,135 @@ https://gist.github.com/DemkaAge/8999236
                 Platform.exit();
             }
             else  logger.info("ОБНОВЛЕНИЕ 5. Завершено");
+
+            UpdateWaiter.close();
+        });
+        task.setOnFailed(event -> {
+            Platform.runLater(() -> BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
+            Platform.exit();
+            UpdateWaiter.close();
+        });
+
+        Thread threadTask=new Thread(task);
+        threadTask.setDaemon(true);
+        threadTask.start();
+        UpdateWaiter.show();
+
+
+
+    }
+
+    private void update6(ProgramOptions updateOption)
+    {
+        logger.info("ОБНОВЛЕНИЕ 6.");
+        Task<Boolean> task =new Task<Boolean>()  {
+            @Override
+            protected Boolean call() throws Exception {
+                boolean tpPosFinded=false;
+                boolean profPosFinded=false;
+                try
+                {
+                    logger.info("Проверка наличия столбца POSITION  в THERAPYCOMPLEX ");
+                    Object singleResult = emf.createEntityManager().createNativeQuery("SELECT `POSITION` FROM THERAPYCOMPLEX LIMIT 1").getSingleResult();
+                    logger.info("Столбец  POSITION  найден.");
+                    tpPosFinded=true;
+                }catch (Exception e){
+                    logger.info("Столбец  POSITION не найден.");
+                    logger.info("Создается  столбец POSITION  в THERAPYPROGRAM ");
+                    EntityManager em = emf.createEntityManager();
+                    em.getTransaction().begin();
+                    try{
+                        em.createNativeQuery("ALTER TABLE THERAPYCOMPLEX ADD `POSITION` BIGINT(19) DEFAULT 1").executeUpdate();
+                        em.getTransaction().commit();
+                        logger.info("Столбец  POSITION создан.");
+
+
+
+                    }catch (Exception ex){
+                        logger.error("ошибка обновления ALTER TABLE THERAPYCOMPLEX ADD `POSITION` BIGINT(19) DEFAULT 1",ex);
+                        return false;
+                    }finally {
+                        if(em!=null) em.close();
+                    }
+
+
+                }
+
+                try
+                {
+                    logger.info("Проверка наличия столбца POSITION  в PROFILE ");
+                    Object singleResult = emf.createEntityManager().createNativeQuery("SELECT `POSITION` FROM PROFILE LIMIT 1").getSingleResult();
+                    logger.info("Столбец  POSITION  найден.");
+                    profPosFinded=true;
+                }catch (Exception e){
+                    logger.info("Столбец  POSITION не найден.");
+                    logger.info("Создается  столбец POSITION  в PROFILE ");
+                    EntityManager em = emf.createEntityManager();
+                    em.getTransaction().begin();
+                    try{
+                        em.createNativeQuery("ALTER TABLE PROFILE ADD `POSITION` BIGINT(19) DEFAULT 1").executeUpdate();
+                        em.getTransaction().commit();
+                        logger.info("Столбец  POSITION создан.");
+
+
+
+
+
+
+
+                    }catch (Exception ex){
+                        logger.error("ошибка обновления ALTER TABLE PROFILE ADD `POSITION` BIGINT(19) DEFAULT 1",ex);
+                        return false;
+                    }finally {
+                        if(em!=null) em.close();
+                    }
+
+
+                }
+
+                reopenPersistentContext();
+
+                try {
+                    long pos;
+                    if(!tpPosFinded) {
+                        for (TherapyComplex tc : getModel().findAllTherapyComplexes()) {
+
+                            pos = tc.getId();
+                            tc.setPosition(pos);
+                            getModel().updateTherapyComplex(tc);
+
+                        }
+                        logger.info("Столбец  POSITION TherapyComplex обновлен.");
+                    }
+                    if(!profPosFinded) {
+                        for (Profile profile : getModel().findAllProfiles()) {
+
+                            pos = profile.getId();
+                            profile.setPosition(pos);
+                            getModel().updateProfile(profile);
+
+                        }
+                        logger.info("Столбец  POSITION Profile обновлен.");
+                    }
+
+                }catch (Exception e){
+                    logger.error("ошибка обновления POSITION",e);
+                    return false;
+                }
+
+                //setUpdateVersion(updateOption,5);
+                return true;
+
+            }
+        };
+
+
+        task.setOnSucceeded(event -> {
+            if(!task.getValue().booleanValue())  {
+                BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL);
+                Platform.exit();
+            }
+            else  logger.info("ОБНОВЛЕНИЕ 6. Завершено");
 
             UpdateWaiter.close();
         });

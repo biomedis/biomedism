@@ -2,7 +2,6 @@ package ru.biomedis.biomedismair3.entity;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 import javax.persistence.*;
@@ -17,13 +16,25 @@ public class Profile implements Serializable {
 
     private final SimpleLongProperty time=new SimpleLongProperty();
     private final  SimpleIntegerProperty profileWeight=new SimpleIntegerProperty();//объем файлов
-
+    private final SimpleLongProperty position=new SimpleLongProperty();
     // профиля
    private String uuid;
   
    
 
     public Profile() {  }
+
+    public long getPosition() {
+        return position.get();
+    }
+    @Transient
+    public SimpleLongProperty positionProperty() {
+        return position;
+    }
+
+    public void setPosition(long position) {
+        this.position.set(position);
+    }
 
     @Basic
     public String getUuid() {

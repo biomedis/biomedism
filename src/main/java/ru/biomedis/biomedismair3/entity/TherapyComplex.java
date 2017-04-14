@@ -19,11 +19,23 @@ public class TherapyComplex implements Serializable {
     private final SimpleIntegerProperty bundlesLength =new SimpleIntegerProperty();//колличество частот в пачке, для мультичастотного режима. <2 значит пачки отсутствуют
     private final SimpleStringProperty oname=new SimpleStringProperty();
     private final SimpleLongProperty time=new SimpleLongProperty();
-
+    private final SimpleLongProperty position=new SimpleLongProperty();
 
 
     public TherapyComplex() {
 
+    }
+
+    public long getPosition() {
+        return position.get();
+    }
+    @Transient
+    public SimpleLongProperty positionProperty() {
+        return position;
+    }
+
+    public void setPosition(long position) {
+        this.position.set(position);
     }
 
     public String getOname() {

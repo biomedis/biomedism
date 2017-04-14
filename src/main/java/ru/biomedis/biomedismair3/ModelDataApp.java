@@ -421,14 +421,20 @@ public class ModelDataApp {
 
             profile.setName(name);
             profile.setUuid(UUID.randomUUID().toString());
-            this.profileDAO.create(profile); 
-            
+            this.profileDAO.create(profile);
+
         } catch (Exception ex) {
             Log.logger.error("",ex);
             profile=null;
 
             throw new Exception("Ошибка создания профиля",ex);
         }
+
+        if(profile!=null){
+            profile.setPosition(profile.getId());
+            updateProfile(profile);
+        }
+
         
         return profile;
     }
@@ -463,7 +469,9 @@ public class ModelDataApp {
     
     public List<Profile> findAllProfiles()
     {
-        return profileDAO.findProfileEntities();
+        Query query = emf.createEntityManager().createQuery("Select p From Profile p   order by p.position asc");
+
+        return query.getResultList();
     }
 
     public Profile getLastProfile()
@@ -1550,6 +1558,11 @@ public class ModelDataApp {
             tc=null;
             throw new Exception("Ошибка создания терапевтического комплекса",e);
         }
+
+        if(tc!=null){
+            tc.setPosition(tc.getId());
+            updateTherapyComplex(tc);
+        }
         return tc;
       }
 
@@ -1590,6 +1603,10 @@ public class ModelDataApp {
          for(Program itm: findAllProgramByComplex) createTherapyProgram(tc, itm.getNameString(),itm.getDescriptionString(),itm.getFrequencies());//создадим програмы из комплекса
          
         }catch(Exception e){Log.logger.error("",e);tc=null;throw new Exception("Ошибка создания терапевтического комплекса",e); }
+          if(tc!=null){
+              tc.setPosition(tc.getId());
+              updateTherapyComplex(tc);
+          }
         return tc;
       }
 
@@ -1694,6 +1711,10 @@ public class ModelDataApp {
             Log.logger.error("",e);
             tc=null;
             throw new Exception("Ошибка создания терапевтического комплекса",e); }
+        if(tc!=null){
+            tc.setPosition(tc.getId());
+            updateTherapyComplex(tc);
+        }
         return tc;
     }
 
@@ -1956,12 +1977,19 @@ public class ModelDataApp {
 
        public List<TherapyComplex> findAllTherapyComplexByProfile(Profile profile)
        {
-           Query query = emf.createEntityManager().createQuery("Select t from TherapyComplex t where t.profile = :p order by t.id");
+           Query query = emf.createEntityManager().createQuery("Select t from TherapyComplex t where t.profile = :p order by t.position asc");
            query.setParameter("p", profile);
           return query.getResultList();
 
        }
 
+    public List<TherapyComplex> findAllTherapyComplexes()
+    {
+        Query query = emf.createEntityManager().createQuery("Select t from TherapyComplex t");
+
+        return query.getResultList();
+
+    }
 
     /**
      *
@@ -2318,7 +2346,7 @@ public class ModelDataApp {
      */
     public List<Integer> getAllTherapyComplexID(Profile p)
     {
-        Query query = emf.createEntityManager().createQuery("Select c.id From TherapyComplex c WHERE c.profile=:profile order by c.id asc");
+        Query query = emf.createEntityManager().createQuery("Select c.id From TherapyComplex c WHERE c.profile=:profile order by c.position asc");
         query.setParameter("profile", p);
         return query.getResultList();
 
