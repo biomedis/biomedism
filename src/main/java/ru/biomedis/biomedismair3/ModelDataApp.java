@@ -11,6 +11,7 @@ import ru.biomedis.biomedismair3.JPAControllers.exceptions.NonexistentEntityExce
 import ru.biomedis.biomedismair3.entity.*;
 
 import javax.persistence.*;
+import java.io.File;
 import java.text.Collator;
 import java.util.*;
 
@@ -129,6 +130,18 @@ public class ModelDataApp {
 
         //работа с опциями. Стоит сделать проферку наличия конкретных опций, чтобы добавлять их без очистки базы
         List<ProgramOptions> allOptions = findAllOptions();
+
+        if(allOptions.stream().filter(option -> option.getName().equals("last_export_path")).count()==0)
+        {
+            ProgramOptions option = createOption("last_export_path", "");
+            if(option!=null) optionsMap.put(option.getName(),option);
+        }
+
+        if(allOptions.stream().filter(option -> option.getName().equals("last_saved_files_path")).count()==0)
+        {
+            ProgramOptions option = createOption("last_saved_files_path", "");
+            if(option!=null) optionsMap.put(option.getName(),option);
+        }
 
         if(allOptions.stream().filter(option -> option.getName().equals("data_path")).count()==0)
         {
@@ -295,11 +308,50 @@ public class ModelDataApp {
     
     
     
-    
-    
-    
-    
-    
+
+
+    public String getLastExportPath(String defaultPath){
+        try {
+            String last_export_path = getOption("last_export_path");
+            if(last_export_path.isEmpty())return defaultPath;
+            if(new File(last_export_path).exists()==false)return defaultPath;
+            else return defaultPath;
+        } catch (Exception e) {
+            return defaultPath;
+        }
+    }
+
+    public void setLastExportPath(File path)  {
+            if(path==null)return;
+        try {
+            updateOption("last_export_path",path.getAbsolutePath());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public String getLastSavedFilesPath(String defaultPath){
+        try {
+            String last_saved_files_path = getOption("last_saved_files_path");
+            if(last_saved_files_path.isEmpty())return defaultPath;
+            if(new File(last_saved_files_path).exists()==false)return defaultPath;
+            else return defaultPath;
+        } catch (Exception e) {
+            return defaultPath;
+        }
+    }
+
+    public void setLastSavedFilesPath(File path)  {
+        if(path==null)return;
+        try {
+            updateOption("last_saved_files_path",path.getAbsolutePath());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     /** ОПЦИИ **/
 
 

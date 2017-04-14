@@ -5053,12 +5053,12 @@ data=null;
         FileChooser fileChooser =new FileChooser();
         if("USER".equals(start.getTag()))  fileChooser.setTitle(res.getString("app.title26"));
         else fileChooser.setTitle(res.getString("app.title27")+" - " + start.getNameString());
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlb", "*.xmlb"));
         file= fileChooser.showSaveDialog(getApp().getMainWindow());
 
         if(file==null)return;
-
+        getModel().setLastExportPath(file.getParentFile());
 
         // запишем файл экспорта
 
@@ -5127,13 +5127,17 @@ data=null;
         FileChooser fileChooser =new FileChooser();
         fileChooser.setTitle(res.getString("app.title32")+" - "+selectedItem.getName());
 
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlp", "*.xmlp"));
+        fileChooser.setInitialFileName(selectedItem.getName());
         file= fileChooser.showSaveDialog(getApp().getMainWindow());
 
         if(file==null)return;
         final Profile prof=selectedItem;
         final File fileToSave=file;
+
+
+       getModel().setLastExportPath(file.getParentFile());
 
 
 
@@ -5202,7 +5206,7 @@ data=null;
         FileChooser fileChooser =new FileChooser();
         fileChooser.setTitle(res.getString("app.title37"));
 
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlc", "*.xmlc"));
         file= fileChooser.showSaveDialog(getApp().getMainWindow());
 
@@ -5256,7 +5260,7 @@ data=null;
         FileChooser fileChooser =new FileChooser();
        fileChooser.setTitle(res.getString("app.title40"));
 
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlp", "*.xmlp"));
         file= fileChooser.showOpenDialog(getApp().getMainWindow());
 
@@ -5468,7 +5472,7 @@ return;
         FileChooser fileChooser =new FileChooser();
         if("USER".equals(start.getTag()))  fileChooser.setTitle(this.res.getString("app.title57"));
         else fileChooser.setTitle(this.res.getString("app.title58")+" - " + start.getNameString()+".  "+this.res.getString("app.title59"));
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlb", "*.xmlb"));
         file= fileChooser.showOpenDialog(getApp().getMainWindow());
 
@@ -5692,7 +5696,7 @@ final ResourceBundle rest=this.res;
         FileChooser fileChooser =new FileChooser();
         fileChooser.setTitle(res.getString("app.title62"));
 
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlc", "*.xmlc"));
         file= fileChooser.showOpenDialog(getApp().getMainWindow());
 
@@ -7408,14 +7412,15 @@ class ForceCopyProfile
 
         DirectoryChooser dirChooser =new DirectoryChooser();
         dirChooser.setTitle(res.getString("app.upload_to_dir"));
-
-        // fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        dirChooser.setInitialDirectory(new File(getModel().getLastSavedFilesPath(System.getProperty("user.home"))));
 
         File dir= dirChooser.showDialog(getApp().getMainWindow());
         if(dir==null)return;
         if(!dir.exists()) {
             showWarningDialog(res.getString("app.upload_to_dir"),  res.getString("app.ui.dir_not_exist"), "", getApp().getMainWindow(), Modality.WINDOW_MODAL);
             return;}
+
+            getModel().setLastSavedFilesPath(dir.getParentFile());
 
         int cnt = dir.list().length;
         if(cnt!=0)
@@ -8798,7 +8803,7 @@ return  true;
         DirectoryChooser dirChooser =new DirectoryChooser();
         dirChooser.setTitle(res.getString("app.menu.read_complex_from_dir"));
 
-        // fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        dirChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
 
         File dir= dirChooser.showDialog(getApp().getMainWindow());
 
@@ -9041,11 +9046,13 @@ return  true;
 
                     //нужно найти есть ли в выбранной папке комплексы(соответствующие директории), если есть то дописать с верной нумерацией
                     DirectoryChooser dirChooser = new DirectoryChooser();
+                    dirChooser.setInitialDirectory(new File(getModel().getLastSavedFilesPath(System.getProperty("user.home"))));
                     dirChooser.setTitle(this.res.getString("app.upload_to_dir"));
                     dirT = dirChooser.showDialog(getApp().getMainWindow());
                 }else {
                     if(!dst.exists()){
                         DirectoryChooser dirChooser = new DirectoryChooser();
+                        dirChooser.setInitialDirectory(new File(getModel().getLastSavedFilesPath(System.getProperty("user.home"))));
                         dirChooser.setTitle(this.res.getString("app.upload_to_dir"));
                         dirT = dirChooser.showDialog(getApp().getMainWindow());
                     }else dirT=dst;
@@ -9057,6 +9064,7 @@ return  true;
                         showWarningDialog(res.getString("app.upload_to_dir"),  res.getString("app.ui.dir_not_exist"), "", getApp().getMainWindow(), Modality.WINDOW_MODAL);
                         return;}
 
+                        getModel().setLastSavedFilesPath(dir.getParentFile());
 
                     try {
                         //максимальное значение нумерации комплексов в папке.
@@ -9485,10 +9493,14 @@ return  true;
         //получим путь к файлу.
         File file=null;
 
+        Calendar cal = Calendar.getInstance();
+
+
         getModel().initStringsSection(userSection);
         FileChooser fileChooser =new FileChooser();
        fileChooser.setTitle(res.getString("ui.backup.create_backup"));
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
+        fileChooser.setInitialFileName( cal.get(Calendar.DAY_OF_MONTH)+"_"+cal.get(Calendar.MONTH)+"_"+cal.get(Calendar.YEAR));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("brecovery", "*.brecovery"));
         file= fileChooser.showSaveDialog(getApp().getMainWindow());
 
@@ -9612,7 +9624,7 @@ return  true;
         getModel().initStringsSection(userSection);
         FileChooser fileChooser =new FileChooser();
         fileChooser.setTitle(res.getString("ui.backup.load_backup"));
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("brecovery", "*.brecovery"));
         file= fileChooser.showOpenDialog(getApp().getMainWindow());
 
