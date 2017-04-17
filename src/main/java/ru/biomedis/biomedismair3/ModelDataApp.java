@@ -1487,7 +1487,7 @@ public class ModelDataApp {
      public List<TherapyComplex> findTherapyComplexes(Profile profile)
      {
          
-        Query query = emf.createEntityManager().createQuery("Select t from TherapyComplex t where t.profile=:tc order by t.id");
+        Query query = emf.createEntityManager().createQuery("Select t from TherapyComplex t where t.profile=:tc order by t.position asc");
         query.setParameter("tc", profile);
          return query.getResultList();
      }

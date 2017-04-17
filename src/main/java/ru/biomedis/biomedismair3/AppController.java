@@ -190,7 +190,7 @@ public class AppController  extends BaseController {
 
     private ContextMenu searchMenu=new ContextMenu();
     private SearchState searchState=new SearchState();
-
+    private ContextMenu  profileMenu=new ContextMenu();
     private ContextMenu  programmMenu=new ContextMenu();
     private ContextMenu  complexesMenu=new ContextMenu();
     private ContextMenu uploadMenu=new ContextMenu();
@@ -225,10 +225,23 @@ public class AppController  extends BaseController {
     private boolean stopGCthread=false;
 
     private final DataFormat PROGRAM_DRAG_ITEM=new DataFormat("biomedis/programitem");
+
     private final DataFormat PROGRAM_CUT_ITEM_INDEX =new DataFormat("biomedis/cut_programitem_index");
     private final DataFormat PROGRAM_CUT_ITEM_ID=new DataFormat("biomedis/cut_programitem_id");
     private final DataFormat PROGRAM_CUT_ITEM_COMPLEX =new DataFormat("biomedis/cut_programitem_complex");
+
+    private final DataFormat COMPLEX_CUT_ITEM_INDEX =new DataFormat("biomedis/cut_complex_item_index");
+    private final DataFormat COMPLEX_CUT_ITEM_ID=new DataFormat("biomedis/cut_complex_item_id");
+    private final DataFormat COMPLEX_CUT_ITEM_PROFILE =new DataFormat("biomedis/cut_complex_profile");
+
+    private final DataFormat PROFILE_CUT_ITEM_INDEX =new DataFormat("biomedis/cut_profile_item_index");
+    private final DataFormat PROFILE_CUT_ITEM_ID=new DataFormat("biomedis/cut_profile_item_id");
+
+
     private final DataFormat PROGRAM_COPY_ITEM=new DataFormat("biomedis/copy_programitem");
+    private final DataFormat COMPLEX_COPY_ITEM=new DataFormat("biomedis/copy_complexitem");
+
+
 
     private DropShadow borderGlow;
 
@@ -1916,8 +1929,38 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         else tSec = tp.getNumFreqs() * selectedComplex.getTimeForFrequency();
         return tSec;
     }
+    private boolean isProfileTabSelected(){
+        return 0 == therapyTabPane.getSelectionModel().getSelectedIndex();
+    }
+    private boolean isComplexesTabSelected(){
+        return 1 == therapyTabPane.getSelectionModel().getSelectedIndex();
+    }
+    private boolean isProgramsTabSelected(){
+        return 2 == therapyTabPane.getSelectionModel().getSelectedIndex();
+    }
+    private List<MenuItem> tablesMenuHelper;
     private void initTables()
     {
+            tablesMenuHelper=new ArrayList<>();
+        MenuItem mh1 = new MenuItem(this.res.getString("app.ui.copy"));
+        MenuItem mh2 =new MenuItem(this.res.getString("app.ui.paste"));
+        MenuItem mh3 =new MenuItem(this.res.getString("app.cut"));
+        MenuItem mh4 =new MenuItem(this.res.getString("app.delete"));
+
+        tablesMenuHelper.add(mh1);
+        tablesMenuHelper.add(mh2);
+        tablesMenuHelper.add(mh3);
+        tablesMenuHelper.add(mh4);
+
+        mh1.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
+        mh2.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
+        mh3.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
+        mh4.setAccelerator(KeyCombination.keyCombination("Delete"));
+
+        mh1.setOnAction(e->cutInTables());
+        mh1.setOnAction(e->copyInTables());
+        mh1.setOnAction(e->pasteInTables());
+        mh1.setOnAction(e->deleteInTables());
 
         //установка имени таба комплексов с учетом времени
         textComplexTime.addListener((observable, oldValue, newValue) -> {
@@ -2055,6 +2098,48 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         nameCol.setSortable(false);
         timeCol.setSortable(false);
         weightCol.setSortable(false);
+
+
+
+        //MenuItem mip1 = new MenuItem(this.res.getString("app.ui.copy"));
+        MenuItem mip2 =new MenuItem(this.res.getString("app.ui.paste"));
+        MenuItem mip3 =new MenuItem(this.res.getString("app.cut"));
+        MenuItem mip4 =new MenuItem(this.res.getString("app.delete"));
+
+
+        mip3.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
+        //mip1.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
+        mip2.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
+        mip4.setAccelerator(KeyCombination.keyCombination("Delete"));
+        profileMenu.getItems().addAll(mip3,mip2,mip4);
+        mip3.setOnAction(e->cutInTables());
+        mip2.setOnAction(e->pasteInTables());
+        mip4.setOnAction(e->deleteInTables());
+        tableProfile.setContextMenu(profileMenu);
+        profileMenu.setOnShowing(e->{
+            mip2.setDisable(false);
+            mip3.setDisable(false);
+            mip4.setDisable(false);
+         if(tableProfile.getSelectionModel().getSelectedItem()==null) {
+             mip2.setDisable(true);
+             mip3.setDisable(true);
+             mip4.setDisable(true);
+         }else {
+             mip4.setDisable(false);
+             Clipboard clipboard= Clipboard.getSystemClipboard();
+             if(clipboard.hasContent(PROFILE_CUT_ITEM_ID)){
+                 Integer ind = (Integer)clipboard.getContent(PROFILE_CUT_ITEM_INDEX);
+                 if(ind ==null) mip2.setDisable(true);
+                 else {
+                     if(tableProfile.getSelectionModel().getSelectedIndex()==ind)mip2.setDisable(true);
+                     else mip2.setDisable(false);
+                 }
+
+             }else  mip2.setDisable(true);
+         }
+
+        });
+        //profileMenu
 
 
 
@@ -2272,8 +2357,15 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         MenuItem mic11 =new MenuItem(this.res.getString("app.cut"));
         MenuItem mic12 =new MenuItem(this.res.getString("app.delete"));
 
-        mic11.setOnAction(e->cutComplexes());
-        mic12.setOnAction(e->onRemoveComplex());
+
+        mic11.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
+        mic9.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
+        mic10.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
+        mic12.setAccelerator(KeyCombination.keyCombination("Delete"));
+
+
+        mic11.setOnAction(e-> cutInTables());
+        mic12.setOnAction(e->deleteInTables());
 
         mic1.setOnAction((event2) -> {
             this.copyTherapyComplexToBase();
@@ -2288,8 +2380,8 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         mic5.setOnAction((event2) -> {
             this.uploadComplexesToM();
         });
-        mic9.setOnAction(event -> copyTherapyComplexes());
-        mic10.setOnAction(event -> pasteTherapyComplexes());
+        mic9.setOnAction(event -> copyInTables());
+        mic10.setOnAction(event -> pasteInTables());
         mic4.setOnAction(event -> complexesToBiofon(tableComplex.getSelectionModel().getSelectedItems()));
         this.complexesMenu.getItems().addAll(new MenuItem[]{mic11,mic9,mic10,mic12,mic8,mic1, mic2,mic6, mic3, mic5, mic7, mic4});
         this.tableComplex.setContextMenu(this.complexesMenu);
@@ -2302,7 +2394,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
             mic9.setDisable(false);
             mic10.setDisable(true);
-
+Clipboard clipboard =Clipboard.getSystemClipboard();
             if(this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
 
                 mic1.setDisable(true);
@@ -2313,13 +2405,46 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                 mic9.setDisable(true);
                 mic11.setDisable(true);
                 mic12.setDisable(true);
-                if(therapyComplexesClipboard.size()!=0)  mic10.setDisable(false);//вставить можно и в пустую таблицу
+
+                //вставить можно и в пустую таблицу
+                if(clipboard.hasContent(COMPLEX_COPY_ITEM) || clipboard.hasContent(COMPLEX_CUT_ITEM_ID)  )  mic10.setDisable(false);
 
             } else {
                 mic9.setDisable(false);
-                if(therapyComplexesClipboard.size()!=0) mic10.setDisable(false);
-
                 mic11.setDisable(false);
+
+
+
+                if(clipboard.hasContent(COMPLEX_COPY_ITEM) || clipboard.hasContent(this.COMPLEX_CUT_ITEM_ID)) {
+
+
+                    if (clipboard.hasContent(COMPLEX_COPY_ITEM)) {
+                        if(tableComplex.getSelectionModel().getSelectedIndices().size()==1) mic10.setDisable(false);
+                        else mic10.setDisable(true);
+                    }
+                    else  if(tableComplex.getSelectionModel().getSelectedIndices().size()==1) {
+                        mic10.setDisable(true);
+                        Integer[] ind = (Integer[]) clipboard.getContent(COMPLEX_CUT_ITEM_INDEX);
+                        if (ind != null) {
+                            if (ind.length != 0) {
+                                Long idProfile = (Long) clipboard.getContent(COMPLEX_CUT_ITEM_PROFILE);
+                                if(idProfile==null)mic10.setDisable(true);
+                                else if(idProfile.longValue()==tableProfile.getSelectionModel().getSelectedItem().getId().longValue()){
+                                    //вставка в том же профиле
+                                    int dropIndex = tableComplex.getSelectionModel().getSelectedIndex();
+                                    if(isEnablePaste(dropIndex,ind))mic10.setDisable(false);
+
+                                }else   mic10.setDisable(false);//вставка в другом профиле, можно в любое место
+                            }
+                        }
+
+                    }
+
+                } else {
+                    mic10.setDisable(true);
+                }
+
+
                 mic12.setDisable(false);
 
                 Iterator tag = this.tableComplex.getSelectionModel().getSelectedItems().iterator();
@@ -2742,42 +2867,60 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         tableProfile.setOnKeyReleased(event ->
         {
             if(event.getCode()==KeyCode.DELETE) onRemoveProfile();
+            else
             if(event.getCode()==KeyCode.RIGHT){
                 therapyTabPane.getSelectionModel().select(1);
                 tableComplex.requestFocus();
                 if(tableComplex.getItems().size()!=0){tableComplex.getFocusModel().focus(0);tableComplex.getSelectionModel().select(0);}
-            }
+            } /*
+            else if(event.isControlDown() && isProfileTabSelected()){
+            if(event.getCode()==KeyCode.X)cutProfileToBuffer();
+            else if(event.getCode()==KeyCode.V)pasteProfile();
+        }
+        */
         });
 
         this.tableComplex.setOnKeyReleased((e) -> {
             if(e.getCode() == KeyCode.DELETE) {
                 this.onRemoveComplex();
-            }
+            }else
 
             if(e.getCode() == KeyCode.A && e.isControlDown()) {
                 this.tableComplex.getSelectionModel().selectAll();
-            }
+            }else
 
             if(e.getCode()==KeyCode.RIGHT) {
                 therapyTabPane.getSelectionModel().select(2);
                 tableProgram.requestFocus();
                 if(tableProgram.getItems().size()!=0){tableProgram.getFocusModel().focus(0);tableProgram.getSelectionModel().select(0);}
-            }
+            }else
             if(e.getCode()==KeyCode.LEFT) {
                 therapyTabPane.getSelectionModel().select(0);
                 tableProfile.requestFocus();
                 if(tableProfile.getItems().size()!=0){tableProfile.getFocusModel().focus(0);tableProfile.getSelectionModel().select(0);}
+            }/*
+            else if(e.isControlDown() && isComplexesTabSelected()){
+                if(e.getCode()==KeyCode.X)cutSelectedTherapyComplexesToBuffer();
+                else if(e.getCode()==KeyCode.C) copySelectedTherapyComplexesToBuffer();
+                else if(e.getCode()==KeyCode.V)pasteTherapyComplexes();
             }
+            */
 
         });
+
         tableProgram.setOnKeyReleased(e ->{
             //if(e.getCode()==KeyCode.DELETE) onRemovePrograms();
              if(e.getCode()==KeyCode.LEFT) {
                 therapyTabPane.getSelectionModel().select(1);
                 tableComplex.requestFocus();
                 if(tableComplex.getItems().size()!=0){tableComplex.getFocusModel().focus(0);tableComplex.getSelectionModel().select(0);}
-            }
-
+            }/*
+            else if(e.isControlDown() && isProgramsTabSelected()){
+                 if(e.getCode()==KeyCode.X)cutSelectedTherapyProgramsToBuffer();
+                 else if(e.getCode()==KeyCode.C)copySelectedTherapyProgramsToBuffer();
+                 else if(e.getCode()==KeyCode.V)pasteTherapyPrograms();
+             }
+*/
 
 
         });
@@ -2848,17 +2991,17 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
         mi1.setOnAction(e ->
         {
-            cutSelectedTherapyProgramsToBuffer();
+            cutInTables();
 
         });
 
         mi7.setOnAction(e->{
-            copySelectedTherapyProgramsToBuffer();
+            copyInTables();
         });
         mi8.setOnAction(e-> multyFreqProgramSwitchOn());
         mi9.setOnAction(e->multyFreqProgramSwitchOff());
-        mi2.setOnAction(e -> pasteTherapyPrograms());
-        mi16.setOnAction(e->onRemovePrograms());
+        mi2.setOnAction(e -> pasteInTables());
+        mi16.setOnAction(e->deleteInTables());
         programmMenu.getItems().addAll(mi1, mi7,mi2,mi16,mi3,mi4,mi5,mi6,mi10,mi8,mi9,mi15,mi11,mi12,mi13,mi14);
 
         tableProgram.setContextMenu(programmMenu);
@@ -2928,7 +3071,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
                                 else if(idComplex.longValue()==tableComplex.getSelectionModel().getSelectedItem().getId().longValue()){
                                     //вставка в том же профиле
                                 int dropIndex = tableProgram.getSelectionModel().getSelectedIndex();
-                                if(isEnablePasteProgram(dropIndex,ind))mi2.setDisable(false);
+                                if(isEnablePaste(dropIndex,ind))mi2.setDisable(false);
 
                                 }else   mi2.setDisable(false);//вставка в другом профиле, можно в любое место
                             }
@@ -3217,13 +3360,94 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
     }
 
+    private void deleteInTables() {
+        if(isProgramsTabSelected()) onRemovePrograms();
+        else if(isComplexesTabSelected()) onRemoveComplex();
+        else if(isProfileTabSelected()) onRemoveProfile();
+    }
+
+    private void pasteInTables() {
+        if(isProgramsTabSelected()) pasteTherapyPrograms();
+        else if(isComplexesTabSelected()) pasteTherapyComplexes();
+        else if(isProfileTabSelected()) pasteProfile();
+    }
+
+    private void copyInTables() {
+        if(isProgramsTabSelected()) copySelectedTherapyProgramsToBuffer();
+        else if(isComplexesTabSelected()) copySelectedTherapyComplexesToBuffer();
+
+    }
+
+    private void cutInTables() {
+        if(isProgramsTabSelected()) cutSelectedTherapyProgramsToBuffer();
+        else if(isComplexesTabSelected()) cutSelectedTherapyComplexesToBuffer();
+        else if(isProfileTabSelected()) cutProfileToBuffer();
+    }
+
+    private void pasteProfile() {
+        Profile profile = tableProfile.getSelectionModel().getSelectedItem();
+        if(profile==null) return;
+        int dropIndex=tableProfile.getSelectionModel().getSelectedIndex();
+
+        Clipboard clipboard= Clipboard.getSystemClipboard();
+        if(!clipboard.hasContent(PROFILE_CUT_ITEM_ID)) return;
+        if(!clipboard.hasContent(PROFILE_CUT_ITEM_INDEX)) return;
+
+
+            Integer ind = (Integer) clipboard.getContent(PROFILE_CUT_ITEM_INDEX);
+            if (ind == null) return;
+            else {
+                if (dropIndex == ind) return;
+                else {
+                   Profile movedProfile = tableProfile.getItems().get(ind);
+                   if(movedProfile==null) {
+                       clipboard.clear();
+                       return;
+                   }
+                    tableProfile.getItems().remove(movedProfile);
+                    tableProfile.getItems().add(dropIndex,movedProfile);
+                    Profile tmp;
+                    try {
+                    for (int i=0; i<tableProfile.getItems().size();i++){
+                        tmp = tableProfile.getItems().get(i);
+                        tmp.setPosition(i);
+                        getModel().updateProfile(tmp);
+
+                    }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        clipboard.clear();
+                        return;
+                    }
+
+
+
+                }
+            }
+
+        clipboard.clear();
+    }
+
+
+    private void cutProfileToBuffer() {
+        Profile profile = tableProfile.getSelectionModel().getSelectedItem();
+        if(profile==null) return;
+        Clipboard clipboard=Clipboard.getSystemClipboard();
+        clipboard.clear();
+        ClipboardContent content = new ClipboardContent();
+        content.put(PROFILE_CUT_ITEM_ID, profile.getId());
+        content.put(PROFILE_CUT_ITEM_INDEX, tableProfile.getSelectionModel().getSelectedIndex());
+        clipboard.setContent(content);
+    }
+
+
     /**
-     * Можно ли вставлять(после вырезанного) программы в той же таблице в этом месте
+     * Можно ли вставлять(после вырезанного) комплексы, программы или профили  в той же таблице в этом месте
      * @param dropIndex
      * @param ind индексы строк для перемещения
      * @return
      */
-    private boolean isEnablePasteProgram(int dropIndex,Integer[] ind) {
+    private boolean isEnablePaste(int dropIndex, Integer[] ind) {
         if (Arrays.stream(ind).filter(i -> i.intValue() == dropIndex).count() == 0) {
             int startIndex = ind[0];
             int lastIndex = ind[ind.length - 1];
@@ -3263,7 +3487,20 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
     /**
      * Вырезать комплексы
      */
-    private void cutComplexes() {
+    private void cutSelectedTherapyComplexesToBuffer() {
+        if (tableComplex.getSelectionModel().getSelectedItems().isEmpty()) return;
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.clear();
+
+        content.put(COMPLEX_CUT_ITEM_INDEX, tableComplex.getSelectionModel().getSelectedIndices().toArray(new Integer[0]));
+        content.put(COMPLEX_CUT_ITEM_PROFILE, tableProfile.getSelectionModel().getSelectedItem().getId());
+        content.put(COMPLEX_CUT_ITEM_ID, tableComplex.getSelectionModel().getSelectedItems().stream()
+                .map(i->i.getId())
+                .collect(Collectors.toList())
+                .toArray(new Long[0])
+        );
+        clipboard.setContent(content);
 
     }
 
@@ -3321,36 +3558,214 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
     }
 
     private void pasteTherapyComplexes() {
-        ObservableList<TherapyComplex> selectedItems = tableComplex.getSelectionModel().getSelectedItems();
+        if(tableComplex.getSelectionModel().getSelectedItems().size()>1){
+            showWarningDialog(res.getString("app.ui.insertion_elements"),res.getString("app.ui.insertion_not_allowed"),res.getString("app.ui.ins_not_av_mess"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
+            return;
+        }
+        Clipboard clipboard=Clipboard.getSystemClipboard();
+
+        if(clipboard.hasContent(COMPLEX_COPY_ITEM))pasteTherapyComplexesByCopy();
+        else pasteTherapyComplexesByCut();
+    }
+
+    private void pasteTherapyComplexesByCopy(){
         Profile profile = tableProfile.getSelectionModel().getSelectedItem();
         if(profile==null) return;
+        if (tableComplex.getSelectionModel().getSelectedItems().size()>1) return;
+        Clipboard clipboard = Clipboard.getSystemClipboard();
 
-        tableComplex.getSelectionModel().clearSelection();
-        try {
+        if (!clipboard.hasContent(COMPLEX_COPY_ITEM)) return;
+        Long[] ids = (Long[]) clipboard.getContent(COMPLEX_COPY_ITEM);
+        if(ids==null) return;
+        if(ids.length==0) return;
 
-            //вставка просто в таблицу в конец
-            for (TherapyComplex tc : therapyComplexesClipboard) {
-                TherapyComplex therapyComplex = getModel().copyTherapyComplexToProfile(profile, tc, tc.isMulltyFreq());
+        int dropIndex = tableComplex.getSelectionModel().getSelectedIndex();
 
-                therapyComplexItems.add(therapyComplex);
-                tableComplex.getItems().addAll(therapyComplexItems.get(therapyComplexItems.size()-1));
-                tableComplex.getSelectionModel().select(therapyComplex);
+        List<TherapyComplex> therapyComplexes =  Arrays.stream(ids)
+                .map(i->getModel().findTherapyComplex(i))
+                .filter(i->i!=null)
+                .collect(Collectors.toList());
+
+
+        if (tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
+            //вставка просто в конец таблицы
+            try {
+                tableComplex.getSelectionModel().clearSelection();
+                for (TherapyComplex tc : therapyComplexes) {
+
+                    TherapyComplex tpn = getModel().copyTherapyComplexToProfile(profile, tc);
+                    if(tpn==null) continue;
+                    tableComplex.getItems().add(tpn);
+                    tableComplex.getSelectionModel().select(tpn);
+
+                }
+            } catch (Exception e1) {
+                logger.error(e1);
+                showExceptionDialog("Ошибка копирования комплексов","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+                therapyComplexes.clear();
+                clipboard.clear();
+                return;
+            }
+        }else {
+            //вставка до выбранного элемента со сдвигом остальных
+            List<TherapyComplex> tpl=new ArrayList<>();
+            try {
+                tableComplex.getSelectionModel().clearSelection();
+                for (TherapyComplex tc : therapyComplexes) {
+                    TherapyComplex tcn = getModel().copyTherapyComplexToProfile(profile, tc);
+                    if(tcn==null) continue;
+                    tpl.add(tcn);
+                }
+                List<TherapyComplex> tpSlided = tableComplex.getItems().subList(dropIndex, tableComplex.getItems().size());
+                long posFirstSlidingElem = tableComplex.getItems().get(dropIndex).getPosition();
+
+                for (TherapyComplex tp : tpSlided) {
+                    tp.setPosition(tp.getPosition()+tpl.size());
+                    getModel().updateTherapyComplex(tp);
+                }
+                int cnt=0;
+                for (TherapyComplex tp : tpl) {
+                    tp.setPosition(posFirstSlidingElem + cnt++);
+                    getModel().updateTherapyComplex(tp);
+                }
+
+                tableComplex.getItems().addAll(dropIndex,tpl);
+                for (TherapyComplex tp : tpl) {
+                    tableComplex.getSelectionModel().select(tp);
+                }
+
+            } catch (Exception e1) {
+                logger.error(e1);
+                showExceptionDialog("Ошибка копирования комплексов","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+                therapyComplexes.clear();
+                clipboard.clear();
+                return;
             }
 
+        }
 
-            therapyComplexesClipboard.clear();
 
-        } catch (Exception e) {
-            e.printStackTrace();
+        therapyComplexes.clear();
+        clipboard.clear();
+    }
+    private void pasteTherapyComplexesByCut(){
+        //в выбранный индекс вставляется новый элемент а все сдвигаются на 1 индекс  вырезанного индекса
+
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+
+        if (!clipboard.hasContent(COMPLEX_CUT_ITEM_PROFILE)) return;
+        if (!clipboard.hasContent(COMPLEX_CUT_ITEM_ID)) return;
+        if (!clipboard.hasContent(COMPLEX_CUT_ITEM_INDEX)) return;
+        try {
+            Profile selectedProfile=tableProfile.getSelectionModel().getSelectedItem();
+            Long idProfile = (Long) clipboard.getContent(COMPLEX_CUT_ITEM_PROFILE);
+            if(idProfile==null)return;
+
+            else if(idProfile.longValue()==selectedProfile.getId().longValue()){
+                //вставка в текущем профиле
+                if (tableComplex.getSelectionModel().getSelectedItems().isEmpty()) return;
+                if (tableComplex.getSelectionModel().getSelectedItems().size()!=1) return;
+
+                Integer[] indexes = (Integer[]) clipboard.getContent(COMPLEX_CUT_ITEM_INDEX);
+                if(indexes==null) return;
+                if(indexes.length==0) return;
+                List<Integer> ind = Arrays.stream(indexes).collect(Collectors.toList());
+                int dropIndex = tableComplex.getSelectionModel().getSelectedIndex();
+
+                if(!isEnablePaste(dropIndex,indexes)) {
+                    showWarningDialog(res.getString("app.ui.moving_items"),"",res.getString("app.ui.can_not_move_to_pos"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                    return;
+                }
+
+                List<TherapyComplex> therapyComplexes = ind.stream().map(i->tableComplex.getItems().get(i)).collect(Collectors.toList());
+                int startIndex=ind.get(0);//первый индекс вырезки
+                int lastIndex=ind.get(ind.size()-1);
+
+//элементы всегда будут оказываться выше чем индекс по которому вставляли, те визуально вставляются над выбираемым элементом
+
+                if(dropIndex < startIndex){
+
+                    for (TherapyComplex i : therapyComplexes) {
+                        tableComplex.getItems().remove(i);
+                    }
+                    //вставка программ в dropIndex; Изменение их позиции
+                    tableComplex.getItems().addAll(dropIndex,therapyComplexes);
+                }else if(dropIndex > lastIndex){
+
+                    TherapyComplex dropComplex = tableComplex.getItems().get(dropIndex);
+                    for (TherapyComplex i : therapyComplexes) {
+                        tableComplex.getItems().remove(i);
+                    }
+                    dropIndex= tableComplex.getItems().indexOf(dropComplex);
+                    tableComplex.getItems().addAll(dropIndex,therapyComplexes);
+
+
+                }else return;
+
+                int i=0;
+                for (TherapyComplex tp : tableComplex.getItems()) {
+                    tp.setPosition((long)(i++));
+                    getModel().updateTherapyComplex(tp);
+                }
+
+                therapyComplexes.clear();
+
+            }else {
+                //вставка в другом профиле. Нужно вырезать и просто вставить в указанном месте
+
+
+
+                Long[] ids = (Long[]) clipboard.getContent(COMPLEX_CUT_ITEM_ID);
+
+                if(ids==null) return;
+                if(ids.length==0) return;
+                List<Long> ind = Arrays.stream(ids).collect(Collectors.toList());
+                int dropIndex =-1;
+                if (tableComplex.getSelectionModel().getSelectedItem()!=null)dropIndex = tableComplex.getSelectionModel().getSelectedIndex();
+                else if(tableComplex.getItems().size()==0) dropIndex=0;
+
+                List<TherapyComplex> movedTP = ind.stream()
+                        .map(i->getModel().findTherapyComplex(i))
+                        .filter(i->i!=null)
+                        .collect(Collectors.toList());
+
+                //просто вставляем
+                if(dropIndex==-1)tableComplex.getItems().addAll(movedTP);
+                else  tableComplex.getItems().addAll(dropIndex,movedTP);
+                //теперь все обновляем
+                int i=0;
+                for (TherapyComplex tp : tableComplex.getItems()) {
+                    tp.setPosition((long)(i++));
+                    tp.setProfile(selectedProfile);
+                    getModel().updateTherapyComplex(tp);
+                }
+
+
+
+                movedTP.clear();
+            }
+
+        } catch (Exception e1) {
+            logger.error(e1);
+            showExceptionDialog("Ошибка обновления позиции комплексов","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+            return;
+        }finally {
+            clipboard.clear();
         }
     }
 
-    private void copyTherapyComplexes() {
-        ObservableList<TherapyComplex> selectedItems = tableComplex.getSelectionModel().getSelectedItems();
-        if(selectedItems.size()==0) return;
+    private void copySelectedTherapyComplexesToBuffer() {
+        if (tableComplex.getSelectionModel().getSelectedItems().isEmpty()) return;
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.clear();
+        content.put(COMPLEX_COPY_ITEM, tableComplex.getSelectionModel()
+                .getSelectedItems().stream().map(i->i.getId()).collect(Collectors.toList()).toArray(new Long[0]));
+        clipboard.setContent(content);
 
-        therapyComplexesClipboard.clear();
-        therapyComplexesClipboard.addAll(selectedItems);
     }
     private void pasteTherapyProgramsByCopy(){
         TherapyComplex therapyComplex = tableComplex.getSelectionModel().getSelectedItem();
@@ -3461,7 +3876,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
             List<Integer> ind = Arrays.stream(indexes).collect(Collectors.toList());
             int dropIndex = tableProgram.getSelectionModel().getSelectedIndex();
 
-            if(!isEnablePasteProgram(dropIndex,indexes)) {
+            if(!isEnablePaste(dropIndex,indexes)) {
                 showWarningDialog(res.getString("app.ui.moving_items"),"",res.getString("app.ui.can_not_move_to_pos"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
                 return;
             }
@@ -3546,7 +3961,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
     private void pasteTherapyPrograms(){
         if(tableProgram.getSelectionModel().getSelectedItems().size()>1){
-            showWarningDialog(res.getString("app.ui.insertion_elements"),"Вставка элементов невозможна - выбрано несколько строк таблицы",res.getString("app.ui.ins_not_av_mess"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
+            showWarningDialog(res.getString("app.ui.insertion_elements"),res.getString("app.ui.insertion_not_allowed"),res.getString("app.ui.ins_not_av_mess"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
             return;
         }
         if(therapyProgramsCopied)pasteTherapyProgramsByCopy();
