@@ -3478,8 +3478,9 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
         Clipboard clipboard = Clipboard.getSystemClipboard();
         ClipboardContent content = new ClipboardContent();
         content.clear();
-        content.put(PROGRAM_COPY_ITEM, tableProgram.getSelectionModel()
-                .getSelectedItems().stream().map(i->i.getId()).collect(Collectors.toList()).toArray(new Long[0]));
+
+        content.put(PROGRAM_COPY_ITEM, tableProgram.getSelectionModel().getSelectedItems().stream()
+               .map(i->i.getId()).collect(Collectors.toList()).toArray(new Long[0]));
         clipboard.setContent(content);
         therapyProgramsCopied=true;
     }
@@ -3599,6 +3600,8 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
                     tableComplex.getSelectionModel().select(tpn);
 
                 }
+
+                updateProfileTime(profile);
             } catch (Exception e1) {
                 logger.error(e1);
                 showExceptionDialog("Ошибка копирования комплексов","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
@@ -3634,7 +3637,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
                 for (TherapyComplex tp : tpl) {
                     tableComplex.getSelectionModel().select(tp);
                 }
-
+                updateProfileTime(profile);
             } catch (Exception e1) {
                 logger.error(e1);
                 showExceptionDialog("Ошибка копирования комплексов","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
@@ -3709,6 +3712,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
                     tp.setPosition((long)(i++));
                     getModel().updateTherapyComplex(tp);
                 }
+                updateProfileTime(selectedProfile);
 
                 therapyComplexes.clear();
 
@@ -3731,6 +3735,11 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
                         .filter(i->i!=null)
                         .collect(Collectors.toList());
 
+                Profile srcProfile=null;
+                if(movedTP.size()>0){
+                    Optional<Profile> first = tableProfile.getItems().stream().filter(p -> p.getId().longValue() == idProfile.longValue()).findFirst();
+                    srcProfile=first.orElse(null);
+                }
                 //просто вставляем
                 if(dropIndex==-1)tableComplex.getItems().addAll(movedTP);
                 else  tableComplex.getItems().addAll(dropIndex,movedTP);
@@ -3742,8 +3751,11 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
                     getModel().updateTherapyComplex(tp);
                 }
 
+                if(movedTP.size()>0){
+                    updateProfileTime(selectedProfile);
+                    updateProfileTime( srcProfile);
 
-
+                }
                 movedTP.clear();
             }
 
@@ -3798,6 +3810,8 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
                     tableProgram.getSelectionModel().select(tp);
 
                 }
+                updateComplexTime(therapyComplex,false);
+                updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
             } catch (Exception e1) {
                 logger.error(e1);
                 showExceptionDialog("Ошибка копирования программ","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
@@ -3834,6 +3848,9 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
                     tableProgram.getSelectionModel().select(tp);
                 }
 
+
+                updateComplexTime(therapyComplex,false);
+                updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
             } catch (Exception e1) {
                 logger.error(e1);
                 showExceptionDialog("Ошибка копирования программ","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
@@ -3864,7 +3881,6 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
         TherapyComplex selectedComplex=tableComplex.getSelectionModel().getSelectedItem();
         Long idComplex = (Long) clipboard.getContent(PROGRAM_CUT_ITEM_COMPLEX);
         if(idComplex==null)return;
-
         else if(idComplex.longValue()==selectedComplex.getId().longValue()){
             //вставка в текущем комплексе
             if (tableProgram.getSelectionModel().getSelectedItems().isEmpty()) return;
@@ -3886,7 +3902,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
             int lastIndex=ind.get(ind.size()-1);
 
 //элементы всегда будут оказываться выше чем индекс по которому вставляли, те визуально вставляются над выбираемым элементом
-
+            TherapyProgram dropProgram = tableProgram.getItems().get(dropIndex);
                 if(dropIndex < startIndex){
 
                     for (TherapyProgram i : therapyPrograms) {
@@ -3896,7 +3912,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
                     tableProgram.getItems().addAll(dropIndex,therapyPrograms);
                 }else if(dropIndex > lastIndex){
 
-                    TherapyProgram dropProgram = tableProgram.getItems().get(dropIndex);
+
                     for (TherapyProgram i : therapyPrograms) {
                         tableProgram.getItems().remove(i);
                     }
@@ -3912,6 +3928,8 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
                     getModel().updateTherapyProgram(tp);
                 }
 
+            updateComplexTime(dropProgram.getTherapyComplex(),false);
+            updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
             therapyPrograms.clear();
 
         }else {
@@ -3932,7 +3950,12 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
                     .map(i->getModel().getTherapyProgram(i))
                     .filter(i->i!=null)
                     .collect(Collectors.toList());
-
+            TherapyComplex srcComplex=null;
+            if(movedTP.size() > 0){
+                Optional<TherapyComplex> first = tableComplex.getItems().stream().filter(p -> p.getId().longValue() == idComplex.longValue()).findFirst();
+                //будет найден только если вставка в том же профиле
+                srcComplex=first.orElse(null);
+            }
             //просто вставляем
            if(dropIndex==-1)tableProgram.getItems().addAll(movedTP);
                else  tableProgram.getItems().addAll(dropIndex,movedTP);
@@ -3944,6 +3967,13 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
                 getModel().updateTherapyProgram(tp);
             }
 
+            //обновление времени в таблицах
+            if(movedTP.size()>0){
+                updateComplexTime(selectedComplex,false);
+                //если вставка в другом профиле то обновлять не надо
+                if(srcComplex!=null)updateComplexTime(srcComplex,false);
+                updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
+            }
 
             //idComplex
             movedTP.clear();
