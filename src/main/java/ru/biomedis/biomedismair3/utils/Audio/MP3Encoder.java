@@ -97,8 +97,7 @@ private static final boolean debug=false;
     private boolean encode(CODEC_TYPE codecType,int sampleRate,TherapyProgram programm)
    {
         boolean res=false;
-        boolean multyfreq=programm.getTherapyComplex().isMulltyFreq();
-        if(programm.getTherapyComplex().isMulltyFreq())multyfreq=programm.isMultyFreq();
+        boolean multyfreq = programm.isMultyFreq();
 
        FreqsContainer fk=new FreqsContainer(programm.getFrequencies().replace(",","."),programm.getTherapyComplex().getTimeForFrequency(),sampleRate,multyfreq,programm.getTherapyComplex().getBundlesLength(),16);
 

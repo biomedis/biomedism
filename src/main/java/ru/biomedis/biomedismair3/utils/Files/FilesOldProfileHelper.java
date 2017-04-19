@@ -89,7 +89,7 @@ public class FilesOldProfileHelper
             //пустая папка
             if(textFile==null)
             {
-                res.add(new ComplexFileData(-1, file.getName().substring(ind2+1, ind), 0,false, 1, file));
+                res.add(new ComplexFileData(-1, file.getName().substring(ind2+1, ind), 0, 1, file));
                 continue;
             }
             //прочитаем файл
@@ -134,7 +134,7 @@ public class FilesOldProfileHelper
                 }
             }
 
-            res.add(new ComplexFileData(-1, file.getName().substring(ind2+1, ind), time, mullty,1, file));
+            res.add(new ComplexFileData(-1, file.getName().substring(ind2+1, ind), time,1, file));
 
         }
 

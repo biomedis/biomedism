@@ -14,7 +14,7 @@ public class TherapyComplex implements Serializable {
     private final SimpleStringProperty description=new SimpleStringProperty();
     private final SimpleObjectProperty<Profile> profile=new SimpleObjectProperty<>();
     private final SimpleIntegerProperty timeForFrequency=new SimpleIntegerProperty();
-    private final SimpleBooleanProperty mulltyFreq =new SimpleBooleanProperty();
+
     private final SimpleBooleanProperty changed=new SimpleBooleanProperty();//маркер генерации файла данных. Если true то требуется регенерация файлов комплекса
     private final SimpleIntegerProperty bundlesLength =new SimpleIntegerProperty();//колличество частот в пачке, для мультичастотного режима. <2 значит пачки отсутствуют
     private final SimpleStringProperty oname=new SimpleStringProperty();
@@ -97,18 +97,6 @@ public class TherapyComplex implements Serializable {
         return description.get();
     }
 
-    @Basic
-    public boolean isMulltyFreq() {
-        return mulltyFreq.get();
-    }
-    @Transient
-    public SimpleBooleanProperty mulltyFreqProperty() {
-        return mulltyFreq;
-    }
-
-    public void setMulltyFreq(boolean multyFreq) {
-        this.mulltyFreq.set(multyFreq);
-    }
 
     public void setDescription(String description) {
         this.description.set(description);

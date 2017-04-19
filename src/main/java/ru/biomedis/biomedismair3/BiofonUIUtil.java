@@ -369,7 +369,7 @@ public class BiofonUIUtil {
                     therapyComplex.getName(),
                     "",
                     therapyComplex.getTimeForFrequency(),
-                    therapyComplex.isMulltyFreq(),
+
                     therapyComplex.getBundlesLength());
 
             List<TherapyProgram> programList = bReadedTherapyPrograms.get(indbtn-1);
@@ -744,7 +744,7 @@ private enum LoadIndicatorType{RED,GREEN}
 
             int timeForFrequency = tc.getTimeForFrequency();
             tc.setTimeForFrequency((int)Math.round(timeForFrequency/60.0)*60);
-            TherapyComplex therapyComplex = mda.copyTherapyComplexToProfile(app.getBiofonProfile(), tc, true);
+            TherapyComplex therapyComplex = mda.copyTherapyComplexToProfile(app.getBiofonProfile(), tc);
             tc.setTimeForFrequency(timeForFrequency);
             addComplex(therapyComplex);
 
@@ -954,7 +954,6 @@ private enum LoadIndicatorType{RED,GREEN}
                 tcArray[ind].setTimeForFrequency(biofonComplex.getTimeByFrequency()*60);
                 tcArray[ind].setBundlesLength(calcBundlesLength(biofonComplex));
                 tcArray[ind].setId(0L);
-                tcArray[ind].setMulltyFreq(true);
                 tcArray[ind].setProfile(null);
                 tcArray[ind].setDescription("");
                 tcArray[ind].setOname("");
@@ -1095,7 +1094,7 @@ Platform.runLater(() -> {
                 TherapyComplex therapyComplex = mda.createTherapyComplex(app.getBiofonProfile(),
                         data.getNewName(),
                         data.getNewDescription(),
-                        300, true, 1);
+                        300, 1);
 
                 biofonComplexes.add(therapyComplex);
 

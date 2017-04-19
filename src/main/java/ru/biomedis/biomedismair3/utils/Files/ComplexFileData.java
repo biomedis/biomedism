@@ -15,7 +15,6 @@ public class ComplexFileData
     private long id;//-1 для пустой папки в которой не обнаружены программы
     private String name;
     private long timeForFreq;
-    private boolean mullty;
     private int bundlesLength;
     private File file;
 

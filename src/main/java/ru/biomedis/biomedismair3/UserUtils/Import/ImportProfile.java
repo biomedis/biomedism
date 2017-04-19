@@ -137,7 +137,7 @@ public class ImportProfile {
 
             for (Complex complex : listComplex) {
 
-                complex.complex =  mda.createTherapyComplex(profile.profile,TextUtil.unEscapeXML(complex.name),TextUtil.unEscapeXML(complex.descr),complex.timeForFreq,complex.mullty,complex.bundlesLength);
+                complex.complex =  mda.createTherapyComplex(profile.profile,TextUtil.unEscapeXML(complex.name),TextUtil.unEscapeXML(complex.descr),complex.timeForFreq,complex.bundlesLength);
             }
 
             for (Program program : listProgram) {
@@ -256,7 +256,7 @@ public class ImportProfile {
 
                 if(attributes.getLength()!=0)
                 {
-                    complexesStack.push(new Complex(attributes.getValue("name"),attributes.getValue("description"),Boolean.parseBoolean(attributes.getValue("mullty")),Integer.parseInt(attributes.getValue("timeForFreq")),Integer.parseInt(attributes.getValue("bundlesLength")==null?"1":attributes.getValue("bundlesLength"))));//положим на вершину стека
+                    complexesStack.push(new Complex(attributes.getValue("name"),attributes.getValue("description"),Integer.parseInt(attributes.getValue("timeForFreq")),Integer.parseInt(attributes.getValue("bundlesLength")==null?"1":attributes.getValue("bundlesLength"))));//положим на вершину стека
                     listComplex.add(complexesStack.peek());
                 }
 
@@ -367,16 +367,16 @@ public class ImportProfile {
     {
         String name;
         String descr;
-        boolean mullty;
+
         int timeForFreq;
         int bundlesLength=1;
 
 TherapyComplex  complex;
 
-        public Complex(String name, String descr, boolean mullty,  int timeForFreq,Integer bundlesLength) {
+        public Complex(String name, String descr,  int timeForFreq,Integer bundlesLength) {
             this.name = name;
             this.descr = descr;
-            this.mullty=mullty;
+
             this.timeForFreq=timeForFreq;
             if(bundlesLength!=null) this.bundlesLength=bundlesLength;
         }

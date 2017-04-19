@@ -1537,14 +1537,14 @@ public class ModelDataApp {
      * @return
      * @throws Exception
      */
-      public TherapyComplex createTherapyComplex(Profile profile,String name,String description,int timeForFreq,boolean mulltyFreq, int bundlesLength) throws Exception
+      public TherapyComplex createTherapyComplex(Profile profile,String name,String description,int timeForFreq, int bundlesLength) throws Exception
       {
           TherapyComplex tc=new TherapyComplex();
           tc.setDescription(description);
           tc.setProfile(profile);
           tc.setTimeForFrequency(timeForFreq);
           tc.setName(name);
-          tc.setMulltyFreq(mulltyFreq);
+
           tc.setBundlesLength(bundlesLength);
           tc.setOname("");
 
@@ -1578,14 +1578,14 @@ public class ModelDataApp {
      * @return
      * @throws Exception
      */
-      public TherapyComplex createTherapyComplex(Profile profile,Complex complex,int timeForFreq,boolean mulltyFreq, int bundlesLength) throws Exception
+      public TherapyComplex createTherapyComplex(Profile profile,Complex complex,int timeForFreq, int bundlesLength) throws Exception
       {
          
           TherapyComplex tc=new TherapyComplex();
           tc.setProfile(profile);
           tc.setTimeForFrequency(timeForFreq);
           tc.setName(getSmartString(complex.getName()));
-          tc.setMulltyFreq(mulltyFreq);
+
           tc.setBundlesLength(bundlesLength);
           //tc.setChanged(true);//только изменения в существующих комплексах должно приводить к регенерации
 
@@ -1621,14 +1621,14 @@ public class ModelDataApp {
      * @return
      * @throws Exception
      */
-    public TherapyComplex createTherapyComplex(Profile profile,Complex complex,int timeForFreq,boolean mulltyFreq, int bundlesLength, String insertComplexLang) throws Exception
+    public TherapyComplex createTherapyComplex(Profile profile,Complex complex,int timeForFreq, int bundlesLength, String insertComplexLang) throws Exception
     {
 
         TherapyComplex tc=new TherapyComplex();
         tc.setProfile(profile);
         tc.setTimeForFrequency(timeForFreq);
         tc.setName(getSmartString(complex.getName()));
-        tc.setMulltyFreq(mulltyFreq);
+
         tc.setBundlesLength(bundlesLength);
         //tc.setChanged(true);//только изменения в существующих комплексах должно приводить к регенерации
 
@@ -1782,10 +1782,7 @@ public class ModelDataApp {
         }
 */
 
-        //в не мультичастотном режиме комплекса мультичастотность программ игнорируется!!!
-        //если все частоты мульти, подсчитаем все без мп3 и умножим на время частоты, mp3 считает ся ниже отдельно
-        if(th.isMulltyFreq())
-        {
+       //теперь все комплексы мультичастотные
 
             //посчитаем пачки частот для всех программ комплекса
             int freqBundlesCount=0;//сколько пачек получем из частот программ
@@ -1820,16 +1817,13 @@ public class ModelDataApp {
 
 
             }
-
-
-        }
-        else {
+             /*{
             query = emf.createEntityManager().createQuery("Select t.frequencies from TherapyProgram t where t.therapyComplex = :tc and t.mp3 <> true");
             query.setParameter("tc", th);
             results = query.getResultList();
             res = results.stream().mapToInt(value -> value.split(";").length).sum() * th.getTimeForFrequency();
         }
-
+*/
 
 
 
@@ -1998,14 +1992,13 @@ public class ModelDataApp {
      * @param tc
      * @multyFreq изменяет этот параметр на установленный
      */
-    public TherapyComplex copyTherapyComplexToProfile(Profile profile, TherapyComplex tc, boolean multyFreq) throws Exception {
+    public TherapyComplex copyTherapyComplexToProfile(Profile profile, TherapyComplex tc) throws Exception {
         TherapyComplex therapyComplex=null;
         try {
              therapyComplex = createTherapyComplex(profile,
                     tc.getName(),
                     tc.getDescription(),
                     tc.getTimeForFrequency(),
-                     multyFreq,
                     tc.getBundlesLength());
 
             therapyComplex.setOname(tc.getOname());
@@ -2026,16 +2019,7 @@ public class ModelDataApp {
 
     }
 
-    /**
-     *
-     * Создаст копию комплекса в указанном профиле
-     * @param profile
-     * @param tc
-     *
-     */
-    public TherapyComplex copyTherapyComplexToProfile(Profile profile, TherapyComplex tc) throws Exception {
-       return copyTherapyComplexToProfile(profile,tc,tc.isMulltyFreq());
-    }
+
 
        /******************************************/
        /************ Терапия программы ***/

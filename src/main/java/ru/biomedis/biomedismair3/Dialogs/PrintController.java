@@ -124,7 +124,7 @@ public class PrintController extends BaseController {
 
         strb.append("<p>" + res.getString("ui.time_to_freq") + ": " + therapyComplex.getTimeForFrequency() + res.getString("app.secunde") + "<br/>");
         strb.append(res.getString("app.table.complex_descr") + ": " + therapyComplex.getDescription() + "<br/>");
-        strb.append(res.getString("app.table.mulltyfreqs") + ": " + (therapyComplex.isMulltyFreq() ? res.getString("app.yes") : res.getString("app.no")) + "<br/>");
+
         strb.append(res.getString("app.table.delay") + ": " + DateUtil.replaceTime(DateUtil.convertSecondsToHMmSs(getModel().getTimeTherapyComplex(therapyComplex)), res) + "</p>");
 
         strb.append("<p></p>");

@@ -73,7 +73,7 @@ public class M2UI extends BaseController {
             tc.setBundlesLength(complex.getBundlesLength());
             tc.setTimeForFrequency(complex.getTimeByFrequency());
             tc.setDescription("");
-            tc.setMulltyFreq(true);
+
 
             List<TherapyProgram> ltp=new ArrayList<>();
             TherapyProgram tp;

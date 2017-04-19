@@ -86,7 +86,7 @@ public class FilesProfileHelper
             //пустая папка
             if(textFile==null)
             {
-                res.add(new ComplexFileData(-1, file.getName(), 0,false,1, file));
+                res.add(new ComplexFileData(-1, file.getName(), 0,1, file));
                 continue;
             }
             //прочитаем файл
@@ -106,10 +106,8 @@ public class FilesProfileHelper
                 throw new OldComplexTypeException("Обнаружен комплекс старого формата",textFile.getName().substring(textFile.getName().length()));
             }else if(progrParam.size() == 8){
                 //если 8 параметров, значит это файл с версии обновления 0. И не содержит 9 строкой длину пачки частот
-                res.add(new ComplexFileData(Long.parseLong(progrParam.get(2)), file.getName(), Long.parseLong(progrParam.get(3)),
-                        Boolean.parseBoolean(progrParam.get(4)),1, file));
-            }else  res.add(new ComplexFileData(Long.parseLong(progrParam.get(2)), file.getName(), Long.parseLong(progrParam.get(3)),
-                    Boolean.parseBoolean(progrParam.get(4)),Integer.parseInt(progrParam.get(8)), file));
+                res.add(new ComplexFileData(Long.parseLong(progrParam.get(2)), file.getName(), Long.parseLong(progrParam.get(3)),3, file));
+            }else  res.add(new ComplexFileData(Long.parseLong(progrParam.get(2)), file.getName(), Long.parseLong(progrParam.get(3)),Integer.parseInt(progrParam.get(8)), file));
 
 
 
@@ -214,7 +212,7 @@ public class FilesProfileHelper
      *  @programmMulty мультичастотна ли программа
      * @throws Exception
      */
-    public static void copyTxt(String freqs,int timeForFreq,long idProgram, String uuid,long idComplex, boolean mullty, int bundlesLength, String nameProgram, boolean mp3,File txtPath,boolean programmMulty) throws Exception {
+    public static void copyTxt(String freqs,int timeForFreq,long idProgram, String uuid,long idComplex, int bundlesLength, String nameProgram, boolean mp3,File txtPath,boolean programmMulty) throws Exception {
         txtPath=new File(txtPath.toURI());
 
         try(PrintWriter writer = new PrintWriter(txtPath,"UTF-8"))
@@ -224,7 +222,7 @@ public class FilesProfileHelper
             writer.println(uuid);
             writer.println(idComplex + "");
             writer.println(timeForFreq);
-            writer.println(mullty?"true":"false");
+            writer.println("true");//оставлено для совместимости
             writer.println(nameProgram);
             writer.println(freqs+"@");
             writer.println(mp3?"true":"false");

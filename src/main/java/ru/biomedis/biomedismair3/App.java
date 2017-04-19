@@ -889,6 +889,7 @@ https://gist.github.com/DemkaAge/8999236
                 reopenPersistentContext();
                 TherapyComplex therapyComplex;
                 boolean multyCompl=false;
+                /*
                 for (TherapyProgram tp : getModel().findAllTherapyPrograms()) {
 
                      therapyComplex = tp.getTherapyComplex();
@@ -900,6 +901,7 @@ https://gist.github.com/DemkaAge/8999236
                     getModel().updateTherapyProgram(tp);
 
                 }
+                */
                 logger.info("Столбец  MULTYFREQ обновлен.");
 
                 //добавление базы чстот Тринити
@@ -970,6 +972,31 @@ https://gist.github.com/DemkaAge/8999236
             protected Boolean call() throws Exception {
                 boolean tpPosFinded=false;
                 boolean profPosFinded=false;
+                boolean mFreqFinded=false;
+                try
+                {
+                    logger.info("Проверка наличия столбца MULLTYFREQ  в THERAPYCOMPLEX ");
+                    Object singleResult = emf.createEntityManager().createNativeQuery("SELECT MULLTYFREQ FROM THERAPYCOMPLEX LIMIT 1").getSingleResult();
+                    logger.info("Столбец  MULLTYFREQ  найден.");
+                    mFreqFinded=true;
+                    EntityManager em = emf.createEntityManager();
+                    em.getTransaction().begin();
+                    try{
+                        em.createNativeQuery("ALTER TABLE THERAPYCOMPLEX DROP `MULLTYFREQ`").executeUpdate();
+                        em.getTransaction().commit();
+                        logger.info("Столбец  MULLTYFREQ удален.");
+
+
+                    }catch (Exception ex){
+                        logger.error("ошибка обновления ALTER TABLE THERAPYCOMPLEX DROP `MULLTYFREQ`",ex);
+                        return false;
+                    }finally {
+                        if(em!=null) em.close();
+                    }
+
+                }catch (Exception e){
+                }
+
                 try
                 {
                     logger.info("Проверка наличия столбца POSITION  в THERAPYCOMPLEX ");
@@ -997,7 +1024,7 @@ https://gist.github.com/DemkaAge/8999236
 
 
                 }
-
+                reopenPersistentContext();
                 try
                 {
                     logger.info("Проверка наличия столбца POSITION  в PROFILE ");
