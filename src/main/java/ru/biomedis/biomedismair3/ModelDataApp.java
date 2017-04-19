@@ -2243,12 +2243,27 @@ public class ModelDataApp {
 
     }
 
+    public List<String> mp3ProgramPathsInProfile(Profile profile)
+    {
+
+        //просмотрим есть ли изменения в программах комплексов профиля
+        Query query2 = emf.createEntityManager().createQuery("Select c.frequencies From TherapyProgram c WHERE c.therapyComplex.profile.id=:profile and c.mp3=true");
+        query2.setParameter("profile", profile.getId());
+        return query2.getResultList();
+
+
+    }
+
     public List<TherapyProgram> mp3ProgramInComplex(TherapyComplex tc) {
         Query query2 = this.emf.createEntityManager().createQuery("Select c From TherapyProgram c WHERE c.therapyComplex.id=:tc and c.mp3=true  order by c.position asc");
         query2.setParameter("tc", tc.getId());
         return query2.getResultList();
     }
-
+    public List<String> mp3ProgramPathsInComplex(TherapyComplex tc) {
+        Query query2 = this.emf.createEntityManager().createQuery("Select c.frequencies From TherapyProgram c WHERE c.therapyComplex.id=:tc and c.mp3=true");
+        query2.setParameter("tc", tc.getId());
+        return query2.getResultList();
+    }
 
 
     /**
@@ -2498,14 +2513,14 @@ public class ModelDataApp {
 
     public List<Long> getTherapyComplexFiles(TherapyComplex tc)
     {
-        Query query=emf.createEntityManager().createQuery("Select s.id From TherapyProgram s WHERE s.therapyComplex=:tc");
+        Query query=emf.createEntityManager().createQuery("Select s.id From TherapyProgram s WHERE s.therapyComplex=:tc and s.mp3=false");
         query.setParameter("tc",tc);
         return query.getResultList();
     }
 
     public List<Long> getProfileFiles(Profile pf)
     {
-        Query query=emf.createEntityManager().createQuery("Select s.id From TherapyProgram s WHERE s.therapyComplex.profile=:pf");
+        Query query=emf.createEntityManager().createQuery("Select s.id From TherapyProgram s WHERE s.therapyComplex.profile=:pf  and s.mp3=false");
         query.setParameter("pf", pf);
         return query.getResultList();
     }

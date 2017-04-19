@@ -2051,12 +2051,18 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
                     File f = null;
                     double summ = 0;
+                    if(getModel().isNeedGenerateFilesInProfile(param.getValue())) return "";
                     for (Long v : getModel().getProfileFiles(param.getValue())) {
 
                         f = new File(getApp().getDataDir(), v + ".dat");
-                        if (f.exists()) summ += f.length() / 1048576;
+                        if (f.exists()) summ += f.length() ;
                     }
+                    for (String v : getModel().mp3ProgramPathsInProfile(param.getValue())) {
 
+                        f = new File(v);
+                        if (f.exists()) summ += f.length();
+                    }
+                    summ = (double)summ / 1048576;
                     return Math.ceil(summ) + " Mb";
                 }
             });
@@ -2300,7 +2306,23 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
                                 if(getModel().countTherapyPrograms(thisComplex)==0)iv.setImage(imageCancel);
                                 else if(getModel().hasNeedGenerateProgramInComplex(thisComplex))  iv.setImage(imageCancel);
-                                 else  iv.setImage(imageDone);
+                                 else  {
+                                    long sum=0;
+                                    File f;
+                                    for (Long id : getModel().getTherapyComplexFiles(thisComplex)) {
+                                        f=new File(getApp().getDataDir(),id+".dat");
+                                        if(f.exists())sum+=f.length();
+                                    }
+                                    for (String v : getModel().mp3ProgramPathsInComplex(thisComplex)) {
+
+                                        f = new File(v);
+                                        if (f.exists()) sum += f.length();
+                                    }
+
+
+                                    if(sum>0) setText(Math.ceil((double)sum / 1048576.0) + " Mb");
+                                     iv.setImage(imageDone);
+                                }
 
                             }
 
@@ -3559,7 +3581,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
         }
             updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(),true);
-            updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
+            //updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
             tableProgram.getSelectionModel().clearSelection();
         } catch (Exception e) {
             logger.error("Ошибка обновления MultyFreq в терапевтической программе",e);
@@ -3820,7 +3842,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
                 }
                 updateComplexTime(therapyComplex,true);
-                updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
+                //updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
             } catch (Exception e1) {
                 logger.error(e1);
                 showExceptionDialog("Ошибка копирования программ","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
@@ -3859,7 +3881,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
 
                 updateComplexTime(therapyComplex,true);
-                updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
+                //updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
             } catch (Exception e1) {
                 logger.error(e1);
                 showExceptionDialog("Ошибка копирования программ","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
@@ -3981,7 +4003,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
                 updateComplexTime(selectedComplex,true);
                 //если вставка в другом профиле то обновлять не надо
                 if(srcComplex!=null)updateComplexTime(srcComplex,true);
-                updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
+                //updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
             }
 
             //idComplex
@@ -9055,7 +9077,8 @@ return  true;
             int i = tableProgram.getItems().size()-1;
             tableProgram.scrollTo(i);
 
-            updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(), false);
+            updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(), true);
+            tableProfile.getSelectionModel().getSelectedItem().setProfileWeight(tableProfile.getSelectionModel().getSelectedItem().getProfileWeight()+1);
 
 
 
