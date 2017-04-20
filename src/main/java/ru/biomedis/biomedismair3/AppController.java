@@ -1550,7 +1550,7 @@ tab5.disableProperty().bind(m2Connected.not());
 
     private void hideBundlesSpinnerBTNPanBiofon(int val)
     {
-        bundlesSpinnerBiofon.getValueFactory().setValue(val==1 ? "-" : String.valueOf(val));
+        bundlesSpinnerBiofon.getValueFactory().setValue(String.valueOf(val));
         bundlesBtnPanBiofon.setVisible(false);
 
     }
@@ -1635,10 +1635,10 @@ tab5.disableProperty().bind(m2Connected.not());
 
 
 
-        bundlesSpinnerDataBiofon.add("-");
+
         for(int i=2; i<=MAX_BUNDLES; i++)bundlesSpinnerDataBiofon.add(String.valueOf(i));
         bundlesSpinnerBiofon.setValueFactory(new SpinnerValueFactory.ListSpinnerValueFactory<String>(bundlesSpinnerDataBiofon));
-        bundlesSpinnerBiofon.getValueFactory().setValue("-");
+        bundlesSpinnerBiofon.getValueFactory().setValue("2");
 
         btnOkBundlesBiofon.setGraphic(new ImageView(new Image(okUrl.toExternalForm())));
         btnCancelBundlesBiofon.setGraphic(new ImageView(new Image(cancelUrl.toExternalForm())));
@@ -1664,7 +1664,7 @@ tab5.disableProperty().bind(m2Connected.not());
             }
 
             hideTFSpinnerBTNPanBiofon(newValue.getTimeForFrequency()/60);
-            hideBundlesSpinnerBTNPanBiofon(newValue.getBundlesLength()<1?1:newValue.getBundlesLength());
+            hideBundlesSpinnerBTNPanBiofon(newValue.getBundlesLength()<2?2:newValue.getBundlesLength());
         });
 
 
@@ -1683,7 +1683,7 @@ tab5.disableProperty().bind(m2Connected.not());
             try {
                 for (TherapyComplex complex : selectedItems) {
 
-                    complex.setBundlesLength(bundlesSpinnerBiofon.getValue().equals("-")?1:Integer.parseInt(bundlesSpinnerBiofon.getValue()));
+                    complex.setBundlesLength(Integer.parseInt(bundlesSpinnerBiofon.getValue()));
                     this.getModel().updateTherapyComplex(complex);
                     hideBundlesSpinnerBTNPanBiofon();
                 }
@@ -3340,12 +3340,11 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
         /** Комбо пачек частот **/
         ObservableList<String> bundlesSpinnerData = FXCollections.observableArrayList();
-        bundlesSpinnerData.add("-");
         for(int i=2; i<=MAX_BUNDLES; i++)bundlesSpinnerData.add(String.valueOf(i));
         // Value factory.
 
         bundlesSpinner.setValueFactory(new SpinnerValueFactory.ListSpinnerValueFactory<String>(bundlesSpinnerData));
-        bundlesSpinner.getValueFactory().setValue("-");
+        bundlesSpinner.getValueFactory().setValue("2");
 
         //показывает кнопки при изменениях спинера
         bundlesSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {if(oldValue!=newValue) bundlesBtnPan.setVisible(true);});
@@ -3367,7 +3366,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
                     for(TherapyComplex item:items) {
 
 
-                        item.setBundlesLength(bundlesSpinner.getValue().equals("-")?1:Integer.parseInt(bundlesSpinner.getValue()));
+                        item.setBundlesLength(Integer.parseInt(bundlesSpinner.getValue()));
                         item.setChanged(true);
                         this.getModel().updateTherapyComplex(item);
                         this.btnGenerate.setDisable(false);                   }
@@ -4273,7 +4272,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
     private void hideBundlesSpinnerBTNPan(int val)
     {
-        bundlesSpinner.getValueFactory().setValue(val==1 ? "-" : String.valueOf(val));
+        bundlesSpinner.getValueFactory().setValue(String.valueOf(val));
         bundlesBtnPan.setVisible(false);
 
     }

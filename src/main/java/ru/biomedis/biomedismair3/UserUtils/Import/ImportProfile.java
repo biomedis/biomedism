@@ -256,7 +256,8 @@ public class ImportProfile {
 
                 if(attributes.getLength()!=0)
                 {
-                    complexesStack.push(new Complex(attributes.getValue("name"),attributes.getValue("description"),Integer.parseInt(attributes.getValue("timeForFreq")),Integer.parseInt(attributes.getValue("bundlesLength")==null?"1":attributes.getValue("bundlesLength"))));//положим на вершину стека
+                   int bundles= Integer.parseInt(attributes.getValue("bundlesLength")==null?"3":attributes.getValue("bundlesLength"));
+                    complexesStack.push(new Complex(attributes.getValue("name"),attributes.getValue("description"),Integer.parseInt(attributes.getValue("timeForFreq")),bundles<2?3:bundles));//положим на вершину стека
                     listComplex.add(complexesStack.peek());
                 }
 

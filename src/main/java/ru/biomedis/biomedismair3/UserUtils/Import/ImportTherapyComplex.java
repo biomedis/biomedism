@@ -233,7 +233,8 @@ public class ImportTherapyComplex
                 } else if(qName.equals("Complex")) {
                     this.inComplex = true;
                     if(attributes.getLength() != 0) {
-                        ImportTherapyComplex.this.complexes.add(ImportTherapyComplex.this.new Complex(TextUtil.unEscapeXML(attributes.getValue("name")), TextUtil.unEscapeXML(attributes.getValue("description")), Integer.parseInt(attributes.getValue("timeForFreq")),Integer.parseInt(attributes.getValue("bundlesLength")==null?"1":attributes.getValue("bundlesLength"))));
+                        int bundles= Integer.parseInt(attributes.getValue("bundlesLength")==null?"3":attributes.getValue("bundlesLength"));
+                        ImportTherapyComplex.this.complexes.add(ImportTherapyComplex.this.new Complex(TextUtil.unEscapeXML(attributes.getValue("name")), TextUtil.unEscapeXML(attributes.getValue("description")), Integer.parseInt(attributes.getValue("timeForFreq")),bundles<2?3:bundles));
                     }
 
                     super.startElement(uri, localName, qName, attributes);

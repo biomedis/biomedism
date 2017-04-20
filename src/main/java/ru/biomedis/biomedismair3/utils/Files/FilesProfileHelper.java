@@ -107,7 +107,14 @@ public class FilesProfileHelper
             }else if(progrParam.size() == 8){
                 //если 8 параметров, значит это файл с версии обновления 0. И не содержит 9 строкой длину пачки частот
                 res.add(new ComplexFileData(Long.parseLong(progrParam.get(2)), file.getName(), Long.parseLong(progrParam.get(3)),3, file));
-            }else  res.add(new ComplexFileData(Long.parseLong(progrParam.get(2)), file.getName(), Long.parseLong(progrParam.get(3)),Integer.parseInt(progrParam.get(8)), file));
+            }else {
+                int bundles = Integer.parseInt(progrParam.get(8));
+                res.add(new ComplexFileData(Long.parseLong(progrParam.get(2)),
+                        file.getName(),
+                        Long.parseLong(progrParam.get(3)),
+                        bundles<2?3:bundles,
+                        file));
+            }
 
 
 
@@ -189,7 +196,7 @@ public class FilesProfileHelper
                             file,
                             bssFile.exists() ? bssFile : (File)null,
                             Boolean.parseBoolean(progrParam.get(7)),
-                            bundlesLength,
+                            bundlesLength<2?3:bundlesLength,
                             Boolean.valueOf(progrParam.get(9))));
 
         }

@@ -148,7 +148,7 @@ public class BiofonUIUtil {
         tFInfo.getParent().setVisible(true);
         bundlesInfo.getParent().setVisible(true);
         tFInfo.setText(tc.getTimeForFrequency()/60+"");
-        bundlesInfo.setText(tc.getBundlesLength()==1?"-":String.valueOf(tc.getBundlesLength()));
+        bundlesInfo.setText(String.valueOf(tc.getBundlesLength()));
     }
 
     private void hideInfo(){

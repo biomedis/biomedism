@@ -1087,6 +1087,24 @@ https://gist.github.com/DemkaAge/8999236
                     return false;
                 }
 
+
+                EntityManager em = emf.createEntityManager();
+                em.getTransaction().begin();
+                try
+                {
+                    logger.info("Обновление BUNDLESLENGTH  ");
+
+                    int res = em.createNativeQuery("UPDATE  THERAPYCOMPLEX SET  BUNDLESLENGTH = 3  WHERE BUNDLESLENGTH = 1").executeUpdate();
+                    em.getTransaction().commit();
+                    logger.info("BUNDLESLENGTH обновлен. Обновлено "+res+" значений");
+
+                }catch (Exception e){
+                    logger.error(" Ошибка обновления BUNDLESLENGTH",e);
+                    return false;
+                }finally {
+                    if(em!=null) em.close();
+                }
+
                 //setUpdateVersion(updateOption,5);
                 return true;
 
