@@ -1965,7 +1965,18 @@ public class ModelDataApp {
     {
       return   this.therapyComplexDAO.findTherapyComplex(id);
     }
-
+    public Complex findComplex(String uuid)
+    {
+        Query query = emf.createEntityManager().createQuery("Select t from Complex t where t.uuid = :p").setMaxResults(1);
+        query.setParameter("p", uuid);
+        return (Complex)query.getSingleResult();
+    }
+    public Program findProgram(String uuid)
+    {
+        Query query = emf.createEntityManager().createQuery("Select t from Program t where t.uuid = :p").setMaxResults(1);
+        query.setParameter("p", uuid);
+        return (Program)query.getSingleResult();
+    }
     /**
        * Удалит терапевтический комплекс и все терапевтические программы в нем
        * @param th

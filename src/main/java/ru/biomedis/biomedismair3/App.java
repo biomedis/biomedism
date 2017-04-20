@@ -1105,6 +1105,25 @@ https://gist.github.com/DemkaAge/8999236
                     if(em!=null) em.close();
                 }
 
+
+             //   d8652bff-a090-451f-bcef-6380195ad2f5 альфа
+             //   c5175f11-cd07-484e-b63c-6b6bd0fcb928    7.84
+
+                Program beta=   getModel().findProgram("c5175f11-cd07-484e-b63c-6b6bd0fcb928");
+                Program alfa=   getModel().findProgram("d8652bff-a090-451f-bcef-6380195ad2f5");
+                     if(beta==null || alfa==null){
+                         logger.error("не найдены комплексы alfa и beta");
+                     }else {
+                         if(beta.getFrequencies().equals("7.84")){
+                             logger.info("Обмен значений альфаи бета ритмов");
+                             beta.setFrequencies(alfa.getFrequencies());
+                             alfa.setFrequencies("7.84");
+                             getModel().updateProgram(alfa);
+                             getModel().updateProgram(beta);
+                         }
+
+                     }
+
                 //setUpdateVersion(updateOption,5);
                 return true;
 
