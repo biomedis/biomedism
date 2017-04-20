@@ -19,11 +19,21 @@ public class SearchFreqs {
     private boolean hasMatching;
     private static String END_SEQ = ".0";
     private static Pattern replaceCommaPattern = Pattern.compile(",", Pattern.LITERAL);
+    private boolean allListMatching=false;
+
+    /**
+     * Совпадение  по всему списку. Можно проверять в дополнение к hasMatching() если нужно
+     * @return
+     */
+    public boolean isAllListMatching() {
+        return allListMatching;
+    }
 
     /**
      * Очистка поиска
      */
     public void clean() {
+        allListMatching=false;
         if(!hasMatching) return;
         hasMatching = false;
         freqs.forEach(f -> f.matched = false);
@@ -79,6 +89,9 @@ public class SearchFreqs {
             f.matched = patternList.contains(f.freq);
             if (f.matched && !hasMatching()) setHasMatching(true);
         });
+
+        if(freqs.stream().filter(f->!f.isMatched()).count()>0)allListMatching=false;
+        else allListMatching=true;
 
 
     }

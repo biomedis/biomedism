@@ -130,7 +130,11 @@ public class ModelDataApp {
 
         //работа с опциями. Стоит сделать проферку наличия конкретных опций, чтобы добавлять их без очистки базы
         List<ProgramOptions> allOptions = findAllOptions();
-
+        if(allOptions.stream().filter(option -> option.getName().equals("mp3_path")).count()==0)
+        {
+            ProgramOptions option = createOption("mp3_path", "");
+            if(option!=null) optionsMap.put(option.getName(),option);
+        }
         if(allOptions.stream().filter(option -> option.getName().equals("last_export_path")).count()==0)
         {
             ProgramOptions option = createOption("last_export_path", "");
@@ -303,11 +307,31 @@ public class ModelDataApp {
         Locale.setDefault(programLocale);
     }
     ///////////////////////////////////////////////////////////////////////
-    
-    
-    
-    
-    
+
+
+
+
+
+    public String getMp3Path(String defaultPath){
+        try {
+            String last_export_path = getOption("mp3_path");
+            if(last_export_path.isEmpty())return defaultPath;
+            if(new File(last_export_path).exists()==false)return defaultPath;
+            else return last_export_path;
+        } catch (Exception e) {
+            return defaultPath;
+        }
+    }
+
+    public void setMp3Path(File path)  {
+        if(path==null)return;
+        try {
+            updateOption("mp3_path",path.getAbsolutePath());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
 
 
     public String getLastExportPath(String defaultPath){
@@ -315,7 +339,7 @@ public class ModelDataApp {
             String last_export_path = getOption("last_export_path");
             if(last_export_path.isEmpty())return defaultPath;
             if(new File(last_export_path).exists()==false)return defaultPath;
-            else return defaultPath;
+            else return last_export_path;
         } catch (Exception e) {
             return defaultPath;
         }
@@ -336,7 +360,7 @@ public class ModelDataApp {
             String last_saved_files_path = getOption("last_saved_files_path");
             if(last_saved_files_path.isEmpty())return defaultPath;
             if(new File(last_saved_files_path).exists()==false)return defaultPath;
-            else return defaultPath;
+            else return last_saved_files_path;
         } catch (Exception e) {
             return defaultPath;
         }
@@ -2312,6 +2336,7 @@ public class ModelDataApp {
      */
     public boolean hasNeedGenerateProgramInComplex(long tcID)
     {
+
         Query query = emf.createEntityManager().createQuery("Select count(c) From TherapyProgram c WHERE c.therapyComplex.id=:tc and c.changed=true");
         query.setParameter("tc", tcID);
         long count= (Long)query.getSingleResult();
@@ -2328,6 +2353,7 @@ public class ModelDataApp {
      */
     public boolean hasNeedGenerateProgramInComplex(TherapyComplex tc)
     {
+
         Query query = emf.createEntityManager().createQuery("Select count(c) From TherapyProgram c WHERE c.therapyComplex=:tc and c.changed=true");
         query.setParameter("tc", tc);
         long count= (Long)query.getSingleResult();

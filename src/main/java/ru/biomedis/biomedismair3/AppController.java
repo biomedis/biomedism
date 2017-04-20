@@ -1120,6 +1120,7 @@ public class AppController  extends BaseController {
 
 
                             Platform.runLater(() -> {
+                                updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(),true);
                                 tableProgram.getSelectionModel().clearSelection();
                                 tableProgram.requestFocus();
                                 tableProgram.getSelectionModel().select(tableProgram.getItems().size() - 1);
@@ -2490,7 +2491,9 @@ Clipboard clipboard =Clipboard.getSystemClipboard();
 
                 while(tag.hasNext()) {
                     TherapyComplex therapyComplex = (TherapyComplex)tag.next();
+
                     if( therapyComplex.isChanged() || this.getModel().hasNeedGenerateProgramInComplex(therapyComplex) ) {
+                        if(getModel().countTherapyPrograms(therapyComplex)==0) continue;
                         mic2.setDisable(false);
                         mic3.setDisable(true);
                         mic5.setDisable(true);
@@ -2534,6 +2537,8 @@ Clipboard clipboard =Clipboard.getSystemClipboard();
 
                 while(tag.hasNext()) {
                     TherapyComplex therapyComplex = (TherapyComplex)tag.next();
+
+
                     if( therapyComplex.isChanged() || this.getModel().hasNeedGenerateProgramInComplex(therapyComplex) ) {
                         mic3_.setDisable(true);
                         mic5_.setDisable(true);
@@ -2677,6 +2682,7 @@ Clipboard clipboard =Clipboard.getSystemClipboard();
                 private  Font boldFont = Font.font(null, FontWeight.BOLD, 12);
                 private  Text text;
                 private Insets padding =new Insets(0,3,0,0);
+                private  Color colorAllMatching = Color.rgb(136, 0, 255);
                 @Override
                 protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
@@ -2707,15 +2713,18 @@ Clipboard clipboard =Clipboard.getSystemClipboard();
 
                                   lbl =  new Label(freq.getFreq());
                                   lbl.setFont(boldFont);
-                                 // lbl.setTextFill(Color.FORESTGREEN);
+                                 if(thisProgram.hasAllFreqListMatching()) lbl.setTextFill(colorAllMatching);
+                                 else lbl.setTextFill(Color.BLACK);
                                   textFlow.getChildren().add(lbl);
                                   lbl=new Label(freq.getDelmitter());
+                                  lbl.setTextFill(Color.BLACK);
                                   if(freq.getDelmitter().equals(";"))  lbl.setPadding(padding);
                                   textFlow.getChildren().add(lbl);
 
 
                               }else {
                                  lbl = new Label(freq.getFreq().concat(freq.getDelmitter()));
+                                  lbl.setTextFill(Color.BLACK);
                                   if(freq.getDelmitter().equals(";"))  lbl.setPadding(padding);
                                   textFlow.getChildren().add(lbl);
                               }
@@ -2841,6 +2850,7 @@ Clipboard clipboard =Clipboard.getSystemClipboard();
                                             ((TherapyProgram) this.getTableRow().getItem()).setChanged(true);
                                             try {
                                                 getModel().updateTherapyProgram(((TherapyProgram) this.getTableRow().getItem()));
+                                                updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(),true);
                                             } catch (Exception e) {
                                                 logger.error("",e);
                                             }
@@ -3082,7 +3092,9 @@ Clipboard clipboard =Clipboard.getSystemClipboard();
                 mi3.setDisable(true);
                 mi4.setDisable(true);
                 mi5.setDisable(true);
-                mi6.setDisable(true);
+                if(tableProgram.getSelectionModel().getSelectedIndices().size()==1 && tableProgram.getSelectionModel().getSelectedItem().isMp3())mi6.setDisable(false);
+                else mi6.setDisable(true);
+
                 mi7.setDisable(false);
 
                     mi8.setDisable(false);
@@ -4066,6 +4078,7 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
             //если такой файл уже есть то установим путь относительно него
          if( tf.exists()) fileChooser.setInitialDirectory(tf.getParentFile());
+         else fileChooser.setInitialDirectory( new File(getModel().getMp3Path(System.getProperty("user.home"))));
         File mp3 = fileChooser.showOpenDialog(getApp().getMainWindow());
 
         if(mp3==null)return;
@@ -4073,9 +4086,12 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
         item.setName(TextUtil.digitText(mp3.getName().substring(0,mp3.getName().length()-4)));
         item.setFrequencies(mp3.getAbsolutePath());
         int i = tableProgram.getItems().indexOf(item);
+        item.setChanged(false);
 
+        getModel().setMp3Path(mp3.getParentFile());
         try
         {
+
             getModel().updateTherapyProgram(item);
         } catch (Exception e)
         {
@@ -4085,7 +4101,9 @@ tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1
 
         tableProgram.getItems().remove(i);
         tableProgram.getItems().add(i,item);
+        updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(),true);
         tableProgram.getSelectionModel().select(i);
+
 
 
     }
@@ -9051,13 +9069,15 @@ return  true;
 
         fileChooser.setTitle(res.getString("app.ui.program_by_mp3"));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("mp3", "*.mp3"));
-        // fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+         fileChooser.setInitialDirectory(new File(getModel().getMp3Path(System.getProperty("user.home"))));
 
         List<File> files = fileChooser.showOpenMultipleDialog(getApp().getMainWindow());
 
 
 
         if(files==null)return;
+        if(files.size()==0) return;
+        getModel().setMp3Path(files.get(0).getParentFile());
         TherapyComplex complex = tableComplex.getSelectionModel().getSelectedItem();
         if(complex==null) return;
 
@@ -10020,7 +10040,16 @@ return  true;
         Predicate<String> characterFilter= c-> TextUtil.match(c,"[0-9. ]");
 
 
+        freqProgramSearch.textProperty().addListener((observable, oldValue, newValue) -> {
+            //3.6 + 4 .9;7;.0;46.0;70.0  -;70.5;;;++72.5;95.0
+            String val=
+                     newValue.replaceAll("[^0-9\\.;\\+ ]","")
+                    .replace(";"," ").replace("+"," ")
+                    .replaceAll("\\s+"," ")
+                            .replaceAll("\\s+\\.",".");
+            if(!val.equals(newValue)) freqProgramSearch.setText(val);
 
+        });
         freqProgramSearch.addEventFilter(KeyEvent.KEY_TYPED, event ->
         {
             if(!characterFilter.test( event.getCharacter())) {event.consume();}
@@ -10052,7 +10081,7 @@ return  true;
 
         tableProgram.getSelectionModel().clearSelection();
 
-        freqs=freqs.replaceAll("\\s+\\.",".");//исключим посторонние дырки в паттерне
+        freqs=freqs.replaceAll("\\s+"," ").replaceAll("\\s+\\.",".");//исключим посторонние дырки в паттерне
         freqProgramSearch.setText(freqs);
 
         cleanSearchedProgram();

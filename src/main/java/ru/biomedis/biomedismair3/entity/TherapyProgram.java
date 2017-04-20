@@ -75,6 +75,13 @@ public class TherapyProgram implements Serializable {
     public List<SearchFreqs.Freq> searchFreqsResult(String pattern){return searchFreqs.searchFreqsResult(pattern);}
 
     /**
+     * Было ли полное совпадение списка при поиске. Можно проверять если поиск дал true
+     * @return
+     */
+    @Transient
+    public boolean hasAllFreqListMatching(){return searchFreqs.isAllListMatching();}
+
+    /**
      * поиск по частотам. Частоты - строка с частотами через пробел
      * @param pattern
      * @return

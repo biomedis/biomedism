@@ -195,8 +195,6 @@
 }
 
 .borders{ -fx-border-color: grey; -fx-border-style: solid; -fx-border-width: 2; -fx-border-radius: 5px; }
-
-
 .root
 {
     -fx-base: rgb(136, 0, 255);
@@ -204,3 +202,8 @@
     -fx-accent: rgba(1, 0, 201, 1);
 }
 */
+.fffffff
+{
+    -fx-base: rgb(136, 0, 255);
+
+}
