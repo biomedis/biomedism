@@ -1124,7 +1124,20 @@ https://gist.github.com/DemkaAge/8999236
 
                      }
 
-                //setUpdateVersion(updateOption,5);
+                try {
+                    logger.info("Обновление раздела Trinity");
+                    //первый вариант добавления забраковали. Далее используется обновленная версия.
+                    //Эта версия обновит если уже было добавлено не верно или создаст верный вариант. При кумулятивном обновлении сработает в update5
+                    addTrinityBase();
+                    logger.info("Обновление раздела Trinity --- успешно");
+
+                } catch (Exception ex) {
+                    logger.error("Не удалось выполнить обновление Trinity",ex);
+                    return false;
+                }
+
+
+                setUpdateVersion(updateOption,6);
                 return true;
 
             }
@@ -1157,9 +1170,25 @@ https://gist.github.com/DemkaAge/8999236
 
     private void addTrinityBase() throws Exception {
         Section section=null;
+        boolean alsoNewsVers=false;
         try {
-            if(model.findAllSectionByTag("TRINITY")!=null) return;
-             section = model.createSection(null, "Trinity", "", "TRINITY", true, model.getDefaultLanguage());
+            section = model.findAllSectionByTag("TRINITY");
+            if(section!=null) {
+                //все программы размещены в комплексах, прямо в разделе!!!. В первой версии этого раздела, просто были программы в кучу. Тут мы проверяем фактически уже новая версия или еще старая
+                if(model.findAllComplexBySection(section).size()==0){
+                    //обновление. Просто удалим. Потом сделаем реимпорт из обновленного файла
+
+                    model.clearSection(section);
+
+
+                }else {
+                    alsoNewsVers=true;
+                }
+            }
+            if(alsoNewsVers) return;
+
+            //создание
+            if(section==null) section = model.createSection(null, "Trinity", "", "TRINITY", true, model.getDefaultLanguage());
             if(section==null) throw new Exception("Ошибка создания раздела Trinity");
             ImportUserBase iUB=new ImportUserBase();
 
@@ -1214,6 +1243,7 @@ https://gist.github.com/DemkaAge/8999236
                 model.removeSection(section);
                 throw new Exception("Ошибка импорта программ");
             }
+
         }catch (Exception e){
 
            if(section!=null) model.removeSection(section);
