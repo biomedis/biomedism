@@ -2917,16 +2917,15 @@ Clipboard clipboard =Clipboard.getSystemClipboard();
         {
             if(event.getCode()==KeyCode.DELETE) onRemoveProfile();
             else
-            if(event.getCode()==KeyCode.RIGHT){
+            if(event.getCode()==KeyCode.RIGHT && !tab2.isDisable()){
+
                 therapyTabPane.getSelectionModel().select(1);
                 tableComplex.requestFocus();
-                if(tableComplex.getItems().size()!=0){tableComplex.getFocusModel().focus(0);tableComplex.getSelectionModel().select(0);}
-            } /*
-            else if(event.isControlDown() && isProfileTabSelected()){
-            if(event.getCode()==KeyCode.X)cutProfileToBuffer();
-            else if(event.getCode()==KeyCode.V)pasteProfile();
-        }
-        */
+                if(tableComplex.getItems().size()!=0){
+                    tableComplex.getFocusModel().focus(tableComplex.getSelectionModel().getSelectedIndex());
+
+                }
+            }
         });
 
         this.tableComplex.setOnKeyReleased((e) -> {
@@ -2938,38 +2937,33 @@ Clipboard clipboard =Clipboard.getSystemClipboard();
                 this.tableComplex.getSelectionModel().selectAll();
             }else
 
-            if(e.getCode()==KeyCode.RIGHT) {
+            if(e.getCode()==KeyCode.RIGHT  && !tab3.isDisable()) {
                 therapyTabPane.getSelectionModel().select(2);
                 tableProgram.requestFocus();
-                if(tableProgram.getItems().size()!=0){tableProgram.getFocusModel().focus(0);tableProgram.getSelectionModel().select(0);}
+                if(tableProgram.getItems().size()!=0){
+                    tableProgram.getFocusModel().focus(tableProgram.getSelectionModel().getSelectedIndex());
+
+                }
             }else
-            if(e.getCode()==KeyCode.LEFT) {
+            if(e.getCode()==KeyCode.LEFT  && !tab1.isDisable()) {
                 therapyTabPane.getSelectionModel().select(0);
                 tableProfile.requestFocus();
-                if(tableProfile.getItems().size()!=0){tableProfile.getFocusModel().focus(0);tableProfile.getSelectionModel().select(0);}
-            }/*
-            else if(e.isControlDown() && isComplexesTabSelected()){
-                if(e.getCode()==KeyCode.X)cutSelectedTherapyComplexesToBuffer();
-                else if(e.getCode()==KeyCode.C) copySelectedTherapyComplexesToBuffer();
-                else if(e.getCode()==KeyCode.V)pasteTherapyComplexes();
-            }
-            */
+                if(tableProfile.getItems().size()!=0){
+                    tableProfile.getFocusModel().focus(tableProgram.getSelectionModel().getSelectedIndex());
 
-        });
+            }
+
+        }});
 
         tableProgram.setOnKeyReleased(e ->{
             //if(e.getCode()==KeyCode.DELETE) onRemovePrograms();
-             if(e.getCode()==KeyCode.LEFT) {
+             if(e.getCode()==KeyCode.LEFT && !tab2.isDisable()) {
                 therapyTabPane.getSelectionModel().select(1);
                 tableComplex.requestFocus();
-                if(tableComplex.getItems().size()!=0){tableComplex.getFocusModel().focus(0);tableComplex.getSelectionModel().select(0);}
-            }/*
-            else if(e.isControlDown() && isProgramsTabSelected()){
-                 if(e.getCode()==KeyCode.X)cutSelectedTherapyProgramsToBuffer();
-                 else if(e.getCode()==KeyCode.C)copySelectedTherapyProgramsToBuffer();
-                 else if(e.getCode()==KeyCode.V)pasteTherapyPrograms();
-             }
-*/
+                if(tableComplex.getItems().size()!=0){
+                    tableComplex.getFocusModel().focus(tableComplex.getSelectionModel().getSelectedIndex());
+                }
+            }
 
 
         });
