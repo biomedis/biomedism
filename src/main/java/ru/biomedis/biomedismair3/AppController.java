@@ -2104,13 +2104,17 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         MenuItem mip2 =new MenuItem(this.res.getString("app.ui.paste"));
         MenuItem mip3 =new MenuItem(this.res.getString("app.cut"));
         MenuItem mip4 =new MenuItem(this.res.getString("app.delete"));
+        MenuItem mip5 =new MenuItem(this.res.getString("app.menu.print_profile"));
+        MenuItem mip6 =new SeparatorMenuItem();
+
+        mip5.setOnAction(e->onPrintProfile());
 
 
-        mip3.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
+                mip3.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
         //mip1.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
         mip2.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
         mip4.setAccelerator(KeyCombination.keyCombination("Delete"));
-        profileMenu.getItems().addAll(mip3,mip2,mip4);
+        profileMenu.getItems().addAll(mip3,mip2,mip4,mip6,mip5);
         mip3.setOnAction(e->cutInTables());
         mip2.setOnAction(e->pasteInTables());
         mip4.setOnAction(e->deleteInTables());
@@ -2119,11 +2123,14 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
             mip2.setDisable(false);
             mip3.setDisable(false);
             mip4.setDisable(false);
+            mip5.setDisable(false);
          if(tableProfile.getSelectionModel().getSelectedItem()==null) {
              mip2.setDisable(true);
              mip3.setDisable(true);
              mip4.setDisable(true);
+             mip5.setDisable(true);
          }else {
+
              mip4.setDisable(false);
              Clipboard clipboard= Clipboard.getSystemClipboard();
              if(clipboard.hasContent(PROFILE_CUT_ITEM_ID)){
@@ -2397,13 +2404,14 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         MenuItem mic11 =new MenuItem(this.res.getString("app.cut"));
         MenuItem mic12 =new MenuItem(this.res.getString("app.delete"));
 
+        MenuItem mic13 =new MenuItem(this.res.getString("app.ui.printing_complexes"));
 
         mic11.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
         mic9.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
         mic10.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
         mic12.setAccelerator(KeyCombination.keyCombination("Delete"));
 
-
+        mic13.setOnAction(e->onPrintComplex());
         mic11.setOnAction(e-> cutInTables());
         mic12.setOnAction(e->deleteInTables());
 
@@ -2423,7 +2431,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         mic9.setOnAction(event -> copyInTables());
         mic10.setOnAction(event -> pasteInTables());
         mic4.setOnAction(event -> complexesToBiofon(tableComplex.getSelectionModel().getSelectedItems()));
-        this.complexesMenu.getItems().addAll(new MenuItem[]{mic11,mic9,mic10,mic12,mic8,mic1, mic2,mic6, mic3, mic5, mic7, mic4});
+        this.complexesMenu.getItems().addAll(new MenuItem[]{mic11,mic9,mic10,mic12,mic8,mic1, mic2,mic6, mic3, mic5, mic7, mic4,mic13});
         this.tableComplex.setContextMenu(this.complexesMenu);
         this.complexesMenu.setOnShowing((event1) -> {
             mic1.setDisable(false);
@@ -2431,7 +2439,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
             mic3.setDisable(false);
             mic4.setDisable(false);
             mic5.setDisable(false);
-
+            mic13.setDisable(false);
             mic9.setDisable(false);
             mic10.setDisable(true);
 Clipboard clipboard =Clipboard.getSystemClipboard();
@@ -2445,6 +2453,7 @@ Clipboard clipboard =Clipboard.getSystemClipboard();
                 mic9.setDisable(true);
                 mic11.setDisable(true);
                 mic12.setDisable(true);
+                mic13.setDisable(true);
 
                 //вставить можно и в пустую таблицу
                 if(clipboard.hasContent(COMPLEX_COPY_ITEM) || clipboard.hasContent(COMPLEX_CUT_ITEM_ID)  )  mic10.setDisable(false);
