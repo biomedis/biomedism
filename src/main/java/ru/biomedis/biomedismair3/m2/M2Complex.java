@@ -139,6 +139,11 @@ public class M2Complex
         programs.add(p);
     }
 
+    public void addPrograms(List<M2Program> programList) throws MaxCountProgramBoundException {
+        if(programList.size()+programs.size() >= MAX_PROGRAM_COUNT_IN_COMPLEX )throw new MaxCountProgramBoundException();
+        programs.addAll(programList);
+    }
+
     public int getPauseBetweenPrograms() {
         return pauseBetweenPrograms;
     }

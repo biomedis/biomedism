@@ -10,7 +10,9 @@ import ru.biomedis.biomedismair3.utils.USB.ByteHelper;
 import ru.biomedis.biomedismair3.utils.USB.USBHelper;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class M2
 {
@@ -364,6 +366,12 @@ public class M2
         return getLangByOname( tc.getOname());
     }
 
+    /**
+     * Если есть oName, то язык приложения отличается от языка вставки и нужно указать язык из опции языка вставки.
+     * Иначе указывается язык приложения
+     * @param oname
+     * @return
+     */
     private static String getLangByOname( String oname) {
         ModelDataApp mda = App.getStaticModel();
         String lang;
@@ -385,18 +393,25 @@ public class M2
         ModelDataApp mda = App.getStaticModel();
         M2BinaryFile bf=new M2BinaryFile();
         M2Complex m2c;
+        List<M2Program> pList=new ArrayList<>();
 
         for (TherapyComplex tc : mda.findAllTherapyComplexByProfile(profile))
         {
+            String lancTC = getLang(tc);
 
-            m2c= new M2Complex(PAUSE_BETWEEN_PROGRAM,tc.getTimeForFrequency(),tc.getName(),getLang(tc));
 
+            String langTP=lancTC;
             for (TherapyProgram tp : mda.findTherapyPrograms(tc)) {
-
-                m2c.addProgram(new M2Program(tp.parseFreqs(),tp.getId().intValue(),tp.getName(),getLang(tp)));
+                 langTP = getLang(tp);
+                pList.add(new M2Program(tp.parseFreqs(),tp.getId().intValue(),tp.getName(),langTP));
 
             }
+            if(!langTP.equals(lancTC))lancTC=langTP;
+            //TODO здесь не ясно, тк комплекс мог быть создан вручную Следует проверять язык программ!!
+            m2c= new M2Complex(PAUSE_BETWEEN_PROGRAM,tc.getTimeForFrequency(),tc.getName(),lancTC);
+            m2c.addPrograms(pList);
             bf.addComplex(m2c);
+            pList.clear();
         }
 
 
