@@ -4,6 +4,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 import ru.biomedis.biomedismair3.ModelDataApp;
+import ru.biomedis.biomedismair3.entity.Language;
 import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -33,16 +34,18 @@ private Listener listener=null;
     {
     }
     public boolean parse(File xmlFile, ModelDataApp mda,ru.biomedis.biomedismair3.entity.Section container) throws Exception {
-        return parse( xmlFile,  mda, container,false);
+        return parse( xmlFile,  mda, container,false,mda.getUserLanguage());
     }
     /**
      * Парсит файл структуры пользовательской бюазы и импортирует ее в указанный раздел
      * @param xmlFile xml файл
      * @param mda модель данных
      * @param container контейнерный раздел в базе который примет распарсеную структуру
+     * @param setOwnerSystem установить для всех элементов значение параметра ownerSystem указанный в параметре(по умолчанию false)
+     * @param lang установить для всех элементов значение языка указанного в параметре(по умолчанию пользовательский)
      * @return true если все удачно
      */
-    public boolean parse(File xmlFile, ModelDataApp mda,ru.biomedis.biomedismair3.entity.Section container, boolean setOwnerSystem) throws Exception {
+    public boolean parse(File xmlFile, ModelDataApp mda, ru.biomedis.biomedismair3.entity.Section container, boolean setOwnerSystem, Language lang) throws Exception {
 
         if (listener == null) throw new Exception("Нужно реализовать слушатель событий!");
         boolean res = false;
@@ -134,21 +137,21 @@ private Listener listener=null;
 
 
             for (Section section : listSections)  {
-                if(section.sectionIndex < 0) section.section = mda.createSection(container, section.name, section.descr, setOwnerSystem, mda.getUserLanguage());
-                else section.section = mda.createSection(listSections.get(section.sectionIndex).section, section.name, section.descr, setOwnerSystem, mda.getUserLanguage());
+                if(section.sectionIndex < 0) section.section = mda.createSection(container, section.name, section.descr, setOwnerSystem, lang);
+                else section.section = mda.createSection(listSections.get(section.sectionIndex).section, section.name, section.descr, setOwnerSystem, lang);
 
             }
             for (Complex complex : listComplexes)
             {
-               if(complex.sectionIndex>=0) complex.complex=mda.createComplex(complex.name,complex.descr,listSections.get(complex.sectionIndex).section,setOwnerSystem,mda.getUserLanguage());
-                else complex.complex=mda.createComplex(complex.name,complex.descr,container,setOwnerSystem,mda.getUserLanguage());
+               if(complex.sectionIndex>=0) complex.complex=mda.createComplex(complex.name,complex.descr,listSections.get(complex.sectionIndex).section,setOwnerSystem,lang);
+                else complex.complex=mda.createComplex(complex.name,complex.descr,container,setOwnerSystem,lang);
             }
 
             for(Program prog: listPrograms)
             {
-                if(prog.sectionIndex>=0) prog.program = mda.createProgram(prog.name,prog.descr,prog.freqs,listSections.get(prog.sectionIndex).section,setOwnerSystem,mda.getUserLanguage());
-                else if(prog.complexIndex>=0) prog.program = mda.createProgram(prog.name,prog.descr,prog.freqs,listComplexes.get(prog.complexIndex).complex,setOwnerSystem,mda.getUserLanguage());
-                else prog.program = mda.createProgram(prog.name,prog.descr,prog.freqs,container,setOwnerSystem,mda.getUserLanguage());
+                if(prog.sectionIndex>=0) prog.program = mda.createProgram(prog.name,prog.descr,prog.freqs,listSections.get(prog.sectionIndex).section,setOwnerSystem,lang);
+                else if(prog.complexIndex>=0) prog.program = mda.createProgram(prog.name,prog.descr,prog.freqs,listComplexes.get(prog.complexIndex).complex,setOwnerSystem,lang);
+                else prog.program = mda.createProgram(prog.name,prog.descr,prog.freqs,container,setOwnerSystem,lang);
 
             }
 

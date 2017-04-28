@@ -158,6 +158,7 @@ public class CreateLanguageFiles
              lname=md.getString2(program.getName(),l);
              ldescr=md.getString2(program.getDescription(),l);
 
+           //System.out.println(program.getId()+" - "+lname+" - "+program.getNameString());
             strb.append(noops[level]);
             strb.append("<Program ").append("uuid=\"").append(program.getUuid()).append("\"  \n")
                     .append(noops[level]).append("nameRussian=\"").append(TextUtil.escapeXML(lname)).append("\"  \n")
@@ -187,7 +188,7 @@ public class CreateLanguageFiles
         String ldescr=md.getString2(complex.getDescription(),l);
 
 
-
+           // System.out.println(complex.getId()+" - "+lname+" - "+complex.getNameString());
         strb.append(noops[level]);
         int lvl=level+1;
         strb.append("<Complex ").append("uuid=\"").append(complex.getUuid()).append("\"  \n")

@@ -1181,15 +1181,51 @@ https://gist.github.com/DemkaAge/8999236
             @Override
             protected Boolean call() throws Exception {
 
+               Language ru= model.getLanguage("ru");
+
                 //при обновлении 6 забыта установка поля ownerSystem!! В методе update6 исправлено, но для тех у кого оно уже стояло нужен этот код.
+                    //также был установлен не верный язык(пользовательский вместо ru)
                Section section = model.findAllSectionByTag("TRINITY");
                 if(section!=null) {
-
+                    LocalizedString localString;
                         for (Complex complex : model.findAllComplexBySection(section)) {
-                            if(!complex.isOwnerSystem()) {
+                             localString = model.getLocalString(complex.getName(), ru);
+                             if(localString==null){
+                                 localString = model.getLocalString(complex.getName(), model.getUserLanguage());
+                             }
+                             if(localString!=null){
+                                 localString.setLanguage(ru);
+                                 model.updateLocalString(localString);
+                             }
+                            localString = model.getLocalString(complex.getDescription(), ru);
+                            if(localString==null){
+                                localString = model.getLocalString(complex.getDescription(), model.getUserLanguage());
+                            }
+                            if(localString!=null){
+                                localString.setLanguage(ru);
+                                model.updateLocalString(localString);
+                            }
+
                                 complex.setOwnerSystem(true);
                                 model.updateComplex(complex);
                                 for (Program program : model.findAllProgramByComplex(complex)) {
+                                    localString = model.getLocalString(program.getName(), ru);
+                                    if(localString==null){
+                                        localString = model.getLocalString(program.getName(), model.getUserLanguage());
+                                    }
+                                    if(localString!=null){
+                                        localString.setLanguage(ru);
+                                        model.updateLocalString(localString);
+                                    }
+
+                                    localString = model.getLocalString(program.getDescription(), ru);
+                                    if(localString==null){
+                                        localString = model.getLocalString(program.getDescription(), model.getUserLanguage());
+                                    }
+                                    if(localString!=null){
+                                        localString.setLanguage(ru);
+                                        model.updateLocalString(localString);
+                                    }
                                     if(!program.isOwnerSystem()){
                                         program.setOwnerSystem(true);
                                         model.updateProgram(program);
@@ -1197,7 +1233,7 @@ https://gist.github.com/DemkaAge/8999236
 
                                 }
 
-                            }
+
                         }
                 }
 
@@ -1302,7 +1338,7 @@ https://gist.github.com/DemkaAge/8999236
 
                 }
             });
-            boolean res = iUB.parse(trinityBaseFile, model, section,true);
+            boolean res = iUB.parse(trinityBaseFile, model, section,true,getModel().getLanguage("ru"));
             if(res==false) {
                 model.removeSection(section);
                 throw new Exception("Ошибка импорта программ");
