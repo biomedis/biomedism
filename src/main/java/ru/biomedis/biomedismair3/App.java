@@ -85,7 +85,7 @@ public class App extends Application {
     public ResourceBundle getResources(){return strings;}
       private final boolean test=false;//указывает что будут проводиться интеграционные тесты. Соответсвенно будет подключена другая БД и запущенны тесты
       private final boolean importDB=false;//импорт базы данных
-        private final boolean updateBaseMenuVisible =false;//показ пункта обновления базы частот
+        private final boolean updateBaseMenuVisible =true;//показ пункта обновления базы частот
 
     public boolean isUpdateBaseMenuVisible() {
         return updateBaseMenuVisible;
@@ -259,7 +259,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         /******** Обновления ************/
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
-        int currentUpdateFile=6;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
+        int currentUpdateFile=7;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
         int currentMinorVersion=0;//версия исправлений в пределах мажорной версии currentUpdateFile
 
         if(getUpdateVersion() < currentUpdateFile)
@@ -315,15 +315,22 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                 update4(updateOption);
                 update5(updateOption);
                 update6(updateOption);
+                update7(updateOption);
             }else if(getUpdateVersion()==3){
                 update4(updateOption);
                 update5(updateOption);
                 update6(updateOption);
+                update7(updateOption);
             }else if(getUpdateVersion()==4){
                 update5(updateOption);
                 update6(updateOption);
+                update7(updateOption);
             }else if(getUpdateVersion()==5){
                 update6(updateOption);
+                update7(updateOption);
+            }else if(getUpdateVersion()==6){
+
+                update7(updateOption);
             }
 
         }else if(getUpdateVersion() > currentUpdateFile){
@@ -1167,7 +1174,64 @@ https://gist.github.com/DemkaAge/8999236
 
 
     }
+    private void update7(ProgramOptions updateOption)
+    {
+        logger.info("ОБНОВЛЕНИЕ 7.");
+        Task<Boolean> task =new Task<Boolean>()  {
+            @Override
+            protected Boolean call() throws Exception {
 
+                //при обновлении 6 забыта установка поля ownerSystem!! В методе update6 исправлено, но для тех у кого оно уже стояло нужен этот код.
+               Section section = model.findAllSectionByTag("TRINITY");
+                if(section!=null) {
+
+                        for (Complex complex : model.findAllComplexBySection(section)) {
+                            if(!complex.isOwnerSystem()) {
+                                complex.setOwnerSystem(true);
+                                model.updateComplex(complex);
+                                for (Program program : model.findAllProgramByComplex(complex)) {
+                                    if(!program.isOwnerSystem()){
+                                        program.setOwnerSystem(true);
+                                        model.updateProgram(program);
+                                    }
+
+                                }
+
+                            }
+                        }
+                }
+
+
+                //setUpdateVersion(updateOption,7);
+                return true;
+
+            }
+        };
+
+
+        task.setOnSucceeded(event -> {
+            if(!task.getValue().booleanValue())  {
+                BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL);
+                Platform.exit();
+            }
+            else  logger.info("ОБНОВЛЕНИЕ 6. Завершено");
+
+            UpdateWaiter.close();
+        });
+        task.setOnFailed(event -> {
+            Platform.runLater(() -> BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
+            Platform.exit();
+            UpdateWaiter.close();
+        });
+
+        Thread threadTask=new Thread(task);
+        threadTask.setDaemon(true);
+        threadTask.start();
+        UpdateWaiter.show();
+
+
+
+    }
     private void addTrinityBase() throws Exception {
         Section section=null;
         boolean alsoNewsVers=false;
@@ -1238,7 +1302,7 @@ https://gist.github.com/DemkaAge/8999236
 
                 }
             });
-            boolean res = iUB.parse(trinityBaseFile, model, section);
+            boolean res = iUB.parse(trinityBaseFile, model, section,true);
             if(res==false) {
                 model.removeSection(section);
                 throw new Exception("Ошибка импорта программ");

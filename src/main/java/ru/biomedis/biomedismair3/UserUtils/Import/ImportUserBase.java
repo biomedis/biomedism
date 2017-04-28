@@ -32,7 +32,9 @@ private Listener listener=null;
     public ImportUserBase()
     {
     }
-
+    public boolean parse(File xmlFile, ModelDataApp mda,ru.biomedis.biomedismair3.entity.Section container) throws Exception {
+        return parse( xmlFile,  mda, container,false);
+    }
     /**
      * Парсит файл структуры пользовательской бюазы и импортирует ее в указанный раздел
      * @param xmlFile xml файл
@@ -40,7 +42,7 @@ private Listener listener=null;
      * @param container контейнерный раздел в базе который примет распарсеную структуру
      * @return true если все удачно
      */
-    public boolean parse(File xmlFile, ModelDataApp mda,ru.biomedis.biomedismair3.entity.Section container) throws Exception {
+    public boolean parse(File xmlFile, ModelDataApp mda,ru.biomedis.biomedismair3.entity.Section container, boolean setOwnerSystem) throws Exception {
 
         if (listener == null) throw new Exception("Нужно реализовать слушатель событий!");
         boolean res = false;
@@ -132,21 +134,21 @@ private Listener listener=null;
 
 
             for (Section section : listSections)  {
-                if(section.sectionIndex < 0) section.section = mda.createSection(container, section.name, section.descr, false, mda.getUserLanguage());
-                else section.section = mda.createSection(listSections.get(section.sectionIndex).section, section.name, section.descr, false, mda.getUserLanguage());
+                if(section.sectionIndex < 0) section.section = mda.createSection(container, section.name, section.descr, setOwnerSystem, mda.getUserLanguage());
+                else section.section = mda.createSection(listSections.get(section.sectionIndex).section, section.name, section.descr, setOwnerSystem, mda.getUserLanguage());
 
             }
             for (Complex complex : listComplexes)
             {
-               if(complex.sectionIndex>=0) complex.complex=mda.createComplex(complex.name,complex.descr,listSections.get(complex.sectionIndex).section,false,mda.getUserLanguage());
-                else complex.complex=mda.createComplex(complex.name,complex.descr,container,false,mda.getUserLanguage());
+               if(complex.sectionIndex>=0) complex.complex=mda.createComplex(complex.name,complex.descr,listSections.get(complex.sectionIndex).section,setOwnerSystem,mda.getUserLanguage());
+                else complex.complex=mda.createComplex(complex.name,complex.descr,container,setOwnerSystem,mda.getUserLanguage());
             }
 
             for(Program prog: listPrograms)
             {
-                if(prog.sectionIndex>=0) prog.program = mda.createProgram(prog.name,prog.descr,prog.freqs,listSections.get(prog.sectionIndex).section,false,mda.getUserLanguage());
-                else if(prog.complexIndex>=0) prog.program = mda.createProgram(prog.name,prog.descr,prog.freqs,listComplexes.get(prog.complexIndex).complex,false,mda.getUserLanguage());
-                else prog.program = mda.createProgram(prog.name,prog.descr,prog.freqs,container,false,mda.getUserLanguage());
+                if(prog.sectionIndex>=0) prog.program = mda.createProgram(prog.name,prog.descr,prog.freqs,listSections.get(prog.sectionIndex).section,setOwnerSystem,mda.getUserLanguage());
+                else if(prog.complexIndex>=0) prog.program = mda.createProgram(prog.name,prog.descr,prog.freqs,listComplexes.get(prog.complexIndex).complex,setOwnerSystem,mda.getUserLanguage());
+                else prog.program = mda.createProgram(prog.name,prog.descr,prog.freqs,container,setOwnerSystem,mda.getUserLanguage());
 
             }
 

@@ -63,7 +63,7 @@ public class CreateLanguageFiles
 
         List<Section> allRootSection = md.findAllRootSection().stream().filter(i->{
             if(i.getTag()==null) return true;
-            else return !i.getTag().equals("USER");
+            else return i.getTag().equals("USER")==false;
         }).collect(Collectors.toList());
 
 
@@ -173,6 +173,7 @@ public class CreateLanguageFiles
 
     private static String getComplex(Complex complex, ModelDataApp md, int level, Language language)
     {
+        if(!complex.isOwnerSystem()) return "";
         StringBuilder strb=new StringBuilder();
         md.initStringsComplex(complex,language);
 
@@ -209,6 +210,7 @@ public class CreateLanguageFiles
 
     private static String getSection(Section section,ModelDataApp md,int level,Language language)
     {
+        if(!section.isOwnerSystem()) return "";
         StringBuilder strb=new StringBuilder();
         strb.append(noops[level]);
         if(level!=0)//исключаем стартовый раздел
