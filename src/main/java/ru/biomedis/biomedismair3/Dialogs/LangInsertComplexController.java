@@ -92,6 +92,8 @@ public class LangInsertComplexController extends BaseController {
             }
             showInfoDialogNoHeader(resources.getString("app.menu.insert_language"),resources.getString("app.success"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
 
+            window.close();
+
 
         });
 

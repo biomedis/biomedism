@@ -527,7 +527,7 @@ public class AppController  extends BaseController {
         /** Контекстное меню загрузки в прибор **/
 
         btnUploadDir=new MenuItem(res.getString("app.upload_to_dir"));
-        MenuItem btnUploadM2=new MenuItem("Загрузить в \"Trinity\"");
+        MenuItem btnUploadM2=new MenuItem(res.getString("app.ui.record_on_trinity"));
         btnUploadM2.setOnAction(event ->  uploadM2(tableProfile.getSelectionModel().getSelectedItem()));
         btnUpload=new MenuItem(res.getString("app.uppload"));
         btnUpload.setOnAction(event -> onUploadProfile());
@@ -1348,7 +1348,7 @@ tab5.disableProperty().bind(m2Connected.not());
             showWarningDialog(
                     res.getString("app.ui.record_on_trinity"),
                     res.getString("app.ui.attention"),
-                    "Прибор работает с фиксированным колличеством частот в пачке. Значение равно трем.\nПрограмма автоматически преобразует ваши комплексы при записи на прибор\nПри составлении комплексов для прибора выставляйте значение колличества частот в пачке равное трем, для того чтобы получить правильную оценку времени исполнения профиля",
+                    res.getString("app.m2.message"),
                     getApp().getMainWindow(),Modality.WINDOW_MODAL);
         }
 
@@ -1990,7 +1990,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
             if (!event.getNewValue().equals(event.getOldValue())) {
 
-                String s = replaceSpecial(event.getNewValue());
+                String s = event.getNewValue();
                 if (s.length() == 0) {
                     event.getRowValue().setName(event.getOldValue());
                     Profile p = event.getRowValue();
@@ -2167,7 +2167,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
             if (!event.getNewValue().equals(event.getOldValue())) {
 
-                String s = replaceSpecial(event.getNewValue());
+                String s = event.getNewValue();
                 if (s.length() == 0) {
                     event.getRowValue().setName(event.getOldValue());
                     TherapyComplex p = event.getRowValue();
@@ -2205,7 +2205,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
 
             if (!event.getNewValue().equals(event.getOldValue())) {
 
-                String s = replaceSpecial(event.getNewValue());
+                String s = event.getNewValue();
                 if (s.length() == 0) {
                     event.getRowValue().setDescription(event.getOldValue());
                     TherapyComplex p = event.getRowValue();
@@ -2431,7 +2431,19 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         mic9.setOnAction(event -> copyInTables());
         mic10.setOnAction(event -> pasteInTables());
         mic4.setOnAction(event -> complexesToBiofon(tableComplex.getSelectionModel().getSelectedItems()));
-        this.complexesMenu.getItems().addAll(new MenuItem[]{mic11,mic9,mic10,mic12,mic8,mic1, mic2,mic6, mic3, mic5, mic7, mic4,mic13});
+        this.complexesMenu.getItems().addAll(
+                mic11,
+                mic9,
+                mic10,
+                mic12,
+                mic6,
+                mic2,
+                mic3,
+                mic5,
+                mic7,
+                mic4,
+                mic1,
+                mic13);
         this.tableComplex.setContextMenu(this.complexesMenu);
         this.complexesMenu.setOnShowing((event1) -> {
             mic1.setDisable(false);
@@ -3000,6 +3012,7 @@ Clipboard clipboard =Clipboard.getSystemClipboard();
         MenuItem mi13=new MenuItem(res.getString("app.ui.copy_program_freq"));
         MenuItem mi14=new MenuItem(res.getString("app.ui.invert_seletion"));
         MenuItem mi15=new SeparatorMenuItem();
+        MenuItem mi17=new MenuItem(res.getString("app.copy_freq_and_name"));
 
         mi11.setOnAction(e->{
             TherapyProgram selectedItem = tableProgram.getSelectionModel().getSelectedItem();
@@ -3007,6 +3020,15 @@ Clipboard clipboard =Clipboard.getSystemClipboard();
             Clipboard clipboard = Clipboard.getSystemClipboard();
             ClipboardContent content = new ClipboardContent();
             content.putString(selectedItem.getName());
+            clipboard.setContent(content);
+
+        });
+        mi17.setOnAction(e->{
+            TherapyProgram selectedItem = tableProgram.getSelectionModel().getSelectedItem();
+            if(selectedItem==null) return;
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(selectedItem.getName()+" \n"+selectedItem.getFrequencies());
             clipboard.setContent(content);
 
         });
@@ -3054,7 +3076,22 @@ Clipboard clipboard =Clipboard.getSystemClipboard();
         mi9.setOnAction(e->multyFreqProgramSwitchOff());
         mi2.setOnAction(e -> pasteInTables());
         mi16.setOnAction(e->deleteInTables());
-        programmMenu.getItems().addAll(mi1, mi7,mi2,mi16,mi3,mi4,mi5,mi6,mi10,mi8,mi9,mi15,mi11,mi12,mi13,mi14);
+        programmMenu.getItems().addAll(mi1,
+                mi7,
+                mi2,
+                mi16,
+                mi3,
+                mi8,
+                mi9,
+                mi15,
+                mi17,
+                mi11,
+                mi12,
+                mi13,
+                mi14,
+                mi10,
+                mi4,
+                mi6);
 
         tableProgram.setContextMenu(programmMenu);
         this.programmMenu.setOnShowing((event1) -> {
@@ -5628,7 +5665,7 @@ data=null;
 
         fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlp", "*.xmlp"));
-        fileChooser.setInitialFileName(selectedItem.getName());
+        fileChooser.setInitialFileName(TextUtil.replaceWinPathBadSymbols(selectedItem.getName()) );
         file= fileChooser.showSaveDialog(getApp().getMainWindow());
 
         if(file==null)return;
@@ -5700,11 +5737,14 @@ data=null;
 
         //получим путь к файлу.
         File file=null;
+String initname;
 
+        if(selectedItems.size()>1)initname=tableProfile.getSelectionModel().getSelectedItem().getName();
+        else initname=selectedItems.get(0).getName();
 
         FileChooser fileChooser =new FileChooser();
         fileChooser.setTitle(res.getString("app.title37"));
-
+        fileChooser.setInitialFileName(TextUtil.replaceWinPathBadSymbols(initname));
         fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlc", "*.xmlc"));
         file= fileChooser.showSaveDialog(getApp().getMainWindow());

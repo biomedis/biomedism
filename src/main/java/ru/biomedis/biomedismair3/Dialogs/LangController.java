@@ -102,6 +102,7 @@ public class LangController extends BaseController {
                 }
             //}
             showInfoDialogNoHeader(resources.getString("app.text.change_lang_title"),resources.getString("app.text.change_lang_text"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                window.close();
 
 
         });

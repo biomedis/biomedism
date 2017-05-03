@@ -42,15 +42,15 @@
                   <Menu mnemonicParsing="false" text="%app.menu.export">
                     <items>
                         <MenuItem fx:id="menuExportProfile" mnemonicParsing="false" onAction="#onExportProfile" text="%app.menu.export_profile" />
-                      <MenuItem fx:id="menuExportUserBase" mnemonicParsing="false" onAction="#onExportUserBase" text="%app.menu.export_user_base" />
                         <MenuItem fx:id="menuExportTherapyComplex" mnemonicParsing="false" onAction="#onExportTherapyComplex" text="%app.menu.export_therapy_complex" />
+                      <MenuItem fx:id="menuExportUserBase" mnemonicParsing="false" onAction="#onExportUserBase" text="%app.menu.export_user_base" />
                     </items>
                   </Menu>
                   <Menu mnemonicParsing="false" text="%app.menu.import">
                     <items>
                         <MenuItem fx:id="menuImportProfile" mnemonicParsing="false" onAction="#onImportProfile" text="%app.menu.import_profile" />
-                      <MenuItem fx:id="menuImportUserBase" mnemonicParsing="false" onAction="#onImportUserBase" text="%app.menu.import_user_base" />
                         <MenuItem fx:id="menuImportTherapyComplex" mnemonicParsing="false" onAction="#onImportTherapyComplex" text="%app.menu.import_therapy_complex" />
+                      <MenuItem fx:id="menuImportUserBase" mnemonicParsing="false" onAction="#onImportUserBase" text="%app.menu.import_user_base" />
                         <MenuItem fx:id="menuImportComplexToBase" mnemonicParsing="false" onAction="#onImportComplexToBase" text="%app.ui.import_compl_to_base" />
                     </items>
                   </Menu>
@@ -87,12 +87,12 @@
                         </Menu>
                     </items>
                   </Menu>
-                  <MenuItem fx:id="menuFindDevice" mnemonicParsing="false" onAction="#onFindDevice" text="%app.menu.find_device" />
-                <MenuItem fx:id="menuClearFileSystemDevice" mnemonicParsing="false" onAction="#onClearDevice" text="%app.menu_filesystem_check" />
-                  <MenuItem fx:id="menuDelGeneratedFiles" mnemonicParsing="false" onAction="#onRemoveProfileFiles" text="%app.menu.del_files" />
                   <MenuItem mnemonicParsing="false" onAction="#onLoadProfileDir" text="%app.menu.read_profile_from_dir" />
                   <MenuItem fx:id="menuImportComplex" mnemonicParsing="false" onAction="#onImportComplex" text="%app.menu.read_complex_from_dir" />
                   <MenuItem fx:id="readFromTrinityMenu" mnemonicParsing="false" onAction="#onReadProfileFromTrinity" text="%app.menu.read_profile_from_trinity" />
+                  <MenuItem fx:id="menuDelGeneratedFiles" mnemonicParsing="false" onAction="#onRemoveProfileFiles" text="%app.menu.del_files" />
+                  <MenuItem fx:id="menuFindDevice" mnemonicParsing="false" onAction="#onFindDevice" text="%app.menu.find_device" />
+                <MenuItem fx:id="menuClearFileSystemDevice" mnemonicParsing="false" onAction="#onClearDevice" text="%app.menu_filesystem_check" />
                   <Menu mnemonicParsing="false" text="%ui.menu.base_recovery">
                     <items>
                       <MenuItem mnemonicParsing="false" onAction="#onRecoveryCreate" text="%ui.backup.create_backup" />
@@ -103,9 +103,9 @@
             </Menu>
             <Menu mnemonicParsing="false" text="%app.menu.options">
               <items>
-                  <MenuItem mnemonicParsing="false" onAction="#onCodecOptions" text="%app.menu.codecpath" />
                 <MenuItem mnemonicParsing="false" onAction="#onLangChoose" text="%app.menu.language_select" />
                   <MenuItem mnemonicParsing="false" onAction="#onLanguageInsertComplexOption" text="%app.menu.insert_language" />
+                  <MenuItem mnemonicParsing="false" onAction="#onCodecOptions" text="%app.menu.codecpath" />
                   <MenuItem fx:id="dataPathMenuItem" mnemonicParsing="false" onAction="#onPathMenuItemAction" text="%app.ui.options.data_path" />
               </items>
             </Menu>

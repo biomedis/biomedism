@@ -13,6 +13,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class M2
 {
@@ -401,7 +402,7 @@ public class M2
 
 
             String langTP=lancTC;
-            for (TherapyProgram tp : mda.findTherapyPrograms(tc)) {
+            for (TherapyProgram tp : mda.findTherapyPrograms(tc).stream().filter(i->!i.isMp3()).collect(Collectors.toList())) {
                  langTP = getLang(tp);
                 pList.add(new M2Program(tp.parseFreqs(),tp.getId().intValue(),tp.getName(),langTP));
 

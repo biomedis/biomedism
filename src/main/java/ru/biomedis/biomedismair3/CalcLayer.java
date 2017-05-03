@@ -60,7 +60,8 @@ private CalcActionListener actionListener;
 
     public void onCancel()
 {
-if(actionListener!=null) actionListener.onCancel();
+cancel.setDisable(true);
+    if(actionListener!=null) actionListener.onCancel();
 }
 
 
