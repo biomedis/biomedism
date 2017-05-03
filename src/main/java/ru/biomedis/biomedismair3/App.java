@@ -85,7 +85,7 @@ public class App extends Application {
     public ResourceBundle getResources(){return strings;}
       private final boolean test=false;//указывает что будут проводиться интеграционные тесты. Соответсвенно будет подключена другая БД и запущенны тесты
       private final boolean importDB=false;//импорт базы данных
-        private final boolean updateBaseMenuVisible =true;//показ пункта обновления базы частот
+        private final boolean updateBaseMenuVisible =false;//показ пункта обновления базы частот
 
     public boolean isUpdateBaseMenuVisible() {
         return updateBaseMenuVisible;
@@ -1187,6 +1187,9 @@ https://gist.github.com/DemkaAge/8999236
                     //также был установлен не верный язык(пользовательский вместо ru)
                Section section = model.findAllSectionByTag("TRINITY");
                 if(section!=null) {
+                    Strings nameStringTrin = section.getName();
+                    LocalizedString enName = model.getLocalString(nameStringTrin, model.getDefaultLanguage());
+                    if(enName==null)model.addString(nameStringTrin,"Trinity",model.getDefaultLanguage());
                     LocalizedString localString;
                         for (Complex complex : model.findAllComplexBySection(section)) {
                              localString = model.getLocalString(complex.getName(), ru);
@@ -1236,6 +1239,152 @@ https://gist.github.com/DemkaAge/8999236
 
                         }
                 }
+                String[] fileUUIDs=new String[]{
+                        "b57cb360-bffe-4c90-a5f6-c61afa6c5212",
+                "79a622f6-2de5-4693-9ac7-494bb4c37c90",
+               "178ce590-1111-4214-89bb-91974fecbde7",
+                "2c1310c6-4a56-49d0-8644-2cac1e743ad5",
+               "0580dfb7-1da2-4592-9ded-a0fadbe8fcc1",
+               "49683ae8-51d0-4806-9058-5aa8716f961d",
+               "8e638001-a4fa-4dd6-ae1a-9cbfcae27e27",
+              "6b3be161-0c2b-4d61-80be-9a870e6885db",
+               "86908606-b908-48ec-a08f-fd3115c23f58",
+                "664c5042-2117-4cb6-90a7-0c17e9b8795e",
+               "6bbd0b18-bde1-4fa6-9cdc-129ff6bfb4ba",
+                "7c9965a7-fbb3-4f24-ba2c-826f803665fa",
+              "38415e0d-97fc-4b19-8ed2-e4ee16e5812b",
+                "f9747cae-1b8c-4c21-869b-4ff4f1048bd3",
+               "648aa672-63eb-448e-8556-d69cf8243d0b",
+                "966beca0-a24d-4cd1-8fe2-c6384763b88a",
+            "f326b090-3f23-49af-88b2-cb4cc8403a39",
+              "28b917de-eb09-42f9-9823-cd904fe5beb6",
+               "c810faf4-bee2-4b62-8e27-a44983c2d8e4",
+               "0658e74e-a8d5-40be-917b-406e00620b74",
+                "f74c8090-fa32-47a5-abad-f1dba3792308",
+                "b3943a27-91b6-4d19-9c07-3bc928205992",
+               "d65b9e93-ce22-4c01-911d-884446ca2523",
+               "8804b3ec-d49b-44a9-a69d-1b3501538abb",
+               "759b688a-cb72-49e1-9794-d424c15199d5",
+               "30041ef0-1f7c-47bd-8fc3-4f30cbd9297a",
+             "b83e5b99-fa70-48ea-8f46-8a18dc229a1e",
+               "71761ede-a662-4613-8c64-05088baff6d7",
+                "2632cbf9-27d4-4de5-87b6-e42f20782d06",
+               "06093a0e-29c3-4f63-8cea-868fd17632a3",
+               "2dc5f753-1e5e-4508-8879-ece8058e2f8f",
+                "86bb4484-c85b-4288-b84b-9560c9474f12",
+              "ea26e299-8eab-4487-bd9b-92b8d98e53a5",
+               "a61dd92f-de31-4478-bd00-4b16bfffbc28",
+               "c9da8ee8-2b3a-4a91-b650-37b34440bd1c",
+                "3b01a1ca-c198-46ea-a8d0-962a2b5e5eed",
+                "63d78132-3237-4097-a118-2eccd50236c1",
+                "0bef5a32-f83d-45de-ab1a-80e528c77482",
+               "3bc953e5-112d-47c4-bbbf-cf0bddb4fe20",
+                "1fb032c4-2e30-43b1-b7db-437c30c2a2b2",
+                "31cf3fe8-47e4-473f-87df-714eefc0b29e",
+                "720ed79b-c029-4546-b017-0f197944a17d",
+                "933ca1ed-7028-454f-91f6-6a143e204dc8",
+                "93efa3d7-3981-4146-a2bd-e20d1e8a5fb0"
+                };
+
+                //
+                String[] fixedUUID=new String[]{
+                        "4afbd1d5-728e-416b-8ef4-35578f171245",
+                        "452f52fb-90d3-4c24-ab62-a94afa89348d",
+                        "9d024284-6386-4044-a828-6d537270818e",
+                        "984f5825-0df9-4d34-ab1b-f9417024bf18",
+                        "3df65e9a-869c-4edd-9d4a-a678b0f13fe2",
+                        "74d98b1e-3cec-4b37-84d5-269e98569693",
+                        "94750678-aeb0-488e-826f-c5237985990a",
+                        "61f51f57-3ca8-4e7d-b77f-a2fd84b1a54b",
+                        "3cef78f4-92a8-42f1-b88b-020f1ac46b8d",
+                        "d2007c11-a1b5-40d0-a89d-6425c81deb79",
+                        "d6a188ac-82a2-4114-a0af-7a776e960c31",
+                        "b289f842-6709-4d8a-8013-bc030951abb2",
+                        "a7f27e42-2c1c-4ede-b64e-7c3b580b9382",
+                        "c6bb8c4f-a834-4231-9182-21b8c9564582",
+                        "a08df42f-e476-4252-b2d4-5386b4803e4f",
+                        "4cddcf78-861a-4fd0-bf79-cf9885c0ed6c",
+                        "5a8b538b-1af5-4d6f-a81b-6eee3dba90f9",
+                        "02899969-471e-4e3c-90f7-cf915ad63c90",
+                        "bac6401e-6366-4818-a1ac-1d8a378f9c27",
+                        "fbdcbb47-a935-4853-bd0f-681752e82683",
+                        "9b9d1afa-1c15-4f4b-8002-ec76d01d37ac",
+                        "c94518ab-d122-408e-bb39-89d0fbc7c208",
+                        "7683715f-47f8-427e-8a07-e623ea236ef4",
+                        "99eb8c06-add6-4803-8227-ce146aeac925",
+                        "e0a44f61-aa7a-489d-85ba-fed730199fe7",
+                        "9a6af62f-08d3-463b-95f0-6f6a006a3e65",
+                        "b2a12b99-8d9c-4224-ba7f-94740834932a",
+                        "35c71b91-164a-4063-a680-48fd2df6caf5",
+                        "2c77a48c-b322-4c3e-9f62-497949dd1f42",
+                        "2b6d8946-f60b-4a40-b573-0da52d55c580",
+                        "67d79b66-f1bb-4cae-b5dc-dca96fd9b4c2",
+                        "6b96f101-98c9-4fea-b652-ec2b2155cad3",
+                        "65c4de91-1317-4ada-9fac-15923ada8a05",
+                        "154769ad-e41e-4fec-88a6-d05328ada8d8",
+                        "8dadb425-ae45-48b0-8e2e-a1914edea72e",
+                        "013321e3-6f78-48f1-8106-a6ca739d47a4",
+                        "59c0849e-ad39-4e0e-a6dd-156e120ea753",
+                        "a10da37b-d9fd-42e7-90a1-4dc82ca36a62",
+                        "136314a0-0a22-4131-b423-80620414d0af",
+                        "1ea8fd14-edfb-4c91-899f-2fb8588399ac",
+                        "bb6afdbc-229a-4afd-b6ba-9349136786d8",
+                        "562387a0-bc40-40fc-ae69-2564c63a99b4",
+                        "f30ab9ed-ab8a-4d72-86fc-32f63307fe5c",
+                        "8df024e8-8e7e-40c3-83d5-de52be1e6fce"
+                };
+
+                Map<String,String> transMap=new HashMap<>();
+
+
+
+
+                //замена на точные старые UUID, соответствуют файлам перевода
+                int j=0;
+                for (Complex complex : model.findAllComplexBySection(section)) {
+                    complex.setUuid(fileUUIDs[j++]);
+                    model.updateComplex(complex);
+                    for (Program program : model.findAllProgramByComplex(complex)) {
+                        program.setUuid(fileUUIDs[j++]);
+                        model.updateProgram(program);
+                    }
+                }
+
+                //замена UUID в TrinityBase
+                j=0;
+                section.setUuid("e10ffe0a-1064-4c02-ad32-c3cf15ea958b");
+                getModel().updateSection(section);
+
+                //сначала все программы, потом комплексы не иначе, тк это порядок обработки файла перевода!!
+                for (Complex complex : model.findAllComplexBySection(section)) {
+                    for (Program program : model.findAllProgramByComplex(complex)) {
+                        transMap.put(program.getUuid(),fixedUUID[j]);
+                        program.setUuid(fixedUUID[j++]);
+                        model.updateProgram(program);
+                        //System.out.println("Program" + program.getId());
+                    }
+                }
+
+                for (Complex complex : model.findAllComplexBySection(section)) {
+                    transMap.put(complex.getUuid(),fixedUUID[j]);
+                    complex.setUuid(fixedUUID[j++]);
+                    model.updateComplex(complex);
+                   // System.out.println("complex" + complex.getId());
+
+                }
+
+
+                setTranslate("/updates/update7/trinity_fr_trans.xml","fr",transMap);
+                setTranslate("/updates/update7/trinity_it_trans.xml","it",transMap);
+               // setTranslate("/updates/update7/trinity_it_trans.xml","en",transMap);
+
+                rootSectionNames("La Nuova base delle  frequenze","La Vecchia base delle frequenze","it");
+                rootSectionNames("Base de nouvelles fréquences","Base de fréquences anciennes","fr");
+                rootSectionNames("Neue Frequenzen Basis","Alte Frequenzen Basis","de");
+                rootSectionNames("Βάση νέων συχνοτήτων","Βάση παλαιών συχνοτήτων","el");
+
+
+
 
 
                 //setUpdateVersion(updateOption,7);
@@ -1250,7 +1399,7 @@ https://gist.github.com/DemkaAge/8999236
                 BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL);
                 Platform.exit();
             }
-            else  logger.info("ОБНОВЛЕНИЕ 6. Завершено");
+            else  logger.info("ОБНОВЛЕНИЕ 7. Завершено");
 
             UpdateWaiter.close();
         });
@@ -1267,6 +1416,43 @@ https://gist.github.com/DemkaAge/8999236
 
 
 
+    }
+
+    private void rootSectionNames(String newBaseName,String oldBaseName,String langAbbr) throws Exception {
+
+        List<Section> rootSections = model.findAllRootSection();
+        Strings nameString = rootSections.get(0).getName();
+        LocalizedString lName = model.getLocalString(nameString, model.getLanguage(langAbbr));
+        if(lName==null) lName=model.addString(nameString,newBaseName,model.getLanguage(langAbbr));
+        else {
+            lName.setContent(newBaseName);
+            model.updateLocalString(lName);
+        }
+
+        nameString = rootSections.get(1).getName();
+        lName = model.getLocalString(nameString, model.getLanguage(langAbbr));
+        if(lName==null) lName=model.addString(nameString,oldBaseName,model.getLanguage(langAbbr));
+        else {
+            lName.setContent(oldBaseName);
+            model.updateLocalString(lName);
+        }
+    }
+    private void setTranslate(String pathResource,String langAbbr,Map<String,String> transMap) throws Exception {
+
+        ResourceUtil resourceUtil=new ResourceUtil();
+        File base_translate = resourceUtil.saveResource(getTmpDir(),langAbbr+"_translanion_bas.xml",pathResource,true);
+
+        if(base_translate==null) throw new Exception();
+
+        LoadLanguageFiles ll=new LoadLanguageFiles(transMap);
+        if( ll.parse(Arrays.asList(base_translate),getModel())){
+
+
+            System.out.println("Обработка "+langAbbr+" языка");
+        } else {
+            System.out.println("Обработка "+langAbbr+" языка ОШИБКА");
+            throw new Exception("Обработка "+langAbbr+" языка ОШИБКА");
+        }
     }
     private void addTrinityBase() throws Exception {
         Section section=null;

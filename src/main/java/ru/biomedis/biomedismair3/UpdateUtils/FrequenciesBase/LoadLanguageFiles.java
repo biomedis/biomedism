@@ -16,6 +16,7 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static ru.biomedis.biomedismair3.Log.logger;
 
@@ -32,6 +33,14 @@ public class LoadLanguageFiles
     private List<LoadLanguageFiles.Section> listSection=new ArrayList<>();
     private Language lang=null;
 
+    private Map<String,String> transMap;
+
+    public LoadLanguageFiles(Map<String, String> transMap) {
+        this.transMap = transMap;
+    }
+
+    public LoadLanguageFiles() {
+    }
 
     private ModelDataApp mda;
     /**
@@ -105,36 +114,34 @@ public class LoadLanguageFiles
         try {
             for(LoadLanguageFiles.Program prog: listPrograms)
             {
-                ru.biomedis.biomedismair3.entity.Program program = mda.getProgram(prog.uuid);
-                mda.initStringsProgram(program,lang);
+                ru.biomedis.biomedismair3.entity.Program program = mda.getProgram(transMap==null?prog.uuid:transMap.get(prog.uuid));
+
                 if(program==null) continue;
+                LocalizedString localStringName = mda.getLocalString(program.getName(), lang);
+                if (localStringName == null) localStringName =mda.addString(program.getName(), "", lang);
+
+                LocalizedString localStringDescr = mda.getLocalString(program.getDescription(), lang);
+                if(localStringDescr==null) localStringDescr = mda.addString(program.getDescription(),"",lang);
+
+                mda.initStringsProgram(program,lang);
 
                 if(!prog.name.equals(program.getNameString()) )
                 {
 
-
-                    LocalizedString localStringName = mda.getLocalString(program.getName(), lang);
-                    if (localStringName == null) mda.addString(program.getName(), prog.name, lang);
-                    else {
                         localStringName.setContent(prog.name);
                         mda.updateLocalString(localStringName);
-                    }
-                    System.out.println("Обновлена программа "+prog.nameRus +" uuid= "+prog.uuid +" Имя было: "+program.getNameString()+" Стало:"+prog.name);
+
+                    System.out.println("Обновлена программа "+prog.nameRus +" uuid= "+transMap==null?prog.uuid:transMap.get(prog.uuid) +" Имя было: "+program.getNameString()+" Стало:"+prog.name);
 
                 }
 
                 if(!prog.descr.equals(program.getDescriptionString()))
                 {
-
-
-                    LocalizedString localStringDescr = mda.getLocalString(program.getDescription(), lang);
-                    if(localStringDescr==null) mda.addString(program.getDescription(),prog.descr,lang);
-                    else{
                         localStringDescr.setContent(prog.descr);
                         mda.updateLocalString(localStringDescr);
-                    }
 
-                    System.out.println("Обновлена программа "+prog.nameRus +" uuid= "+prog.uuid +" Описание Было: "+program.getDescriptionString()+" Стало:"+prog.descr);
+
+                    System.out.println("Обновлена программа "+prog.nameRus +" uuid= "+transMap==null?prog.uuid:transMap.get(prog.uuid) +" Описание Было: "+program.getDescriptionString()+" Стало:"+prog.descr);
                 }
 
 
@@ -145,30 +152,31 @@ public class LoadLanguageFiles
 
             for(LoadLanguageFiles.Complex complex: listComplex)
             {
-                ru.biomedis.biomedismair3.entity.Complex itemComplex = mda.getComplex(complex.uuid);
-                mda.initStringsComplex(itemComplex,lang);
+                ru.biomedis.biomedismair3.entity.Complex itemComplex = mda.getComplex(transMap==null?complex.uuid:transMap.get(complex.uuid));
+
                 if(itemComplex==null) continue;
+
+                LocalizedString localStringName = mda.getLocalString(itemComplex.getName(), lang);
+                if (localStringName == null) localStringName= mda.addString(itemComplex.getName(), "", lang);
+
+                LocalizedString localStringDescr = mda.getLocalString(itemComplex.getDescription(), lang);
+                if (localStringDescr == null) localStringDescr = mda.addString(itemComplex.getDescription(), "", lang);
+                mda.initStringsComplex(itemComplex,lang);
 
                 if(!complex.name.equals(itemComplex.getNameString()) ) {
 
-
-                    LocalizedString localStringName = mda.getLocalString(itemComplex.getName(), lang);
-                    if (localStringName == null) mda.addString(itemComplex.getName(), complex.name, lang);
-                    else {
                         localStringName.setContent(complex.name);
                         mda.updateLocalString(localStringName);
-                    }
-                    System.out.println("Обновлена секция "+complex.nameRus +" uuid= "+complex.uuid +" Имя было: "+itemComplex.getNameString()+" Стало:"+complex.name);
+
+                    System.out.println("Обновлена секция "+complex.nameRus +" uuid= "+transMap==null?complex.uuid:transMap.get(complex.uuid) +" Имя было: "+itemComplex.getNameString()+" Стало:"+complex.name);
                 }
 
                 if(!complex.descr.equals(itemComplex.getDescriptionString())) {
-                    LocalizedString localStringDescr = mda.getLocalString(itemComplex.getDescription(), lang);
-                    if (localStringDescr == null) mda.addString(itemComplex.getDescription(), complex.descr, lang);
-                    else {
+
                         localStringDescr.setContent(complex.descr);
                         mda.updateLocalString(localStringDescr);
-                    }
-                    System.out.println("Обновлена секция "+complex.nameRus +" uuid= "+complex.uuid +" Описание Было: "+itemComplex.getDescriptionString()+" Стало:"+complex.descr);
+
+                    System.out.println("Обновлена секция "+complex.nameRus +" uuid= "+transMap==null?complex.uuid:transMap.get(complex.uuid) +" Описание Было: "+itemComplex.getDescriptionString()+" Стало:"+complex.descr);
                 }
 
 
@@ -180,30 +188,32 @@ public class LoadLanguageFiles
 
             for(LoadLanguageFiles.Section section: listSection)
             {
-                ru.biomedis.biomedismair3.entity.Section itemSection = mda.getSection(section.uuid);
-                mda.initStringsSection(itemSection,lang);
+                ru.biomedis.biomedismair3.entity.Section itemSection = mda.getSection(transMap==null?section.uuid:transMap.get(section.uuid));
+
                 if(itemSection==null) continue;
+
+                LocalizedString localStringName = mda.getLocalString(itemSection.getName(), lang);
+                if (localStringName == null) localStringName = mda.addString(itemSection.getName(), "", lang);
+
+                LocalizedString localStringDescr = mda.getLocalString(itemSection.getDescription(), lang);
+                if (localStringDescr == null) localStringDescr = mda.addString(itemSection.getDescription(), "", lang);
+                mda.initStringsSection(itemSection,lang);
+
                 if(!section.name.equals(itemSection.getNameString()) ) {
 
-
-                    LocalizedString localStringName = mda.getLocalString(itemSection.getName(), lang);
-                    if (localStringName == null) mda.addString(itemSection.getName(), section.name, lang);
-                    else {
                         localStringName.setContent(section.name);
                         mda.updateLocalString(localStringName);
-                    }
-                    System.out.println("Обновлена секция "+section.nameRus +" uuid= "+section.uuid +" Имя было: "+itemSection.getNameString()+" Стало:"+section.name);
+
+                    System.out.println("Обновлена секция "+section.nameRus +" uuid= "+transMap==null?section.uuid:transMap.get(section.uuid) +" Имя было: "+itemSection.getNameString()+" Стало:"+section.name);
                 }
 
                 if(!section.descr.equals(itemSection.getDescriptionString())) {
-                    LocalizedString localStringDescr = mda.getLocalString(itemSection.getDescription(), lang);
-                    if (localStringDescr == null) mda.addString(itemSection.getDescription(), section.descr, lang);
-                    else {
+
                         localStringDescr.setContent(section.descr);
                         mda.updateLocalString(localStringDescr);
-                    }
 
-                    System.out.println("Обновлена секция "+section.nameRus +" uuid= "+section.uuid +" Описание Было: "+itemSection.getDescriptionString()+" Стало:"+section.descr);
+
+                    System.out.println("Обновлена секция "+section.nameRus +" uuid= "+transMap==null?section.uuid:transMap.get(section.uuid) +" Описание Было: "+itemSection.getDescriptionString()+" Стало:"+section.descr);
                 }
 
 
