@@ -34,6 +34,16 @@ public class LanguageDevice {
         //langs.put("en",new LanguageDevice(8,"Cp1254","Турецкий","en"));
     }
 
+    // //https://unicode-table.com/ru/
+    // сделать структуру определяющую диапазоны, которую можно расширять. Метод ее юспользует
+    /**
+     * Определяет язык прибора по кодовой точке UTF-8.
+     * @param text
+     * @return
+     */
+    public LanguageDevice langByCodePoint(String text){
+
+    }
 
     /**
      * Преобразует строку из UTF8 в кодировку заданную языком.
