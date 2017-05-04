@@ -63,13 +63,14 @@ public class M2Program {
      *
      * @param programInBytes
      */
-    public M2Program(byte[] programInBytes, int startPosition, LanguageDevice lang) throws ProgramParseException {
+    public M2Program(byte[] programInBytes, int startPosition) throws ProgramParseException {
         int position = startPosition;
         frequenciesInDeviceFormat = new ArrayList<>();
  /*
         програма1:
                 1 байт  - колличество символов названия программы ( желательно ограничить до 20 символов )
                 n  байт - название программы ( желательно ограничить до 20 символов )
+                1 байт код языка
                 1  байт  - z колличество частот в воспроизводимых за раз(сейчас всегда три)
                 z раз по 4-е байта частоты
                   1  байт  - z колличество частот в воспроизводимых за раз(сейчас всегда три, последний кусок может быть меньше 3)
@@ -80,7 +81,10 @@ public class M2Program {
 
          */
         try {
-            int countSymbols=byteArray1ToInt(programInBytes, position++);//уолличество символов в названии программы
+            int countSymbols=byteArray1ToInt(programInBytes, position++);//количество символов в названии программы
+
+            int langID= byteArray1ToInt(programInBytes,position+countSymbols);
+            LanguageDevice lang = LanguageDevice.getLanguage(langID);
 
              name = byteArrayToString(programInBytes,
                     position,
@@ -90,6 +94,7 @@ public class M2Program {
 
             langAbbr=lang.getAbbr();
             position += countSymbols;//4 байта
+            position++;//пропустим id языка
 
 
             int countFreq = byteArray1ToInt(programInBytes, position++);//первый байт содержит количество частот
@@ -201,6 +206,7 @@ public class M2Program {
 
         res.add((byte)bytesName.size());//размер строки названия
         res.addAll(bytesName);//имя программы
+        res.add((byte)LanguageDevice.getDeviceLang(langAbbr).getDeviceLangID());//ID языка
 
         //частоты
 

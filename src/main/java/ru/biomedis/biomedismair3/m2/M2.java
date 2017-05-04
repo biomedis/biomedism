@@ -398,17 +398,14 @@ public class M2
 
         for (TherapyComplex tc : mda.findAllTherapyComplexByProfile(profile))
         {
-            String lancTC = getLang(tc);
+            String lancTC = LanguageDevice.langByCodePoint(tc.getName()).getAbbr();
 
-
-            String langTP=lancTC;
             for (TherapyProgram tp : mda.findTherapyPrograms(tc).stream().filter(i->!i.isMp3()).collect(Collectors.toList())) {
-                 langTP = getLang(tp);
-                pList.add(new M2Program(tp.parseFreqs(),tp.getId().intValue(),tp.getName(),langTP));
+
+                pList.add(new M2Program(tp.parseFreqs(),tp.getId().intValue(),tp.getName(), LanguageDevice.langByCodePoint(tp.getName()).getAbbr()));
 
             }
-            if(!langTP.equals(lancTC))lancTC=langTP;
-            //TODO здесь не ясно, тк комплекс мог быть создан вручную Следует проверять язык программ!!
+
             m2c= new M2Complex(PAUSE_BETWEEN_PROGRAM,tc.getTimeForFrequency(),tc.getName(),lancTC);
             m2c.addPrograms(pList);
             bf.addComplex(m2c);

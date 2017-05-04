@@ -38,10 +38,30 @@ public class LanguageDevice {
     // сделать структуру определяющую диапазоны, которую можно расширять. Метод ее юспользует
     /**
      * Определяет язык прибора по кодовой точке UTF-8.
+     * Определяетс только группу языков - те тип кодировки нативной. Поэтому для всех европеййских будет возвращен "en"
      * @param text
      * @return
      */
-    public LanguageDevice langByCodePoint(String text){
+    public static LanguageDevice langByCodePoint(String text){
+        long av=0;
+        int cp;
+        int cnt=0;
+        for(int i=0;i<text.length();i++){
+            cp= text.codePointAt(i);
+            //если попали  в общие символы для всех кодировок
+            if(cp >= 0 && cp <= 0x0040)continue;
+            cnt++;
+            av+=cp;
+        }
+
+        av=Math.round((float)av/(float)cnt);
+
+
+
+        if(av>=0x0000 && av<=0x02D9)return getDeviceLang("en");
+        else  if(av>=0x0400 && av<=0x04ff)return getDeviceLang("ru");
+        else  if(av>=0x0370 && av<=0x03ff)return getDeviceLang("el");
+        else return getDeviceLang("en");
 
     }
 

@@ -103,7 +103,7 @@ public class M2Complex
 
             for(int i=0;i<countPrograms;i++){
 
-                M2Program m2Program  = new M2Program(complexData, position,language);
+                M2Program m2Program  = new M2Program(complexData, position);
                 programs.add(m2Program);
                 position = m2Program.getLastPositionInArray()+1;//укажет на след. стартовую поз. программы
 
