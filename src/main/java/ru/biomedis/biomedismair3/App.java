@@ -1376,7 +1376,7 @@ https://gist.github.com/DemkaAge/8999236
 
                 setTranslate("/updates/update7/trinity_fr_trans.xml","fr",transMap);
                 setTranslate("/updates/update7/trinity_it_trans.xml","it",transMap);
-               // setTranslate("/updates/update7/trinity_it_trans.xml","en",transMap);
+                setTranslate("/updates/update7/trinity_en_trans.xml","en",transMap);
 
                 rootSectionNames("La Nuova base delle  frequenze","La Vecchia base delle frequenze","it");
                 rootSectionNames("Base de nouvelles fréquences","Base de fréquences anciennes","fr");
@@ -1384,9 +1384,30 @@ https://gist.github.com/DemkaAge/8999236
                 rootSectionNames("Βάση νέων συχνοτήτων","Βάση παλαιών συχνοτήτων","el");
 
 
+                //заменить частоты в программах
+                // a6e99500-ac4a-486a-98e6-d215dab68afd  2;12;26;26.5;66;75.5;94;95.5
+                //  8d8a4c44-1e35-4ec9-a653-ec46a7b72804  6.3;6.5;23.5;60.5;61.5;63;64.5;67
+                //  8634ffa9-371b-499f-b64f-00f2ea043fee  1550;880;802;800;787;727;672;444
+                //  f81443c3-1ad8-4f8a-9a73-d57fdf691839 332;698;721;732;749;752;942;991.5;1026.2;3212;4412
+
+                Program p1=   getModel().findProgram("a6e99500-ac4a-486a-98e6-d215dab68afd");
+                Program p2=   getModel().findProgram("8d8a4c44-1e35-4ec9-a653-ec46a7b72804");
+                Program p3=   getModel().findProgram("8634ffa9-371b-499f-b64f-00f2ea043fee");
+                Program p4=   getModel().findProgram("f81443c3-1ad8-4f8a-9a73-d57fdf691839");
+                if(p1==null || p2==null || p3==null || p4==null){
+                    logger.error("не найдены программы для обновления частот");
+                }else {
+                        p1.setFrequencies("2;12;26;26.5;66;75.5;94;95.5");
+                        p2.setFrequencies("6.3;6.5;23.5;60.5;61.5;63;64.5;67");
+                        p3.setFrequencies("1550;880;802;800;787;727;672;444");
+                        p4.setFrequencies("332;698;721;732;749;752;942;991.5;1026.2;3212;4412");
+                        getModel().updateProgram(p1);
+                        getModel().updateProgram(p2);
+                        getModel().updateProgram(p3);
+                        getModel().updateProgram(p4);
 
 
-
+                }
                 //setUpdateVersion(updateOption,7);
                 return true;
 
