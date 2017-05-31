@@ -197,7 +197,7 @@ public class FilesProfileHelper
                             bssFile.exists() ? bssFile : (File)null,
                             Boolean.parseBoolean(progrParam.get(7)),
                             bundlesLength<2?3:bundlesLength,
-                            Boolean.valueOf(progrParam.get(9))));
+                            progrParam.size()<=9 ? true : Boolean.valueOf(progrParam.get(9))));
 
         }
 
