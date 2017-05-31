@@ -1377,6 +1377,9 @@ https://gist.github.com/DemkaAge/8999236
                 setTranslate("/updates/update7/trinity_fr_trans.xml","fr",transMap);
                 setTranslate("/updates/update7/trinity_it_trans.xml","it",transMap);
                 setTranslate("/updates/update7/trinity_en_trans.xml","en",transMap);
+                setTranslate("/updates/update7/trinity_el_trans.xml","el",transMap);
+
+
 
                 rootSectionNames("La Nuova base delle  frequenze","La Vecchia base delle frequenze","it");
                 rootSectionNames("Base de nouvelles fréquences","Base de fréquences anciennes","fr");

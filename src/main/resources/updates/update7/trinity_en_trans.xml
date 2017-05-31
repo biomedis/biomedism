@@ -1,311 +1,1 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
-<LanguageBaseFile lang="fr" >
-   <Complex uuid="b57cb360-bffe-4c90-a5f6-c61afa6c5212"  
-   nameRussian="Активация жизненной энергии"  
-   name="Activation of vital energy" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="79a622f6-2de5-4693-9ac7-494bb4c37c90"  
-       nameRussian="Активация жизненной энергии"  
-       name="Activation of vital energy " 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="178ce590-1111-4214-89bb-91974fecbde7"  
-   nameRussian="Альфа релакс для восстановления физических сил"  
-   name="Alpha relaxation for restoration of the physical strengths" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="2c1310c6-4a56-49d0-8644-2cac1e743ad5"  
-       nameRussian="Альфа релакс для восстановления физических сил"  
-       name="Alpha relaxation for restoration of the physical strengths" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="0580dfb7-1da2-4592-9ded-a0fadbe8fcc1"  
-   nameRussian="Альфа релакс для комфортного состояния"  
-   name="Alpha relaxation for the comfort condition" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="49683ae8-51d0-4806-9058-5aa8716f961d"  
-       nameRussian="Альфа релакс для комфортного состояния"  
-       name="Alpha relaxation for the comfort condition" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="8e638001-a4fa-4dd6-ae1a-9cbfcae27e27"  
-   nameRussian="Альфа релакс для умиротворения"  
-   name="Alpha relaxation for pacification" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="6b3be161-0c2b-4d61-80be-9a870e6885db"  
-       nameRussian="Альфа релакс для умиротворения"  
-       name="Alpha relaxation for pacification" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="86908606-b908-48ec-a08f-fd3115c23f58"  
-   nameRussian="Балансировка частот"  
-   name="Frequencies balancing" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="664c5042-2117-4cb6-90a7-0c17e9b8795e"  
-       nameRussian="Балансировка частот"  
-       name="Frequencies balancing" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="6bbd0b18-bde1-4fa6-9cdc-129ff6bfb4ba"  
-   nameRussian="Вне времени-1"  
-   name="Out of time-1" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="7c9965a7-fbb3-4f24-ba2c-826f803665fa"  
-       nameRussian="Вне времени-1"  
-       name="Out of time-1" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="38415e0d-97fc-4b19-8ed2-e4ee16e5812b"  
-   nameRussian="Вне времени-2"  
-   name="Out of time-2" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="f9747cae-1b8c-4c21-869b-4ff4f1048bd3"  
-       nameRussian="Вне времени-2"  
-       name="Out of time-2" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="648aa672-63eb-448e-8556-d69cf8243d0b"  
-   nameRussian="Дельта для сна"  
-   name="Delta for sleeping" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="966beca0-a24d-4cd1-8fe2-c6384763b88a"  
-       nameRussian="Дельта для сна"  
-       name="Delta for sleeping" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="f326b090-3f23-49af-88b2-cb4cc8403a39"  
-   nameRussian="Измененные состояния сознания"  
-   name="Changing the state of consciousness" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="28b917de-eb09-42f9-9823-cd904fe5beb6"  
-       nameRussian="Измененные состояния сознания"  
-       name="Changing the state of consciousness" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="c810faf4-bee2-4b62-8e27-a44983c2d8e4"  
-   nameRussian="Полусон перед сном"  
-   name="Half slepping before sleeping" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="0658e74e-a8d5-40be-917b-406e00620b74"  
-       nameRussian="Полусон перед сном"  
-       name="Half sleeping before sleeping" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="f74c8090-fa32-47a5-abad-f1dba3792308"  
-   nameRussian="Полусон после сна"  
-   name="Half sleeping after sleeping" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="b3943a27-91b6-4d19-9c07-3bc928205992"  
-       nameRussian="Полусон после сна"  
-       name="Half sleeping after sleeping" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="d65b9e93-ce22-4c01-911d-884446ca2523"  
-   nameRussian="Метаболизм-1"  
-   name="Metabolism-1" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="8804b3ec-d49b-44a9-a69d-1b3501538abb"  
-       nameRussian="Метаболизм-1"  
-       name="Metabolism-1" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="759b688a-cb72-49e1-9794-d424c15199d5"  
-   nameRussian="Метаболизм-2"  
-   name="Metabolism-2" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="30041ef0-1f7c-47bd-8fc3-4f30cbd9297a"  
-       nameRussian="Метаболизм-2"  
-       name="Metabolism-2" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="b83e5b99-fa70-48ea-8f46-8a18dc229a1e"  
-   nameRussian="Стиратель мыслей"  
-   name="Thoughts eraser" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="71761ede-a662-4613-8c64-05088baff6d7"  
-       nameRussian="Стиратель мыслей"  
-       name="Thoughts eraser" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="2632cbf9-27d4-4de5-87b6-e42f20782d06"  
-   nameRussian="Суггестия"  
-   name="Suggestion" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="06093a0e-29c3-4f63-8cea-868fd17632a3"  
-       nameRussian="Суггестия"  
-       name="Suggestion" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="2dc5f753-1e5e-4508-8879-ece8058e2f8f"  
-   nameRussian="Суперпрограмма-1"  
-   name="Superprogram-1" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="86bb4484-c85b-4288-b84b-9560c9474f12"  
-       nameRussian="Суперпрограмма-1"  
-       name="Superprogram-1" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="ea26e299-8eab-4487-bd9b-92b8d98e53a5"  
-   nameRussian="Суперпрограмма-2"  
-   name="Superprogram-2" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="a61dd92f-de31-4478-bd00-4b16bfffbc28"  
-       nameRussian="Суперпрограмма-2"  
-       name="Superprogram-2" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="c9da8ee8-2b3a-4a91-b650-37b34440bd1c"  
-   nameRussian="Суперпрограмма-3"  
-   name="Superprogram-3" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="3b01a1ca-c198-46ea-a8d0-962a2b5e5eed"  
-       nameRussian="Суперпрограмма-3"  
-       name="Superprogram-3" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="63d78132-3237-4097-a118-2eccd50236c1"  
-   nameRussian="Тета релакс вдохновение"  
-   name="Theta relaxation inspiration" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="0bef5a32-f83d-45de-ab1a-80e528c77482"  
-       nameRussian="Тета релакс вдохновение"  
-       name="Theta relaxation inspiration" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="3bc953e5-112d-47c4-bbbf-cf0bddb4fe20"  
-   nameRussian="Тета релакс пробуждение сознания"  
-   name="Theta relaxation consciousness awakening" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="1fb032c4-2e30-43b1-b7db-437c30c2a2b2"  
-       nameRussian="Тета релакс пробуждение сознания"  
-       name="Theta consciousness awakening" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="31cf3fe8-47e4-473f-87df-714eefc0b29e"  
-   nameRussian="Утренняя свежесть"  
-   name="Morning freshness" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="720ed79b-c029-4546-b017-0f197944a17d"  
-       nameRussian="Утренняя свежесть"  
-       name="Morning freshness" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-   <Complex uuid="933ca1ed-7028-454f-91f6-6a143e204dc8"  
-   nameRussian="Уменьшение тревожности"  
-   name="Anxiety diminution" 
-   descriptionRussian=""  
-   description=""  
-   >
-       <Program uuid="93efa3d7-3981-4146-a2bd-e20d1e8a5fb0"  
-       nameRussian="Уменьшение тревожности"  
-       name="Anxiety diminution" 
-       descriptionRussian=""  
-       description=""  
-       />
-
-   </Complex>
-</LanguageBaseFile>
+﻿<?xml version="1.0" encoding="UTF-8"?>  <LanguageBaseFile lang="en" >     <Complex uuid="b57cb360-bffe-4c90-a5f6-c61afa6c5212"   nameRussian="Активация жизненной энергии"         name="Vification-Awakening"     description=""      >       <Program uuid="79a622f6-2de5-4693-9ac7-494bb4c37c90"         nameRussian="Активация жизненной энергии"               name="Vification-Awakening"            description=""         />   </Complex>   <Complex uuid="178ce590-1111-4214-89bb-91974fecbde7"     nameRussian="Альфа релакс для восстановления физических сил"        name="Alpha rhythm-relaxation to restore physical strength"    description=""     >       <Program uuid="2c1310c6-4a56-49d0-8644-2cac1e743ad5"         nameRussian="Альфа релакс для восстановления физических сил"                 name="Alpha rhythm-relaxation to restore physical strength"                 description=""         />   </Complex>   <Complex uuid="0580dfb7-1da2-4592-9ded-a0fadbe8fcc1"     nameRussian="Альфа релакс для комфортного состояния"       name="Alpha rhythm-relaxation to achieve comfort"    description=""     >       <Program uuid="49683ae8-51d0-4806-9058-5aa8716f961d"         nameRussian="Альфа релакс для комфортного состояния"              name="Alpha rhythm-relaxation to achieve comfort"             description=""         />   </Complex>   <Complex uuid="8e638001-a4fa-4dd6-ae1a-9cbfcae27e27"     nameRussian="Альфа релакс для умиротворения"        name="Alpha rhythm-relaxation to achieve a state of peace"    description=""     >       <Program uuid="6b3be161-0c2b-4d61-80be-9a870e6885db"         nameRussian="Альфа релакс для умиротворения"              name="Alpha rhythm-relaxation to achieve a state of peace"            description=""         />   </Complex>   <Complex uuid="86908606-b908-48ec-a08f-fd3115c23f58"     nameRussian="Балансировка частот"       name="Inner balance"     description="Addressing psycho-emotional problems with the corresponding physical effects, resulting in the balancing of the body at all levels."     >       <Program uuid="664c5042-2117-4cb6-90a7-0c17e9b8795e"         nameRussian="Балансировка частот"              name="Inner balance"           description="Addressing psycho-emotional problems with the corresponding physical effects, resulting in the balancing of the body at all levels."	         />   </Complex>   <Complex uuid="6bbd0b18-bde1-4fa6-9cdc-129ff6bfb4ba"     nameRussian="Вне времени-1"       name="Central Coordination 1"       description="Coordination with the entirety, by Schumann frequency (7.83Hz)."     >       <Program uuid="7c9965a7-fbb3-4f24-ba2c-826f803665fa"         nameRussian="Вне времени-1"       	   name="Central Coordination 1"           description="Coordination with the entirety, by Schumann frequency (7.83Hz)."       />   </Complex>   <Complex uuid="38415e0d-97fc-4b19-8ed2-e4ee16e5812b"     nameRussian="Вне времени-2"      name="Central Coordination 2"     description="Also coordination with the entity, based on the Schumann frequency (7.83Hz)."     >       <Program uuid="f9747cae-1b8c-4c21-869b-4ff4f1048bd3"         nameRussian="Вне времени-2"             name="Central Coordination 2"            description="Also coordination with the entity, based on the Schumann frequency (7.83Hz)."	       />   </Complex>   <Complex uuid="648aa672-63eb-448e-8556-d69cf8243d0b"     nameRussian="Дельта для сна"     name="Delta rhythm-for sleeping"      description="Dealing with sleeping disorders and entering a state of sleep."     >       <Program uuid="966beca0-a24d-4cd1-8fe2-c6384763b88a"         nameRussian="Дельта для сна"             name="Delta rhythm-for sleeping"             description="Dealing with sleeping disorders and entering a state of sleep."	        />   </Complex>   <Complex uuid="f326b090-3f23-49af-88b2-cb4cc8403a39"     nameRussian="Измененные состояния сознания"   name="Switching to another state of consciousness"    description="Leads to an overriding state of consciousness."      >       <Program uuid="28b917de-eb09-42f9-9823-cd904fe5beb6"         nameRussian="Измененные состояния сознания"             name="Switching to another state of consciousness"            description="Leads to an overriding state of consciousness."                />   </Complex>   <Complex uuid="c810faf4-bee2-4b62-8e27-a44983c2d8e4"     nameRussian="Полусон перед сном"     name="Entering a state of drowsiness before sleep"     description=""     >       <Program uuid="0658e74e-a8d5-40be-917b-406e00620b74"         nameRussian="Полусон перед сном"               name="Entering a state of drowsiness before sleep"             description=""         />   </Complex>   <Complex uuid="f74c8090-fa32-47a5-abad-f1dba3792308"     nameRussian="Полусон после сна"       name="Exiting the state of drowsiness post-sleep"   description=""     >       <Program uuid="b3943a27-91b6-4d19-9c07-3bc928205992"         nameRussian="Полусон после сна"              name="Exiting the state of drowsiness post-sleep"            description=""         />   </Complex>   <Complex uuid="d65b9e93-ce22-4c01-911d-884446ca2523"     nameRussian="Метаболизм-1"       name="Metabolism 1"    description=""     >       <Program uuid="8804b3ec-d49b-44a9-a69d-1b3501538abb"         nameRussian="Метаболизм-1"             name="Metabolism 1"           description=""         />   </Complex>   <Complex uuid="759b688a-cb72-49e1-9794-d424c15199d5"     nameRussian="Метаболизм-2"       name="Metabolism 2"          description=""     >       <Program uuid="30041ef0-1f7c-47bd-8fc3-4f30cbd9297a"         nameRussian="Метаболизм-2"              name="Metabolism 2"            description=""         />   </Complex>   <Complex uuid="b83e5b99-fa70-48ea-8f46-8a18dc229a1e"     nameRussian="Стиратель мыслей"       name="&quot;Erasing&quot; negative thoughts"       description=""     >       <Program uuid="71761ede-a662-4613-8c64-05088baff6d7"         nameRussian="Стиратель мыслей"           name="&quot;Erasing&quot; negative thoughts"             description=""         />   </Complex>   <Complex uuid="2632cbf9-27d4-4de5-87b6-e42f20782d06"     nameRussian="Суггестия"      name="Altering the state of consciousness"      description="Supports psychotherapy and self-healing."      >       <Program uuid="06093a0e-29c3-4f63-8cea-868fd17632a3"         nameRussian="Суггестия"             name="Altering the state of consciousness"            description="Supports psychotherapy and self-healing."	          />   </Complex>   <Complex uuid="2dc5f753-1e5e-4508-8879-ece8058e2f8f"     nameRussian="Суперпрограмма-1"       name="Superprogram 1"       description="Coordinates the basic body functions at different levels. Appropriate for a variety of health disorders, like ones with unclear, or complex etiologies, such as allergies, poisoning, injuries and burns, as well as the general weakness of the body. It can also be used for both prevention and treatment for all diseases."      >       <Program uuid="86bb4484-c85b-4288-b84b-9560c9474f12"         nameRussian="Суперпрограмма-1"              name="Superprogram 1"                    description="Coordinates the basic body functions at different levels. Appropriate for a variety of health disorders, like ones with unclear, or complex etiologies, such as allergies, poisoning, injuries and burns, as well as the general weakness of the body. It can also be used for both prevention and treatment for all diseases."	          />   </Complex>   <Complex uuid="ea26e299-8eab-4487-bd9b-92b8d98e53a5"     nameRussian="Суперпрограмма-2"      name="Superprogram 2"  description="Antialiases particular situations involving the spasm of smooth muscle fibers which are predominantly in arteries and hollow organs (gastrointestinal, urinary, respiratory, etc.)."     >       <Program uuid="a61dd92f-de31-4478-bd00-4b16bfffbc28"         nameRussian="Суперпрограмма-2"             name="Superprogram 2"            descriptionRussian=""               description="Antialiases particular situations involving the spasm of smooth muscle fibers which are predominantly in arteries and hollow organs (gastrointestinal, urinary, respiratory, etc.)."       />   </Complex>   <Complex uuid="c9da8ee8-2b3a-4a91-b650-37b34440bd1c"     nameRussian="Суперпрограмма-3"       name="Superprogram 3"      description="It is mainly directed against inflammatory and degenerative disorders of the body."      >       <Program uuid="3b01a1ca-c198-46ea-a8d0-962a2b5e5eed"         nameRussian="Суперпрограмма-3"               name="Superprogram 3"            description="It is mainly directed against inflammatory and degenerative disorders of the body."       />   </Complex>   <Complex uuid="63d78132-3237-4097-a118-2eccd50236c1"     nameRussian="Тета релакс вдохновение"      name="Theta rhythm-relaxation for inspiration"       description="It is a dreamlike state of consciousness that is useful for deep relaxation and can enhance creativity."      >       <Program uuid="0bef5a32-f83d-45de-ab1a-80e528c77482"         nameRussian="Тета релакс вдохновение"              name="Theta rhythm-relaxation for inspiration"          description="It is a dreamlike state of consciousness that is useful for deep relaxation and can enhance creativity."	       />   </Complex>   <Complex uuid="3bc953e5-112d-47c4-bbbf-cf0bddb4fe20"     nameRussian="Тета релакс пробуждение сознания"        name="Theta rhythm-relaxation for awakening consciousness"      description="It is also a dreamlike state of consciousness that is useful for deep relaxation and can lead to a higher level of consciousness with corresponding enhancement of creativity."   >       <Program uuid="1fb032c4-2e30-43b1-b7db-437c30c2a2b2"         nameRussian="Тета релакс пробуждение сознания"                name="Theta rhythm-relaxation for awakening consciousness"       description="It is also a dreamlike state of consciousness that is useful for deep relaxation and can lead to a higher level of consciousness with corresponding enhancement of creativity."       />   </Complex>   <Complex uuid="31cf3fe8-47e4-473f-87df-714eefc0b29e"     nameRussian="Утренняя свежесть"        name="Theta rhythm-morning freshness"     description="Appropriate for use in the morning, after waking up."     >       <Program uuid="720ed79b-c029-4546-b017-0f197944a17d"         nameRussian="Утренняя свежесть"              name="Theta rhythm-morning freshness"                  description="Appropriate for use in the morning, after waking up."       />   </Complex>   <Complex uuid="933ca1ed-7028-454f-91f6-6a143e204dc8"     nameRussian="Уменьшение тревожности"        name="Reduction of stress"     description="Tackles excess stimulation and anxiety."     >       <Program uuid="93efa3d7-3981-4146-a2bd-e20d1e8a5fb0"         nameRussian="Уменьшение тревожности"             name="Reduction of stress"              description="Tackles excess stimulation and anxiety."	        />   </Complex></LanguageBaseFile>
