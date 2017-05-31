@@ -5591,6 +5591,7 @@ data=null;
         else fileChooser.setTitle(res.getString("app.title27")+" - " + start.getNameString());
         fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlb", "*.xmlb"));
+        fileChooser.setInitialFileName("ubase.xmlb");
         file= fileChooser.showSaveDialog(getApp().getMainWindow());
 
         if(file==null)return;
@@ -5665,7 +5666,7 @@ data=null;
 
         fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlp", "*.xmlp"));
-        fileChooser.setInitialFileName(TextUtil.replaceWinPathBadSymbols(selectedItem.getName()) );
+        fileChooser.setInitialFileName(TextUtil.replaceWinPathBadSymbols(selectedItem.getName())+".xmlp" );
         file= fileChooser.showSaveDialog(getApp().getMainWindow());
 
         if(file==null)return;
@@ -5744,7 +5745,7 @@ String initname;
 
         FileChooser fileChooser =new FileChooser();
         fileChooser.setTitle(res.getString("app.title37"));
-        fileChooser.setInitialFileName(TextUtil.replaceWinPathBadSymbols(initname));
+        fileChooser.setInitialFileName(TextUtil.replaceWinPathBadSymbols(initname)+".xmlc");
         fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlc", "*.xmlc"));
         file= fileChooser.showSaveDialog(getApp().getMainWindow());
