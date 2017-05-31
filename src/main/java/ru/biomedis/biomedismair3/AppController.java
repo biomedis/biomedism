@@ -9368,7 +9368,7 @@ return  true;
             ArrayList<TherapyComplex> toGenerate = new ArrayList<>();
             toGenerate.addAll(selectedItems.stream().filter((i) -> i.isChanged()?true:this.getModel().hasNeedGenerateProgramInComplex(i)).collect(Collectors.toList()));
 
-            this.tableComplex.getSelectionModel().clearSelection();
+
             ArrayList<TherapyProgram> toGenProgramm = new ArrayList<>();
 
             try {
@@ -9464,6 +9464,7 @@ return  true;
                                 this.tableProfile.getSelectionModel().select(profile);
                                 this.tableProfile.getSelectionModel().getSelectedItem().setProfileWeight(this.tableProfile.getSelectionModel().getSelectedItem().getProfileWeight() + 1);
                                 this.checkUpploadBtn();
+
 
                                 CalcLayer.closeLayer();
                                 this.hideProgressBar(true);
