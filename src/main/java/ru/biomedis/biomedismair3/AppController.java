@@ -177,7 +177,7 @@ public class AppController  extends BaseController {
     @FXML private Label onameComplex;
     @FXML private Menu updateBaseMenu;
     @FXML private Button searchReturn;
-
+    private @FXML MenuItem clearTrinityItem;
     private TableViewSkin<?> tableSkin;
     private VirtualFlow<?> virtualFlow;
 
@@ -522,7 +522,7 @@ public class AppController  extends BaseController {
         });
 
 
-
+        clearTrinityItem.disableProperty().bind(m2Connected.not());
 
         /** Контекстное меню загрузки в прибор **/
 
@@ -543,6 +543,7 @@ public class AppController  extends BaseController {
 
         //btnUploadM2.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull().and(m2Connected.not()));
         btnUploadM2.disableProperty().bind(m2Connected.and(tableProfile.getSelectionModel().selectedItemProperty().isNotNull()).not());
+
 
         /*********/
 
@@ -10106,6 +10107,53 @@ return  true;
      */
 
 
+    public void onClearTrinity(){
+        if(!m2Connected.get()) return;
+
+        Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.menu.clear_trinity"), "", res.getString("app.clear_trinity_ask"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
+        if(buttonType.get()!=okButtonType) return;
+
+
+        Task task = new Task() {
+            protected Boolean call() {
+                try {
+                    M2.clearDevice(true);
+                    return true;
+                } catch (M2.WriteToDeviceException e) {
+                    e.printStackTrace();
+                    return false;
+                }
+            }
+        };
+
+        task.setOnScheduled((event) -> {
+            Waiter.openLayer(getApp().getMainWindow(), true);
+        });
+        task.setOnFailed(ev -> {
+            Waiter.closeLayer();
+            showErrorDialog(res.getString("app.ui.write_error"), "", "", getApp().getMainWindow(), Modality.WINDOW_MODAL);
+        });
+
+        task.setOnSucceeded(ev -> {
+                    Waiter.closeLayer();
+                    if (((Boolean) task.getValue()).booleanValue()) {
+                        showInfoDialog(res.getString("app.success"),res.getString("app.success"),"",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+
+                    } else
+                        showErrorDialog(res.getString("app.ui.write_error"), res.getString("app.error"), "",  getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                }
+        );
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
+
+
+
+
+
+
+
+    }
     /**
      * Сброс режима поиска
      * programSearch зависит от содержимого полей поиска

@@ -1411,7 +1411,7 @@ https://gist.github.com/DemkaAge/8999236
 
 
                 }
-                //setUpdateVersion(updateOption,7);
+                setUpdateVersion(updateOption,7);
                 return true;
 
             }
