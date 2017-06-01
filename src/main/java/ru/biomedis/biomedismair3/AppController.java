@@ -541,8 +541,8 @@ public class AppController  extends BaseController {
         }
         );
 
-        //btnUploadM2.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull().and(m2Connected.not()));
-        btnUploadM2.disableProperty().bind(m2Connected.and(tableProfile.getSelectionModel().selectedItemProperty().isNotNull()).not());
+        //btnUploadM2.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull().and(m2Ready.not()));
+        btnUploadM2.disableProperty().bind(m2Ready.and(tableProfile.getSelectionModel().selectedItemProperty().isNotNull()).not());
 
 
         /*********/
@@ -1233,8 +1233,8 @@ initTables();
         initProgramSearch();
 initBiofon();
 initUSBDetectionM2();
-        readFromTrinityMenu.disableProperty().bind(m2Connected.not());
-tab5.disableProperty().bind(m2Connected.not());
+        readFromTrinityMenu.disableProperty().bind(m2Ready.not());
+tab5.disableProperty().bind(m2Ready.not());
         try {
             m2ui=(M2UI)replaceContent("/fxml/M2UI.fxml",tab5_content);
             //Test m2t=new Test();
@@ -1309,19 +1309,20 @@ tab5.disableProperty().bind(m2Connected.not());
         /********************/
     }
    @FXML private AnchorPane tab5_content;
+    private SimpleBooleanProperty m2Ready =new SimpleBooleanProperty(false);
     private SimpleBooleanProperty m2Connected=new SimpleBooleanProperty(false);
     private void initUSBDetectionM2() {
         USBHelper.addPlugEventHandler(M2.productId, M2.vendorId, new PlugDeviceListener() {
             @Override
             public void onAttachDevice() {
-
+                Platform.runLater(() ->   m2Connected.set(true));
 
 
                 try {
                     M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
                     Platform.runLater(() -> {
                                 m2ui.setContent(m2BinaryFile);
-                                m2Connected.setValue(true);
+                                m2Ready.setValue(true);
                             });
                     System.out.println("Устройство Trinity подключено");
                 } catch (M2.ReadFromDeviceException e) {
@@ -1336,7 +1337,8 @@ tab5.disableProperty().bind(m2Connected.not());
             @Override
             public void onDetachDevice() {
                 System.out.println("Устройство Trinity отключено");
-                m2Connected.setValue(false);
+                Platform.runLater(() ->   m2Connected.set(false));
+                m2Ready.setValue(false);
                 m2ui.cleanView();
             }
         });
