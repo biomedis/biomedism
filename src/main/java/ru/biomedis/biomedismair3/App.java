@@ -1397,20 +1397,33 @@ https://gist.github.com/DemkaAge/8999236
                 Program p2=   getModel().findProgram("8d8a4c44-1e35-4ec9-a653-ec46a7b72804");
                 Program p3=   getModel().findProgram("8634ffa9-371b-499f-b64f-00f2ea043fee");
                 Program p4=   getModel().findProgram("f81443c3-1ad8-4f8a-9a73-d57fdf691839");
-                if(p1==null || p2==null || p3==null || p4==null){
+                Program p5=   getModel().findProgram("160ca4f8-ca82-4b7e-8dbe-311d993bf7af");
+
+                if(p1==null || p2==null || p3==null || p4==null|| p5==null){
                     logger.error("не найдены программы для обновления частот");
                 }else {
                         p1.setFrequencies("2;12;26;26.5;66;75.5;94;95.5");
                         p2.setFrequencies("6.3;6.5;23.5;60.5;61.5;63;64.5;67");
                         p3.setFrequencies("1550;880;802;800;787;727;672;444");
                         p4.setFrequencies("332;698;721;732;749;752;942;991.5;1026.2;3212;4412");
+                        p5.setFrequencies("941.9;425;433;445;941.9;935;1010;1060;457;465;777;778;1214;1216;8478");
                         getModel().updateProgram(p1);
                         getModel().updateProgram(p2);
                         getModel().updateProgram(p3);
                         getModel().updateProgram(p4);
+                        getModel().updateProgram(p5);
 
 
                 }
+
+                setLangNameForSection("6a5d84b9-97b0-415b-9c69-ac1dca3dcad3","Autorenkomplexe","de");
+                setLangNameForSection("c1ff40dd-0e9d-413e-a9d9-d613eeeb8f2d","General Programme","de");
+                setLangNameForSection("15cf155a-cc24-49ed-98f1-a6c3fdec3539","Frequenzen der chemischen Elemente","de");
+                setLangNameForSection("d1a0b290-ccee-4fd9-b635-6861b8a508a7","Vorbeugende komplexe","de");
+                setLangNameForSection("600886d6-5c2b-4a0b-b974-d151f1125c42","Sätze von Programmen","de");
+                setLangNameForSection("205967cf-02fa-4e96-ac00-a19e5dd2a3fb","Antiparasitäre","de");
+                setLangNameForSection("db31c890-3500-4dee-84f3-8c49a7518112","Benutzerbasis","de");
+
                 setUpdateVersion(updateOption,7);
                 return true;
 
@@ -1441,13 +1454,133 @@ https://gist.github.com/DemkaAge/8999236
 
 
     }
+    private void update8(ProgramOptions updateOption)
+    {
+        logger.info("ОБНОВЛЕНИЕ 8.");
+        Task<Boolean> task =new Task<Boolean>()  {
+            @Override
+            protected Boolean call() throws Exception {
+
+                Program p5=   getModel().findProgram("160ca4f8-ca82-4b7e-8dbe-311d993bf7af");
+
+                if(p5==null){
+                    logger.error("не найдены программы для обновления частот");
+                }else {
+                    p5.setFrequencies("941.9;425;433;445;941.9;935;1010;1060;457;465;777;778;1214;1216;8478");
+                    getModel().updateProgram(p5);
+
+                }
+
+                //обновление имен элементов базы на немецком
+                //6a5d84b9-97b0-415b-9c69-ac1dca3dcad3   авторские
+                //c1ff40dd-0e9d-413e-a9d9-d613eeeb8f2d общие программы
+                //15cf155a-cc24-49ed-98f1-a6c3fdec3539 хим э
+                //d1a0b290-ccee-4fd9-b635-6861b8a508a7 профилактическ
+                // 600886d6-5c2b-4a0b-b974-d151f1125c42 наборы программ
+                //  205967cf-02fa-4e96-ac00-a19e5dd2a3fb  антипараз
+                //   db31c890-3500-4dee-84f3-8c49a7518112 USER BASE
+                setLangNameForSection("6a5d84b9-97b0-415b-9c69-ac1dca3dcad3","Autorenkomplexe","de");
+                setLangNameForSection("c1ff40dd-0e9d-413e-a9d9-d613eeeb8f2d","General Programme","de");
+                setLangNameForSection("15cf155a-cc24-49ed-98f1-a6c3fdec3539","Frequenzen der chemischen Elemente","de");
+                setLangNameForSection("d1a0b290-ccee-4fd9-b635-6861b8a508a7","Vorbeugende komplexe","de");
+                setLangNameForSection("600886d6-5c2b-4a0b-b974-d151f1125c42","Sätze von Programmen","de");
+                setLangNameForSection("205967cf-02fa-4e96-ac00-a19e5dd2a3fb","Antiparasitäre","de");
+                setLangNameForSection("db31c890-3500-4dee-84f3-8c49a7518112","Benutzerbasis","de");
+
+                setUpdateVersion(updateOption,8);
+                return true;
+
+            }
+        };
+
+
+        task.setOnSucceeded(event -> {
+            if(!task.getValue().booleanValue())  {
+                BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL);
+                Platform.exit();
+            }
+            else  logger.info("ОБНОВЛЕНИЕ 8. Завершено");
+
+            UpdateWaiter.close();
+        });
+        task.setOnFailed(event -> {
+            Platform.runLater(() -> BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
+            Platform.exit();
+            UpdateWaiter.close();
+        });
+
+        Thread threadTask=new Thread(task);
+        threadTask.setDaemon(true);
+        threadTask.start();
+        UpdateWaiter.show();
+
+
+
+    }
+
+    /**
+     * Установит новое имя для комплекса
+     * @param uuid
+     * @param name
+     * @param langAbbr
+     * @throws Exception
+     */
+    private void setLangNameForComplex(String uuid, String name,String langAbbr) throws Exception {
+
+        Complex complex = model.findComplex(uuid);
+        if(complex==null) throw new Exception("Не найден комплекс с UUID = "+uuid);
+        LocalizedString lName = model.getLocalString(complex.getName(), model.getLanguage(langAbbr));
+        if(lName==null) lName=model.addString(complex.getName(),name,model.getLanguage(langAbbr));
+        else {
+            lName.setContent(name);
+            model.updateLocalString(lName);
+        }
+    }
+
+    /**
+     * Установит новое имя для раздела
+     * @param uuid
+     * @param name
+     * @param langAbbr
+     * @throws Exception
+     */
+    private void setLangNameForSection(String uuid, String name,String langAbbr) throws Exception {
+
+        Section section = model.findSection(uuid);
+        if(section==null) throw new Exception("Не найдена секция с UUID = "+uuid);
+        LocalizedString lName = model.getLocalString(section.getName(), model.getLanguage(langAbbr));
+        if(lName==null) model.addString(section.getName(),name,model.getLanguage(langAbbr));
+        else {
+            lName.setContent(name);
+            model.updateLocalString(lName);
+        }
+    }
+
+    /**
+     * Установит новое имя для программы
+     * @param uuid
+     * @param name
+     * @param langAbbr
+     * @throws Exception
+     */
+    private void setLangNameForProgram(String uuid, String name,String langAbbr) throws Exception {
+
+        Program program = model.findProgram(uuid);
+        if(program==null) throw new Exception("Не найдена программа с UUID = "+uuid);
+        LocalizedString lName = model.getLocalString(program.getName(), model.getLanguage(langAbbr));
+        if(lName==null) model.addString(program.getName(),name,model.getLanguage(langAbbr));
+        else {
+            lName.setContent(name);
+            model.updateLocalString(lName);
+        }
+    }
 
     private void rootSectionNames(String newBaseName,String oldBaseName,String langAbbr) throws Exception {
 
         List<Section> rootSections = model.findAllRootSection();
         Strings nameString = rootSections.get(0).getName();
         LocalizedString lName = model.getLocalString(nameString, model.getLanguage(langAbbr));
-        if(lName==null) lName=model.addString(nameString,newBaseName,model.getLanguage(langAbbr));
+        if(lName==null) model.addString(nameString,newBaseName,model.getLanguage(langAbbr));
         else {
             lName.setContent(newBaseName);
             model.updateLocalString(lName);

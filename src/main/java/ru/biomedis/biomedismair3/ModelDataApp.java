@@ -2432,9 +2432,14 @@ public class ModelDataApp {
         {
            return this.profileDAO.findProfile(id);
         }
-        
 
-         
+
+    public Section findSection(String uuid)
+    {
+        Query query = emf.createEntityManager().createQuery("Select t from Section t where t.uuid = :p").setMaxResults(1);
+        query.setParameter("p", uuid);
+        return (Section)query.getSingleResult();
+    }
          
           public Section findSection(long id)
         {

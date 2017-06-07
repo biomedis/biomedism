@@ -20,7 +20,8 @@ public class SectionConverter extends StringConverter<Section>
         if(val.getId()==0)
         {
             if(lang.equals("ru"))return "Выберите раздел";
-            else  return "Choose a section";
+            else if(lang.equals("de"))return "Wählen Sie die Partition";
+            else   return "Choose a section";
         }
         else return val.getNameString();
     }
