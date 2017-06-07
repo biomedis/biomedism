@@ -18,6 +18,19 @@
         <log4j.version>2.5</log4j.version>
 
     </properties>
+
+    <repositories>
+        <repository>
+            <id>updater_repo</id>
+            <url>https://raw.github.com/lightway82/updater_repo/mvn-repo</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+    </repositories>
+
+
  <!--****** фейковый раздел системы контроля версий ******-->
 <scm>
     <connection>scm:svn:http://127.0.0.1/svn/my-project</connection>
@@ -325,6 +338,11 @@
             <version>1.2.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.anantacreative</groupId>
+            <artifactId>updater</artifactId>
+            <version>0.9</version>
+        </dependency>
         <!--
         mp3agic
 
