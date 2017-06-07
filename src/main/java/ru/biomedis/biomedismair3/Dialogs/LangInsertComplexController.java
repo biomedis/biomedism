@@ -29,8 +29,66 @@ public class LangInsertComplexController extends BaseController {
     @Override
     public void initialize(URL location, ResourceBundle resources)
     {
+        initComboBoxConverter();
+        fillComboBox();
+        selectSavedLang();
+        setSelectLanguageHandler(resources);
+    }
+
+    private void setSelectLanguageHandler(ResourceBundle resources) {
+        langlist.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) ->
+        {
+
+                try {
+                    getModel().setOption("app.lang_insert_complex", getLangAbbrByComboboxIndex(newValue));
+                } catch (Exception e) {
+                    logger.error("",e);
+                    showExceptionDialog("Ошибка применения параметра языка", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                    return;
+                }
+
+            showInfoDialogNoHeader(resources.getString("app.menu.insert_language"),resources.getString("app.success"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
+
+            window.close();
 
 
+        });
+    }
+
+    private String getLangAbbrByComboboxIndex(Number newValue) {
+        return langlist.getItems().get(newValue.intValue()).getAbbr();
+    }
+
+    private void selectSavedLang() {
+        try {
+            String abbr =   getModel().getOption("app.lang_insert_complex");
+            if(abbr.isEmpty()) abbr = getModel().getDefaultLanguage().getAbbr();
+            int index =  findIndexByLangAbbr(abbr);
+            if(index == -1)  index = findIndexByLangAbbr(getModel().getDefaultLanguage().getAbbr());
+            if(index!=-1) langlist.getSelectionModel().select(index);
+            langlist.getSelectionModel().select(index);
+
+        } catch (Exception e) {
+            logger.error("",e);
+            langlist.getSelectionModel().select(0);
+        }
+    }
+
+    private int findIndexByLangAbbr(String abbr){
+        int index=-1;
+        for (int i=0;i<langlist.getItems().size();i++) {
+            if(langlist.getItems().get(i).getAbbr().equals(abbr))  {
+                index=i;
+                break;
+            }
+        }
+        return index;
+    }
+    private void fillComboBox() {
+        langlist.getItems().addAll(getModel().findAvaliableLangs());
+    }
+
+    private void initComboBoxConverter() {
         langlist.setConverter(new StringConverter<Language>() {
             @Override
             public String toString(Language object) {
@@ -43,61 +101,6 @@ public class LangInsertComplexController extends BaseController {
                 return null;
             }
         });
-
-        langlist.getItems().addAll(getModel().findAvaliableLangs());
-
-        try {
-            String abbr =   getModel().getOption("app.lang_insert_complex");
-            if(abbr.isEmpty()) langlist.getSelectionModel().select(0);
-            else
-            {
-                int index=-1;
-
-                for (int i=0;i<langlist.getItems().size();i++) {
-                    if(langlist.getItems().get(i).getAbbr().equals(abbr))  {index=i;break;}
-
-                }
-
-
-                if(index!=-1) langlist.getSelectionModel().select(index);
-                else langlist.getSelectionModel().select(0);
-            }
-
-        } catch (Exception e) {
-            logger.error("",e);
-            langlist.getSelectionModel().select(0);
-        }
-
-
-        langlist.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) ->
-        {
-            if(newValue.intValue()==0)
-            {
-                try {
-                    getModel().setOption("app.lang_insert_complex","en");
-                } catch (Exception e) {
-                    logger.error("",e);
-                    showExceptionDialog("Ошибка применения параметра языка","","",e,getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                    return;
-                }
-            }else
-            {
-                try {
-                    getModel().setOption("app.lang_insert_complex",langlist.getItems().get(newValue.intValue()).getAbbr());
-                } catch (Exception e) {
-                    logger.error("",e);
-                    showExceptionDialog("Ошибка применения параметра языка", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                    return;
-                }
-            }
-            showInfoDialogNoHeader(resources.getString("app.menu.insert_language"),resources.getString("app.success"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
-
-            window.close();
-
-
-        });
-
-
     }
 
 }
