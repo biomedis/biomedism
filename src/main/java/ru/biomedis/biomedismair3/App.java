@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.anantacreative.updater.Version;
 import ru.biomedis.biomedismair3.DBImport.AddonsDBImport;
 import ru.biomedis.biomedismair3.DBImport.NewDBImport;
 import ru.biomedis.biomedismair3.DBImport.OldDBImport;
@@ -47,8 +48,14 @@ public class App extends Application {
       private  static  File tmpDir;
       private static Profile biofonProfile;
       public static final  String BIOFON_PROFILE_NAME="B_I_O_F_O_N";
+      private Version version;
+
+    public Version getVersion() {
+        return version;
+    }
 
     /**
+     *
      * Профиль биофона
      * @return
      */
@@ -346,7 +353,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         checkBiofonProfile();
 
         //настроим язык программы
-
+            this.version = new Version(4,getUpdateVersion(),currentMinorVersion);
 
 
         boolean firstStart=false;

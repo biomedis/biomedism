@@ -21,7 +21,7 @@
 
     <repositories>
         <repository>
-            <id>updater_repo</id>
+            <id>updater_repo-mvn-repo</id>
             <url>https://raw.github.com/lightway82/updater_repo/mvn-repo</url>
             <snapshots>
                 <enabled>true</enabled>
