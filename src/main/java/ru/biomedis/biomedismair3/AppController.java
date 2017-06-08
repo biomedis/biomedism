@@ -36,6 +36,11 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.*;
 import javafx.util.Duration;
+import org.anantacreative.updater.Update.AbstractUpdateTaskCreator;
+import org.anantacreative.updater.Update.UpdateTask;
+import org.anantacreative.updater.Update.XML.XmlUpdateTaskCreator;
+import org.anantacreative.updater.VersionCheck.DefineActualVersionError;
+import org.anantacreative.updater.VersionCheck.XML.XmlVersionChecker;
 import ru.biomedis.biomedismair3.CellFactories.TextAreaTableCell;
 import ru.biomedis.biomedismair3.Converters.SectionConverter;
 import ru.biomedis.biomedismair3.DBImport.NewDBImport;
@@ -70,6 +75,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
@@ -1307,7 +1313,88 @@ tab5.disableProperty().bind(m2Ready.not());
             }
         });
         /********************/
+
+        autoUpdateMenuItem.setSelected(getModel().isAutoUpdateEnable());
+
+        if(autoUpdateMenuItem.isSelected()){
+
+            String updaterBaseURL = "http://www.biomedis.ru/doc/b_mair/updater";
+            if(OSValidator.isWindows()) updaterBaseURL=updaterBaseURL+"/win";
+            else if(OSValidator.isMac()) updaterBaseURL=updaterBaseURL+"/mac";
+            else if(OSValidator.isUnix()) updaterBaseURL=updaterBaseURL+"/linux";
+            else {
+                showWarningDialog("Обновление программы","На данной платформе автоматическое обновление не доступно","",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                try {
+                    getModel().disableAutoUpdate();
+                } catch (Exception e) {
+                   Log.logger.error("",e);
+                }
+                return;
+            }
+
+                try {
+                    XmlVersionChecker versionChecker=new XmlVersionChecker(getApp().getVersion(),new URL(updaterBaseURL+"/version.xml"));
+                    if(versionChecker.checkNeedUpdate()){
+
+
+                        XmlUpdateTaskCreator updater = new XmlUpdateTaskCreator(new File(getApp().getInnerDataDir(), "downloads")
+                                , new File(""), new AbstractUpdateTaskCreator.Listener() {
+                            @Override
+                            public void taskCompleted(UpdateTask updateTask) {
+                                System.out.println("Закачали обнову");
+                                System.out.println(updateTask.toString());
+                            }
+
+                            @Override
+                            public void error(Exception e) {
+                                showErrorDialog("Получение обновлений","",
+                                        "Не удалось получить обновления. Попробуйте перезапустить программу и проверить доступ к сети.",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                            }
+
+                            @Override
+                            public void completeFile(String s, File file) {
+
+                            }
+
+                            @Override
+                            public void currentFileProgress(float v) {
+
+                            }
+
+                            @Override
+                            public void nextFileStartDownloading(String s, File file) {
+
+                            }
+
+                            @Override
+                            public void totalProgress(float v) {
+
+                            }
+                        },new URL(updaterBaseURL+"/update.xml"));
+                        updater.createTask(false);
+
+                    }
+            } catch (MalformedURLException e) {
+               showErrorDialog("Доступ к серверу обновлений","Отсутствует доступ к серверу обновлений",
+                       "Возможно отсутствует интернет или соединение блокируется брандмауэром",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+
+            } catch (DefineActualVersionError e) {
+                    showExceptionDialog("Определение версии обновления","Ошибка получения данных",
+                            "Возможно отсутствует интернет или соединение блокируется брандмауэром или ошибка на сервере.",
+                            e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+
+                } catch (AbstractUpdateTaskCreator.CreateUpdateTaskError e) {
+                    showExceptionDialog("Подготовка к обновлению","",
+                            "не удалось подготовить обновление",
+                            e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                }
+        }
     }
+    @FXML private CheckMenuItem autoUpdateMenuItem;
+    public void onAutoUpdateSwitch(){
+
+    }
+
    @FXML private AnchorPane tab5_content;
     private SimpleBooleanProperty m2Ready =new SimpleBooleanProperty(false);
     private SimpleBooleanProperty m2Connected=new SimpleBooleanProperty(false);

@@ -130,6 +130,11 @@ public class ModelDataApp {
 
         //работа с опциями. Стоит сделать проферку наличия конкретных опций, чтобы добавлять их без очистки базы
         List<ProgramOptions> allOptions = findAllOptions();
+        if(allOptions.stream().filter(option -> option.getName().equals("enable_autoupdate")).count()==0)
+        {
+            ProgramOptions option = createOption("enable_autoupdate", "true");
+            if(option!=null) optionsMap.put(option.getName(),option);
+        }
         if(allOptions.stream().filter(option -> option.getName().equals("mp3_path")).count()==0)
         {
             ProgramOptions option = createOption("mp3_path", "");
@@ -309,7 +314,22 @@ public class ModelDataApp {
     ///////////////////////////////////////////////////////////////////////
 
 
+    public boolean isAutoUpdateEnable() {
+        String enableAutoupdate = "true";
+        try {
+            enableAutoupdate = getOption("enable_autoupdate");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return Boolean.valueOf(enableAutoupdate);
 
+    }
+    public void enableAutoUpdate() throws Exception {
+        setOption("enable_autoupdate","true");
+    }
+    public void disableAutoUpdate() throws Exception {
+        setOption("enable_autoupdate","false");
+    }
 
 
     public String getMp3Path(String defaultPath){

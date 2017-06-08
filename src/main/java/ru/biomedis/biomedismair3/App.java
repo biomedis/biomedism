@@ -266,8 +266,8 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         /******** Обновления ************/
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
-        int currentUpdateFile=7;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=1;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentUpdateFile=8;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
+        int currentMinorVersion=0;//версия исправлений в пределах мажорной версии currentUpdateFile
 
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -323,21 +323,29 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                 update5(updateOption);
                 update6(updateOption);
                 update7(updateOption);
+                update8(updateOption);
             }else if(getUpdateVersion()==3){
                 update4(updateOption);
                 update5(updateOption);
                 update6(updateOption);
                 update7(updateOption);
+                update8(updateOption);
             }else if(getUpdateVersion()==4){
                 update5(updateOption);
                 update6(updateOption);
                 update7(updateOption);
+                update8(updateOption);
             }else if(getUpdateVersion()==5){
                 update6(updateOption);
                 update7(updateOption);
+                update8(updateOption);
             }else if(getUpdateVersion()==6){
 
                 update7(updateOption);
+                update8(updateOption);
+            }else if(getUpdateVersion()==7){
+
+                update8(updateOption);
             }
 
         }else if(getUpdateVersion() > currentUpdateFile){
