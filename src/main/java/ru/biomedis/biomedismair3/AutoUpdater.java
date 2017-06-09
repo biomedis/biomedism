@@ -2,6 +2,7 @@ package ru.biomedis.biomedismair3;
 
 import javafx.application.Platform;
 import javafx.stage.Modality;
+import org.anantacreative.updater.FilesUtil;
 import org.anantacreative.updater.Update.AbstractUpdateTaskCreator;
 import org.anantacreative.updater.Update.UpdateTask;
 import org.anantacreative.updater.Update.XML.XmlUpdateTaskCreator;
@@ -73,14 +74,15 @@ public class AutoUpdater {
                 if(versionChecker.checkNeedUpdate()){
 
 
-                    XmlUpdateTaskCreator updater = new XmlUpdateTaskCreator(new File(App.getInnerDataDir_(),
+                   final XmlUpdateTaskCreator updater = new XmlUpdateTaskCreator(new File(App.getInnerDataDir_(),
                             "downloads"+File.separator+versionChecker.getActualVersion().toString().replace(".","_"))
                             , rootDirApp, new AbstractUpdateTaskCreator.Listener() {
                         @Override
-                        public void taskCompleted(UpdateTask updateTask) {
+                        public void taskCompleted(UpdateTask updateTask,File rootDirApp, File downloadDir) {
                             System.out.println("Закачали обнову");
                             System.out.println(updateTask.toString());
 
+                            FilesUtil.recursiveClear(downloadDir);
                             processed=false;
                         }
 
