@@ -1317,82 +1317,122 @@ tab5.disableProperty().bind(m2Ready.not());
         autoUpdateMenuItem.setSelected(getModel().isAutoUpdateEnable());
 
         if(autoUpdateMenuItem.isSelected()){
+            startUpdater();
+        }
+    }
 
-            String updaterBaseURL = "http://www.biomedis.ru/doc/b_mair/updater";
-            if(OSValidator.isWindows()) updaterBaseURL=updaterBaseURL+"/win";
-            else if(OSValidator.isMac()) updaterBaseURL=updaterBaseURL+"/mac";
-            else if(OSValidator.isUnix()) updaterBaseURL=updaterBaseURL+"/linux";
+    private boolean isIDEStarted(){
+        File innerDataDir = getApp().getInnerDataDir();
+        File rootDir = new File(innerDataDir, "../");
+        return rootDir.listFiles((dir, name) -> name.equals("pom.xml")).length ==1;
+    }
+    private File getRootDirApp() throws Exception {
+            File rootAppDir;
+            if( isIDEStarted()) rootAppDir = new File("");
             else {
-                showWarningDialog("Обновление программы","На данной платформе автоматическое обновление не доступно","",getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                try {
-                    getModel().disableAutoUpdate();
-                } catch (Exception e) {
-                   Log.logger.error("",e);
-                }
-                return;
+                if (OSValidator.isWindows()) rootAppDir = new File(getApp().getInnerDataDir(),"../../");
+                else if (OSValidator.isMac()) rootAppDir = new File(getApp().getInnerDataDir(),"../../");//TODO: корректировать на MAC
+                else if (OSValidator.isUnix()) rootAppDir =new File(getApp().getInnerDataDir(),"../../");
+                else throw new Exception();
             }
+            return rootAppDir;
+    }
 
-                try {
-                    XmlVersionChecker versionChecker=new XmlVersionChecker(getApp().getVersion(),new URL(updaterBaseURL+"/version.xml"));
-                    if(versionChecker.checkNeedUpdate()){
+    private void updateNotAvailableOnPlatformMessage(){
+      try {
+            getModel().disableAutoUpdate();
+        } catch (Exception e) {
+            Log.logger.error("",e);
+        }
+        Platform.runLater(() ->   showWarningDialog("Обновление программы","На данной платформе автоматическое обновление не доступно",""
+                ,getApp().getMainWindow(),Modality.WINDOW_MODAL));
+    }
+
+    private void startUpdater(){
+        System.out.println("startUpdater");
+        File rootDirApp=null;
+        try {
+             rootDirApp = getRootDirApp();
+             if(rootDirApp==null) throw new Exception();
+             System.out.println(rootDirApp.getAbsolutePath());
+        } catch (Exception e) {
+            updateNotAvailableOnPlatformMessage();
+        }
+        String updaterBaseURL = "http://www.biomedis.ru/doc/b_mair/updater";
+        if(OSValidator.isWindows()) updaterBaseURL=updaterBaseURL+"/win";
+        else if(OSValidator.isMac()) updaterBaseURL=updaterBaseURL+"/mac";
+        else if(OSValidator.isUnix()) updaterBaseURL=updaterBaseURL+"/linux";
+        else {
+            updateNotAvailableOnPlatformMessage();
+            return;
+        }
+
+        try {
+            XmlVersionChecker versionChecker=new XmlVersionChecker(getApp().getVersion(),new URL(updaterBaseURL+"/version.xml"));
+            if(versionChecker.checkNeedUpdate()){
 
 
-                        XmlUpdateTaskCreator updater = new XmlUpdateTaskCreator(new File(getApp().getInnerDataDir(), "downloads")
-                                , new File(""), new AbstractUpdateTaskCreator.Listener() {
-                            @Override
-                            public void taskCompleted(UpdateTask updateTask) {
-                                System.out.println("Закачали обнову");
-                                System.out.println(updateTask.toString());
-                            }
+                XmlUpdateTaskCreator updater = new XmlUpdateTaskCreator(new File(getApp().getInnerDataDir(),
+                        "downloads"+File.separator+versionChecker.getActualVersion().toString().replace(".","_"))
+                        , rootDirApp, new AbstractUpdateTaskCreator.Listener() {
+                    @Override
+                    public void taskCompleted(UpdateTask updateTask) {
+                        System.out.println("Закачали обнову");
+                        System.out.println(updateTask.toString());
+                    }
 
-                            @Override
-                            public void error(Exception e) {
-                                showErrorDialog("Получение обновлений","",
-                                        "Не удалось получить обновления. Попробуйте перезапустить программу и проверить доступ к сети.",getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                            }
+                    @Override
+                    public void error(Exception e) {
+                        showErrorDialog("Получение обновлений","",
+                                "Не удалось получить обновления. Попробуйте перезапустить программу и проверить доступ к сети.",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                    }
 
-                            @Override
-                            public void completeFile(String s, File file) {
-
-                            }
-
-                            @Override
-                            public void currentFileProgress(float v) {
-
-                            }
-
-                            @Override
-                            public void nextFileStartDownloading(String s, File file) {
-
-                            }
-
-                            @Override
-                            public void totalProgress(float v) {
-
-                            }
-                        },new URL(updaterBaseURL+"/update.xml"));
-                        updater.createTask(false);
+                    @Override
+                    public void completeFile(String s, File file) {
 
                     }
-            } catch (MalformedURLException e) {
-               showErrorDialog("Доступ к серверу обновлений","Отсутствует доступ к серверу обновлений",
-                       "Возможно отсутствует интернет или соединение блокируется брандмауэром",getApp().getMainWindow(),Modality.WINDOW_MODAL);
 
-            } catch (DefineActualVersionError e) {
-                    showExceptionDialog("Определение версии обновления","Ошибка получения данных",
-                            "Возможно отсутствует интернет или соединение блокируется брандмауэром или ошибка на сервере.",
-                            e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                    @Override
+                    public void currentFileProgress(float v) {
 
-                } catch (AbstractUpdateTaskCreator.CreateUpdateTaskError e) {
-                    showExceptionDialog("Подготовка к обновлению","",
-                            "не удалось подготовить обновление",
-                            e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                }
+                    }
+
+                    @Override
+                    public void nextFileStartDownloading(String s, File file) {
+
+                    }
+
+                    @Override
+                    public void totalProgress(float v) {
+
+                    }
+                },new URL(updaterBaseURL+"/update.xml"));
+                updater.createTask(false);
+
+            }
+        } catch (MalformedURLException e) {
+            showErrorDialog("Доступ к серверу обновлений","Отсутствует доступ к серверу обновлений",
+                    "Возможно отсутствует интернет или соединение блокируется брандмауэром",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+
+        } catch (DefineActualVersionError e) {
+            showExceptionDialog("Определение версии обновления","Ошибка получения данных",
+                    "Возможно отсутствует интернет или соединение блокируется брандмауэром или ошибка на сервере.",
+                    e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+
+        } catch (AbstractUpdateTaskCreator.CreateUpdateTaskError e) {
+            showExceptionDialog("Подготовка к обновлению","",
+                    "не удалось подготовить обновление",
+                    e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
         }
     }
     @FXML private CheckMenuItem autoUpdateMenuItem;
     public void onAutoUpdateSwitch(){
-
+        if(autoUpdateMenuItem.isSelected()){
+            getModel().enableAutoUpdate();
+        }
+        else{
+            getModel().disableAutoUpdate();
+        }
     }
 
    @FXML private AnchorPane tab5_content;

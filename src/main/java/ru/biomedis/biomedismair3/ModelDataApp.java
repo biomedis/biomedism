@@ -324,11 +324,19 @@ public class ModelDataApp {
         return Boolean.valueOf(enableAutoupdate);
 
     }
-    public void enableAutoUpdate() throws Exception {
-        setOption("enable_autoupdate","true");
+    public void enableAutoUpdate()  {
+        try {
+            setOption("enable_autoupdate","true");
+        } catch (Exception e) {
+           Log.logger.error("",e);
+        }
     }
-    public void disableAutoUpdate() throws Exception {
-        setOption("enable_autoupdate","false");
+    public void disableAutoUpdate() {
+        try {
+            setOption("enable_autoupdate","false");
+        } catch (Exception e) {
+            Log.logger.error("",e);
+        }
     }
 
 

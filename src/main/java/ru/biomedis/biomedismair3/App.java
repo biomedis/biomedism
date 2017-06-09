@@ -200,7 +200,10 @@ public class App extends Application {
 
 
 
+
     private boolean neadCleanDataFilesAndState=false;
+
+
     @Override
     public void start(Stage stage) throws Exception {
 
