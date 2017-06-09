@@ -49,7 +49,12 @@ public class App extends Application {
       private static Profile biofonProfile;
       public static final  String BIOFON_PROFILE_NAME="B_I_O_F_O_N";
       private Version version;
+      private static  AppController  controller;
 
+    /**
+     * текущая реальная версия после применения обновлений
+     * @return
+     */
     public Version getVersion() {
         return version;
     }
@@ -76,7 +81,7 @@ public class App extends Application {
 
     public File getDataDir(){return dataDir;}
 
-
+    public static AppController getAppController(){return controller;}
 
     public static File getTmpDir_() {
         return tmpDir;
@@ -497,7 +502,7 @@ https://gist.github.com/DemkaAge/8999236
             URL location = getClass().getResource("/fxml/Scene.fxml");
             FXMLLoader fxmlLoader = new FXMLLoader(location, this.strings);
             Parent root = fxmlLoader.load();
-            AppController  controller = (AppController )fxmlLoader.getController();            
+            controller = (AppController )fxmlLoader.getController();
             BaseController.setMainController(controller);
             
            /*********************************/
