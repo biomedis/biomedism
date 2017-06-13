@@ -97,26 +97,30 @@ public class AutoUpdater {
                             System.out.println(updateTask.toString());
                             AutoUpdater.updateTask = updateTask;
 
-                            Optional<ButtonType> buttonType = App.getAppController()
-                                                                 .showConfirmationDialog("Обновление программы",
-                                                                         "Все файлы загружены. Программы готова к обновлению",
-                                                                         "Выполнить обновление(произойдет перезапуск программы) или отложить вопрос до следующего запуска программы?"
-                                                                         ,
-                                                                         App.getAppController().getControllerWindow(),
-                                                                         Modality.WINDOW_MODAL);
-                            if(buttonType.isPresent()){
-                                if(buttonType.get() == App.getAppController().okButtonType){
+                            Platform.runLater(() -> {
+                                Optional<ButtonType> buttonType = App.getAppController()
+                                                                     .showConfirmationDialog("Обновление программы",
+                                                                             "Все файлы загружены. Программы готова к обновлению",
+                                                                             "Выполнить обновление(произойдет перезапуск программы) или отложить вопрос до следующего запуска программы?"
+                                                                             ,
+                                                                             App.getAppController().getControllerWindow(),
+                                                                             Modality.WINDOW_MODAL);
+                                if(buttonType.isPresent()){
+                                    if(buttonType.get() == App.getAppController().okButtonType){
 
-                                  App.getAppController().onInstallUpdates();
+                                        App.getAppController().onInstallUpdates();
 
+                                    }
                                 }
-                            }
+                            });
+
 
                         }
 
                         @Override
                         public void error(Exception e) {
                             setProcessed(false);
+                            Log.logger.error("",e);
                             Platform.runLater(() -> App.getAppController().showErrorDialog("Получение обновлений","",
                                     "Не удалось получить обновления. Попробуйте перезапустить программу и проверить доступ к сети.",App.getAppController().getApp().getMainWindow(),
                                     Modality.WINDOW_MODAL));

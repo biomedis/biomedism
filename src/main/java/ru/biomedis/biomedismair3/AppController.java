@@ -10268,9 +10268,9 @@ return  true;
         AutoUpdater.getAutoUpdater().performUpdateTask().thenAccept(v -> {
 
 
-            showInfoDialog("Обновление программы",
+            Platform.runLater(() ->  showInfoDialog("Обновление программы",
                     "Все файлы скопированы.", "Для завершения обновления  будет произведен перезапуск программы",
-                    getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                    getApp().getMainWindow(), Modality.WINDOW_MODAL));
 
         })
        .thenRun(this::restartProgram)
@@ -10278,9 +10278,9 @@ return  true;
            Exception ee;
            if (e instanceof Exception) ee = (Exception) e;
            else ee = new Exception(e);
-           showExceptionDialog("Обновление программы",
+           Platform.runLater(() -> showExceptionDialog("Обновление программы",
                    "При обработке файлов обновления произошла ошибка", "", ee,
-                   getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                   getApp().getMainWindow(), Modality.WINDOW_MODAL));
 
            return null;
        });
@@ -10292,7 +10292,7 @@ return  true;
 
 
     public void onCheckForUpdates(){
-
+        AutoUpdater.getAutoUpdater().startUpdater();
     }
     /***************************************************/
 
