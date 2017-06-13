@@ -67,7 +67,9 @@ public class Waiter extends BaseController
         return dlg;
     }
 
-
+    public  static boolean isOpen(){
+            return stage.isShowing();
+    }
     /**
      * Открыть диалог расчета
      *

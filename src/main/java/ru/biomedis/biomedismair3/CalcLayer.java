@@ -57,7 +57,9 @@ private CalcActionListener actionListener;
 
 
 
-
+    public  static boolean isOpen(){
+        return stage.isShowing();
+    }
     public void onCancel()
 {
 cancel.setDisable(true);

@@ -95,6 +95,8 @@
                   <MenuItem fx:id="menuFindDevice" mnemonicParsing="false" onAction="#onFindDevice" text="%app.menu.find_device" />
                 <MenuItem fx:id="menuClearFileSystemDevice" mnemonicParsing="false" onAction="#onClearDevice" text="%app.menu_filesystem_check" />
                   <MenuItem fx:id="clearTrinityItem" mnemonicParsing="false" onAction="#onClearTrinity" text="%app.menu.clear_trinity" />
+                  <MenuItem fx:id="installUpdatesMItm" mnemonicParsing="false" onAction="#onInstallUpdates" text="%app.menu.install_updates" />
+                  <MenuItem fx:id="checkForUpdatesMItm" mnemonicParsing="false" onAction="#onCheckForUpdates" text="%app.menu.check_for_updates" />
                   <Menu mnemonicParsing="false" text="%ui.menu.base_recovery">
                     <items>
                       <MenuItem mnemonicParsing="false" onAction="#onRecoveryCreate" text="%ui.backup.create_backup" />

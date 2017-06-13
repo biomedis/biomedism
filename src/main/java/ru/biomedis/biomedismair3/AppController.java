@@ -177,6 +177,8 @@ public class AppController  extends BaseController {
     @FXML private Label onameComplex;
     @FXML private Menu updateBaseMenu;
     @FXML private Button searchReturn;
+    @FXML private MenuItem installUpdatesMItm;
+    @FXML private MenuItem  checkForUpdatesMItm;
     private @FXML MenuItem clearTrinityItem;
     private TableViewSkin<?> tableSkin;
     private VirtualFlow<?> virtualFlow;
@@ -1309,6 +1311,8 @@ tab5.disableProperty().bind(m2Ready.not());
         /********************/
 
         autoUpdateMenuItem.setSelected(getModel().isAutoUpdateEnable());
+        checkForUpdatesMItm.disableProperty().bind(AutoUpdater.getAutoUpdater().processedProperty());
+        installUpdatesMItm.disableProperty().bind(AutoUpdater.getAutoUpdater().processedProperty());
 
         if(autoUpdateMenuItem.isSelected()){
 
@@ -10257,6 +10261,37 @@ return  true;
         }
 
 
+
+    }
+
+    public void onInstallUpdates() {
+        AutoUpdater.getAutoUpdater().performUpdateTask().thenAccept(v -> {
+
+
+            showInfoDialog("Обновление программы",
+                    "Все файлы скопированы.", "Для завершения обновления  будет произведен перезапуск программы",
+                    getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+        })
+       .thenRun(this::restartProgram)
+       .exceptionally(e -> {
+           Exception ee;
+           if (e instanceof Exception) ee = (Exception) e;
+           else ee = new Exception(e);
+           showExceptionDialog("Обновление программы",
+                   "При обработке файлов обновления произошла ошибка", "", ee,
+                   getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+           return null;
+       });
+    }
+
+    private void restartProgram() {
+
+    }
+
+
+    public void onCheckForUpdates(){
 
     }
     /***************************************************/

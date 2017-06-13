@@ -1,9 +1,12 @@
 package ru.biomedis.biomedismair3;
 
 import javafx.application.Platform;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.scene.control.ButtonType;
 import javafx.stage.Modality;
 import org.anantacreative.updater.FilesUtil;
 import org.anantacreative.updater.Update.AbstractUpdateTaskCreator;
+import org.anantacreative.updater.Update.UpdateActionException;
 import org.anantacreative.updater.Update.UpdateTask;
 import org.anantacreative.updater.Update.XML.XmlUpdateTaskCreator;
 import org.anantacreative.updater.VersionCheck.DefineActualVersionError;
@@ -13,13 +16,17 @@ import ru.biomedis.biomedismair3.utils.OS.OSValidator;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Автообновления
  */
 public class AutoUpdater {
     private static AutoUpdater autoUpdater;
-    private boolean processed = false;
+    private SimpleBooleanProperty processed = new SimpleBooleanProperty(false);
+    private static UpdateTask updateTask;
+    private File downloadDir;
     private AutoUpdater() {
 
     }
@@ -30,13 +37,20 @@ public class AutoUpdater {
     }
 
     public boolean isProcessed() {
-        return processed;
+        return processed.get();
     }
 
     private synchronized void setProcessed(boolean processed) {
-        this.processed = processed;
+        this.processed.set(processed);
     }
 
+    public SimpleBooleanProperty processedProperty() {
+        return processed;
+    }
+
+    public File getDownloadUpdateDir(){
+        return downloadDir;
+    }
     public void startUpdater() {
         if(isProcessed()){
 
@@ -68,7 +82,7 @@ public class AutoUpdater {
                 updateNotAvailableOnPlatformMessage();
                 return;
             }
-            processed=true;
+           setProcessed(true);
             try {
                 XmlVersionChecker versionChecker=new XmlVersionChecker(App.getAppController().getApp().getVersion(),new URL(updaterBaseURL+"/version.xml"));
                 if(versionChecker.checkNeedUpdate()){
@@ -81,14 +95,28 @@ public class AutoUpdater {
                         public void taskCompleted(UpdateTask updateTask,File rootDirApp, File downloadDir) {
                             System.out.println("Закачали обнову");
                             System.out.println(updateTask.toString());
+                            AutoUpdater.updateTask = updateTask;
 
-                            FilesUtil.recursiveClear(downloadDir);
-                            processed=false;
+                            Optional<ButtonType> buttonType = App.getAppController()
+                                                                 .showConfirmationDialog("Обновление программы",
+                                                                         "Все файлы загружены. Программы готова к обновлению",
+                                                                         "Выполнить обновление(произойдет перезапуск программы) или отложить вопрос до следующего запуска программы?"
+                                                                         ,
+                                                                         App.getAppController().getControllerWindow(),
+                                                                         Modality.WINDOW_MODAL);
+                            if(buttonType.isPresent()){
+                                if(buttonType.get() == App.getAppController().okButtonType){
+
+                                  App.getAppController().onInstallUpdates();
+
+                                }
+                            }
+
                         }
 
                         @Override
                         public void error(Exception e) {
-                            processed=false;
+                            setProcessed(false);
                             Platform.runLater(() -> App.getAppController().showErrorDialog("Получение обновлений","",
                                     "Не удалось получить обновления. Попробуйте перезапустить программу и проверить доступ к сети.",App.getAppController().getApp().getMainWindow(),
                                     Modality.WINDOW_MODAL));
@@ -114,25 +142,27 @@ public class AutoUpdater {
 
                         }
                     },new URL(updaterBaseURL+"/update.xml"));
+
+                    downloadDir = updater.getDownloadsDir();
                     updater.createTask(false);
 
-                }else  processed=false;
+                }else   setProcessed(false);
 
             } catch (MalformedURLException e) {
                 Platform.runLater(() -> App.getAppController().showErrorDialog("Доступ к серверу обновлений","Отсутствует доступ к серверу обновлений",
                         "Возможно отсутствует интернет или соединение блокируется брандмауэром",
                         App.getAppController().getApp().getMainWindow(),Modality.WINDOW_MODAL));
-                processed=false;
+                setProcessed(false);
             } catch (DefineActualVersionError e) {
                 Platform.runLater(() ->App.getAppController().showErrorDialog("Определение версии обновления","Ошибка получения данных",
                         "Возможно отсутствует интернет или соединение блокируется брандмауэром или ошибка на сервере.",App.getAppController().getApp().getMainWindow(),Modality.WINDOW_MODAL));
-                processed=false;
+                setProcessed(false);
 
             } catch (AbstractUpdateTaskCreator.CreateUpdateTaskError e) {
                 Platform.runLater(() -> App.getAppController().showErrorDialog("Подготовка к обновлению","",
                         "не удалось подготовить обновление",
                         App.getAppController().getApp().getMainWindow(),Modality.WINDOW_MODAL));
-                processed=false;
+                setProcessed(false);
             }
         });
 
@@ -171,4 +201,43 @@ public class AutoUpdater {
     public static class UpdateInProgressException extends Exception{
 
     }
+    private void makeUpdateActions() {
+        if(updateTask!=null) {
+            setProcessed(true);
+            try {
+                updateTask.update();
+                setProcessed(false);
+            } catch (UpdateActionException e) {
+                setProcessed(false);
+                throw new RuntimeException(e);
+            }
+
+        }
+    }
+
+    /**
+     * Совершает обновление, асинхронно. Рестарт программы нужно делать самим уже после окончания обновления
+     * @return CompletableFuture
+     */
+    public CompletableFuture<Void> performUpdateTask(){
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
+        CompletableFuture.runAsync(this::makeUpdateActions)
+                           .thenAccept(v->{
+                            setProcessed(false);
+                            FilesUtil.recursiveClear(getDownloadUpdateDir());
+                            future.complete(null);
+
+                        })
+                         .exceptionally(e->{
+                            setProcessed(false);
+                             future.completeExceptionally(e);
+
+                            return null;
+                        });
+
+        return future;
+    }
+
+
 }
