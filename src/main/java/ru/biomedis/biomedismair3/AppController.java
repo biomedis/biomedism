@@ -1316,7 +1316,7 @@ tab5.disableProperty().bind(m2Ready.not());
 
         if(autoUpdateMenuItem.isSelected()){
 
-                AutoUpdater.getAutoUpdater().startUpdater();
+                AutoUpdater.getAutoUpdater().startUpdater(true);
 
 
         }
@@ -10265,25 +10265,30 @@ return  true;
     }
 
     public void onInstallUpdates() {
-        AutoUpdater.getAutoUpdater().performUpdateTask().thenAccept(v -> {
+        if(AutoUpdater.getAutoUpdater().isProcessed()) return;
+        try {
+            AutoUpdater.getAutoUpdater().performUpdateTask().thenAccept(v -> {
 
 
-            Platform.runLater(() ->  showInfoDialog("Обновление программы",
-                    "Все файлы скопированы.", "Для завершения обновления  \nбудет произведен перезапуск программы",
-                    getApp().getMainWindow(), Modality.WINDOW_MODAL));
+                Platform.runLater(() ->  showInfoDialog("Обновление программы",
+                        "Все файлы скопированы.", "Для завершения обновления  \nбудет произведен перезапуск программы",
+                        getApp().getMainWindow(), Modality.APPLICATION_MODAL));
 
-        })
-       .thenRun(this::restartProgram)
-       .exceptionally(e -> {
-           Exception ee;
-           if (e instanceof Exception) ee = (Exception) e;
-           else ee = new Exception(e);
-           Platform.runLater(() -> showExceptionDialog("Обновление программы",
-                   "При обработке файлов обновления произошла ошибка", "", ee,
-                   getApp().getMainWindow(), Modality.WINDOW_MODAL));
+            })
+           .thenRun(this::restartProgram)
+           .exceptionally(e -> {
+               Exception ee;
+               if (e instanceof Exception) ee = (Exception) e;
+               else ee = new Exception(e);
+               Platform.runLater(() -> showExceptionDialog("Обновление программы",
+                       "При обработке файлов обновления произошла ошибка", "", ee,
+                       getApp().getMainWindow(), Modality.APPLICATION_MODAL));
 
-           return null;
-       });
+               return null;
+           });
+        } catch (Exception e) {
+
+        }
     }
 
     private void restartProgram() {
@@ -10292,7 +10297,7 @@ return  true;
 
 
     public void onCheckForUpdates(){
-        AutoUpdater.getAutoUpdater().startUpdater();
+        AutoUpdater.getAutoUpdater().startUpdater(false);
     }
     /***************************************************/
 

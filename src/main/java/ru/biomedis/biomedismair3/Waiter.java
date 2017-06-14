@@ -68,6 +68,7 @@ public class Waiter extends BaseController
     }
 
     public  static boolean isOpen(){
+        if(stage==null) return false;
             return stage.isShowing();
     }
     /**

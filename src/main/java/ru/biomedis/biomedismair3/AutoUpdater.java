@@ -51,7 +51,7 @@ public class AutoUpdater {
     public File getDownloadUpdateDir(){
         return downloadDir;
     }
-    public void startUpdater() {
+    public void startUpdater(boolean silentProcess) {
         if(isProcessed()){
 
             Platform.runLater(() -> App.getAppController().showWarningDialog("Обновление",
@@ -97,22 +97,7 @@ public class AutoUpdater {
                             System.out.println(updateTask.toString());
                             AutoUpdater.updateTask = updateTask;
 
-                            Platform.runLater(() -> {
-                                Optional<ButtonType> buttonType = App.getAppController()
-                                                                     .showConfirmationDialog("Обновление программы",
-                                                                             "Все файлы загружены. Программы готова к обновлению",
-                                                                             "Выполнить обновление(произойдет перезапуск программы) или отложить вопрос до следующего запуска программы?"
-                                                                             ,
-                                                                             App.getAppController().getControllerWindow(),
-                                                                             Modality.WINDOW_MODAL);
-                                if(buttonType.isPresent()){
-                                    if(buttonType.get() == App.getAppController().okButtonType){
-
-                                        App.getAppController().onInstallUpdates();
-
-                                    }
-                                }
-                            });
+                            toUpdate();
 
 
                         }
@@ -150,7 +135,15 @@ public class AutoUpdater {
                     downloadDir = updater.getDownloadsDir();
                     updater.createTask(false);
 
-                }else   setProcessed(false);
+                }else   {
+                    setProcessed(false);
+                    if(!silentProcess)  Platform.runLater(() -> App.getAppController().showWarningDialog("Обновление",
+                            "Обновления отсутствуют. \nВы уже используете последнюю версию программы",
+                            "",App.getAppController().getApp().getMainWindow(),Modality.WINDOW_MODAL));
+
+                    return;
+
+                }
 
             } catch (MalformedURLException e) {
                 Platform.runLater(() -> App.getAppController().showErrorDialog("Доступ к серверу обновлений","Отсутствует доступ к серверу обновлений",
@@ -198,13 +191,42 @@ public class AutoUpdater {
             Log.logger.error("",e);
         }
         Platform.runLater(() ->   App.getAppController().showWarningDialog("Обновление программы","На данной платформе автоматическое обновление не доступно",""
-                ,App.getAppController().getControllerWindow(),Modality.WINDOW_MODAL));
+                ,App.getAppController().getApp().getMainWindow(),Modality.WINDOW_MODAL));
     }
 
 
-    public static class UpdateInProgressException extends Exception{
 
+
+    private boolean isPerformAction=false;
+
+    /**
+     * Совершает обновление, асинхронно. Рестарт программы нужно делать самим уже после окончания обновления
+     * @return CompletableFuture
+     */
+    public CompletableFuture<Void> performUpdateTask() throws Exception {
+        if(isPerformAction) throw new Exception();
+
+        isPerformAction=true;
+        CompletableFuture<Void> future = new CompletableFuture<>();
+
+        CompletableFuture.runAsync(this::makeUpdateActions)
+                           .thenAccept(v->{
+                            setProcessed(false);
+                            FilesUtil.recursiveClear(getDownloadUpdateDir());
+                            future.complete(null);
+                               isPerformAction=false;
+
+                        })
+                         .exceptionally(e->{
+                            setProcessed(false);
+                             future.completeExceptionally(e);
+                             isPerformAction=false;
+                            return null;
+                        });
+
+        return future;
     }
+
     private void makeUpdateActions() {
         if(updateTask!=null) {
             setProcessed(true);
@@ -219,28 +241,35 @@ public class AutoUpdater {
         }
     }
 
-    /**
-     * Совершает обновление, асинхронно. Рестарт программы нужно делать самим уже после окончания обновления
-     * @return CompletableFuture
-     */
-    public CompletableFuture<Void> performUpdateTask(){
-        CompletableFuture<Void> future = new CompletableFuture<>();
+    private void toUpdate(){
 
-        CompletableFuture.runAsync(this::makeUpdateActions)
-                           .thenAccept(v->{
-                            setProcessed(false);
-                            FilesUtil.recursiveClear(getDownloadUpdateDir());
-                            future.complete(null);
+        while (Waiter.isOpen() || CalcLayer.isOpen()){
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                setProcessed(false);
+                return;
+            }
+        }
 
-                        })
-                         .exceptionally(e->{
-                            setProcessed(false);
-                             future.completeExceptionally(e);
 
-                            return null;
-                        });
+        Platform.runLater(() -> {
+            Optional<ButtonType> buttonType = App.getAppController()
+                                                 .showConfirmationDialog("Обновление программы",
+                                                         "Все файлы загружены. Программы готова к обновлению",
+                                                         "Выполнить обновление(произойдет перезапуск программы) или отложить вопрос до следующего запуска программы?"
+                                                         ,
+                                                         App.getAppController().getApp().getMainWindow(),
+                                                         Modality.APPLICATION_MODAL);
+            if(buttonType.isPresent()){
+                if(buttonType.get() == App.getAppController().okButtonType){
 
-        return future;
+                    App.getAppController().onInstallUpdates();
+
+                }
+            }
+        });
     }
 
 
