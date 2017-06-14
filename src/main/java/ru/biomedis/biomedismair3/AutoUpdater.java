@@ -181,7 +181,7 @@ public class AutoUpdater {
 
     private File getRootDirApp() throws Exception {
         File rootAppDir;
-        if( isIDEStarted()) rootAppDir = new File("");
+        if( isIDEStarted()) rootAppDir = new File("./");
         else {
             if (OSValidator.isWindows()) rootAppDir = new File(App.getInnerDataDir_(),"../../");
             else if (OSValidator.isMac()) rootAppDir = new File(App.getInnerDataDir_(),"../../");//TODO: корректировать на MAC
