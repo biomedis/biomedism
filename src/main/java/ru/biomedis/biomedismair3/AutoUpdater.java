@@ -27,6 +27,9 @@ public class AutoUpdater {
     private SimpleBooleanProperty processed = new SimpleBooleanProperty(false);
     private static UpdateTask updateTask;
     private File downloadDir;
+    private SimpleBooleanProperty readyToInstall =new SimpleBooleanProperty(false);
+
+
     private AutoUpdater() {
 
     }
@@ -34,6 +37,18 @@ public class AutoUpdater {
     public synchronized static AutoUpdater getAutoUpdater(){
         if(autoUpdater ==null) autoUpdater =new AutoUpdater();
         return autoUpdater;
+    }
+
+    public boolean isReadyToInstall() {
+        return readyToInstall.get();
+    }
+
+    public SimpleBooleanProperty readyToInstallProperty() {
+        return readyToInstall;
+    }
+
+    public void setReadyToInstall(boolean readyToInstall) {
+        this.readyToInstall.set(readyToInstall);
     }
 
     public boolean isProcessed() {
@@ -83,6 +98,7 @@ public class AutoUpdater {
                 return;
             }
            setProcessed(true);
+            setReadyToInstall(false);
             try {
                 XmlVersionChecker versionChecker=new XmlVersionChecker(App.getAppController().getApp().getVersion(),new URL(updaterBaseURL+"/version.xml"));
                 if(versionChecker.checkNeedUpdate()){
@@ -197,32 +213,45 @@ public class AutoUpdater {
 
 
 
-    private boolean isPerformAction=false;
+    private SimpleBooleanProperty isPerformAction=new SimpleBooleanProperty(false);
+
+    public boolean isPerformAction() {
+        return isPerformAction.get();
+    }
+
+    public SimpleBooleanProperty performActionProperty() {
+        return isPerformAction;
+    }
+
+    private void setPerformAction(boolean performAction) {
+        this.isPerformAction.set(performAction);
+    }
 
     /**
      * Совершает обновление, асинхронно. Рестарт программы нужно делать самим уже после окончания обновления
      * @return CompletableFuture
      */
     public CompletableFuture<Void> performUpdateTask() throws Exception {
-        if(isPerformAction) throw new Exception();
+        setReadyToInstall(false);
+        if(isPerformAction()) throw new Exception();
 
-        isPerformAction=true;
+        setPerformAction(true);
         CompletableFuture<Void> future = new CompletableFuture<>();
 
         CompletableFuture.runAsync(this::makeUpdateActions)
                            .thenAccept(v->{
                             setProcessed(false);
-                            System.out.println("thenAccept");
+
                             FilesUtil.recursiveClear(getDownloadUpdateDir());
                             future.complete(null);
-                               isPerformAction=false;
+                               setPerformAction(false);
 
                         })
                          .exceptionally(e->{
-                             System.out.println("exceptionally-performUpdateTask");
+
                             setProcessed(false);
                              future.completeExceptionally(e);
-                             isPerformAction=false;
+                             setPerformAction(false);
                             return null;
                         });
 
@@ -233,7 +262,7 @@ public class AutoUpdater {
         if(updateTask!=null) {
             setProcessed(true);
             try {
-                System.out.println("makeUpdateActions");
+
                 updateTask.update();
                 setProcessed(false);
             } catch (UpdateActionException e) {
@@ -270,7 +299,13 @@ public class AutoUpdater {
 
                     App.getAppController().onInstallUpdates();
 
+                }else {
+                    setProcessed(false);
+                    setReadyToInstall(true);
                 }
+            }else {
+                setProcessed(false);
+                setReadyToInstall(true);
             }
         });
     }

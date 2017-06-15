@@ -1312,9 +1312,10 @@ tab5.disableProperty().bind(m2Ready.not());
 
         autoUpdateMenuItem.setSelected(getModel().isAutoUpdateEnable());
         checkForUpdatesMItm.disableProperty().bind(AutoUpdater.getAutoUpdater().processedProperty());
-        installUpdatesMItm.disableProperty().bind(AutoUpdater.getAutoUpdater().processedProperty());
+        installUpdatesMItm.disableProperty().bind(AutoUpdater.getAutoUpdater().readyToInstallProperty().not());
+
         checkForUpdatesMItm.setOnAction(event -> {
-            if(AutoUpdater.getAutoUpdater().isProcessed()) return;
+            if(AutoUpdater.getAutoUpdater().isProcessed() || AutoUpdater.getAutoUpdater().isPerformAction()) return;
             onCheckForUpdates();
         });
 
@@ -10272,7 +10273,6 @@ return  true;
 
         try {
             AutoUpdater.getAutoUpdater().performUpdateTask().thenAccept(v -> {
-                System.out.println("Все файлы скопированы.");
 
                 Platform.runLater(() ->  {
                     showInfoDialog("Обновление программы",
@@ -10284,7 +10284,6 @@ return  true;
             })
            //.thenRun(this::restartProgram)
            .exceptionally(e -> {
-               System.out.println("exceptionally - onInstallUpdates");
 
                Exception ee;
                if (e instanceof Exception) ee = (Exception) e;
@@ -10308,13 +10307,17 @@ return  true;
             File currentJar = new File(AppController.class.getProtectionDomain().getCodeSource().getLocation().toURI());
             if(!currentJar.getName().endsWith(".jar")) throw new Exception("Не найден путь к jar");
 
-
+            //TODO Сделать для MacOs
             final List<String> command = new ArrayList<>();
+            String exec="";
             if(OSValidator.isUnix()){
-                String exec = new File(currentJar.getParentFile(),"../BiomedisMAir4").getAbsolutePath();
-                command.add(exec);
-            }
+                 exec = new File(currentJar.getParentFile(),"../BiomedisMAir4").getAbsolutePath();
 
+            }else if(OSValidator.isWindows()){
+                 exec = new File(currentJar.getParentFile(),"../BiomedisMAir4.exe").getAbsolutePath();
+
+            }else return;
+            command.add(exec);
 
 
             final ProcessBuilder builder = new ProcessBuilder(command);
