@@ -1313,6 +1313,10 @@ tab5.disableProperty().bind(m2Ready.not());
         autoUpdateMenuItem.setSelected(getModel().isAutoUpdateEnable());
         checkForUpdatesMItm.disableProperty().bind(AutoUpdater.getAutoUpdater().processedProperty());
         installUpdatesMItm.disableProperty().bind(AutoUpdater.getAutoUpdater().processedProperty());
+        checkForUpdatesMItm.setOnAction(event -> {
+            if(AutoUpdater.getAutoUpdater().isProcessed()) return;
+            onCheckForUpdates();
+        });
 
         if(autoUpdateMenuItem.isSelected()){
 
@@ -10265,18 +10269,23 @@ return  true;
     }
 
     public void onInstallUpdates() {
-        if(AutoUpdater.getAutoUpdater().isProcessed()) return;
+
         try {
             AutoUpdater.getAutoUpdater().performUpdateTask().thenAccept(v -> {
+                System.out.println("Все файлы скопированы.");
 
-
-                Platform.runLater(() ->  showInfoDialog("Обновление программы",
-                        "Все файлы скопированы.", "Для завершения обновления  \nбудет произведен перезапуск программы",
-                        getApp().getMainWindow(), Modality.APPLICATION_MODAL));
+                Platform.runLater(() ->  {
+                    showInfoDialog("Обновление программы",
+                            "Все файлы скопированы.", "Для завершения обновления  \nбудет произведен перезапуск программы",
+                            getApp().getMainWindow(), Modality.APPLICATION_MODAL);
+                    restartProgram();
+                });
 
             })
-           .thenRun(this::restartProgram)
+           //.thenRun(this::restartProgram)
            .exceptionally(e -> {
+               System.out.println("exceptionally - onInstallUpdates");
+
                Exception ee;
                if (e instanceof Exception) ee = (Exception) e;
                else ee = new Exception(e);
@@ -10292,6 +10301,31 @@ return  true;
     }
 
     private void restartProgram() {
+
+        if(AutoUpdater.isIDEStarted()) return;
+
+        try {
+            File currentJar = new File(AppController.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            if(!currentJar.getName().endsWith(".jar")) throw new Exception("Не найден путь к jar");
+
+
+            final List<String> command = new ArrayList<>();
+            if(OSValidator.isUnix()){
+                String exec = new File(currentJar.getParentFile(),"../BiomedisMAir4").getAbsolutePath();
+                command.add(exec);
+            }
+
+
+
+            final ProcessBuilder builder = new ProcessBuilder(command);
+            builder.start();
+            //Platform.exit();
+            System.out.println("restartProgram");
+            System.exit(0);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
 
     }
 

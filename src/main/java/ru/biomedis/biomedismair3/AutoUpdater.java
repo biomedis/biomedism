@@ -166,7 +166,7 @@ public class AutoUpdater {
         thread.start();
     }
 
-    private boolean isIDEStarted(){
+    public static boolean isIDEStarted(){
         File innerDataDir = App.getInnerDataDir_();
         File rootDir = new File(innerDataDir, "../");
         return rootDir.listFiles((dir, name) -> name.equals("pom.xml")).length ==1;
@@ -212,12 +212,14 @@ public class AutoUpdater {
         CompletableFuture.runAsync(this::makeUpdateActions)
                            .thenAccept(v->{
                             setProcessed(false);
+                            System.out.println("thenAccept");
                             FilesUtil.recursiveClear(getDownloadUpdateDir());
                             future.complete(null);
                                isPerformAction=false;
 
                         })
                          .exceptionally(e->{
+                             System.out.println("exceptionally-performUpdateTask");
                             setProcessed(false);
                              future.completeExceptionally(e);
                              isPerformAction=false;
@@ -231,6 +233,7 @@ public class AutoUpdater {
         if(updateTask!=null) {
             setProcessed(true);
             try {
+                System.out.println("makeUpdateActions");
                 updateTask.update();
                 setProcessed(false);
             } catch (UpdateActionException e) {

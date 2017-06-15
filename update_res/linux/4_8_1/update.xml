@@ -1,6 +1,6 @@
 <?xml version="1.1" encoding="UTF-8" ?>
 <Update date="07.06.2017">
     <Action type="Move">
-        <File url="http://www.biomedis.ru/doc/b_mair/updater/linux/files/4_8_1/BiomedisMAir3-1.0-SNAPSHOT.jar"  dst="tmp"/>
+        <File url="http://www.biomedis.ru/doc/b_mair/updater/linux/files/4_8_1/BiomedisMAir3-1.0-SNAPSHOT.jar"  dst="app/dist.jar"/>
     </Action>
 </Update>
