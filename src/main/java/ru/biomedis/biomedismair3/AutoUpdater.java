@@ -112,7 +112,7 @@ public class AutoUpdater {
                             System.out.println("Закачали обнову");
                             System.out.println(updateTask.toString());
                             AutoUpdater.updateTask = updateTask;
-
+                            if(!silentProcess) Platform.runLater(() -> App.getAppController().hideProgressBar(true));
                             toUpdate();
 
 
@@ -144,6 +144,8 @@ public class AutoUpdater {
 
                         @Override
                         public void totalProgress(float v) {
+                           if(!silentProcess) Platform.runLater(() ->  App.getAppController().setProgressBar(v,"Загрузка файлов",""));
+
 
                         }
                     },new URL(updaterBaseURL+"/update.xml"));
@@ -234,7 +236,7 @@ public class AutoUpdater {
     public CompletableFuture<Void> performUpdateTask() throws Exception {
         setReadyToInstall(false);
         if(isPerformAction()) throw new Exception();
-
+        Platform.runLater(()->  Waiter.openLayer(App.getAppController().getApp().getMainWindow(), true));
         setPerformAction(true);
         CompletableFuture<Void> future = new CompletableFuture<>();
 
@@ -245,6 +247,7 @@ public class AutoUpdater {
                             FilesUtil.recursiveClear(getDownloadUpdateDir());
                             future.complete(null);
                                setPerformAction(false);
+                               Platform.runLater(()->  Waiter.closeLayer());
 
                         })
                          .exceptionally(e->{
@@ -252,6 +255,7 @@ public class AutoUpdater {
                             setProcessed(false);
                              future.completeExceptionally(e);
                              setPerformAction(false);
+                             Platform.runLater(()->  Waiter.closeLayer());
                             return null;
                         });
 

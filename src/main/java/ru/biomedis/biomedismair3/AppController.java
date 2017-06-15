@@ -6404,7 +6404,7 @@ final ResourceBundle rest=this.res;
      * Отобразит строку информации
      * @param message
      */
-private void setInfoMessage(String message)
+    public void setInfoMessage(String message)
 {
     progress1Pane.setVisible(false);
     progress2Pane.setVisible(false);
@@ -6432,7 +6432,7 @@ private void setInfoMessage(String message)
      * @param textAction ниже textInfo
      * @param textInfo вверху
      */
-  private void setProgressBar(double value,String textAction,String textInfo)
+  public void setProgressBar(double value,String textAction,String textInfo)
   {
       progress1Pane.setVisible(false);
       progress2Pane.setVisible(true);
@@ -6456,7 +6456,7 @@ private void setInfoMessage(String message)
   }
 
 
-    private void hideProgressBar(boolean animation)
+    public void hideProgressBar(boolean animation)
     {
         if(animation)
         {
@@ -6488,7 +6488,7 @@ private void setInfoMessage(String message)
      * @param value
      * @param text
      */
-    private void setProgressIndicator(double value,String text)
+    public void setProgressIndicator(double value,String text)
     {
 
         progress2Pane.setVisible(false);
@@ -6505,7 +6505,7 @@ private void setInfoMessage(String message)
         }
 
     }
-    private void setProgressIndicator(double value)
+    public void setProgressIndicator(double value)
     {
         System.out.println(value);
 
@@ -6529,7 +6529,7 @@ private void setInfoMessage(String message)
      * Установит неопределенное значение прогресса и текст. Все сделает видимым
      * @param text
      */
-    private void setProgressIndicator(String text)
+    public void setProgressIndicator(String text)
     {
         progressIndicator.setVisible(true);
         progress2Pane.setVisible(false);
@@ -6543,7 +6543,7 @@ private void setInfoMessage(String message)
     /**
      * Скрывает круговой индикатор прогресса
      */
-    private void hideProgressIndicator(boolean animation)
+    public void hideProgressIndicator(boolean animation)
     {
      if(animation)
      {
