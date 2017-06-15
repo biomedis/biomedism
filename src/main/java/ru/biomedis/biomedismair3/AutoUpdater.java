@@ -28,10 +28,15 @@ public class AutoUpdater {
     private static UpdateTask updateTask;
     private File downloadDir;
     private SimpleBooleanProperty readyToInstall =new SimpleBooleanProperty(false);
+    private  File rootDirApp;
 
 
     private AutoUpdater() {
 
+    }
+
+    public File getRootDirApp() {
+        return rootDirApp;
     }
 
     public synchronized static AutoUpdater getAutoUpdater(){
@@ -81,9 +86,9 @@ public class AutoUpdater {
 
 
 
-            File rootDirApp=null;
+            rootDirApp=null;
             try {
-                rootDirApp = getRootDirApp();
+                rootDirApp = defineRootDirApp();
                 if(rootDirApp==null) throw new Exception();
                 System.out.println(rootDirApp.getAbsolutePath());
             } catch (Exception e) {
@@ -190,7 +195,7 @@ public class AutoUpdater {
         return rootDir.listFiles((dir, name) -> name.equals("pom.xml")).length ==1;
     }
 
-    private File getRootDirApp() throws Exception {
+    private File defineRootDirApp() throws Exception {
         File rootAppDir;
         if( isIDEStarted()) rootAppDir = new File("./");
         else {

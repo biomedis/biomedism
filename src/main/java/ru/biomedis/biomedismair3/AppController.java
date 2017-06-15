@@ -36,6 +36,8 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.*;
 import javafx.util.Duration;
+import org.anantacreative.updater.Pack.Exceptions.PackException;
+import org.anantacreative.updater.Pack.Packer;
 import ru.biomedis.biomedismair3.CellFactories.TextAreaTableCell;
 import ru.biomedis.biomedismair3.Converters.SectionConverter;
 import ru.biomedis.biomedismair3.DBImport.NewDBImport;
@@ -77,6 +79,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static ru.biomedis.biomedismair3.Log.logger;
 
@@ -10268,9 +10271,41 @@ return  true;
 
 
     }
+    //TODO доработать для Мак
+    private void ZipDBToBackup() throws PackException {
+        File rootDirApp = AutoUpdater.getAutoUpdater().getRootDirApp();
+        File backupDir = new File(rootDirApp,"backup_db");
+        if(!backupDir.exists()) backupDir.mkdir();
+        File dbDir=null;
+        if(AutoUpdater.isIDEStarted()){
+            dbDir = rootDirApp;
+        }else
+        if(OSValidator.isUnix()){
+            dbDir = new File(rootDirApp,"app");
+
+        }else if(OSValidator.isWindows()){
+            dbDir = new File(rootDirApp,"assets");
+
+        }
+
+            Packer.packFiles(Stream.of(dbDir.listFiles((dir, name) -> name.endsWith(".db"))).collect(Collectors.toList()),
+                    new File(backupDir, Calendar.getInstance().getTimeInMillis()+".zip"));
+
+
+    }
 
     public void onInstallUpdates() {
+        try {
+            ZipDBToBackup();
+        } catch (PackException e) {
+            Platform.runLater(() ->  {
+                showExceptionDialog("Обновление программы",
+                        "Бекап базы данных не создан", "Процесс обновления остановлен",e,
+                        getApp().getMainWindow(), Modality.APPLICATION_MODAL);
 
+            });
+            return;
+        }
         try {
             AutoUpdater.getAutoUpdater().performUpdateTask().thenAccept(v -> {
 
