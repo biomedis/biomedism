@@ -108,9 +108,9 @@ public class AutoUpdater {
                 XmlVersionChecker versionChecker=new XmlVersionChecker(App.getAppController().getApp().getVersion(),new URL(updaterBaseURL+"/version.xml"));
                 if(versionChecker.checkNeedUpdate()){
 
-
-                   final XmlUpdateTaskCreator updater = new XmlUpdateTaskCreator(new File(App.getInnerDataDir_(),
-                            "downloads"+File.separator+versionChecker.getActualVersion().toString().replace(".","_"))
+                    File dlDir = new File(App.getInnerDataDir_(),"downloads"+File.separator+versionChecker.getActualVersion().toString().replace(".","_"));
+                   final XmlUpdateTaskCreator updater = new XmlUpdateTaskCreator(
+                           FilesUtil.extractRelativePathFrom(rootDirApp,dlDir)
                             , rootDirApp, new AbstractUpdateTaskCreator.Listener() {
                         @Override
                         public void taskCompleted(UpdateTask updateTask,File rootDirApp, File downloadDir) {
