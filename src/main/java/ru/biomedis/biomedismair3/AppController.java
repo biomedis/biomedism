@@ -10299,8 +10299,10 @@ return  true;
             ZipDBToBackup();
         } catch (PackException e) {
             Platform.runLater(() ->  {
-                showExceptionDialog("Обновление программы",
-                        "Бекап базы данных не создан", "Процесс обновления остановлен",e,
+                showExceptionDialog(res.getString("app.update"),
+                        res.getString("backup_error"),
+                        res.getString("process_updateing_stoped"),
+                        e,
                         getApp().getMainWindow(), Modality.APPLICATION_MODAL);
 
             });
@@ -10310,8 +10312,9 @@ return  true;
             AutoUpdater.getAutoUpdater().performUpdateTask().thenAccept(v -> {
 
                 Platform.runLater(() ->  {
-                    showInfoDialog("Обновление программы",
-                            "Все файлы скопированы.", "Для завершения обновления  \nбудет произведен перезапуск программы",
+                    showInfoDialog(res.getString("app.update"),
+                            res.getString("all_files_copied"),
+                            res.getString("complete_update"),
                             getApp().getMainWindow(), Modality.APPLICATION_MODAL);
                     restartProgram();
                 });
@@ -10323,8 +10326,8 @@ return  true;
                Exception ee;
                if (e instanceof Exception) ee = (Exception) e;
                else ee = new Exception(e);
-               Platform.runLater(() -> showExceptionDialog("Обновление программы",
-                       "При обработке файлов обновления произошла ошибка", "", ee,
+               Platform.runLater(() -> showExceptionDialog(res.getString("app.update"),
+                       res.getString("processing_updating_files_error"), "", ee,
                        getApp().getMainWindow(), Modality.APPLICATION_MODAL));
 
                return null;

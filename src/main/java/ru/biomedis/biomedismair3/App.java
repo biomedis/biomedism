@@ -51,6 +51,8 @@ public class App extends Application {
       private Version version;
       private static  AppController  controller;
 
+
+
     /**
      * текущая реальная версия после применения обновлений
      * @return
