@@ -166,20 +166,25 @@ public class App extends Application {
 
     }
 
-    public void closePersisenceContext() {/*if(model!=null) model.flush();*/  emf.close();  emf=null;}
+    public void closePersisenceContext() {
+        if(emf!=null)emf.close();
+        emf=null;
+    }
 
     public void reopenPersistentContext(){
+        System.out.println("Start reopen persistent context");
        closePersisenceContext();
        openPersisenceContext();
        model=new ModelDataApp(emf);
        modelStatic =model;
+        System.out.println("Context reopened");
     }
        public void openPersisenceContext()
        { 
            String puName="DB_UNIT";
            if(test)puName="DB_TEST_UNIT";//определение базы для тестов
 
-           if(emf==null)emf=Persistence.createEntityManagerFactory(puName);
+           emf=Persistence.createEntityManagerFactory(puName);
        }
     
        public Stage getMainWindow(){return mainWindow;}
@@ -1725,7 +1730,7 @@ https://gist.github.com/DemkaAge/8999236
 
     @Override
     public void stop() throws Exception {       
-        closePersisenceContext();        
+        closePersisenceContext();
         super.stop(); //To change body of generated methods, choose Tools | Templates.
     } 
     

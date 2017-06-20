@@ -147,7 +147,7 @@ public class AutoUpdater {
 
                         @Override
                         public void completeFile(String s, File file) {
-
+                            System.out.println("Закачан файл "+s);
                         }
 
                         @Override
@@ -157,7 +157,7 @@ public class AutoUpdater {
 
                         @Override
                         public void nextFileStartDownloading(String s, File file) {
-
+                            System.out.println("Начат файл "+s);
                         }
 
                         @Override
@@ -334,7 +334,12 @@ public class AutoUpdater {
             if (buttonType.isPresent()) {
                 if (buttonType.get() == App.getAppController().okButtonType) {
 
-                    App.getAppController().onInstallUpdates();
+                    try {
+                        App.getAppController().onInstallUpdates();
+                    } catch (Exception e) {
+                        setProcessed(false);
+                        setReadyToInstall(false);
+                    }
 
                 } else {
                     setProcessed(false);

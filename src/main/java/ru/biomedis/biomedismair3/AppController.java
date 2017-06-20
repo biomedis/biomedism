@@ -10273,28 +10273,29 @@ return  true;
     }
     //TODO доработать для Мак
     private void ZipDBToBackup() throws PackException {
-        File rootDirApp = AutoUpdater.getAutoUpdater().getRootDirApp();
-        File backupDir = new File(rootDirApp,"backup_db");
-        if(!backupDir.exists()) backupDir.mkdir();
-        File dbDir=null;
-        if(AutoUpdater.isIDEStarted()){
-            dbDir = rootDirApp;
-        }else
-        if(OSValidator.isUnix()){
-            dbDir = new File(rootDirApp,"app");
 
-        }else if(OSValidator.isWindows()){
-            dbDir = new File(rootDirApp,"assets");
+            File rootDirApp = AutoUpdater.getAutoUpdater().getRootDirApp();
+            File backupDir = new File(rootDirApp, "backup_db");
+            if (!backupDir.exists()) backupDir.mkdir();
+            File dbDir = null;
+            if (AutoUpdater.isIDEStarted()) {
+                dbDir = rootDirApp;
+            } else if (OSValidator.isUnix()) {
+                dbDir = new File(rootDirApp, "app");
 
-        }
+            } else if (OSValidator.isWindows()) {
+                dbDir = new File(rootDirApp, "assets");
+
+            }
 
             Packer.packFiles(Stream.of(dbDir.listFiles((dir, name) -> name.endsWith(".db"))).collect(Collectors.toList()),
-                    new File(backupDir, Calendar.getInstance().getTimeInMillis()+".zip"));
+                    new File(backupDir, Calendar.getInstance().getTimeInMillis() + ".zip"));
 
 
     }
 
-    public void onInstallUpdates() {
+    public void onInstallUpdates() throws Exception {
+        getApp().closePersisenceContext();
         try {
             ZipDBToBackup();
         } catch (PackException e) {
@@ -10306,7 +10307,11 @@ return  true;
                         getApp().getMainWindow(), Modality.APPLICATION_MODAL);
 
             });
-            return;
+
+            throw new Exception();
+
+        }finally {
+            getApp().reopenPersistentContext();
         }
         try {
             AutoUpdater.getAutoUpdater().performUpdateTask().thenAccept(v -> {
