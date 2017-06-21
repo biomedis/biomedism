@@ -27,6 +27,28 @@ http://www.oracle.com/webfolder/technetwork/jsc/xml/ns/persistence/persistence_2
         </properties>
     </persistence-unit>
 
+    <persistence-unit name="DB_UNIT_IDE" transaction-type="RESOURCE_LOCAL">
+        <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+        <properties>
+
+            <property name="javax.persistence.jdbc.url" value="jdbc:h2:../mAirDB"/>
+            <property name="javax.persistence.jdbc.password" value="3278"/>
+            <property name="javax.persistence.jdbc.driver" value="org.h2.Driver"/>
+            <property name="javax.persistence.jdbc.user" value="sa"/>
+
+            <property name="useUnicode" value="true"/>
+            <property name="characterEncoding" value="UTF-8"/>
+
+            <property name="eclipselink.target-database" value="org.eclipse.persistence.platform.database.H2Platform"/>
+
+
+            <property name="eclipselink.logging.logger" value="JavaLogger"/>
+            <property name="eclipselink.logging.level.sql" value="FINE"/>
+            <property name="eclipselink.logging.parameters" value="true"/>
+
+        </properties>
+    </persistence-unit>
 </persistence>
 <!--
 eclipselink.ddl-generation :

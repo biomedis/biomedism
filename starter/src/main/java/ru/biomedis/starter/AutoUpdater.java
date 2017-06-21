@@ -11,6 +11,7 @@ import org.anantacreative.updater.Update.AbstractUpdateTaskCreator;
 import org.anantacreative.updater.Update.UpdateActionException;
 import org.anantacreative.updater.Update.UpdateTask;
 import org.anantacreative.updater.Update.XML.XmlUpdateTaskCreator;
+import org.anantacreative.updater.Version;
 import org.anantacreative.updater.VersionCheck.DefineActualVersionError;
 import org.anantacreative.updater.VersionCheck.XML.XmlVersionChecker;
 
@@ -81,6 +82,21 @@ public class AutoUpdater {
         return downloadDir;
     }
 
+    public XmlVersionChecker getVersionChecker(Version currentVersion) throws NotSupportedPlatformException, MalformedURLException {
+        XmlVersionChecker versionChecker = new XmlVersionChecker(currentVersion,
+                new URL(getUpdaterBaseUrl() + "/version.xml"));
+        return versionChecker;
+    }
+
+    private String getUpdaterBaseUrl() throws NotSupportedPlatformException {
+        String updaterBaseURL = "http://www.biomedis.ru/doc/b_mair/updater";
+        if (OSValidator.isWindows()) updaterBaseURL = updaterBaseURL + "/win";
+        else if (OSValidator.isMac()) updaterBaseURL = updaterBaseURL + "/mac";
+        else if (OSValidator.isUnix()) updaterBaseURL = updaterBaseURL + "/linux";
+        else throw new NotSupportedPlatformException();
+        return updaterBaseURL;
+    }
+
     public void startUpdater(boolean silentProcess) {
         if (isProcessed()) {
 
@@ -104,19 +120,12 @@ public class AutoUpdater {
             } catch (Exception e) {
                 updateNotAvailableOnPlatformMessage();
             }
-            String updaterBaseURL = "http://www.biomedis.ru/doc/b_mair/updater";
-            if (OSValidator.isWindows()) updaterBaseURL = updaterBaseURL + "/win";
-            else if (OSValidator.isMac()) updaterBaseURL = updaterBaseURL + "/mac";
-            else if (OSValidator.isUnix()) updaterBaseURL = updaterBaseURL + "/linux";
-            else {
-                updateNotAvailableOnPlatformMessage();
-                return;
-            }
+
+
             setProcessed(true);
             setReadyToInstall(false);
             try {
-                XmlVersionChecker versionChecker = new XmlVersionChecker(App.getAppController().getApp().getVersion(),
-                        new URL(updaterBaseURL + "/version.xml"));
+                XmlVersionChecker versionChecker = getVersionChecker(App.getAppController().getApp().getVersion());
                 if (versionChecker.checkNeedUpdate()) {
 
                     File dlDir = new File(App.getInnerDataDir_(),
@@ -171,7 +180,7 @@ public class AutoUpdater {
 
 
                         }
-                    }, new URL(updaterBaseURL + "/update.xml"));
+                    }, new URL(getUpdaterBaseUrl() + "/update.xml"));
 
                     downloadDir = updater.getDownloadsDir();
                     updater.createTask(false);
@@ -209,6 +218,11 @@ public class AutoUpdater {
                         getRes().getString("prepare_update_error"),
                         App.getAppController().getApp().getMainWindow(), Modality.WINDOW_MODAL));
                 setProcessed(false);
+            } catch (NotSupportedPlatformException e) {
+                setProcessed(false);
+                e.printStackTrace();
+                updateNotAvailableOnPlatformMessage();
+
             }
         });
 
@@ -470,5 +484,8 @@ public class AutoUpdater {
 
     public void onCheckForUpdates(){
         startUpdater(false);
+    }
+
+    public static class NotSupportedPlatformException extends Exception {
     }
 }

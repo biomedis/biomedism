@@ -9,6 +9,8 @@ import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.anantacreative.updater.Version;
+import org.anantacreative.updater.VersionCheck.DefineActualVersionError;
+import org.anantacreative.updater.VersionCheck.XML.XmlVersionChecker;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -16,6 +18,7 @@ import javax.persistence.Persistence;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -132,6 +135,7 @@ public class App extends Application {
     public void openPersisenceContext()
     {
         String puName="DB_UNIT";
+        if(AutoUpdater.isIDEStarted()) puName="DB_UNIT_IDE";
 
 
         emf= Persistence.createEntityManagerFactory(puName);
@@ -196,10 +200,54 @@ public class App extends Application {
 
         System.out.println("Data path: "+dataDir.getAbsolutePath());
 
+        File firstStartFileIndicator=new File(getInnerDataDir(),"fs.ind");
+        if(firstStartFileIndicator.exists()) {
+            System.out.println("Запуск программы. Первый запуск после свежей установки");
+            startMainApp();
+            return;
+        }
+
         /******** Обновления ************/
+            if(!selectIsAutoUpdateEnabled()){
+                System.out.println("Запуск программы, автообновления отключены");
+                startMainApp();
+                return;
+            }
 
+        try {
+            version = selectUpdateVersion();
+            XmlVersionChecker versionChecker = AutoUpdater.getAutoUpdater().getVersionChecker(version);
+            boolean needUpdate = versionChecker.checkNeedUpdate();
+            if(!needUpdate){
+                System.out.println("Запуск программы, обновление не требуется");
+                startMainApp();
+                return;
+            }
+            System.out.println("Актуальная версия" +versionChecker.getActualVersion());
 
-        version =selectUpdateVersion();
+        }catch (AutoUpdater.NotSupportedPlatformException e){
+            Log.logger.error(e.getMessage(),e);
+            System.out.println("Запуск программы, ошибка получения информации об обновлении");
+            startMainApp();
+            return;
+        }catch (MalformedURLException e){
+            Log.logger.error(e.getMessage(),e);
+            System.out.println("Запуск программы, ошибка получения информации об обновлении");
+            startMainApp();
+            return;
+        }catch (DefineActualVersionError e){
+            Log.logger.error(e.getMessage(),e);
+            System.out.println("Запуск программы, ошибка получения информации об обновлении");
+            startMainApp();
+            return;
+        }
+        catch (Exception e){
+            Log.logger.error(e.getMessage(),e);
+            System.out.println("Запуск программы, ошибка получения информации об обновлении");
+            startMainApp();
+            return;
+        }
+
         System.out.println("Current Version: "+version);
 
 
@@ -248,7 +296,43 @@ public class App extends Application {
     }
 
 
+    private void startMainApp(){
 
+        closePersisenceContext();
+
+        if(AutoUpdater.isIDEStarted()) {
+            Platform.exit();
+            return;
+
+        }
+
+        try {
+            File currentJar = new File(App.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            if(!currentJar.getName().endsWith(".jar")) throw new Exception("Не найден путь к jar");
+
+            //TODO Сделать для MacOs
+            final List<String> command = new ArrayList<>();
+            String exec="";
+            if(OSValidator.isUnix()){
+                exec = new File(currentJar.getParentFile(),"../BiomedisMAir4").getAbsolutePath();
+
+            }else if(OSValidator.isWindows()){
+                exec = new File(currentJar.getParentFile(),"../BiomedisMAir4.exe").getAbsolutePath();
+
+            }else return;
+            command.add(exec);
+
+
+            final ProcessBuilder builder = new ProcessBuilder(command);
+            builder.start();
+            //Platform.exit();
+            System.out.println("restartProgram");
+            System.exit(0);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
 
 
@@ -277,19 +361,18 @@ public class App extends Application {
      * Установит значение в  this.updateVersion
      * @return вернет созданную или полученную опцию
      */
-    public Version selectUpdateVersion()
-    {
+    public Version selectUpdateVersion() throws Exception {
         return new Version(4,selectMinor(),selectFix());
     }
 
-    private int selectFix(){
+    private int selectFix() throws Exception {
         return selectOptionIntValue("updateFixVersion");
     }
-    private int selectMinor(){
+    private int selectMinor() throws Exception {
         return selectOptionIntValue("updateVersion");
     }
 
-    public boolean selectIsAutoUpdateEnabled(){
+    public boolean selectIsAutoUpdateEnabled() throws Exception {
        return selectOptionBooleanValue("enable_autoupdate");
     }
 
@@ -299,13 +382,13 @@ public class App extends Application {
         try
         {
             entityManager = emf.createEntityManager();
-           int res = entityManager.createNativeQuery("UPDATE   PROGRAMOPTIONS SET value = :val WHERE name = 'enable_autoupdate'")
-                                  .setParameter("val",val)
+           int res = entityManager.createNativeQuery("UPDATE   PROGRAMOPTIONS as p SET p.value = ? WHERE p.name = 'enable_autoupdate'")
+                                  .setParameter(1,String.valueOf(val))
                                   .executeUpdate();
             if(res!=1) throw new Exception();
 
         }catch (Exception e){
-            throw new RuntimeException("Ошибка установки значения enable_autoupdate");
+            throw new Exception("Ошибка установки значения enable_autoupdate");
 
         }finally {
             if(entityManager!=null)entityManager.close();
@@ -316,22 +399,23 @@ public class App extends Application {
     }
 
 
-    private int  selectOptionIntValue(String name){
+    private int  selectOptionIntValue(String name) throws Exception {
         EntityManager entityManager=null;
         Integer res;
         try
         {
             entityManager = emf.createEntityManager();
             String minor = (String)entityManager
-                                     .createNativeQuery("SELECT value FROM PROGRAMOPTIONS WHERE name = :name LIMIT 1")
-                                     .setParameter("name",name)
+                                     .createNativeQuery("SELECT p.value FROM PROGRAMOPTIONS as p WHERE p.name = ?")
+                                     .setMaxResults(1)
+                                     .setParameter(1,name)
                                      .getSingleResult();
 
               res = Integer.valueOf(minor);
 
 
         }catch (Exception e){
-            throw new RuntimeException("Ошибка получения версии");
+            throw new Exception("Ошибка получения версии",e);
 
         }finally {
             if(entityManager!=null)entityManager.close();
@@ -342,22 +426,23 @@ public class App extends Application {
     }
 
 
-    private boolean  selectOptionBooleanValue(String name){
+    private boolean  selectOptionBooleanValue(String name) throws Exception {
         EntityManager entityManager=null;
         Boolean res;
         try
         {
             entityManager = emf.createEntityManager();
             String minor = (String)entityManager
-                    .createNativeQuery("SELECT value FROM PROGRAMOPTIONS WHERE name = ? LIMIT 1",name)
-                    .setParameter("name",name)
+                    .createNativeQuery("SELECT p.value FROM PROGRAMOPTIONS as p WHERE p.name = ?")
+                    .setMaxResults(1)
+                    .setParameter(1,name)
                     .getSingleResult();
 
             res = Boolean.valueOf(minor);
 
 
         }catch (Exception e){
-            throw new RuntimeException("Ошибка получения версии");
+            throw new Exception("Ошибка получения версии",e);
 
         }finally {
             if(entityManager!=null)entityManager.close();
