@@ -36,8 +36,6 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.*;
 import javafx.util.Duration;
-import org.anantacreative.updater.Pack.Exceptions.PackException;
-import org.anantacreative.updater.Pack.Packer;
 import ru.biomedis.biomedismair3.CellFactories.TextAreaTableCell;
 import ru.biomedis.biomedismair3.Converters.SectionConverter;
 import ru.biomedis.biomedismair3.DBImport.NewDBImport;
@@ -79,7 +77,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static ru.biomedis.biomedismair3.Log.logger;
 
@@ -1314,20 +1311,7 @@ tab5.disableProperty().bind(m2Ready.not());
         /********************/
 
         autoUpdateMenuItem.setSelected(getModel().isAutoUpdateEnable());
-        checkForUpdatesMItm.disableProperty().bind(AutoUpdater.getAutoUpdater().processedProperty());
-        installUpdatesMItm.disableProperty().bind(AutoUpdater.getAutoUpdater().readyToInstallProperty().not());
 
-        checkForUpdatesMItm.setOnAction(event -> {
-            if(AutoUpdater.getAutoUpdater().isProcessed() || AutoUpdater.getAutoUpdater().isPerformAction()) return;
-            onCheckForUpdates();
-        });
-
-        if(autoUpdateMenuItem.isSelected()){
-
-                AutoUpdater.getAutoUpdater().startUpdater(true);
-
-
-        }
     }
 
 
@@ -10271,76 +10255,7 @@ return  true;
 
 
     }
-    //TODO доработать для Мак
-    private void ZipDBToBackup() throws PackException {
 
-            File rootDirApp = AutoUpdater.getAutoUpdater().getRootDirApp();
-            File backupDir = new File(rootDirApp, "backup_db");
-            if (!backupDir.exists()) backupDir.mkdir();
-            File dbDir = null;
-            if (AutoUpdater.isIDEStarted()) {
-                dbDir = rootDirApp;
-            } else if (OSValidator.isUnix()) {
-                dbDir = new File(rootDirApp, "app");
-
-            } else if (OSValidator.isWindows()) {
-                dbDir = new File(rootDirApp, "assets");
-
-            }
-
-            Packer.packFiles(Stream.of(dbDir.listFiles((dir, name) -> name.endsWith(".db"))).collect(Collectors.toList()),
-                    new File(backupDir, Calendar.getInstance().getTimeInMillis() + ".zip"));
-
-
-    }
-
-    public void onInstallUpdates() throws Exception {
-        getApp().closePersisenceContext();
-        try {
-            ZipDBToBackup();
-        } catch (PackException e) {
-            Platform.runLater(() ->  {
-                showExceptionDialog(res.getString("app.update"),
-                        res.getString("backup_error"),
-                        res.getString("process_updateing_stoped"),
-                        e,
-                        getApp().getMainWindow(), Modality.APPLICATION_MODAL);
-
-            });
-
-            throw new Exception();
-
-        }finally {
-            getApp().reopenPersistentContext();
-        }
-        try {
-            AutoUpdater.getAutoUpdater().performUpdateTask().thenAccept(v -> {
-
-                Platform.runLater(() ->  {
-                    showInfoDialog(res.getString("app.update"),
-                            res.getString("all_files_copied"),
-                            res.getString("complete_update"),
-                            getApp().getMainWindow(), Modality.APPLICATION_MODAL);
-                    restartProgram();
-                });
-
-            })
-           //.thenRun(this::restartProgram)
-           .exceptionally(e -> {
-
-               Exception ee;
-               if (e instanceof Exception) ee = (Exception) e;
-               else ee = new Exception(e);
-               Platform.runLater(() -> showExceptionDialog(res.getString("app.update"),
-                       res.getString("processing_updating_files_error"), "", ee,
-                       getApp().getMainWindow(), Modality.APPLICATION_MODAL));
-
-               return null;
-           });
-        } catch (Exception e) {
-
-        }
-    }
 
     private void restartProgram() {
 /*
@@ -10351,7 +10266,7 @@ return  true;
     }
     });
  */
-        if(AutoUpdater.isIDEStarted()) return;
+        //if(AutoUpdater.isIDEStarted()) return;
 
         try {
             File currentJar = new File(AppController.class.getProtectionDomain().getCodeSource().getLocation().toURI());
@@ -10383,9 +10298,7 @@ return  true;
     }
 
 
-    public void onCheckForUpdates(){
-        AutoUpdater.getAutoUpdater().startUpdater(false);
-    }
+
     /***************************************************/
 
 

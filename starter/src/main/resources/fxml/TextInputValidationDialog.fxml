@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<VBox fx:id="rootNode" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.Dialogs.TextInputValidationController">
+   <children>
+      <Label fx:id="contentText" text="%app.msg.input_value" />
+      <HBox alignment="TOP_CENTER" spacing="8.0">
+         <children>
+            <TextField fx:id="input" alignment="TOP_CENTER" maxWidth="1.7976931348623157E308" minWidth="50.0" />
+            <Button fx:id="btnOk" mnemonicParsing="false" onAction="#onSave" text="%app.accept" />
+            <Button fx:id="btnCancel" mnemonicParsing="false" onAction="#onCancel" text="%app.cancel" />
+         </children>
+         <VBox.margin>
+            <Insets bottom="8.0" top="8.0" />
+         </VBox.margin>
+      </HBox>
+   </children>
+   <padding>
+      <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+   </padding>
+</VBox>

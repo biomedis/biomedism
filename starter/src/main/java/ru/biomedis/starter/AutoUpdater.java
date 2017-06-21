@@ -1,24 +1,28 @@
-package ru.biomedis.biomedismair3;
+package ru.biomedis.starter;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Modality;
 import org.anantacreative.updater.FilesUtil;
+import org.anantacreative.updater.Pack.Exceptions.PackException;
+import org.anantacreative.updater.Pack.Packer;
 import org.anantacreative.updater.Update.AbstractUpdateTaskCreator;
 import org.anantacreative.updater.Update.UpdateActionException;
 import org.anantacreative.updater.Update.UpdateTask;
 import org.anantacreative.updater.Update.XML.XmlUpdateTaskCreator;
 import org.anantacreative.updater.VersionCheck.DefineActualVersionError;
 import org.anantacreative.updater.VersionCheck.XML.XmlVersionChecker;
-import ru.biomedis.biomedismair3.utils.OS.OSValidator;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static ru.biomedis.starter.BaseController.getApp;
 
 /**
  * Автообновления
@@ -127,7 +131,7 @@ public class AutoUpdater {
                             System.out.println("Закачали обнову");
                             System.out.println(updateTask.toString());
                             AutoUpdater.updateTask = updateTask;
-                            if (!silentProcess) Platform.runLater(() -> App.getAppController().hideProgressBar(true));
+                            //if (!silentProcess) Platform.runLater(() -> App.getAppController().hideProgressBar(true));
                             toUpdate();
 
 
@@ -162,11 +166,8 @@ public class AutoUpdater {
 
                         @Override
                         public void totalProgress(float v) {
-                            if (!silentProcess) Platform.runLater(() -> App.getAppController()
-                                                                           .setProgressBar(v,
-                                                                                   getRes().getString(
-                                                                                           "downloading_files"),
-                                                                                   ""));
+                           // if (!silentProcess) Platform.runLater(
+                            //        () -> getController().setProgressBar(v,getRes().getString("downloading_files"),""));
 
 
                         }
@@ -235,7 +236,7 @@ public class AutoUpdater {
 
     private void updateNotAvailableOnPlatformMessage() {
         try {
-            App.getStaticModel().disableAutoUpdate();
+            App.disableAutoUpdate();
         } catch (Exception e) {
             Log.logger.error("", e);
         }
@@ -313,7 +314,7 @@ public class AutoUpdater {
 
     private void toUpdate() {
 
-        while (Waiter.isOpen() || CalcLayer.isOpen()) {
+        while (Waiter.isOpen()) {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
@@ -335,7 +336,7 @@ public class AutoUpdater {
                 if (buttonType.get() == App.getAppController().okButtonType) {
 
                     try {
-                        App.getAppController().onInstallUpdates();
+                        onInstallUpdates();
                     } catch (Exception e) {
                         setProcessed(false);
                         setReadyToInstall(false);
@@ -352,5 +353,122 @@ public class AutoUpdater {
         });
     }
 
+    private AppController getController(){return App.getAppController();}
 
+
+    //TODO доработать для Мак
+    private void ZipDBToBackup() throws PackException {
+
+        File rootDirApp = AutoUpdater.getAutoUpdater().getRootDirApp();
+        File backupDir = new File(rootDirApp, "backup_db");
+        if (!backupDir.exists()) backupDir.mkdir();
+        File dbDir = null;
+        if (AutoUpdater.isIDEStarted()) {
+            dbDir = rootDirApp;
+        } else if (OSValidator.isUnix()) {
+            dbDir = new File(rootDirApp, "app");
+
+        } else if (OSValidator.isWindows()) {
+            dbDir = new File(rootDirApp, "assets");
+
+        }
+
+        Packer.packFiles(Stream.of(dbDir.listFiles((dir, name) -> name.endsWith(".db"))).collect(Collectors.toList()),
+                new File(backupDir, Calendar.getInstance().getTimeInMillis() + ".zip"));
+
+
+    }
+
+    public void onInstallUpdates() throws Exception {
+        App.getAppController().getApp().closePersisenceContext();
+        try {
+            ZipDBToBackup();
+        } catch (PackException e) {
+            Platform.runLater(() ->  {
+                getController().showExceptionDialog(getRes().getString("app.update"),
+                        getController().getApp().getResources().getString("backup_error"),
+                        getRes().getString("process_updateing_stoped"),
+                        e,
+                        getApp().getMainWindow(), Modality.APPLICATION_MODAL);
+
+            });
+
+            throw new Exception();
+
+        }finally {
+            getApp().reopenPersistentContext();
+        }
+        try {
+            AutoUpdater.getAutoUpdater().performUpdateTask().thenAccept(v -> {
+
+                Platform.runLater(() ->  {
+                    getController().showInfoDialog(getRes().getString("app.update"),
+                            getRes().getString("all_files_copied"),
+                            getRes().getString("complete_update"),
+                            getApp().getMainWindow(), Modality.APPLICATION_MODAL);
+                    restartProgram();
+                });
+
+            })
+                       //.thenRun(this::restartProgram)
+                       .exceptionally(e -> {
+
+                           Exception ee;
+                           if (e instanceof Exception) ee = (Exception) e;
+                           else ee = new Exception(e);
+                           Platform.runLater(() -> getController().showExceptionDialog(getRes().getString("app.update"),
+                                   getRes().getString("processing_updating_files_error"), "", ee,
+                                   getApp().getMainWindow(), Modality.APPLICATION_MODAL));
+
+                           return null;
+                       });
+        } catch (Exception e) {
+
+        }
+    }
+
+    private void restartProgram() {
+/*
+ Runtime.getRuntime().addShutdownHook(new Thread() {
+    public void run() {
+    ((Window) view).setVisible(false);
+    Runtime.halt(0);
+    }
+    });
+ */
+        if(AutoUpdater.isIDEStarted()) return;
+
+        try {
+            File currentJar = new File(AppController.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+            if(!currentJar.getName().endsWith(".jar")) throw new Exception("Не найден путь к jar");
+
+            //TODO Сделать для MacOs
+            final List<String> command = new ArrayList<>();
+            String exec="";
+            if(OSValidator.isUnix()){
+                exec = new File(currentJar.getParentFile(),"../BiomedisMAir4").getAbsolutePath();
+
+            }else if(OSValidator.isWindows()){
+                exec = new File(currentJar.getParentFile(),"../BiomedisMAir4.exe").getAbsolutePath();
+
+            }else return;
+            command.add(exec);
+
+
+            final ProcessBuilder builder = new ProcessBuilder(command);
+            builder.start();
+            //Platform.exit();
+            System.out.println("restartProgram");
+            System.exit(0);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+
+    }
+
+
+    public void onCheckForUpdates(){
+        startUpdater(false);
+    }
 }

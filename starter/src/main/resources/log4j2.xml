@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="error" >
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%-12date{HH:mm:ss,SSS}  %level{length=1}  [ %F -> %M() ,%n                   thread_name = %t %n ] --> msg = %msg %n  %exception{full}"/>
+        </Console>
+        <RollingFile name="RollingFile" fileName="./logs/log.log" filePattern="./logs/log-%i.log">
+            <PatternLayout>
+                <Pattern>%date{dd.MM.yyyy HH:mm:ss,SSS} %level{length=1}  [ %l  , %n                              thread_name = %t %n ]  --> msg = %msg %n %exception{full}</Pattern>
+            </PatternLayout>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="6 MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="5"/>
+        </RollingFile>
+
+        <Console name="ConsoleHard" target="SYSTEM_OUT">
+            <PatternLayout pattern="%-12date{HH:mm:ss,SSS}  %level{length=1}  [ %l ,%n                   thread_name = %t %n ] --> msg = %msg %n  %exception{full}"/>
+        </Console>
+
+    </Appenders>
+    <Loggers>
+        <Logger name="org.biomedis.starter" level="info"  additivity="false">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="RollingFile" level="error"/>
+        </Logger>
+
+        <Root>
+
+            <AppenderRef ref="ConsoleHard" level="info"/>
+            <AppenderRef ref="RollingFile" level="error"/>
+        </Root>
+
+    </Loggers>
+</Configuration>

@@ -50,7 +50,7 @@ public class App extends Application {
       public static final  String BIOFON_PROFILE_NAME="B_I_O_F_O_N";
       private Version version;
       private static  AppController  controller;
-
+      private int updateFixVersion;
 
 
     /**
@@ -99,7 +99,7 @@ public class App extends Application {
     public ResourceBundle getResources(){return strings;}
       private final boolean test=false;//указывает что будут проводиться интеграционные тесты. Соответсвенно будет подключена другая БД и запущенны тесты
       private final boolean importDB=false;//импорт базы данных
-        private final boolean updateBaseMenuVisible =false;//показ пункта обновления базы частот
+      private final boolean updateBaseMenuVisible =false;//показ пункта обновления базы частот
 
     public boolean isUpdateBaseMenuVisible() {
         return updateBaseMenuVisible;
@@ -158,6 +158,27 @@ public class App extends Application {
             em.getTransaction().commit();
         } catch (Exception ex) {
            logger.error("Ошибка обновления опции updateVersion",ex);
+        } finally {
+            if (em != null) {
+                em.close();
+            }
+        }
+
+    }
+
+
+    private void setUpdateFixVersion(ProgramOptions programOptions,int updateFixVersion) {
+        this.updateFixVersion = updateFixVersion;
+
+        programOptions.setValue(updateFixVersion+"");
+        EntityManager em = null;
+        try {
+            em = emf.createEntityManager();
+            em.getTransaction().begin();
+            em.merge(programOptions);
+            em.getTransaction().commit();
+        } catch (Exception ex) {
+            logger.error("Ошибка обновления опции updateFixVersion",ex);
         } finally {
             if (em != null) {
                 em.close();
@@ -375,7 +396,9 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         //проверка профиля биофона
         checkBiofonProfile();
 
-        //настроим язык программы
+            //установка нижней версии, если все этапы обновления прошли нормально
+            setUpdateFixVersion(selectUpdateFixVersion(),currentMinorVersion);
+            //настроим язык программы
             this.version = new Version(4,getUpdateVersion(),currentMinorVersion);
 
 
@@ -673,7 +696,48 @@ https://gist.github.com/DemkaAge/8999236
 
     }
 
+    /**
+     * Получает значение версии обновления. Если ее вообще нет создасто нулевую
+     * Установит значение в  this.updateFixVersion
+     * @return вернет созданную или полученную опцию
+     */
+    private ProgramOptions selectUpdateFixVersion()
+    {
+        ProgramOptions updateVersion=null;
+        EntityManager em = emf.createEntityManager();
+        Query query=em.createQuery("Select o From ProgramOptions o Where o.name = :name").setMaxResults(1);
+        query.setParameter("name","updateFixVersion");
+        try{
+            updateVersion  =(ProgramOptions )query.getSingleResult();
+            this.updateFixVersion=Integer.parseInt(updateVersion.getValue());
+        }catch (javax.persistence.NoResultException e)
+        {
+            updateVersion=new ProgramOptions();
+            updateVersion.setName("updateFixVersion");
+            updateVersion.setValue("0");
+            em = null;
+            try {
+                em = emf.createEntityManager();
+                em.getTransaction().begin();
+                em.persist(updateVersion);
+                em.getTransaction().commit();
 
+            } finally {
+                if (em != null) {
+                    em.close();
+                }
+            }
+
+            this.updateFixVersion=0;
+
+        }
+
+
+
+
+        return updateVersion;
+
+    }
 
     /**
      * Обновление1 - добавлены пачки частот в мультичестотный режим. Исправлены ошибки.
