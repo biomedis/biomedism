@@ -1,6 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.layout.BorderPane?>
-<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="250.0"  prefWidth="400.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.starter.AppController">
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.web.WebView?>
 
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.starter.AppController">
+   <padding>
+      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+   </padding>
+   <center>
+      <WebView fx:id="webContent" minHeight="-1.0" minWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" BorderPane.alignment="CENTER" />
+   </center>
+   <bottom>
+      <VBox prefHeight="115.0" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets left="5.0" right="5.0" />
+         </BorderPane.margin>
+         <children>
+            <HBox maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="100.0">
+               <children>
+                  <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                     <HBox.margin>
+                        <Insets right="5.0" />
+                     </HBox.margin>
+                     <children>
+                        <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="60.0" spacing="15.0">
+                           <children>
+                              <ProgressIndicator fx:id="versionCheckIndicator" />
+                               <Label fx:id="textInfo" text="Всем привет" HBox.hgrow="ALWAYS" />
+                           </children>
+                        </HBox>
+                        <ProgressBar fx:id="updateIndicator" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="27.0" progress="0.0" VBox.vgrow="NEVER">
+                           <VBox.margin>
+                              <Insets top="7.0" />
+                           </VBox.margin>
+                        </ProgressBar>
+                     </children>
+                  </VBox>
+                  <VBox alignment="BOTTOM_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="150.0" spacing="8.0" HBox.hgrow="SOMETIMES">
+                     <children>
+                        <Button fx:id="installUpdatesBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onInstallUpdates" text="Установить обновления" />
+                        <Button fx:id="startProgram" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onStartProgram" text="Запустить программу" />
+                     </children>
+                     <padding>
+                        <Insets bottom="8.0" />
+                     </padding>
+                  </VBox>
+               </children>
+            </HBox>
+            <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="20.0">
+               <children>
+                  <Hyperlink fx:id="linkMain" text="Сайт компании Biomedis" />
+                  <Hyperlink fx:id="linkArticles" text="Статьи" />
+                  <Hyperlink fx:id="linkForum" text="Форум" />
+                  <Hyperlink fx:id="linkVideo" text="Видео" />
+                  <Hyperlink fx:id="linkEducation" text="Обучение" />
+                  <Hyperlink fx:id="linkVideoM" text="Видеоуроки BiomedisM" />
+               </children></HBox>
+         </children>
+      </VBox>
+   </bottom>
 </BorderPane>
