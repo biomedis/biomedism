@@ -4,7 +4,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Group?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
@@ -109,7 +108,6 @@
                   <MenuItem mnemonicParsing="false" onAction="#onLanguageInsertComplexOption" text="%app.menu.insert_language" />
                   <MenuItem mnemonicParsing="false" onAction="#onCodecOptions" text="%app.menu.codecpath" />
                   <MenuItem fx:id="dataPathMenuItem" mnemonicParsing="false" onAction="#onPathMenuItemAction" text="%app.ui.options.data_path" />
-                  <CheckMenuItem fx:id="autoUpdateMenuItem" mnemonicParsing="false" onAction="#onAutoUpdateSwitch" text="%app.menu.auto_update" />
               </items>
             </Menu>
           <Menu mnemonicParsing="false" text="%app.menu.help">

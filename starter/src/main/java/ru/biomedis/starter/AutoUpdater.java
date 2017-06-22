@@ -2,11 +2,8 @@ package ru.biomedis.starter;
 
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.scene.control.ButtonType;
 import javafx.stage.Modality;
 import org.anantacreative.updater.FilesUtil;
-import org.anantacreative.updater.Pack.Exceptions.PackException;
-import org.anantacreative.updater.Pack.Packer;
 import org.anantacreative.updater.Update.AbstractUpdateTaskCreator;
 import org.anantacreative.updater.Update.UpdateActionException;
 import org.anantacreative.updater.Update.UpdateTask;
@@ -18,12 +15,10 @@ import org.anantacreative.updater.VersionCheck.XML.XmlVersionChecker;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static ru.biomedis.starter.BaseController.getApp;
 
 /**
  * Автообновления
@@ -97,7 +92,24 @@ public class AutoUpdater {
         return updaterBaseURL;
     }
 
-    public void startUpdater(boolean silentProcess) {
+    public interface Listener {
+        void taskCompleted();
+
+        void error(Exception e);
+
+        void completeFile(String name);
+
+        void currentFileProgress(float val);
+
+        void nextFileStartDownloading(String name);
+
+        void totalProgress(float val);
+    }
+
+
+
+
+    public void startUpdater(Version currentVersion,Listener listener) {
         if (isProcessed()) {
 
             Platform.runLater(() -> App.getAppController().showWarningDialog(
@@ -125,7 +137,7 @@ public class AutoUpdater {
             setProcessed(true);
             setReadyToInstall(false);
             try {
-                XmlVersionChecker versionChecker = getVersionChecker(App.getAppController().getApp().getVersion());
+                XmlVersionChecker versionChecker = getVersionChecker(currentVersion);
                 if (versionChecker.checkNeedUpdate()) {
 
                     File dlDir = new File(App.getInnerDataDir_(),
@@ -138,45 +150,49 @@ public class AutoUpdater {
                         @Override
                         public void taskCompleted(UpdateTask updateTask, File rootDirApp, File downloadDir) {
                             System.out.println("Закачали обнову");
-                            System.out.println(updateTask.toString());
                             AutoUpdater.updateTask = updateTask;
-                            //if (!silentProcess) Platform.runLater(() -> App.getAppController().hideProgressBar(true));
-                            toUpdate();
-
-
+                            setProcessed(false);
+                            setReadyToInstall(true);
+                            listener.taskCompleted();
                         }
 
                         @Override
                         public void error(Exception e) {
                             setProcessed(false);
                             Log.logger.error("", e);
+                            listener.error(e);
+                            /*
                             Platform.runLater(() -> App.getAppController().showErrorDialog(
                                     getRes().getString("app.update"),
                                     "",
                                     getRes().getString("get_update_error")
                                     , App.getAppController().getApp().getMainWindow(),
                                     Modality.WINDOW_MODAL));
+                                    */
+
+
                         }
 
                         @Override
                         public void completeFile(String s, File file) {
                             System.out.println("Закачан файл "+s);
+                            listener.completeFile(s);
                         }
 
                         @Override
                         public void currentFileProgress(float v) {
-
+                            listener.currentFileProgress(v);
                         }
 
                         @Override
                         public void nextFileStartDownloading(String s, File file) {
                             System.out.println("Начат файл "+s);
+                            listener.nextFileStartDownloading(s);
                         }
 
                         @Override
                         public void totalProgress(float v) {
-                           // if (!silentProcess) Platform.runLater(
-                            //        () -> getController().setProgressBar(v,getRes().getString("downloading_files"),""));
+                            listener.totalProgress(v);
 
 
                         }
@@ -187,41 +203,41 @@ public class AutoUpdater {
 
                 } else {
                     setProcessed(false);
-                    if (!silentProcess) Platform.runLater(() -> App.getAppController().showWarningDialog(
-                            getRes().getString("app.update"),
-                            getRes().getString("updates_absent"),
-                            "", App.getAppController().getApp().getMainWindow(),
-                            Modality.WINDOW_MODAL));
-
-                    return;
-
                 }
 
             } catch (MalformedURLException e) {
-                Platform.runLater(() -> App.getAppController().showErrorDialog(
+                listener.error(e);
+               /* Platform.runLater(() -> App.getAppController().showErrorDialog(
                         getRes().getString("acces_to_update_server"),
                         getRes().getString("update_server_access_error"),
                         getRes().getString("yarovaya_is_here_censored"),
                         App.getAppController().getApp().getMainWindow(), Modality.WINDOW_MODAL));
+                        */
                 setProcessed(false);
             } catch (DefineActualVersionError e) {
+                listener.error(e);
+                /*
                 Platform.runLater(() -> App.getAppController().showErrorDialog(
                         getRes().getString("define_update_version"),
                         getRes().getString("data_retrieve_error"),
                         getRes().getString("yarovaya_is_here_censored"),
                         App.getAppController().getApp().getMainWindow(),
                         Modality.WINDOW_MODAL));
+                */
                 setProcessed(false);
 
             } catch (AbstractUpdateTaskCreator.CreateUpdateTaskError e) {
-                Platform.runLater(() -> App.getAppController().showErrorDialog(getRes().getString("app.update"), "",
+                listener.error(e);
+               /* Platform.runLater(() -> App.getAppController().showErrorDialog(getRes().getString("app.update"), "",
                         getRes().getString("prepare_update_error"),
                         App.getAppController().getApp().getMainWindow(), Modality.WINDOW_MODAL));
+                        */
                 setProcessed(false);
             } catch (NotSupportedPlatformException e) {
+                listener.error(e);
                 setProcessed(false);
-                e.printStackTrace();
-                updateNotAvailableOnPlatformMessage();
+
+               // updateNotAvailableOnPlatformMessage();
 
             }
         });
@@ -278,7 +294,7 @@ public class AutoUpdater {
     }
 
     /**
-     * Совершает обновление, асинхронно. Рестарт программы нужно делать самим уже после окончания обновления
+     * Совершает обновление, асинхронно.
      *
      * @return CompletableFuture
      */
@@ -326,120 +342,12 @@ public class AutoUpdater {
         }
     }
 
-    private void toUpdate() {
 
-        while (Waiter.isOpen()) {
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                setProcessed(false);
-                return;
-            }
-        }
-
-
-        Platform.runLater(() -> {
-            Optional<ButtonType> buttonType = App.getAppController()
-                                                 .showConfirmationDialog(getRes().getString("app.update"),
-                                                         getRes().getString("ready_for_update"),
-                                                         getRes().getString("update_ask"),
-                                                         App.getAppController().getApp().getMainWindow(),
-                                                         Modality.APPLICATION_MODAL);
-            if (buttonType.isPresent()) {
-                if (buttonType.get() == App.getAppController().okButtonType) {
-
-                    try {
-                        onInstallUpdates();
-                    } catch (Exception e) {
-                        setProcessed(false);
-                        setReadyToInstall(false);
-                    }
-
-                } else {
-                    setProcessed(false);
-                    setReadyToInstall(true);
-                }
-            } else {
-                setProcessed(false);
-                setReadyToInstall(true);
-            }
-        });
-    }
 
     private AppController getController(){return App.getAppController();}
 
 
-    //TODO доработать для Мак
-    private void ZipDBToBackup() throws PackException {
 
-        File rootDirApp = AutoUpdater.getAutoUpdater().getRootDirApp();
-        File backupDir = new File(rootDirApp, "backup_db");
-        if (!backupDir.exists()) backupDir.mkdir();
-        File dbDir = null;
-        if (AutoUpdater.isIDEStarted()) {
-            dbDir = rootDirApp;
-        } else if (OSValidator.isUnix()) {
-            dbDir = new File(rootDirApp, "app");
-
-        } else if (OSValidator.isWindows()) {
-            dbDir = new File(rootDirApp, "assets");
-
-        }
-
-        Packer.packFiles(Stream.of(dbDir.listFiles((dir, name) -> name.endsWith(".db"))).collect(Collectors.toList()),
-                new File(backupDir, Calendar.getInstance().getTimeInMillis() + ".zip"));
-
-
-    }
-
-    public void onInstallUpdates() throws Exception {
-        App.getAppController().getApp().closePersisenceContext();
-        try {
-            ZipDBToBackup();
-        } catch (PackException e) {
-            Platform.runLater(() ->  {
-                getController().showExceptionDialog(getRes().getString("app.update"),
-                        getController().getApp().getResources().getString("backup_error"),
-                        getRes().getString("process_updateing_stoped"),
-                        e,
-                        getApp().getMainWindow(), Modality.APPLICATION_MODAL);
-
-            });
-
-            throw new Exception();
-
-        }finally {
-            getApp().reopenPersistentContext();
-        }
-        try {
-            AutoUpdater.getAutoUpdater().performUpdateTask().thenAccept(v -> {
-
-                Platform.runLater(() ->  {
-                    getController().showInfoDialog(getRes().getString("app.update"),
-                            getRes().getString("all_files_copied"),
-                            getRes().getString("complete_update"),
-                            getApp().getMainWindow(), Modality.APPLICATION_MODAL);
-                    restartProgram();
-                });
-
-            })
-                       //.thenRun(this::restartProgram)
-                       .exceptionally(e -> {
-
-                           Exception ee;
-                           if (e instanceof Exception) ee = (Exception) e;
-                           else ee = new Exception(e);
-                           Platform.runLater(() -> getController().showExceptionDialog(getRes().getString("app.update"),
-                                   getRes().getString("processing_updating_files_error"), "", ee,
-                                   getApp().getMainWindow(), Modality.APPLICATION_MODAL));
-
-                           return null;
-                       });
-        } catch (Exception e) {
-
-        }
-    }
 
     private void restartProgram() {
 /*
@@ -482,9 +390,7 @@ public class AutoUpdater {
     }
 
 
-    public void onCheckForUpdates(){
-        startUpdater(false);
-    }
+
 
     public static class NotSupportedPlatformException extends Exception {
     }

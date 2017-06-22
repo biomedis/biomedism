@@ -8,9 +8,6 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.anantacreative.updater.Version;
-import org.anantacreative.updater.VersionCheck.DefineActualVersionError;
-import org.anantacreative.updater.VersionCheck.XML.XmlVersionChecker;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -18,7 +15,6 @@ import javax.persistence.Persistence;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -41,18 +37,12 @@ public class App extends Application {
     private  static  File tmpDir;
 
 
-    private Version version;
+
     private static  AppController  controller;
 
 
 
-    /**
-     * текущая реальная версия после применения обновлений
-     * @return
-     */
-    public Version getVersion() {
-        return version;
-    }
+
 
 
 
@@ -114,11 +104,7 @@ public class App extends Application {
     }
 
 
-    private int updateVersion=0;//версия установленного обновления
 
-    public int getUpdateVersion() {
-        return updateVersion;
-    }
 
 
     public void closePersisenceContext() {
@@ -144,6 +130,9 @@ public class App extends Application {
     public Stage getMainWindow(){return mainWindow;}
 
 
+    public EntityManagerFactory getEntityManagerFactory(){
+        return emf;
+    }
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -208,47 +197,9 @@ public class App extends Application {
         }
 
         /******** Обновления ************/
-            if(!selectIsAutoUpdateEnabled()){
-                System.out.println("Запуск программы, автообновления отключены");
-                startMainApp();
-                return;
-            }
 
-        try {
-            version = selectUpdateVersion();
-            XmlVersionChecker versionChecker = AutoUpdater.getAutoUpdater().getVersionChecker(version);
-            boolean needUpdate = versionChecker.checkNeedUpdate();
-            if(!needUpdate){
-                System.out.println("Запуск программы, обновление не требуется");
-                startMainApp();
-                return;
-            }
-            System.out.println("Актуальная версия" +versionChecker.getActualVersion());
 
-        }catch (AutoUpdater.NotSupportedPlatformException e){
-            Log.logger.error(e.getMessage(),e);
-            System.out.println("Запуск программы, ошибка получения информации об обновлении");
-            startMainApp();
-            return;
-        }catch (MalformedURLException e){
-            Log.logger.error(e.getMessage(),e);
-            System.out.println("Запуск программы, ошибка получения информации об обновлении");
-            startMainApp();
-            return;
-        }catch (DefineActualVersionError e){
-            Log.logger.error(e.getMessage(),e);
-            System.out.println("Запуск программы, ошибка получения информации об обновлении");
-            startMainApp();
-            return;
-        }
-        catch (Exception e){
-            Log.logger.error(e.getMessage(),e);
-            System.out.println("Запуск программы, ошибка получения информации об обновлении");
-            startMainApp();
-            return;
-        }
 
-        System.out.println("Current Version: "+version);
 
 
 
@@ -258,7 +209,7 @@ public class App extends Application {
 
 
         BaseController.setApp(this);//установим ссылку на приложение для всех контроллеров
-        stage.setTitle(this.strings.getString("app.name")+" "+version);
+        stage.setTitle(this.strings.getString("app.name"));
         URL ico = getClass().getResource("/images/icon.png");
         stage.getIcons().add(new Image(ico.toExternalForm()));
 
@@ -296,7 +247,7 @@ public class App extends Application {
     }
 
 
-    private void startMainApp(){
+    protected void startMainApp(){
 
         closePersisenceContext();
 
@@ -346,7 +297,6 @@ public class App extends Application {
         try(FileWriter fw=new FileWriter(file) )
         {
             Calendar dt = Calendar.getInstance();
-            fw.write(getUpdateVersion()+"\n");
             fw.write(dt.getTimeInMillis() +"\n");
             fw.write(dt.getTime() +"\n");
         }
@@ -355,102 +305,6 @@ public class App extends Application {
 
 
 
-
-    /**
-     * Получает значение версии обновления. Если ее вообще нет создасто нулевую
-     * Установит значение в  this.updateVersion
-     * @return вернет созданную или полученную опцию
-     */
-    public Version selectUpdateVersion() throws Exception {
-        return new Version(4,selectMinor(),selectFix());
-    }
-
-    private int selectFix() throws Exception {
-        return selectOptionIntValue("updateFixVersion");
-    }
-    private int selectMinor() throws Exception {
-        return selectOptionIntValue("updateVersion");
-    }
-
-    public boolean selectIsAutoUpdateEnabled() throws Exception {
-       return selectOptionBooleanValue("enable_autoupdate");
-    }
-
-    public void setAutoUpdateEnabled(boolean val) throws Exception{
-        EntityManager entityManager=null;
-
-        try
-        {
-            entityManager = emf.createEntityManager();
-           int res = entityManager.createNativeQuery("UPDATE   PROGRAMOPTIONS as p SET p.value = ? WHERE p.name = 'enable_autoupdate'")
-                                  .setParameter(1,String.valueOf(val))
-                                  .executeUpdate();
-            if(res!=1) throw new Exception();
-
-        }catch (Exception e){
-            throw new Exception("Ошибка установки значения enable_autoupdate");
-
-        }finally {
-            if(entityManager!=null)entityManager.close();
-        }
-
-
-
-    }
-
-
-    private int  selectOptionIntValue(String name) throws Exception {
-        EntityManager entityManager=null;
-        Integer res;
-        try
-        {
-            entityManager = emf.createEntityManager();
-            String minor = (String)entityManager
-                                     .createNativeQuery("SELECT p.value FROM PROGRAMOPTIONS as p WHERE p.name = ?")
-                                     .setMaxResults(1)
-                                     .setParameter(1,name)
-                                     .getSingleResult();
-
-              res = Integer.valueOf(minor);
-
-
-        }catch (Exception e){
-            throw new Exception("Ошибка получения версии",e);
-
-        }finally {
-            if(entityManager!=null)entityManager.close();
-        }
-
-
-        return res;
-    }
-
-
-    private boolean  selectOptionBooleanValue(String name) throws Exception {
-        EntityManager entityManager=null;
-        Boolean res;
-        try
-        {
-            entityManager = emf.createEntityManager();
-            String minor = (String)entityManager
-                    .createNativeQuery("SELECT p.value FROM PROGRAMOPTIONS as p WHERE p.name = ?")
-                    .setMaxResults(1)
-                    .setParameter(1,name)
-                    .getSingleResult();
-
-            res = Boolean.valueOf(minor);
-
-
-        }catch (Exception e){
-            throw new Exception("Ошибка получения версии",e);
-
-        }finally {
-            if(entityManager!=null)entityManager.close();
-        }
-
-
-        return res;
-    }
 
     @Override
     public void stop() throws Exception {

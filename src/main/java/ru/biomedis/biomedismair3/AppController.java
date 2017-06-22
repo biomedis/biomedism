@@ -1310,20 +1310,12 @@ tab5.disableProperty().bind(m2Ready.not());
         });
         /********************/
 
-        autoUpdateMenuItem.setSelected(getModel().isAutoUpdateEnable());
+
 
     }
 
 
-    @FXML private CheckMenuItem autoUpdateMenuItem;
-    public void onAutoUpdateSwitch(){
-        if(autoUpdateMenuItem.isSelected()){
-            getModel().enableAutoUpdate();
-        }
-        else{
-            getModel().disableAutoUpdate();
-        }
-    }
+
 
    @FXML private AnchorPane tab5_content;
     private SimpleBooleanProperty m2Ready =new SimpleBooleanProperty(false);
