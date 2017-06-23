@@ -85,6 +85,10 @@
 
     -fx-background-color: blue;
 }
+.GreenColorLabel{
+
+    -fx-color-label-visible: green;
+}
 
 .UploadBtn
 {

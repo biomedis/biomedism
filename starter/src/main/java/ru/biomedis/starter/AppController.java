@@ -54,7 +54,7 @@ public class AppController extends BaseController {
 
         } catch (Exception e) {
             Log.logger.error("Ошибка определения версии программы", e);
-            disableUpdate();
+            disableUpdateAndEnableStartProgram();
             setTextInfo("Ошибка определения версии программы");
             showErrorImage();
         }
@@ -69,24 +69,26 @@ public class AppController extends BaseController {
         hideErrorImage();
         hideVersionCheckIndicator();
         hideUpdateProgress();
-
-
-
-
-
     }
 
 
     public void onInstallUpdates(){
+        disableUpdateAndStartProgram();
+        showVersonCheckIndicator();
         AutoUpdater.getAutoUpdater().startUpdater(version, new AutoUpdater.Listener() {
             @Override
             public void taskCompleted() {
 
+                Platform.runLater(() -> {
+                    setTextInfo("Обновление готово к установке");
+                    showDoneImage();
+                    disableUpdateAndEnableStartProgram();
+                });
             }
 
             @Override
             public void error(Exception e) {
-
+                disableUpdateAndEnableStartProgram();
             }
 
             @Override
@@ -106,7 +108,8 @@ public class AppController extends BaseController {
 
             @Override
             public void totalProgress(float val) {
-
+                System.out.println(val);
+                setUpdateProgress(val);
             }
         });
     }
@@ -158,9 +161,9 @@ public class AppController extends BaseController {
         updateIndicator.setVisible(false);
     }
 
-    private void setUpdateProgress(int persentVal){
+    private void setUpdateProgress(double persentVal){
         updateIndicator.setVisible(true);
-        updateIndicator.setProgress(Double.valueOf(persentVal));
+        updateIndicator.setProgress(persentVal/100.0);
     }
 
     private void setTextInfo(String text){
@@ -193,7 +196,7 @@ public class AppController extends BaseController {
                           })
                           .exceptionally(e->{
                               Log.logger.error("Ошибка определения актуальной версии",e);
-                              disableUpdate();
+                              disableUpdateAndEnableStartProgram();
                               showErrorImage();
                               printVersionCheckError();
                               return null;
@@ -201,19 +204,19 @@ public class AppController extends BaseController {
 
         } catch (AutoUpdater.NotSupportedPlatformException e) {
             Log.logger.error("Ошибка определения актуальной версии",e);
-            disableUpdate();
+            disableUpdateAndEnableStartProgram();
             showErrorImage();
             printVersionCheckError();
         } catch (MalformedURLException e) {
             Log.logger.error("Ошибка определения актуальной версии",e);
-            disableUpdate();
+            disableUpdateAndEnableStartProgram();
             showErrorImage();
             printVersionCheckError();
         }
     }
 
 
-    private void disableUpdate(){
+    private void disableUpdateAndEnableStartProgram(){
         installUpdatesBtn.setDisable(true);
         startProgramBtn.setDisable(false);
     }
