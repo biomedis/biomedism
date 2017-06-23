@@ -25,6 +25,11 @@ public class Waiter extends BaseController
 
 
     @Override
+    protected void onCompletedInitialise() {
+
+    }
+
+    @Override
     public void setParams(Object... params) {
 
     }

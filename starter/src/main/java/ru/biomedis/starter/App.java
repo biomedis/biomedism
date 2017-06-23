@@ -26,9 +26,9 @@ import java.util.ResourceBundle;
  */
 public class App extends Application {
 
-    public EntityManagerFactory emf=null;
+    private EntityManagerFactory emf=null;
     //public  ResourceBundle config=null;
-    public ResourceBundle strings=null;
+    private ResourceBundle strings=null;
     private Stage mainWindow=null;
 
 
@@ -220,6 +220,9 @@ public class App extends Application {
         Parent root = fxmlLoader.load();
         controller = (AppController )fxmlLoader.getController();
         BaseController.setMainController(controller);
+        controller.setWindow(stage);
+        controller.onCompletedInitialise();
+
 
         /*********************************/
 

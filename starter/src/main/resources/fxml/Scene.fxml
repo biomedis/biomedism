@@ -6,8 +6,10 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.web.WebView?>
 
@@ -33,7 +35,15 @@
                      <children>
                         <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" prefHeight="60.0" spacing="15.0">
                            <children>
-                              <ProgressIndicator fx:id="versionCheckIndicator" />
+                              <StackPane>
+                                 <children>
+                                    <ImageView fitHeight="60" fitWidth="60" pickOnBounds="true" preserveRatio="true" fx:id="errorImage" />
+                                    <ImageView fitHeight="60" fitWidth="60" pickOnBounds="true" preserveRatio="true" fx:id="doneImage" />
+                                    <ProgressIndicator fx:id="versionCheckIndicator" />
+
+                                 </children>
+                              </StackPane>
+
                                <Label fx:id="textInfo" text="Всем привет" HBox.hgrow="ALWAYS" />
                            </children>
                         </HBox>
@@ -47,7 +57,7 @@
                   <VBox alignment="BOTTOM_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="150.0" spacing="8.0" HBox.hgrow="SOMETIMES">
                      <children>
                         <Button fx:id="installUpdatesBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onInstallUpdates" text="Установить обновления" />
-                        <Button fx:id="startProgram" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onStartProgram" text="Запустить программу" />
+                        <Button fx:id="startProgramBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onStartProgram" text="Запустить программу" />
                      </children>
                      <padding>
                         <Insets bottom="8.0" />

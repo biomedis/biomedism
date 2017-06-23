@@ -50,7 +50,10 @@ public abstract class BaseController implements Initializable {
         return window;
     }
 
-
+    /**
+     * Вызывается после завершиния инициализации контроллера
+     */
+    protected abstract void onCompletedInitialise();
 
 
     public void setWindow(Stage win) {
@@ -116,7 +119,7 @@ public abstract class BaseController implements Initializable {
 
 
         URL location = app.getClass().getResource(fxml);
-        FXMLLoader fxmlLoader = new FXMLLoader(location, app.strings);
+        FXMLLoader fxmlLoader = new FXMLLoader(location, app.getResources());
         Parent root = fxmlLoader.load();
         BaseController controller = (BaseController) fxmlLoader.getController();
         controller.setWindow(dlg);
@@ -167,7 +170,7 @@ public abstract class BaseController implements Initializable {
 
 
         URL location = app.getClass().getResource(fxml);
-        FXMLLoader fxmlLoader = new FXMLLoader(location, app.strings);
+        FXMLLoader fxmlLoader = new FXMLLoader(location, app.getResources());
         Parent root = fxmlLoader.load();
         BaseController controller = (BaseController) fxmlLoader.getController();
         controller.setWindow(dlg);
@@ -215,7 +218,7 @@ public abstract class BaseController implements Initializable {
 
 
         URL location = app.getClass().getResource(fxml);
-        FXMLLoader fxmlLoader = new FXMLLoader(location, app.strings);
+        FXMLLoader fxmlLoader = new FXMLLoader(location, app.getResources());
         Parent root = fxmlLoader.load();
         BaseController controller = (BaseController) fxmlLoader.getController();
         controller.setWindow(dlg);
@@ -266,7 +269,7 @@ public abstract class BaseController implements Initializable {
 
 
         URL location = app.getClass().getResource(fxml);
-        FXMLLoader fxmlLoader = new FXMLLoader(location, app.strings);
+        FXMLLoader fxmlLoader = new FXMLLoader(location, app.getResources());
         fxmlLoader.setBuilderFactory(new JavaFXBuilderFactory());
         Parent root = fxmlLoader.load();
         BaseController controller = (BaseController) fxmlLoader.getController();
@@ -292,7 +295,7 @@ public abstract class BaseController implements Initializable {
 
 
         URL location = app.getClass().getResource(fxml);
-        FXMLLoader fxmlLoader = new FXMLLoader(location, app.strings);
+        FXMLLoader fxmlLoader = new FXMLLoader(location, app.getResources());
         fxmlLoader.setBuilderFactory(new JavaFXBuilderFactory());
         Parent root = fxmlLoader.load();
         BaseController controller = (BaseController) fxmlLoader.getController();
