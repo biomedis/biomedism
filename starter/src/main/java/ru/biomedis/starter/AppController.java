@@ -32,6 +32,7 @@ public class AppController extends BaseController {
     @FXML private Hyperlink linkVideoM;
     @FXML private ImageView errorImage;
     @FXML private ImageView doneImage;
+    @FXML private Label currentFileProgress;
     private Version version=null;
 
     @Override
@@ -69,6 +70,7 @@ public class AppController extends BaseController {
         hideErrorImage();
         hideVersionCheckIndicator();
         hideUpdateProgress();
+        hideCurrentFileProgress();
     }
 
 
@@ -98,7 +100,7 @@ public class AppController extends BaseController {
 
             @Override
             public void currentFileProgress(float val) {
-
+                Platform.runLater(() -> showCurrentFileProgress(val));
             }
 
             @Override
@@ -114,6 +116,15 @@ public class AppController extends BaseController {
         });
     }
 
+    private  void showCurrentFileProgress(float val){
+        currentFileProgress.setVisible(true);
+        currentFileProgress.setText(Math.round(val)+"%");
+    }
+
+    private void hideCurrentFileProgress(){
+        currentFileProgress.setVisible(false);
+    }
+
     public void hideErrorImage(){
         errorImage.setVisible(false);
     }
@@ -122,6 +133,7 @@ public class AppController extends BaseController {
         errorImage.setVisible(true);
         hideVersionCheckIndicator();
         hideDoneImage();
+        hideCurrentFileProgress();
     }
 
     public void hideDoneImage(){
@@ -132,6 +144,7 @@ public class AppController extends BaseController {
         doneImage.setVisible(true);
         hideVersionCheckIndicator();
         hideErrorImage();
+        hideCurrentFileProgress();
     }
     private void initErrorImage(){
         URL errImgUrl = getClass().getResource("/images/error.png");
@@ -146,8 +159,6 @@ public class AppController extends BaseController {
     private void hideVersionCheckIndicator(){
         versionCheckIndicator.setProgress(-1);
         versionCheckIndicator.setVisible(false);
-
-
     }
 
     private void showVersonCheckIndicator(){
@@ -155,6 +166,7 @@ public class AppController extends BaseController {
         versionCheckIndicator.setVisible(true);
         hideErrorImage();
         hideDoneImage();
+        currentFileProgress.setText("");
     }
 
     private void hideUpdateProgress(){

@@ -11,6 +11,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.web.WebView?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.starter.AppController">
@@ -37,8 +38,12 @@
                            <children>
                               <StackPane>
                                  <children>
-                                    <ImageView fitHeight="60" fitWidth="60" pickOnBounds="true" preserveRatio="true" fx:id="errorImage" />
-                                    <ImageView fitHeight="60" fitWidth="60" pickOnBounds="true" preserveRatio="true" fx:id="doneImage" />
+                                    <Label fx:id="currentFileProgress" text="0%">
+                                       <font>
+                                          <Font size="11.0" />
+                                       </font></Label>
+                                    <ImageView fx:id="errorImage" fitHeight="60" fitWidth="60" pickOnBounds="true" preserveRatio="true" />
+                                    <ImageView fx:id="doneImage" fitHeight="60" fitWidth="60" pickOnBounds="true" preserveRatio="true" />
                                     <ProgressIndicator fx:id="versionCheckIndicator" />
 
                                  </children>
