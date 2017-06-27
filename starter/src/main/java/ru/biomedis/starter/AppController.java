@@ -1,18 +1,25 @@
 package ru.biomedis.starter;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.web.WebView;
-import javafx.stage.Modality;
 import org.anantacreative.updater.Pack.Exceptions.PackException;
+import org.anantacreative.updater.Update.AbstractUpdateTaskCreator;
+import org.anantacreative.updater.Update.UpdateException;
+import org.anantacreative.updater.Update.UpdateTask;
 import org.anantacreative.updater.Version;
+import org.anantacreative.updater.VersionCheck.DefineActualVersionError;
 import org.anantacreative.updater.VersionCheck.XML.XmlVersionChecker;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 
@@ -46,6 +53,7 @@ public class AppController extends BaseController {
 
     @Override
     protected void onCompletedInitialise() {
+        initLinks();
         try {
             version = DataHelper.selectUpdateVersion();
             getControllerWindow().setTitle(getRes().getString("app.name")+" "+version);
@@ -56,7 +64,7 @@ public class AppController extends BaseController {
         } catch (Exception e) {
             Log.logger.error("Ошибка определения версии программы", e);
             disableUpdateAndEnableStartProgram();
-            setTextInfo("Ошибка определения версии программы");
+            setTextInfo(getRes().getString("define_version_program_error"));
             showErrorImage();
         }
     }
@@ -71,26 +79,44 @@ public class AppController extends BaseController {
         hideVersionCheckIndicator();
         hideUpdateProgress();
         hideCurrentFileProgress();
+
     }
 
 
     public void onInstallUpdates(){
+        setTextInfo(getRes().getString("downloading_files"));
         disableUpdateAndStartProgram();
         showVersonCheckIndicator();
         AutoUpdater.getAutoUpdater().startUpdater(version, new AutoUpdater.Listener() {
             @Override
             public void taskCompleted() {
 
+
                 Platform.runLater(() -> {
-                    setTextInfo("Обновление готово к установке");
-                    showDoneImage();
-                    disableUpdateAndEnableStartProgram();
+                    setTextInfo(getRes().getString("ready_for_update"));
+
                 });
+
+                performUpdate();
             }
 
             @Override
             public void error(Exception e) {
-                disableUpdateAndEnableStartProgram();
+
+                Platform.runLater(() -> {
+                    String cause="";
+                    if(e instanceof MalformedURLException) cause =getRes().getString("get_update_error");
+                    else   if(e instanceof DefineActualVersionError) cause =getRes().getString("define_update_version");
+                    else   if(e instanceof DefineActualVersionError) cause =getRes().getString("define_update_version");
+                    else   if(e instanceof AbstractUpdateTaskCreator.CreateUpdateTaskError) cause =getRes().getString("prepare_update_error");
+                    else   if(e instanceof AutoUpdater.NotSupportedPlatformException) cause =getRes().getString("platform_updates_not_av");
+
+
+                    setTextInfo(cause);
+                    showErrorImage();
+                    disableUpdateAndEnableStartProgram();
+                    Waiter.closeLayer();
+                });
             }
 
             @Override
@@ -110,11 +136,127 @@ public class AppController extends BaseController {
 
             @Override
             public void totalProgress(float val) {
-                System.out.println(val);
-                setUpdateProgress(val);
+                Platform.runLater(() -> setUpdateProgress(val));
             }
         });
     }
+
+    private void performUpdate() {
+        Platform.runLater(() -> {
+            showVersonCheckIndicator();
+            setTextInfo(getRes().getString("createDB_backup"));
+            Waiter.openLayer(App.getAppController().getApp().getMainWindow(), true);
+        });
+
+        try {
+            App.getAppController().getApp().closePersisenceContext();
+            DataHelper.ZipDBToBackup();
+        } catch (PackException e) {
+
+            Platform.runLater(() ->  {
+                setTextInfo(getRes().getString("process_updateing_stoped")+" "+getApp().getResources().getString("backup_error"));
+                showErrorImage();
+                disableUpdateAndEnableStartProgram();
+                Waiter.closeLayer();
+            });
+
+        }finally {
+            getApp().reopenPersistentContext();
+        }
+
+
+        Platform.runLater(() -> setTextInfo(getRes().getString("files_install")));
+
+        setUpdateProgress(0);
+        try {
+            AutoUpdater.getAutoUpdater().performUpdateTask(new UpdateTask.UpdateListener() {
+                @Override
+                public void progress(int i) {
+                   Platform.runLater(() -> setUpdateProgress(i));
+                }
+
+                @Override
+                public void completed() {
+                    Platform.runLater(() -> {
+                        setTextInfo(getRes().getString("complete_update"));
+                        showDoneImage();
+                        disableUpdateAndEnableStartProgram();
+                        Waiter.closeLayer();
+                    });
+
+                }
+
+                @Override
+                public void error(UpdateException e) {
+                    Platform.runLater(() -> {
+                        setTextInfo(getRes().getString("processing_updating_files_error"));
+                        showErrorImage();
+                        disableUpdateAndEnableStartProgram();
+                        Waiter.closeLayer();
+                    });
+                }
+            });
+        } catch (Exception e){
+
+            if(e instanceof AutoUpdater.UpdateInProcessException) Log.logger.info("Обновление уже процессе.");
+            else {
+                Log.logger.error("",e);
+                setTextInfo(getRes().getString("processing_updating_files_error"));
+                showErrorImage();
+                disableUpdateAndEnableStartProgram();
+                Platform.runLater(() -> Waiter.closeLayer());
+            }
+        }
+    }
+
+
+    private enum LINKS{
+        MAIN,
+        ARTICLES,
+        FORUM,
+        VIDEO,
+        EDUCATION,
+        VIDEO_M
+    }
+
+
+
+    private Map<LINKS, String> links = new HashMap<>();
+
+    public void initLinks(){
+        initLinksMap();
+
+       linkMain.setOnAction(linkAction(LINKS.MAIN));
+       linkArticles.setOnAction(linkAction(LINKS.ARTICLES));
+       linkForum.setOnAction(linkAction(LINKS.FORUM));
+       linkVideo.setOnAction(linkAction(LINKS.VIDEO));
+       linkEducation.setOnAction(linkAction(LINKS.EDUCATION));
+       linkVideoM.setOnAction(linkAction(LINKS.VIDEO_M));
+    }
+
+
+    private void initLinksMap(){
+        //TODO формирование по языку
+        links.put(LINKS.MAIN,"");
+        links.put(LINKS.ARTICLES,"");
+        links.put(LINKS.FORUM,"");
+        links.put(LINKS.VIDEO,"");
+        links.put(LINKS.EDUCATION,"");
+        links.put(LINKS.VIDEO_M,"");
+    }
+
+    private EventHandler<ActionEvent> linkAction(LINKS type){
+        return event -> {
+            if(event.getSource() instanceof Hyperlink) ((Hyperlink)event.getSource()).setVisited(false);
+            openLinkInBrowser(links.get(type));
+        };
+    }
+
+    private void openLinkInBrowser(String link){
+        DefaultBrowserCaller.openInBrowser(link);
+    }
+
+
 
     private  void showCurrentFileProgress(float val){
         currentFileProgress.setVisible(true);
@@ -195,11 +337,12 @@ public class AppController extends BaseController {
                           .thenAccept(v->{
                               System.out.println("Актуальная версия" +versionChecker.getActualVersion());
                               if(v){
-                                  setTextInfo("Текущая версия: "+ version +". Версия для обновления: " + versionChecker.getActualVersion());
+                                  setTextInfo(getRes().getString("current_version")+ version +". "+getRes().getString("actual_version")+" " + versionChecker.getActualVersion());
                                   hideVersionCheckIndicator();
                                   enableUpdateAndStartProgram();
                               }else {
-                                  setTextInfo("Текущая версия: "+ version +". Обновления не требуются.");
+                                  showDoneImage();
+                                  setTextInfo(getRes().getString("updates_absent"));
                                   hideVersionCheckIndicator();
                                   enableUpdateAndStartProgram();
                               }
@@ -244,59 +387,7 @@ public class AppController extends BaseController {
     }
 
     private void printVersionCheckError(){
-        Platform.runLater(() -> setTextInfo("Порверка наличия обновлений завершилась с ошибкой. Попробуйте повторить позже."));
+
+        Platform.runLater(() -> setTextInfo(getRes().getString("define_update_version")));
     }
-
-
-
-
-
-    public void installUpdates() throws Exception {
-        App.getAppController().getApp().closePersisenceContext();
-        try {
-            DataHelper.ZipDBToBackup();
-        } catch (PackException e) {
-            Platform.runLater(() ->  {
-                showExceptionDialog(getRes().getString("app.update"),
-                        getApp().getResources().getString("backup_error"),
-                        getRes().getString("process_updateing_stoped"),
-                        e,
-                        getApp().getMainWindow(), Modality.APPLICATION_MODAL);
-
-            });
-
-            throw new Exception();
-
-        }finally {
-            getApp().reopenPersistentContext();
-        }
-        try {
-            AutoUpdater.getAutoUpdater().performUpdateTask().thenAccept(v -> {
-
-                Platform.runLater(() ->  {
-                    showInfoDialog(getRes().getString("app.update"),
-                            getRes().getString("all_files_copied"),
-                            getRes().getString("complete_update"),
-                            getApp().getMainWindow(), Modality.APPLICATION_MODAL);
-                   // restartProgram();
-                });
-
-            })
-                       //.thenRun(this::restartProgram)
-                       .exceptionally(e -> {
-
-                           Exception ee;
-                           if (e instanceof Exception) ee = (Exception) e;
-                           else ee = new Exception(e);
-                           Platform.runLater(() -> showExceptionDialog(getRes().getString("app.update"),
-                                   getRes().getString("processing_updating_files_error"), "", ee,
-                                   getApp().getMainWindow(), Modality.APPLICATION_MODAL));
-
-                           return null;
-                       });
-        } catch (Exception e) {
-
-        }
-    }
-
 }

@@ -5,7 +5,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.stage.Modality;
 import org.anantacreative.updater.FilesUtil;
 import org.anantacreative.updater.Update.AbstractUpdateTaskCreator;
-import org.anantacreative.updater.Update.UpdateActionException;
+import org.anantacreative.updater.Update.UpdateException;
 import org.anantacreative.updater.Update.UpdateTask;
 import org.anantacreative.updater.Update.XML.XmlUpdateTaskCreator;
 import org.anantacreative.updater.Version;
@@ -161,14 +161,6 @@ public class AutoUpdater {
                             setProcessed(false);
                             Log.logger.error("", e);
                             listener.error(e);
-                            /*
-                            Platform.runLater(() -> App.getAppController().showErrorDialog(
-                                    getRes().getString("app.update"),
-                                    "",
-                                    getRes().getString("get_update_error")
-                                    , App.getAppController().getApp().getMainWindow(),
-                                    Modality.WINDOW_MODAL));
-                                    */
 
 
                         }
@@ -207,37 +199,19 @@ public class AutoUpdater {
 
             } catch (MalformedURLException e) {
                 listener.error(e);
-               /* Platform.runLater(() -> App.getAppController().showErrorDialog(
-                        getRes().getString("acces_to_update_server"),
-                        getRes().getString("update_server_access_error"),
-                        getRes().getString("yarovaya_is_here_censored"),
-                        App.getAppController().getApp().getMainWindow(), Modality.WINDOW_MODAL));
-                        */
                 setProcessed(false);
             } catch (DefineActualVersionError e) {
                 listener.error(e);
-                /*
-                Platform.runLater(() -> App.getAppController().showErrorDialog(
-                        getRes().getString("define_update_version"),
-                        getRes().getString("data_retrieve_error"),
-                        getRes().getString("yarovaya_is_here_censored"),
-                        App.getAppController().getApp().getMainWindow(),
-                        Modality.WINDOW_MODAL));
-                */
                 setProcessed(false);
 
             } catch (AbstractUpdateTaskCreator.CreateUpdateTaskError e) {
                 listener.error(e);
-               /* Platform.runLater(() -> App.getAppController().showErrorDialog(getRes().getString("app.update"), "",
-                        getRes().getString("prepare_update_error"),
-                        App.getAppController().getApp().getMainWindow(), Modality.WINDOW_MODAL));
-                        */
                 setProcessed(false);
             } catch (NotSupportedPlatformException e) {
                 listener.error(e);
                 setProcessed(false);
 
-               // updateNotAvailableOnPlatformMessage();
+                updateNotAvailableOnPlatformMessage();
 
             }
         });
@@ -298,48 +272,60 @@ public class AutoUpdater {
      *
      * @return CompletableFuture
      */
-    public CompletableFuture<Void> performUpdateTask() throws Exception {
-        setReadyToInstall(false);
-        if (isPerformAction()) throw new Exception();
-        Platform.runLater(() -> Waiter.openLayer(App.getAppController().getApp().getMainWindow(), true));
-        setPerformAction(true);
-        CompletableFuture<Void> future = new CompletableFuture<>();
+    public void performUpdateTask(UpdateTask.UpdateListener listener) throws Exception {
 
-        CompletableFuture.runAsync(this::makeUpdateActions)
-                         .thenAccept(v -> {
-                             setProcessed(false);
+           setReadyToInstall(false);
+           setProcessed(true);
+           if (isPerformAction()) throw new UpdateInProcessException();
+           setPerformAction(true);
+           makeUpdateActions(listener)
+                   .thenAccept(v -> {
+                       FilesUtil.recursiveClear(getDownloadUpdateDir());
+                       setProcessed(false);
+                       setPerformAction(false);
+                       listener.completed();
 
-                             FilesUtil.recursiveClear(getDownloadUpdateDir());
-                             future.complete(null);
-                             setPerformAction(false);
-                             Platform.runLater(() -> Waiter.closeLayer());
+                   })
+                   .exceptionally(e -> {
+                       setProcessed(false);
+                       setPerformAction(false);
+                       listener.error(new UpdateException(e));
+                       return null;
+                   });
 
-                         })
-                         .exceptionally(e -> {
 
-                             setProcessed(false);
-                             future.completeExceptionally(e);
-                             setPerformAction(false);
-                             Platform.runLater(() -> Waiter.closeLayer());
-                             return null;
-                         });
 
-        return future;
+
+
     }
 
-    private void makeUpdateActions() {
+    private  CompletableFuture<Void> makeUpdateActions(UpdateTask.UpdateListener listener) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
         if (updateTask != null) {
-            setProcessed(true);
-            try {
 
-                updateTask.update();
-                setProcessed(false);
-            } catch (UpdateActionException e) {
-                setProcessed(false);
-                throw new RuntimeException(e);
-            }
+                updateTask.update(new UpdateTask.UpdateListener() {
+                    @Override
+                    public void progress(int i) {
+                        listener.progress(i);
+                    }
 
-        }
+                    @Override
+                    public void completed() {
+                        future.complete(null);
+                    }
+
+                    @Override
+                    public void error(UpdateException e) {
+                        listener.error(e);
+
+                       future.completeExceptionally(e);
+                    }
+                });
+
+
+
+        }else future.completeExceptionally(new NullPointerException("listener == null"));
+        return future;
     }
 
 
@@ -347,6 +333,9 @@ public class AutoUpdater {
     private AppController getController(){return App.getAppController();}
 
 
+    public static class UpdateInProcessException extends Exception{
+
+    }
 
 
     private void restartProgram() {

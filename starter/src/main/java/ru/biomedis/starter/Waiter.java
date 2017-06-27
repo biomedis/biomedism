@@ -50,7 +50,7 @@ public class Waiter extends BaseController
     {
         Stage dlg = new Stage(StageStyle.TRANSPARENT);
         dlg.initOwner(owner);
-        dlg.initModality(Modality.WINDOW_MODAL);
+        dlg.initModality(Modality.APPLICATION_MODAL);
 
 
         URL location = getApp().getClass().getResource("/fxml/waiter.fxml");
