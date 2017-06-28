@@ -37,11 +37,7 @@ public class App extends Application {
 
 
     private static  AppController  controller;
-
-
-
-
-
+    private Locale programLocale;
 
 
     public File getTmpDir() {
@@ -205,7 +201,7 @@ public class App extends Application {
 
 
         BaseController.setApp(this);//установим ссылку на приложение для всех контроллеров
-        setLocale();
+        programLocale = setLocale();
         //загрузим перевод интерфейса на выбранный язык!
         this.strings= ResourceBundle.getBundle("bundles.strings", new UTF8Control());
 
@@ -249,10 +245,22 @@ public class App extends Application {
 
     }
 
-    private void setLocale() {
+    /**
+     * Локаль установленная для лаунчера
+     * @return
+     */
+    public Locale getProgramLocale(){
+        return programLocale;
+    }
+    private Locale setLocale() {
         Locale systemLocale= Locale.getDefault();
         boolean hasLocale = getAvailableLangs().stream().filter(l -> l.getLanguage().equals(systemLocale.getLanguage())).count() >0;
-        if(!hasLocale)  Locale.setDefault(new Locale("en"));
+        if(!hasLocale)  {
+            Locale defaultLocale = new Locale("en");
+            Locale.setDefault(defaultLocale);
+            return defaultLocale;
+        }
+        else return systemLocale;
 
     }
 

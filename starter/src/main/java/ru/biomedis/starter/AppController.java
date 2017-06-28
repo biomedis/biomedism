@@ -19,6 +19,7 @@ import org.anantacreative.updater.VersionCheck.XML.XmlVersionChecker;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -37,6 +38,7 @@ public class AppController extends BaseController {
     @FXML private Hyperlink linkVideo;
     @FXML private Hyperlink linkEducation;
     @FXML private Hyperlink linkVideoM;
+    @FXML private Hyperlink linkContacts;
     @FXML private ImageView errorImage;
     @FXML private ImageView doneImage;
     @FXML private Label currentFileProgress;
@@ -216,33 +218,64 @@ public class AppController extends BaseController {
         FORUM,
         VIDEO,
         EDUCATION,
-        VIDEO_M
+        VIDEO_M,
+        CONTACTS
     }
 
 
 
     private Map<LINKS, String> links = new HashMap<>();
 
+
     public void initLinks(){
         initLinksMap();
+        initLinkNames();
+        initLinksAction();
+    }
 
-       linkMain.setOnAction(linkAction(LINKS.MAIN));
-       linkArticles.setOnAction(linkAction(LINKS.ARTICLES));
-       linkForum.setOnAction(linkAction(LINKS.FORUM));
-       linkVideo.setOnAction(linkAction(LINKS.VIDEO));
-       linkEducation.setOnAction(linkAction(LINKS.EDUCATION));
-       linkVideoM.setOnAction(linkAction(LINKS.VIDEO_M));
+
+    private void initLinksAction(){
+        linkMain.setOnAction(linkAction(LINKS.MAIN));
+        linkArticles.setOnAction(linkAction(LINKS.ARTICLES));
+        linkForum.setOnAction(linkAction(LINKS.FORUM));
+        linkVideo.setOnAction(linkAction(LINKS.VIDEO));
+        linkEducation.setOnAction(linkAction(LINKS.EDUCATION));
+        linkVideoM.setOnAction(linkAction(LINKS.VIDEO_M));
+        linkContacts.setOnAction(linkAction(LINKS.CONTACTS));
+    }
+
+    private void initLinkNames(){
+        if(!getApp().getProgramLocale().getLanguage().equals(new Locale("ru"))){
+            linkMain.setText("Biomedis company website");
+            linkArticles.setText("Articles");
+            linkForum.setText("Forum");
+            linkContacts.setText("Contacts");
+            linkVideo.setVisible(false);
+            linkEducation.setVisible(false);
+            linkVideoM.setVisible(false);
+        }
     }
 
 
     private void initLinksMap(){
-        //TODO формирование по языку
-        links.put(LINKS.MAIN,"");
-        links.put(LINKS.ARTICLES,"");
-        links.put(LINKS.FORUM,"");
-        links.put(LINKS.VIDEO,"");
-        links.put(LINKS.EDUCATION,"");
-        links.put(LINKS.VIDEO_M,"");
+
+        if(getApp().getProgramLocale().getLanguage().equals(new Locale("ru"))) {
+            links.put(LINKS.MAIN, "http://biomedis.ru");
+            links.put(LINKS.ARTICLES, "http://biomedis.ru");
+            links.put(LINKS.FORUM, "http://biomedis.ru");
+            links.put(LINKS.VIDEO, "http://biomedis.ru");
+            links.put(LINKS.EDUCATION, "http://biomedis.ru");
+            links.put(LINKS.VIDEO_M, "http://biomedis.ru");
+            links.put(LINKS.CONTACTS, "http://www.biomedis.ru/contact_office.php");
+        }else {
+            links.put(LINKS.MAIN, "http://biomedis.ru/en/");
+            links.put(LINKS.ARTICLES, "http://biomedis.ru/en/allarticle.php");
+            links.put(LINKS.FORUM, "http://forum.biomedis.ru/");
+            links.put(LINKS.VIDEO, "http://biomedis.ru/en/");
+            links.put(LINKS.EDUCATION, "http://biomedis.ru/en/");
+            links.put(LINKS.VIDEO_M, "http://biomedis.ru/en/");
+            links.put(LINKS.CONTACTS, "http://www.biomedis.ru/en/contact.php");
+        }
     }
 
     private EventHandler<ActionEvent> linkAction(LINKS type){
@@ -253,7 +286,7 @@ public class AppController extends BaseController {
     }
 
     private void openLinkInBrowser(String link){
-        DefaultBrowserCaller.openInBrowser(link);
+        DefaultBrowserCaller.openInBrowser(link,getApp());
     }
 
 
