@@ -8,6 +8,7 @@ import org.anantacreative.updater.Version;
 import javax.persistence.EntityManager;
 import java.io.File;
 import java.util.Calendar;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -123,6 +124,31 @@ public class DataHelper {
         return res;
     }
 
+    /**
+     * Список доступных языков программы
+     * @return
+     * @throws Exception
+     */
+    public static List<String> selectAvailableLangs() throws Exception {
+        EntityManager entityManager=null;
+        List<String> res;
+        try
+        {
+            entityManager = getApp().getEntityManagerFactory().createEntityManager();
+            res = entityManager
+                    .createNativeQuery("SELECT l.abbr FROM `LANGUAGE` as l WHERE l.AVALIABLE  = ?")
+                    .setParameter(1,true)
+                    .getResultList();
 
+        }catch (Exception e){
+            throw new Exception("Ошибка получения языков",e);
+
+        }finally {
+            if(entityManager!=null)entityManager.close();
+        }
+
+
+        return res;
+    }
 
 }

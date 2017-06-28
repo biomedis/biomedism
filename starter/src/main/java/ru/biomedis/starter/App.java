@@ -16,10 +16,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by anama on 21.06.17.
@@ -204,11 +202,13 @@ public class App extends Application {
 
 
 
-        //загрузим перевод интерфейса на выбранный язык!
-        this.strings= ResourceBundle.getBundle("bundles.strings", new UTF8Control());
 
 
         BaseController.setApp(this);//установим ссылку на приложение для всех контроллеров
+        setLocale();
+        //загрузим перевод интерфейса на выбранный язык!
+        this.strings= ResourceBundle.getBundle("bundles.strings", new UTF8Control());
+
         stage.setTitle(this.strings.getString("app.name"));
         URL ico = getClass().getResource("/images/icon.png");
         stage.getIcons().add(new Image(ico.toExternalForm()));
@@ -247,6 +247,22 @@ public class App extends Application {
         stage.show();
 
 
+    }
+
+    private void setLocale() {
+        Locale systemLocale= Locale.getDefault();
+        boolean hasLocale = getAvailableLangs().stream().filter(l -> l.getLanguage().equals(systemLocale.getLanguage())).count() >0;
+        if(!hasLocale)  Locale.setDefault(new Locale("en"));
+
+    }
+
+    private List<Locale> getAvailableLangs() {
+        try {
+            return DataHelper.selectAvailableLangs().stream().map(l->new Locale(l)).collect(Collectors.toList());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.EMPTY_LIST;
+        }
     }
 
 

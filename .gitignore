@@ -19,4 +19,9 @@ BiomedisMAir3.iml
 /backup_db/
 /starter/target/
 /starter/starter.iml
+/starter/runtime/
+/starter/backup_db/
+/starter/app
+/starter/data/
+/starter/docs/
 
