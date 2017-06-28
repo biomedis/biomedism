@@ -228,7 +228,7 @@ public class AppController extends BaseController {
 
 
     public void initLinks(){
-        initLinksMap();
+        initLinksURL();
         initLinkNames();
         initLinksAction();
     }
@@ -245,7 +245,7 @@ public class AppController extends BaseController {
     }
 
     private void initLinkNames(){
-        if(!getApp().getProgramLocale().getLanguage().equals(new Locale("ru"))){
+        if(!isRussianLocale()){
             linkMain.setText("Biomedis company website");
             linkArticles.setText("Articles");
             linkForum.setText("Forum");
@@ -257,15 +257,15 @@ public class AppController extends BaseController {
     }
 
 
-    private void initLinksMap(){
+    private void initLinksURL(){
 
-        if(getApp().getProgramLocale().getLanguage().equals(new Locale("ru"))) {
+        if(isRussianLocale()) {
             links.put(LINKS.MAIN, "http://biomedis.ru");
-            links.put(LINKS.ARTICLES, "http://biomedis.ru");
-            links.put(LINKS.FORUM, "http://biomedis.ru");
-            links.put(LINKS.VIDEO, "http://biomedis.ru");
-            links.put(LINKS.EDUCATION, "http://biomedis.ru");
-            links.put(LINKS.VIDEO_M, "http://biomedis.ru");
+            links.put(LINKS.ARTICLES, "http://biomedis.ru/allarticle.php");
+            links.put(LINKS.FORUM, "http://http://forum.biomedis.ru/");
+            links.put(LINKS.VIDEO, "https://www.youtube.com/user/BiomedisRu");
+            links.put(LINKS.EDUCATION, "http://biomedis.ru/education.php");
+            links.put(LINKS.VIDEO_M, "http://biomedis.ru/biomedis_m_new_videouroki_2.php");
             links.put(LINKS.CONTACTS, "http://www.biomedis.ru/contact_office.php");
         }else {
             links.put(LINKS.MAIN, "http://biomedis.ru/en/");
@@ -276,6 +276,10 @@ public class AppController extends BaseController {
             links.put(LINKS.VIDEO_M, "http://biomedis.ru/en/");
             links.put(LINKS.CONTACTS, "http://www.biomedis.ru/en/contact.php");
         }
+    }
+
+    private boolean isRussianLocale(){
+        return getApp().getProgramLocale().getLanguage().equals(new Locale("ru").getLanguage());
     }
 
     private EventHandler<ActionEvent> linkAction(LINKS type){
