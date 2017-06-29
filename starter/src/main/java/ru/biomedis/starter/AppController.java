@@ -1,6 +1,5 @@
 package ru.biomedis.starter;
 
-import io.vertx.core.json.JsonObject;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -10,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.anantacreative.updater.Pack.Exceptions.PackException;
 import org.anantacreative.updater.Update.AbstractUpdateTaskCreator;
@@ -23,6 +23,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 
 public class AppController extends BaseController {
@@ -66,6 +67,7 @@ public class AppController extends BaseController {
             checkActualVersion();
             loadWebContent();
 
+
         } catch (Exception e) {
             Log.logger.error("Ошибка определения версии программы", e);
             disableUpdateAndEnableStartProgram();
@@ -75,30 +77,38 @@ public class AppController extends BaseController {
     }
 
     private void loadWebContent() {
-        CompletableFuture<JsonObject> news;
+        CompletableFuture<List<NewsProvider.News>> news;
         if(isRussianLocale()) {
-             news = NewsProvider.getRusNews();
-        }else  news = NewsProvider.getEngNews();
+             news = NewsProvider.getRusNews(11);
+        }else  news = NewsProvider.getEngNews(11);
 
-        news.thenAccept(n->addBlocToWebContent( buildNewsBlock(n) ))
+        news.thenAccept(n-> addBlockToWebContent( buildNewsBlock(n) ))
             .exceptionally(ex ->{ reactionOnLoadWebContentException(ex); return null;} );
 
     }
 
     private void reactionOnLoadWebContentException(Throwable t){
+       t.printStackTrace();
+    }
+
+    private void addBlockToWebContent(Parent block){
+
+        Platform.runLater(() -> centerLayout.getChildren().add(block));
 
     }
 
-    private void addBlocToWebContent(Parent block){
+    private Parent buildNewsBlock(List<NewsProvider.News> news){
 
-        centerLayout.getChildren().add(block);
-
-    }
-
-    private Parent buildNewsBlock(JsonObject news){
         VBox vBox=new VBox(5);
-
-        return vBox;
+        vBox.setMaxWidth(Double.MAX_VALUE);
+            vBox.getChildren().addAll(news.stream().map(n->{
+               return new NewsView(n.getUrl(),n.getTitle(),n.getDate(),getRes().getString("extended"),getApp()).getNode();
+            }).collect(Collectors.toList()));
+        ScrollPane sp = new ScrollPane(vBox);
+        sp.setMaxWidth(Double.MAX_VALUE);
+        sp.setStyle("-fx-border-color: white");
+        HBox.setHgrow(sp, Priority.ALWAYS);
+        return sp;
     }
 
 
