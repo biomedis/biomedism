@@ -89,6 +89,7 @@ public class AppController extends BaseController {
 
     private void reactionOnLoadWebContentException(Throwable t){
        t.printStackTrace();
+
     }
 
     private void addBlockToWebContent(Parent block){
@@ -106,7 +107,8 @@ public class AppController extends BaseController {
             }).collect(Collectors.toList()));
         ScrollPane sp = new ScrollPane(vBox);
         sp.setMaxWidth(Double.MAX_VALUE);
-        sp.setStyle("-fx-border-color: white");
+        sp.setStyle("-fx-border-color: white;");
+
         HBox.setHgrow(sp, Priority.ALWAYS);
         return sp;
     }
