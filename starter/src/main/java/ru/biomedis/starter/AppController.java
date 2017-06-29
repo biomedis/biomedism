@@ -1,13 +1,16 @@
 package ru.biomedis.starter;
 
+import io.vertx.core.json.JsonObject;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.web.WebView;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import org.anantacreative.updater.Pack.Exceptions.PackException;
 import org.anantacreative.updater.Update.AbstractUpdateTaskCreator;
 import org.anantacreative.updater.Update.UpdateException;
@@ -18,17 +21,15 @@ import org.anantacreative.updater.VersionCheck.XML.XmlVersionChecker;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 
 public class AppController extends BaseController {
 
     @FXML private Button installUpdatesBtn;
     @FXML private Button startProgramBtn;
-    @FXML private WebView webContent;
+
     @FXML private ProgressIndicator versionCheckIndicator;
     @FXML private Label textInfo;
     @FXML private ProgressBar updateIndicator;
@@ -42,6 +43,8 @@ public class AppController extends BaseController {
     @FXML private ImageView errorImage;
     @FXML private ImageView doneImage;
     @FXML private Label currentFileProgress;
+    @FXML private HBox centerLayout;
+
     private Version version=null;
 
     @Override
@@ -61,7 +64,7 @@ public class AppController extends BaseController {
             getControllerWindow().setTitle(getRes().getString("app.name")+" "+version);
             System.out.println("Current Version: "+version);
             checkActualVersion();
-            //webContent.getEngine().load("http://biomedis.ru");
+            loadWebContent();
 
         } catch (Exception e) {
             Log.logger.error("Ошибка определения версии программы", e);
@@ -70,6 +73,35 @@ public class AppController extends BaseController {
             showErrorImage();
         }
     }
+
+    private void loadWebContent() {
+        CompletableFuture<JsonObject> news;
+        if(isRussianLocale()) {
+             news = NewsProvider.getRusNews();
+        }else  news = NewsProvider.getEngNews();
+
+        news.thenAccept(n->addBlocToWebContent( buildNewsBlock(n) ))
+            .exceptionally(ex ->{ reactionOnLoadWebContentException(ex); return null;} );
+
+    }
+
+    private void reactionOnLoadWebContentException(Throwable t){
+
+    }
+
+    private void addBlocToWebContent(Parent block){
+
+        centerLayout.getChildren().add(block);
+
+    }
+
+    private Parent buildNewsBlock(JsonObject news){
+        VBox vBox=new VBox(5);
+
+        return vBox;
+    }
+
+
 
 
     @Override
@@ -81,6 +113,7 @@ public class AppController extends BaseController {
         hideVersionCheckIndicator();
         hideUpdateProgress();
         hideCurrentFileProgress();
+
 
     }
 

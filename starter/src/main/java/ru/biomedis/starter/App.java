@@ -237,6 +237,7 @@ public class App extends Application {
         //перед закрытием произойдет уведомление всех подписчиков и закрытие глобальных контекстов
         stage.setOnCloseRequest(event -> {
             closeAppListeners.stream().forEach(listeners->listeners.onClose());
+            WebHelper.getWebHelper().close();
         });
 
 
