@@ -849,20 +849,27 @@ public class ModelDataApp {
     public Complex createComplex(String name,String description,Section parent,boolean isOwnerSystem,Language lang) throws Exception
     {
         
+        return createComplex( name, description, parent, isOwnerSystem, lang, 0);
+    }
+
+    public Complex createComplex(String name,String description,Section parent,boolean isOwnerSystem,Language lang,int timeForFreq) throws Exception
+    {
+
         Complex complex=new Complex();
         complex.setOwnerSystem(isOwnerSystem);
-        complex.setSection(parent);        
+        complex.setSection(parent);
         Strings sName=null;
         Strings sDescr=null;
         complex.setUuid(UUID.randomUUID().toString());
+        complex.setTimeForFreq(timeForFreq);
 
         try
         {
-         sName= createString(name, lang);
-         sDescr= createString(description, lang);
-         complex.setDescription(sDescr);
-         complex.setName(sName);
-         complexDAO.create(complex);
+            sName= createString(name, lang);
+            sDescr= createString(description, lang);
+            complex.setDescription(sDescr);
+            complex.setName(sName);
+            complexDAO.create(complex);
         }
         catch(Exception ex)
         {
@@ -872,7 +879,7 @@ public class ModelDataApp {
         }
         return complex;
     }
-    
+
     public void removeComplex(Complex complex) throws Exception
     {
         //УДАЛИТЬ ТЕРАПЕВТ

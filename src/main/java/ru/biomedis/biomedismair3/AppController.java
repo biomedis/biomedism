@@ -1149,7 +1149,7 @@ public class AppController  extends BaseController {
                         //добавляется комплекс в биофон
                         Complex c = (Complex) selectedItem.getValue();
                         try {
-                            TherapyComplex th = getModel().createTherapyComplex(getApp().getBiofonProfile(), c, 180,3,getInsertComplexLang());
+                            TherapyComplex th = getModel().createTherapyComplex(getApp().getBiofonProfile(), c, c.getTimeForFreq()==0?180:c.getTimeForFreq(),3,getInsertComplexLang());
 
                             addComplexToBiofonTab(th);
 
@@ -1167,7 +1167,7 @@ public class AppController  extends BaseController {
                         Complex c = (Complex) selectedItem.getValue();
 
                         try {
-                            TherapyComplex th = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), c, 300,3,getInsertComplexLang());
+                            TherapyComplex th = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), c, c.getTimeForFreq()==0?180:c.getTimeForFreq(),3,getInsertComplexLang());
 
                             //therapyComplexItems.clear();
                             //therapyComplexItems содержит отслеживаемый список, элементы которого добавляются в таблицу. Его не нужно очищать

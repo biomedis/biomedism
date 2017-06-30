@@ -1,10 +1,8 @@
 package ru.biomedis.biomedismair3.entity;
 
 import java.io.Serializable;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleLongProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+
+import javafx.beans.property.*;
 
 import javax.persistence.*;
 @Access(AccessType.PROPERTY)
@@ -19,16 +17,28 @@ public class Complex implements Serializable,IEntity,INamed,IDescriptioned {
    private final SimpleObjectProperty<Section> section=new SimpleObjectProperty<>();
    private final SimpleBooleanProperty ownerSystem =new SimpleBooleanProperty();
     private final SimpleStringProperty uuid=new SimpleStringProperty();
+    private final SimpleIntegerProperty timeForFreq = new SimpleIntegerProperty();
 
     private final SimpleStringProperty nameString=new SimpleStringProperty("#");
     private final SimpleStringProperty descriptionString=new SimpleStringProperty("#");
-   
+
    
 
     public Complex() {
 
     }
 
+    public int getTimeForFreq() {
+        return timeForFreq.get();
+    }
+    @Transient
+    public SimpleIntegerProperty timeForFreqProperty() {
+        return timeForFreq;
+    }
+
+    public void setTimeForFreq(int timeForFreq) {
+        this.timeForFreq.set(timeForFreq);
+    }
 
     public String getUuid() {
         return uuid.get();

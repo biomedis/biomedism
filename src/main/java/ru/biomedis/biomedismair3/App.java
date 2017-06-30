@@ -99,7 +99,7 @@ public class App extends Application {
     public ResourceBundle getResources(){return strings;}
       private final boolean test=false;//указывает что будут проводиться интеграционные тесты. Соответсвенно будет подключена другая БД и запущенны тесты
       private final boolean importDB=false;//импорт базы данных
-      private final boolean updateBaseMenuVisible =false;//показ пункта обновления базы частот
+      private final boolean updateBaseMenuVisible =true;//показ пункта обновления базы частот
 
     public boolean isUpdateBaseMenuVisible() {
         return updateBaseMenuVisible;
@@ -302,7 +302,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         /******** Обновления ************/
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
-        int currentUpdateFile=8;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
+        int currentUpdateFile=9;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
         int currentMinorVersion=0;//версия исправлений в пределах мажорной версии currentUpdateFile
 
         if(getUpdateVersion() < currentUpdateFile)
@@ -360,28 +360,37 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                 update6(updateOption);
                 update7(updateOption);
                 update8(updateOption);
+                update9(updateOption);
             }else if(getUpdateVersion()==3){
                 update4(updateOption);
                 update5(updateOption);
                 update6(updateOption);
                 update7(updateOption);
                 update8(updateOption);
+                update9(updateOption);
             }else if(getUpdateVersion()==4){
                 update5(updateOption);
                 update6(updateOption);
                 update7(updateOption);
                 update8(updateOption);
+                update9(updateOption);
             }else if(getUpdateVersion()==5){
                 update6(updateOption);
                 update7(updateOption);
                 update8(updateOption);
+                update9(updateOption);
             }else if(getUpdateVersion()==6){
 
                 update7(updateOption);
                 update8(updateOption);
+                update9(updateOption);
             }else if(getUpdateVersion()==7){
 
                 update8(updateOption);
+                update9(updateOption);
+            }else if(getUpdateVersion()==8){
+
+                update9(updateOption);
             }
 
         }else if(getUpdateVersion() > currentUpdateFile){
@@ -945,14 +954,14 @@ https://gist.github.com/DemkaAge/8999236
 
         task.setOnSucceeded(event -> {
             if(!task.getValue().booleanValue())  {
-                BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL);
+                BaseController.showErrorDialog("Обновление 4","","Обновление не установленно",null,Modality.WINDOW_MODAL);
                 Platform.exit();
             }
 
             UpdateWaiter.close();
         });
         task.setOnFailed(event -> {
-            Platform.runLater(() -> BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
+            Platform.runLater(() -> BaseController.showErrorDialog("Обновление 4","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
             Platform.exit();
             UpdateWaiter.close();
         });
@@ -1043,7 +1052,7 @@ https://gist.github.com/DemkaAge/8999236
 
         task.setOnSucceeded(event -> {
             if(!task.getValue().booleanValue())  {
-                BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL);
+                BaseController.showErrorDialog("Обновление 5","","Обновление не установленно",null,Modality.WINDOW_MODAL);
                 Platform.exit();
             }
             else  logger.info("ОБНОВЛЕНИЕ 5. Завершено");
@@ -1051,7 +1060,7 @@ https://gist.github.com/DemkaAge/8999236
             UpdateWaiter.close();
         });
         task.setOnFailed(event -> {
-            Platform.runLater(() -> BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
+            Platform.runLater(() -> BaseController.showErrorDialog("Обновление 5 ","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
             Platform.exit();
             UpdateWaiter.close();
         });
@@ -1247,7 +1256,7 @@ https://gist.github.com/DemkaAge/8999236
 
         task.setOnSucceeded(event -> {
             if(!task.getValue().booleanValue())  {
-                BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL);
+                BaseController.showErrorDialog("Обновление 6","","Обновление не установленно",null,Modality.WINDOW_MODAL);
                 Platform.exit();
             }
             else  logger.info("ОБНОВЛЕНИЕ 6. Завершено");
@@ -1255,7 +1264,7 @@ https://gist.github.com/DemkaAge/8999236
             UpdateWaiter.close();
         });
         task.setOnFailed(event -> {
-            Platform.runLater(() -> BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
+            Platform.runLater(() -> BaseController.showErrorDialog("Обновление 6","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
             Platform.exit();
             UpdateWaiter.close();
         });
@@ -1527,7 +1536,7 @@ https://gist.github.com/DemkaAge/8999236
 
         task.setOnSucceeded(event -> {
             if(!task.getValue().booleanValue())  {
-                BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL);
+                BaseController.showErrorDialog("Обновление 7","","Обновление не установленно",null,Modality.WINDOW_MODAL);
                 Platform.exit();
             }
             else  logger.info("ОБНОВЛЕНИЕ 7. Завершено");
@@ -1535,7 +1544,7 @@ https://gist.github.com/DemkaAge/8999236
             UpdateWaiter.close();
         });
         task.setOnFailed(event -> {
-            Platform.runLater(() -> BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
+            Platform.runLater(() -> BaseController.showErrorDialog("Обновление 7","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
             Platform.exit();
             UpdateWaiter.close();
         });
@@ -1590,10 +1599,129 @@ https://gist.github.com/DemkaAge/8999236
 
         task.setOnSucceeded(event -> {
             if(!task.getValue().booleanValue())  {
-                BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL);
+                BaseController.showErrorDialog("Обновление 8","","Обновление не установленно",null,Modality.WINDOW_MODAL);
                 Platform.exit();
             }
             else  logger.info("ОБНОВЛЕНИЕ 8. Завершено");
+
+            UpdateWaiter.close();
+        });
+        task.setOnFailed(event -> {
+            Platform.runLater(() -> BaseController.showErrorDialog("Обновление 8","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
+            Platform.exit();
+            UpdateWaiter.close();
+        });
+
+        Thread threadTask=new Thread(task);
+        threadTask.setDaemon(true);
+        threadTask.start();
+        UpdateWaiter.show();
+
+
+
+    }
+
+    private void update9(ProgramOptions updateOption) {
+        logger.info("ОБНОВЛЕНИЕ 9.");
+        Task<Boolean> task =new Task<Boolean>()  {
+            @Override
+            protected Boolean call() throws Exception {
+
+
+                try
+                {
+                    logger.info("Проверка наличия столбца TIMEFORFREQ  в COMPLEX ");
+                    Object singleResult = emf.createEntityManager().createNativeQuery("SELECT `TIMEFORFREQ` FROM COMPLEX LIMIT 1").getSingleResult();
+                    logger.info("Столбец  TIMEFORFREQ  найден.");
+
+                }catch (Exception e) {
+                    logger.info("Столбец  TIMEFORFREQ не найден.");
+                    logger.info("Создается  столбец TIMEFORFREQ  в COMPLEX ");
+                    EntityManager em = emf.createEntityManager();
+                    em.getTransaction().begin();
+                    try {
+                        em.createNativeQuery("ALTER TABLE COMPLEX ADD `TIMEFORFREQ` INT DEFAULT 0").executeUpdate();
+                        em.getTransaction().commit();
+                        logger.info("Столбец  TIMEFORFREQ создан.");
+
+
+                    } catch (Exception ex) {
+                        logger.error("ALTER TABLE COMPLEX ADD `TIMEFORFREQ` INT DEFAULT 0", ex);
+                        return false;
+                    } finally {
+                        if (em != null) em.close();
+                    }
+                }
+
+                    reopenPersistentContext();
+
+                try {
+                    setTimeForFreqToCompex("7683715f-47f8-427e-8a07-e623ea236ef4" ,300);
+                    setTimeForFreqToCompex("99eb8c06-add6-4803-8227-ce146aeac925" ,30);
+                    setTimeForFreqToCompex("e0a44f61-aa7a-489d-85ba-fed730199fe7" ,30);
+                    setTimeForFreqToCompex("9a6af62f-08d3-463b-95f0-6f6a006a3e65" ,30);
+                    setTimeForFreqToCompex("b2a12b99-8d9c-4224-ba7f-94740834932a" ,30);
+                    setTimeForFreqToCompex("35c71b91-164a-4063-a680-48fd2df6caf5" ,300);
+                    setTimeForFreqToCompex("2c77a48c-b322-4c3e-9f62-497949dd1f42" ,60);
+                    setTimeForFreqToCompex("6b96f101-98c9-4fea-b652-ec2b2155cad3" ,60);
+                    setTimeForFreqToCompex("65c4de91-1317-4ada-9fac-15923ada8a05" ,60);
+                    setTimeForFreqToCompex("154769ad-e41e-4fec-88a6-d05328ada8d8" ,60);
+                    setTimeForFreqToCompex("8dadb425-ae45-48b0-8e2e-a1914edea72e" ,60);
+                    setTimeForFreqToCompex("013321e3-6f78-48f1-8106-a6ca739d47a4" ,30);
+                    setTimeForFreqToCompex("59c0849e-ad39-4e0e-a6dd-156e120ea753" ,60);
+                    setTimeForFreqToCompex("a10da37b-d9fd-42e7-90a1-4dc82ca36a62" ,180);
+                    setTimeForFreqToCompex("136314a0-0a22-4131-b423-80620414d0af" ,180);
+                    setTimeForFreqToCompex("1ea8fd14-edfb-4c91-899f-2fb8588399ac" ,90);
+                    setTimeForFreqToCompex("bb6afdbc-229a-4afd-b6ba-9349136786d8" ,30);
+                    setTimeForFreqToCompex("562387a0-bc40-40fc-ae69-2564c63a99b4" ,30);
+                    setTimeForFreqToCompex("f30ab9ed-ab8a-4d72-86fc-32f63307fe5c" ,30);
+                    setTimeForFreqToCompex("8df024e8-8e7e-40c3-83d5-de52be1e6fce" ,600);
+                    setTimeForFreqToCompex("2b6d8946-f60b-4a40-b573-0da52d55c580" ,30);
+                    setTimeForFreqToCompex("67d79b66-f1bb-4cae-b5dc-dca96fd9b4c2" ,60);
+
+
+                }catch (Exception e){
+                    Log.logger.error("Вероятно предыдущие обновления меняющие UUID прошли некорректно",e);
+                    return false;
+                }
+/*
+                //uuid="7683715f-47f8-427e-8a07-e623ea236ef4" name="Активация жизненной энергии"  timeForFreq="300"
+               // uuid="99eb8c06-add6-4803-8227-ce146aeac925" name="Альфа релакс для восстановления физических сил" timeForFreq="30"
+               // uuid="e0a44f61-aa7a-489d-85ba-fed730199fe7" name="Альфа релакс для комфортного состояния"  timeForFreq="30"
+                //uuid="9a6af62f-08d3-463b-95f0-6f6a006a3e65" name="Альфа релакс для умиротворения"  timeForFreq="30"
+                //uuid="b2a12b99-8d9c-4224-ba7f-94740834932a" name="Балансировка частот"  timeForFreq="30"
+                //uuid="35c71b91-164a-4063-a680-48fd2df6caf5" name="Вне времени-1"  timeForFreq="300"
+                //uuid="2c77a48c-b322-4c3e-9f62-497949dd1f42" name="Вне времени-2" timeForFreq="60"
+                //uuid="6b96f101-98c9-4fea-b652-ec2b2155cad3" name="Полусон перед сном"  timeForFreq="60"
+               // uuid="65c4de91-1317-4ada-9fac-15923ada8a05" name="Полусон после сна"  timeForFreq="60"
+                //uuid="154769ad-e41e-4fec-88a6-d05328ada8d8" name="Метаболизм-1"  timeForFreq="60"
+                //uuid="8dadb425-ae45-48b0-8e2e-a1914edea72e" name="Метаболизм-2"  timeForFreq="60"
+                //uuid="013321e3-6f78-48f1-8106-a6ca739d47a4" name="Стиратель мыслей"  timeForFreq="30"
+                //uuid="59c0849e-ad39-4e0e-a6dd-156e120ea753" name="Суггестия"  timeForFreq="60"
+                //uuid="a10da37b-d9fd-42e7-90a1-4dc82ca36a62" name="Суперпрограмма-1"  timeForFreq="180"
+                //uuid="136314a0-0a22-4131-b423-80620414d0af" name="Суперпрограмма-2"  timeForFreq="180"
+                //uuid="1ea8fd14-edfb-4c91-899f-2fb8588399ac" name="Суперпрограмма-3"  timeForFreq="90"
+                //uuid="bb6afdbc-229a-4afd-b6ba-9349136786d8" name="Тета релакс вдохновение"  timeForFreq="30"
+                //uuid="562387a0-bc40-40fc-ae69-2564c63a99b4" name="Тета релакс пробуждение сознания"  timeForFreq="30"
+                //uuid="f30ab9ed-ab8a-4d72-86fc-32f63307fe5c" name="Утренняя свежесть"  timeForFreq="30"
+                //uuid="8df024e8-8e7e-40c3-83d5-de52be1e6fce" name="Уменьшение тревожности"  timeForFreq="600"
+               // uuid="2b6d8946-f60b-4a40-b573-0da52d55c580" name="Дельта для сна"  timeForFreq="30"
+                uuid="67d79b66-f1bb-4cae-b5dc-dca96fd9b4c2" name="Измененные состояния сознания"  timeForFreq="60"
+
+*/
+                setUpdateVersion(updateOption,9);
+                return true;
+
+            }
+        };
+
+
+        task.setOnSucceeded(event -> {
+            if(!task.getValue().booleanValue())  {
+                BaseController.showErrorDialog("Обновление 9","","Обновление не установленно",null,Modality.WINDOW_MODAL);
+                Platform.exit();
+            }
+            else  logger.info("ОБНОВЛЕНИЕ 9. Завершено");
 
             UpdateWaiter.close();
         });
@@ -1609,9 +1737,14 @@ https://gist.github.com/DemkaAge/8999236
         UpdateWaiter.show();
 
 
-
     }
 
+    private void setTimeForFreqToCompex(String uuid,int time) throws Exception {
+
+        Complex complex = getModel().getComplex(uuid);
+        complex.setTimeForFreq(time);
+        getModel().updateComplex(complex);
+    }
     /**
      * Установит новое имя для комплекса
      * @param uuid
