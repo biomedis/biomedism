@@ -9,10 +9,11 @@
         <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_8_1/manual_el.pdf"  dst="docs/Manual_el.pdf"/>
         <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_8_1/manual_fr.pdf"  dst="docs/Manual_fr.pdf"/>
     </Action>
-    <Action type="Download">
+    <!--<Action type="Download">
         <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_8_1/jre8_131.zip" />
     </Action>
     <Action type="Unpack">
         <File src="${DOWNLOAD_DIR}/jre8_131.zip" dst="runtime/"/>
     </Action>
+    -->
 </Update>

@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.anantacreative.updater.Version;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -28,6 +29,7 @@ public class App extends Application {
     //public  ResourceBundle config=null;
     private ResourceBundle strings=null;
     private Stage mainWindow=null;
+    private Version starterVersion;
 
 
     private  static File dataDir;
@@ -121,6 +123,10 @@ public class App extends Application {
         emf= Persistence.createEntityManagerFactory(puName);
     }
 
+    public Version getStarterVersion() {
+        return starterVersion;
+    }
+
     public Stage getMainWindow(){return mainWindow;}
 
 
@@ -132,7 +138,7 @@ public class App extends Application {
     public void start(Stage stage) throws Exception {
 
         mainWindow=stage;
-
+        starterVersion = new Version(1,0,0);
 
         openPersisenceContext();//откроем контекст работы с БД
 
@@ -293,19 +299,21 @@ public class App extends Application {
             final List<String> command = new ArrayList<>();
             String exec="";
             if(OSValidator.isUnix()){
-                exec = new File(currentJar.getParentFile(),"../BiomedisMAir4").getAbsolutePath();
+                exec = new File(currentJar.getParentFile(),"../runtime/bin/java").getAbsolutePath();
 
             }else if(OSValidator.isWindows()){
-                exec = new File(currentJar.getParentFile(),"../BiomedisMAir4.exe").getAbsolutePath();
+                exec = new File(currentJar.getParentFile(),"./jre/bin/java").getAbsolutePath();
 
             }else return;
             command.add(exec);
-
+            command.add("-jar");
+            command.add("-jar");
+            command.add(new File(currentJar.getParentFile(),"dist.jar").getAbsolutePath());
+            command.add(getStarterVersion().toString());
 
             final ProcessBuilder builder = new ProcessBuilder(command);
             builder.start();
-            //Platform.exit();
-            System.out.println("restartProgram");
+            System.out.println("startProgram");
             System.exit(0);
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -53,7 +53,13 @@ public class DataHelper {
 
 
     private static  int selectFix() throws Exception {
-        return selectOptionIntValue("updateFixVersion");
+        int updateFixVersion ;
+        try {
+            updateFixVersion = selectOptionIntValue("updateFixVersion");
+        }catch (Exception e) {
+            updateFixVersion =0;
+        }
+        return updateFixVersion;
     }
 
     private static  int selectMinor() throws Exception {
