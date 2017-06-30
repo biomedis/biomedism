@@ -1,0 +1,19 @@
+<?xml version="1.1" encoding="UTF-8" ?>
+<Update date="07.06.2017">
+    <Action type="Move">
+        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_8_1/BiomedisMAir3-1.0-SNAPSHOT.jar"  dst="assets/"/>
+        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_8_1/manual_ru.pdf"  dst="docs/Документация.pdf"/>
+        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_8_1/manual_en.pdf"  dst="docs/Manual_en.pdf"/>
+        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_8_1/manual_de.pdf"  dst="docs/Manual_de.pdf"/>
+        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_8_1/manual_it.pdf"  dst="docs/Manual_it.pdf"/>
+        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_8_1/manual_el.pdf"  dst="docs/Manual_el.pdf"/>
+        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_8_1/manual_fr.pdf"  dst="docs/Manual_fr.pdf"/>
+    </Action>
+    <!--<Action type="Download">
+        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_8_1/jre8_131.zip" />
+    </Action>
+    <Action type="Unpack">
+        <File src="${DOWNLOAD_DIR}/jre8_131.zip" dst="runtime/"/>
+    </Action>
+    -->
+</Update>

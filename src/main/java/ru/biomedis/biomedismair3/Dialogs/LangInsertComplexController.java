@@ -20,6 +20,10 @@ public class LangInsertComplexController extends BaseController {
     @FXML private ComboBox<Language> langlist;
 
 
+    @Override
+    protected void onCompletedInitialise() {
+
+    }
 
     @Override
     public void setParams(Object... params) {

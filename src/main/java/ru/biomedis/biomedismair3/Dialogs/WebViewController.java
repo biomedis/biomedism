@@ -6,7 +6,6 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import ru.biomedis.biomedismair3.BaseController;
 
-import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -17,6 +16,11 @@ public class WebViewController extends BaseController {
 
     private @FXML    WebView webView;
     private WebEngine webEngine;
+
+    @Override
+    protected void onCompletedInitialise() {
+
+    }
 
     @Override
     public void setParams(Object... params) {

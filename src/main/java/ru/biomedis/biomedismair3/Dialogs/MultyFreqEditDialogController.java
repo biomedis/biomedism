@@ -1,7 +1,5 @@
 package ru.biomedis.biomedismair3.Dialogs;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.control.*;
@@ -208,6 +206,11 @@ public class MultyFreqEditDialogController extends BaseController {
 
     }
 
+
+    @Override
+    protected void onCompletedInitialise() {
+
+    }
 
     @Override
     public void setParams(Object... params) {

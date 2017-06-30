@@ -3,8 +3,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ru.biomedis</groupId>
-    <artifactId>BiomedisMAir3</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <artifactId>dist</artifactId>
+    <version>1</version>
     <packaging>jar</packaging>
 
     <name>BiomedisMAir3</name>
@@ -132,7 +132,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <commandlineArgs>  -encoding=UTF-8</commandlineArgs>
+                            <commandlineArgs>  -encoding=UTF-8 -Dstarter_version=1.0.0</commandlineArgs>
 
                         </configuration>
                     </execution>
@@ -340,7 +340,7 @@
         <dependency>
             <groupId>org.anantacreative</groupId>
             <artifactId>updater</artifactId>
-            <version>0.12.1</version>
+            <version>0.14.2</version>
         </dependency>
         <!--
         mp3agic

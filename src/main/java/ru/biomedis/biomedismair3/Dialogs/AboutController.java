@@ -18,6 +18,11 @@ public class AboutController extends BaseController {
     private WebEngine webEngine;
 
     @Override
+    protected void onCompletedInitialise() {
+
+    }
+
+    @Override
     public void setParams(Object... params) {
 
     }

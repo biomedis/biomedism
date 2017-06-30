@@ -49,7 +49,10 @@ public abstract class BaseController implements Initializable {
     public Stage getControllerWindow() {
         return window;
     }
-
+    /**
+     * Вызывается после завершиния инициализации контроллера
+     */
+    protected abstract void onCompletedInitialise();
 
     public ModelDataApp getModel() {
         return app.getModel();

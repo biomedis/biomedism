@@ -38,6 +38,11 @@ public class PrintController extends BaseController {
     private ResourceBundle res;
 
     @Override
+    protected void onCompletedInitialise() {
+
+    }
+
+    @Override
     public void setParams(Object... params) {
 
         if (params.length == 2) {

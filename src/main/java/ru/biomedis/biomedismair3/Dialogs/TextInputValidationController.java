@@ -86,6 +86,11 @@ res=resources;
 
 
     @Override
+    protected void onCompletedInitialise() {
+
+    }
+
+    @Override
     public void setParams(Object... params) {
         Data sd=  (Data)rootNode.getUserData();
         input.setText(sd.getOldVal());

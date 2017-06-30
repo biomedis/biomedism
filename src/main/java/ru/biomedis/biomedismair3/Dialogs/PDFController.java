@@ -344,6 +344,11 @@ public class PDFController extends BaseController {
     }
 
     @Override
+    protected void onCompletedInitialise() {
+
+    }
+
+    @Override
     public void setParams(Object... params)
     {
         System.out.println("setParams");

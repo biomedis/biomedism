@@ -110,6 +110,11 @@ public class M2UI extends BaseController {
     }
 
     @Override
+    protected void onCompletedInitialise() {
+
+    }
+
+    @Override
     public void setParams(Object... params) {
 
     }

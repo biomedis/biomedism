@@ -1,7 +1,10 @@
 package ru.biomedis.biomedismair3.Dialogs;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -11,7 +14,6 @@ import ru.biomedis.biomedismair3.entity.Profile;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -25,6 +27,12 @@ public class SearchProfile extends BaseController {
     @FXML    TextField searchPattern;
     @FXML    Button search;
     @FXML    Button setProfile;
+
+    @Override
+    protected void onCompletedInitialise() {
+
+    }
+
     @Override
     public void setParams(Object... params) {
 

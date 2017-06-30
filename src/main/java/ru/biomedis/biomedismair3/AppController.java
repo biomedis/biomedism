@@ -36,6 +36,8 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.*;
 import javafx.util.Duration;
+import org.anantacreative.updater.Update.UpdateException;
+import org.anantacreative.updater.Update.UpdateTask;
 import ru.biomedis.biomedismair3.CellFactories.TextAreaTableCell;
 import ru.biomedis.biomedismair3.Converters.SectionConverter;
 import ru.biomedis.biomedismair3.DBImport.NewDBImport;
@@ -10290,6 +10292,66 @@ return  true;
     }
 
 
+    @Override
+    protected void onCompletedInitialise() {
+        if(getModel().isAutoUpdateEnable()){
+            AutoUpdater.getAutoUpdater().startUpdater(App.getStarterVersion(), new AutoUpdater.Listener() {
+                @Override
+                public void taskCompleted() {
+                    try {
+                        Platform.runLater(() -> Waiter.openLayer(getApp().getMainWindow(),true));
+                        AutoUpdater.getAutoUpdater().performUpdateTask(new UpdateTask.UpdateListener() {
+                            @Override
+                            public void progress(int i) {
+
+                            }
+
+                            @Override
+                            public void completed() {
+                                Platform.runLater(() ->  Waiter.closeLayer());
+                                System.out.println("Обновлен Starter");
+                            }
+
+                            @Override
+                            public void error(UpdateException e) {
+                                Platform.runLater(() ->  Waiter.closeLayer());
+                            }
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Log.logger.error("",e);
+                    }
+
+                }
+
+                @Override
+                public void error(Exception e) {
+                    e.printStackTrace();
+                    Log.logger.error("",e);
+                }
+
+                @Override
+                public void completeFile(String name) {
+
+                }
+
+                @Override
+                public void currentFileProgress(float val) {
+
+                }
+
+                @Override
+                public void nextFileStartDownloading(String name) {
+
+                }
+
+                @Override
+                public void totalProgress(float val) {
+
+                }
+            });
+        }
+    }
 
     /***************************************************/
 

@@ -543,7 +543,7 @@ https://gist.github.com/DemkaAge/8999236
             Parent root = fxmlLoader.load();
             controller = (AppController )fxmlLoader.getController();
             BaseController.setMainController(controller);
-            
+            controller.onCompletedInitialise();
            /*********************************/
        
         Scene scene = new Scene(root);
@@ -1930,7 +1930,13 @@ https://gist.github.com/DemkaAge/8999236
         closePersisenceContext();
         super.stop(); //To change body of generated methods, choose Tools | Templates.
     } 
-    
+
+
+    private static Version starterVersion;
+
+    public static Version getStarterVersion(){
+        return starterVersion;
+    }
     
     /**
      * The main() method is ignored in correctly deployed JavaFX application.
@@ -1941,8 +1947,21 @@ https://gist.github.com/DemkaAge/8999236
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        System.setProperty("starter_version","1.0.0");
+        String starter_version = System.getProperty("starter_version");
+        if(starter_version==null) starterVersion=new Version(5000,0,0);
+        else {
+            String[] split = starter_version.split("\\.");
+            if(split.length!=3) {
+                starterVersion=new Version(5000,0,0);
+            }else {
+                starterVersion=new Version(Integer.valueOf(split[0]),Integer.valueOf(split[1]),Integer.valueOf(split[2]));
+            }
+        }
+
         launch(args);
     }
+
 
 
     /**

@@ -50,6 +50,11 @@ res=resources;
 
 
     @Override
+    protected void onCompletedInitialise() {
+
+    }
+
+    @Override
     public void setParams(Object... params) {
         Data sd=  (Data)rootNode.getUserData();
         nameFld.setText(sd.getOldName());

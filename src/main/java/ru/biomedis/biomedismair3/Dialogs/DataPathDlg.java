@@ -29,6 +29,10 @@ public class DataPathDlg extends BaseController {
     private ResourceBundle res;
 
 
+    @Override
+    protected void onCompletedInitialise() {
+
+    }
 
     @Override
     public void setParams(Object... params) {

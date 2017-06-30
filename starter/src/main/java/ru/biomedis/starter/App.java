@@ -307,9 +307,8 @@ public class App extends Application {
             }else return;
             command.add(exec);
             command.add("-jar");
-            command.add("-jar");
             command.add(new File(currentJar.getParentFile(),"dist.jar").getAbsolutePath());
-            command.add(getStarterVersion().toString());
+            command.add("-Dstarter_version="+getStarterVersion().toString());
 
             final ProcessBuilder builder = new ProcessBuilder(command);
             builder.start();
