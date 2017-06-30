@@ -67,8 +67,13 @@ public class ExportUserBase
         fw.close();
 
         } catch (IOException e) {
+            e.printStackTrace();
             logger.error("",e);
 return false;
+        }catch (Exception e){
+            e.printStackTrace();
+            logger.error("",e);
+            return false;
         }
         return true;
     }
@@ -109,7 +114,7 @@ return false;
         strb.append(noops[level]);
         int lvl=level+1;
         strb.append("<Complex ").append("name=\"").append(TextUtil.escapeXML(complex.getNameString())).append("\" description=\"").append(TextUtil.escapeXML(complex.getDescriptionString())).
-                append("\"").append(">\n");
+                append("\"").append(" timeForFreq=\"").append(complex.getTimeForFreq()).append("\" ").append(">\n");
 
 
                 List<Program> list = md.findAllProgramByComplex(complex);

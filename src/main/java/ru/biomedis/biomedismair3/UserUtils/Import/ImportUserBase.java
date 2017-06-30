@@ -143,8 +143,8 @@ private Listener listener=null;
             }
             for (Complex complex : listComplexes)
             {
-               if(complex.sectionIndex>=0) complex.complex=mda.createComplex(complex.name,complex.descr,listSections.get(complex.sectionIndex).section,setOwnerSystem,lang);
-                else complex.complex=mda.createComplex(complex.name,complex.descr,container,setOwnerSystem,lang);
+               if(complex.sectionIndex>=0) complex.complex=mda.createComplex(complex.name,complex.descr,listSections.get(complex.sectionIndex).section,setOwnerSystem,lang,complex.timeForFreq);
+                else complex.complex=mda.createComplex(complex.name,complex.descr,container,setOwnerSystem,lang,complex.timeForFreq);
             }
 
             for(Program prog: listPrograms)
@@ -269,7 +269,10 @@ private Listener listener=null;
 
                 if(attributes.getLength()!=0)
                 {
-                    complexesStack.push(new Complex(TextUtil.unEscapeXML(attributes.getValue("name")),TextUtil.unEscapeXML(attributes.getValue("description")),index));//положим на вершину стека
+                    String timeForFreqA = attributes.getValue("timeForFreq");
+                    int timeForFreq=0;
+                    if(timeForFreqA!=null)timeForFreq=Integer.valueOf(timeForFreqA);
+                    complexesStack.push(new Complex(TextUtil.unEscapeXML(attributes.getValue("name")),TextUtil.unEscapeXML(attributes.getValue("description")),index,timeForFreq));//положим на вершину стека
                     listComplexes.add(complexesStack.peek());
                 }
 
@@ -376,11 +379,13 @@ private Listener listener=null;
         String descr;
         int sectionIndex=-1;//если -1 то значит вне секции. индекс в массивах соответствующих
         ru.biomedis.biomedismair3.entity.Complex complex;
+        int timeForFreq;
 
-        public Complex(String name, String descr, int sectionIndex) {
+        public Complex(String name, String descr, int sectionIndex,int timeForFreq) {
             this.name = name;
             this.descr = descr;
             this.sectionIndex = sectionIndex;
+            this.timeForFreq = timeForFreq;
         }
     }
 

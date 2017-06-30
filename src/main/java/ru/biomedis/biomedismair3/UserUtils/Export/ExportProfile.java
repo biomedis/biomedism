@@ -8,6 +8,8 @@ import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.util.List;
 
+import static ru.biomedis.biomedismair3.Log.logger;
+
 /**
  * Created by Anama on 17.09.2015.
  */
@@ -62,6 +64,11 @@ public class ExportProfile {
 
         } catch (IOException e) {
             e.printStackTrace();
+            logger.error("",e);
+            return false;
+        }catch (Exception e){
+            e.printStackTrace();
+            logger.error("",e);
             return false;
         }
         return true;
@@ -106,8 +113,21 @@ public class ExportProfile {
 
         strb.append(noops[level]);
         int lvl=level+1;
-        strb.append("<Complex ").append("name=\"").append(TextUtil.escapeXML(complex.getName())).append("\" description=\"").append(TextUtil.escapeXML(complex.getDescription())).
-                append("\"").append(" mullty=\"").append(true).append("\"").append(" timeForFreq=\"").append(complex.getTimeForFrequency()).append("\"").append(" bundlesLength=\"").append(complex.getBundlesLength()).append("\"").append(">\n");
+        strb.append("<Complex ")
+            .append("name=\"")
+            .append(TextUtil.escapeXML(complex.getName()))
+            .append("\" description=\"")
+            .append(TextUtil.escapeXML(complex.getDescription())).
+                    append("\"")
+            .append(" mullty=\"")
+            .append(true).append("\"")
+            .append(" timeForFreq=\"")
+            .append(complex.getTimeForFrequency())
+            .append("\"")
+            .append(" bundlesLength=\"")
+            .append(complex.getBundlesLength())
+            .append("\"")
+            .append(">\n");
 
 
         List<TherapyProgram> list = md.findTherapyPrograms(complex);
