@@ -15,7 +15,7 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.starter.AppController">
    <padding>
-      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+      <Insets bottom="1.0" left="5.0" right="5.0" top="5.0" />
    </padding>
    <center>
       <HBox fx:id="centerLayout" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="TOP_LEFT">
@@ -25,7 +25,7 @@
       </HBox>
    </center>
    <bottom>
-      <VBox prefHeight="115.0" BorderPane.alignment="CENTER">
+      <VBox prefHeight="125.0" BorderPane.alignment="CENTER">
          <BorderPane.margin>
             <Insets left="5.0" right="5.0" />
          </BorderPane.margin>
@@ -73,7 +73,7 @@
                   </VBox>
                </children>
             </HBox>
-            <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="20.0">
+            <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="15.0">
                <children>
                   <Hyperlink fx:id="linkMain" text="Сайт компании Biomedis" />
                   <Hyperlink fx:id="linkArticles" text="Статьи" />
@@ -83,6 +83,21 @@
                   <Hyperlink fx:id="linkVideo" text="Видео" />
                   <Hyperlink fx:id="linkEducation" text="Обучение" />
                </children></HBox>
+            <HBox maxWidth="1.7976931348623157E308">
+               <children>
+                  <Label text="starter v.">
+                     <font>
+                        <Font size="10.0" />
+                     </font></Label>
+                  <Label fx:id="vStarter" text="1.0.1">
+                     <font>
+                        <Font size="10.0" />
+                     </font></Label>
+               </children>
+               <padding>
+                  <Insets left="5.0" />
+               </padding>
+            </HBox>
          </children>
       </VBox>
    </bottom>

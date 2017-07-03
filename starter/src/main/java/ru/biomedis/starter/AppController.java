@@ -45,6 +45,7 @@ public class AppController extends BaseController {
     @FXML private ImageView doneImage;
     @FXML private Label currentFileProgress;
     @FXML private HBox centerLayout;
+    @FXML private Label vStarter;
 
     private Version version=null;
 
@@ -66,6 +67,7 @@ public class AppController extends BaseController {
             System.out.println("Current Version: "+version);
             checkActualVersion();
             loadWebContent();
+            vStarter.setText(getApp().getStarterVersion().toString());
 
 
         } catch (Exception e) {

@@ -1381,15 +1381,15 @@ tab5.disableProperty().bind(m2Ready.not());
                 } catch (M2Complex.MaxPauseBoundException e) {
                     Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2Program.ZeroValueFreqException e) {
-                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),res.getString("zerofreqval"),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2Program.MaxProgramIDValueBoundException e) {
                     Platform.runLater(() ->  showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2Program.MinFrequenciesBoundException e) {
-                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),res.getString("mustbefreqs"),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2Complex.MaxCountProgramBoundException e) {
-                    Platform.runLater(() ->  showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() ->  showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),res.getString("moreprograms"),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2BinaryFile.MaxBytesBoundException e) {
-                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),res.getString("trinity.maxboundsize"),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2Complex.ZeroCountProgramBoundException e) {
                     Platform.runLater(() -> showErrorDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),res.getString("app.ui.must_have_program"), getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (LanguageDevice.NoLangDeviceSupported e) {

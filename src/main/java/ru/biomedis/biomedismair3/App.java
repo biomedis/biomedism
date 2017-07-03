@@ -1947,8 +1947,8 @@ https://gist.github.com/DemkaAge/8999236
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        System.setProperty("starter_version","1.0.0");
-        String starter_version = System.getProperty("starter_version");
+        if( AutoUpdater.isIDEStarted()) System.setProperty("starter.version","1.0.0");
+        String starter_version = System.getProperty("starter.version");
         if(starter_version==null) starterVersion=new Version(5000,0,0);
         else {
             String[] split = starter_version.split("\\.");

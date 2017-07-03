@@ -188,13 +188,16 @@ public class App extends Application {
         }
 
         System.out.println("Data path: "+dataDir.getAbsolutePath());
-
+/*
+не ясно нужно ли так делать. По факту необязательно. Если человк загрузит поверх еще обновления хуже не будет тк они все кумулятивные и пройдут как положенно
         File firstStartFileIndicator=new File(getInnerDataDir(),"fs.ind");
         if(firstStartFileIndicator.exists()) {
             System.out.println("Запуск программы. Первый запуск после свежей установки");
             startMainApp();
             return;
         }
+
+        */
 
         /******** Обновления ************/
 
@@ -306,9 +309,10 @@ public class App extends Application {
 
             }else return;
             command.add(exec);
+            command.add("-Dstarter.version="+getStarterVersion().toString());
             command.add("-jar");
             command.add(new File(currentJar.getParentFile(),"dist.jar").getAbsolutePath());
-            command.add("-Dstarter_version="+getStarterVersion().toString());
+
 
             final ProcessBuilder builder = new ProcessBuilder(command);
             builder.start();

@@ -2,6 +2,7 @@ package ru.biomedis.biomedismair3.m2;
 
 
 import ru.biomedis.biomedismair3.App;
+import ru.biomedis.biomedismair3.Log;
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
@@ -85,13 +86,17 @@ public class M2
             m2BinaryFile = new M2BinaryFile(deviceData,langID);
 
         }  catch (USBHelper.USBException e) {
+            Log.logger.error("",e);
             throw new ReadFromDeviceException(e);
         } catch (M2BinaryFile.FileParseException e) {
+            Log.logger.error("",e);
             throw new ReadFromDeviceException(e);
         } catch (DeviceFailException e) {
+            Log.logger.error("",e);
             throw new ReadFromDeviceException(e);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.logger.error("",e);
+            throw new ReadFromDeviceException(e);
         } finally {
 
             try {
@@ -134,8 +139,10 @@ public class M2
 
 
         } catch (USBHelper.USBException e) {
+            Log.logger.error("",e);
             throw new WriteToDeviceException(e);
         } catch (Exception e) {
+            Log.logger.error("",e);
             e.printStackTrace();
         } finally {
             try {
@@ -210,10 +217,16 @@ public class M2
             }
 
         } catch (USBHelper.USBException e) {
+            Log.logger.error("",e);
             throw new WriteToDeviceException(e);
         } catch (DeviceFailException e) {
+            Log.logger.error("",e);
             throw new WriteToDeviceException(e);
-        } finally {
+        }catch (Exception e){
+            Log.logger.error("",e);
+            throw new WriteToDeviceException(e);
+        }
+        finally {
             try {
                 USBHelper.closeDevice(usbDeviceHandle,0);
             } catch (USBHelper.USBException e) {
@@ -267,10 +280,16 @@ public class M2
             if(response.status==false) throw new DeviceFailException(response.errorCode);
 
         } catch (USBHelper.USBException e) {
+            Log.logger.error("",e);
             throw new WriteToDeviceException(e);
         } catch (DeviceFailException e) {
+            Log.logger.error("",e);
             throw new WriteToDeviceException(e);
-        } finally {
+        } catch (Exception e){
+            Log.logger.error("",e);
+            throw new WriteToDeviceException(e);
+        }
+        finally {
             try {
                 USBHelper.closeDevice(usbDeviceHandle,0);
             } catch (USBHelper.USBException e) {
