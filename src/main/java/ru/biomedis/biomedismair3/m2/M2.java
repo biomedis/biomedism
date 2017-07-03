@@ -439,12 +439,12 @@ public class M2
         LanguageDevice deviceLang = LanguageDevice.getDeviceLang(mda.getProgramLanguage().getAbbr());
 
         if(debug){
-            System.out.println(ByteHelper.bytesToHex(data,32,' '));
+           // System.out.println(ByteHelper.bytesToHex(data,32,' '));
 
-            for (byte dt : data) {
+           // for (byte dt : data) {
 
-                System.out.println(dt<0?dt+256:dt);
-            }
+            //    System.out.println(dt<0?dt+256:dt);
+           // }
 
             try {
                 M2BinaryFile bf2=new M2BinaryFile(data,deviceLang.getDeviceLangID());
