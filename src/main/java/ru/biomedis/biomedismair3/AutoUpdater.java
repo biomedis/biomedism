@@ -85,7 +85,14 @@ public class AutoUpdater {
     }
 
     private String getUpdaterBaseUrl() throws NotSupportedPlatformException {
-        return "http://www.biomedis.ru/doc/b_mair/starter";
+        if(OSValidator.isWindows())return "http://www.biomedis.ru/doc/b_mair/starter/win";
+        else  if(OSValidator.isUnix())return "http://www.biomedis.ru/doc/b_mair/starter/linux";
+        else  if(OSValidator.isMac())return "http://www.biomedis.ru/doc/b_mair/starter/osx";
+        else {
+            throw new NotSupportedPlatformException();
+        }
+
+
 
     }
 
