@@ -428,7 +428,7 @@ public class AppController extends BaseController {
                                   showDoneImage();
                                   setTextInfo(getRes().getString("updates_absent"));
                                   hideVersionCheckIndicator();
-                                  enableUpdateAndStartProgram();
+                                  disableUpdateAndEnableStartProgram();
                               }
 
 
