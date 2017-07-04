@@ -131,7 +131,10 @@ public class LoadLanguageFiles
                         localStringName.setContent(prog.name);
                         mda.updateLocalString(localStringName);
 
-                    System.out.println("Обновлена программа "+prog.nameRus +" uuid= "+transMap==null?prog.uuid:transMap.get(prog.uuid) +" Имя было: "+program.getNameString()+" Стало:"+prog.name);
+                    System.out.print("Обновлена программа "+prog.nameRus);
+                    System.out.print(" uuid= "+(transMap==null?prog.uuid:transMap.get(prog.uuid)));
+                    System.out.print(" Имя было: "+program.getNameString());
+                    System.out.println(" Стало:"+prog.name);
 
                 }
 
@@ -141,7 +144,7 @@ public class LoadLanguageFiles
                         mda.updateLocalString(localStringDescr);
 
 
-                    System.out.println("Обновлена программа "+prog.nameRus +" uuid= "+transMap==null?prog.uuid:transMap.get(prog.uuid) +" Описание Было: "+program.getDescriptionString()+" Стало:"+prog.descr);
+                    System.out.println("Обновлена программа "+prog.nameRus +" uuid= "+(transMap==null?prog.uuid:transMap.get(prog.uuid)) +" Описание Было: "+program.getDescriptionString()+" Стало:"+prog.descr);
                 }
 
 
@@ -168,7 +171,7 @@ public class LoadLanguageFiles
                         localStringName.setContent(complex.name);
                         mda.updateLocalString(localStringName);
 
-                    System.out.println("Обновлена секция "+complex.nameRus +" uuid= "+transMap==null?complex.uuid:transMap.get(complex.uuid) +" Имя было: "+itemComplex.getNameString()+" Стало:"+complex.name);
+                    System.out.println("Обновлена секция "+complex.nameRus +" uuid= "+(transMap==null?complex.uuid:transMap.get(complex.uuid)) +" Имя было: "+itemComplex.getNameString()+" Стало:"+complex.name);
                 }
 
                 if(!complex.descr.equals(itemComplex.getDescriptionString())) {
@@ -176,7 +179,7 @@ public class LoadLanguageFiles
                         localStringDescr.setContent(complex.descr);
                         mda.updateLocalString(localStringDescr);
 
-                    System.out.println("Обновлена секция "+complex.nameRus +" uuid= "+transMap==null?complex.uuid:transMap.get(complex.uuid) +" Описание Было: "+itemComplex.getDescriptionString()+" Стало:"+complex.descr);
+                    System.out.println("Обновлена секция "+complex.nameRus +" uuid= "+(transMap==null?complex.uuid:transMap.get(complex.uuid)) +" Описание Было: "+itemComplex.getDescriptionString()+" Стало:"+complex.descr);
                 }
 
 
@@ -204,7 +207,7 @@ public class LoadLanguageFiles
                         localStringName.setContent(section.name);
                         mda.updateLocalString(localStringName);
 
-                    System.out.println("Обновлена секция "+section.nameRus +" uuid= "+transMap==null?section.uuid:transMap.get(section.uuid) +" Имя было: "+itemSection.getNameString()+" Стало:"+section.name);
+                    System.out.println("Обновлена секция "+section.nameRus +" uuid= "+(transMap==null?section.uuid:transMap.get(section.uuid)) +" Имя было: "+itemSection.getNameString()+" Стало:"+section.name);
                 }
 
                 if(!section.descr.equals(itemSection.getDescriptionString())) {
@@ -213,7 +216,7 @@ public class LoadLanguageFiles
                         mda.updateLocalString(localStringDescr);
 
 
-                    System.out.println("Обновлена секция "+section.nameRus +" uuid= "+transMap==null?section.uuid:transMap.get(section.uuid) +" Описание Было: "+itemSection.getDescriptionString()+" Стало:"+section.descr);
+                    System.out.println("Обновлена секция "+section.nameRus +" uuid= "+(transMap==null?section.uuid:transMap.get(section.uuid)) +" Описание Было: "+itemSection.getDescriptionString()+" Стало:"+section.descr);
                 }
 
 
