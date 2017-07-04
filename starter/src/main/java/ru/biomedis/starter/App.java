@@ -305,7 +305,7 @@ public class App extends Application {
                 exec = new File(currentJar.getParentFile(),"../runtime/bin/java").getAbsolutePath();
 
             }else if(OSValidator.isWindows()){
-                exec = new File(currentJar.getParentFile(),"./jre/bin/java").getAbsolutePath();
+                exec = new File(currentJar.getParentFile(),"./jre/bin/java.exe").getAbsolutePath();
 
             }else return;
             command.add(exec);
@@ -316,7 +316,7 @@ public class App extends Application {
 
             final ProcessBuilder builder = new ProcessBuilder(command);
             builder.start();
-            System.out.println("startProgram");
+            System.out.println("startProgram"+builder.toString());
             System.exit(0);
         } catch (Exception e) {
             throw new RuntimeException(e);

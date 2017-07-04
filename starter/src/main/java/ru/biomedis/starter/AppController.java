@@ -421,7 +421,7 @@ public class AppController extends BaseController {
                           .thenAccept(v->{
                               System.out.println("Актуальная версия" +versionChecker.getActualVersion());
                               if(v){
-                                  setTextInfo(getRes().getString("current_version")+ version +". "+getRes().getString("actual_version")+" " + versionChecker.getActualVersion());
+                                  setTextInfo(getRes().getString("current_version")+": "+ version +". "+getRes().getString("actual_version")+": " + versionChecker.getActualVersion());
                                   hideVersionCheckIndicator();
                                   enableUpdateAndStartProgram();
                               }else {
