@@ -353,48 +353,57 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         if(getUpdateVersion() < currentUpdateFile)
         {
             UpdateWaiter.show();
-            CompletableFuture<Void> future =new CompletableFuture<>();
+            CompletableFuture<Void> future =null;
             //обновим согласно полученной версии, учесть, что нужно на младшие накатывать все апдейты по порядку
             if(getUpdateVersion()==2) {
-                CompletableFuture.runAsync(() ->  update3(updateOption)).then;
-                update3(updateOption);
-                update4(updateOption);
-                update5(updateOption);
-                update6(updateOption);
-                update7(updateOption);
-                update8(updateOption);
-                update9(updateOption);
+                future =  CompletableFuture.runAsync(() ->  update3(updateOption))
+                                 .thenRun(() -> update4(updateOption))
+                                 .thenRun(() -> update5(updateOption))
+                                 .thenRun(() -> update6(updateOption))
+                                 .thenRun(() -> update7(updateOption))
+                                 .thenRun(() -> update8(updateOption))
+                                 .thenRun(() -> update9(updateOption));
             }else if(getUpdateVersion()==3){
-                update4(updateOption);
-                update5(updateOption);
-                update6(updateOption);
-                update7(updateOption);
-                update8(updateOption);
-                update9(updateOption);
+                future =  CompletableFuture.runAsync(() ->  update4(updateOption))
+                                           .thenRun(() -> update5(updateOption))
+                                           .thenRun(() -> update6(updateOption))
+                                           .thenRun(() -> update7(updateOption))
+                                           .thenRun(() -> update8(updateOption))
+                                           .thenRun(() -> update9(updateOption));
             }else if(getUpdateVersion()==4){
-                update5(updateOption);
-                update6(updateOption);
-                update7(updateOption);
-                update8(updateOption);
-                update9(updateOption);
+                future =  CompletableFuture.runAsync(() ->  update5(updateOption))
+                                           .thenRun(() -> update6(updateOption))
+                                           .thenRun(() -> update7(updateOption))
+                                           .thenRun(() -> update8(updateOption))
+                                           .thenRun(() -> update9(updateOption));
             }else if(getUpdateVersion()==5){
-                update6(updateOption);
-                update7(updateOption);
-                update8(updateOption);
-                update9(updateOption);
+                future =  CompletableFuture.runAsync(() ->  update6(updateOption))
+                                           .thenRun(() -> update7(updateOption))
+                                           .thenRun(() -> update8(updateOption))
+                                           .thenRun(() -> update9(updateOption));
             }else if(getUpdateVersion()==6){
 
-                update7(updateOption);
-                update8(updateOption);
-                update9(updateOption);
+                future =  CompletableFuture.runAsync(() ->  update7(updateOption))
+                                           .thenRun(() -> update8(updateOption))
+                                           .thenRun(() -> update9(updateOption));
             }else if(getUpdateVersion()==7){
 
-                update8(updateOption);
-                update9(updateOption);
+                future =  CompletableFuture.runAsync(() ->  update8(updateOption))
+                                           .thenRun(() -> update9(updateOption));
             }else if(getUpdateVersion()==8){
 
-                update9(updateOption);
+                future =  CompletableFuture.runAsync(() ->  update9(updateOption));
+
+            }else {
+                showUpdateErrorAndExit("Версия обновления и версия программы конфликтуют. " + getUpdateVersion());
             }
+            if(future==null) showUpdateErrorAndExit("Версия обновления и версия программы конфликтуют. " + getUpdateVersion());
+
+            future.exceptionally(e->{
+                showUpdateErrorAndExit(e.getMessage());
+             return null;
+            });
+
 
         }else if(getUpdateVersion() > currentUpdateFile){
             logger.error("Запуск апдейта "+currentUpdateFile+" ниже установленного "+getUpdateVersion()+"!");
@@ -889,7 +898,7 @@ https://gist.github.com/DemkaAge/8999236
         throw new RuntimeException(msg, e);
     }
 
-    private void showUpdateErrorAndExit(int number){
+    private void showUpdateErrorAndExit(String number){
         Platform.runLater(() -> BaseController.showErrorDialog("Обновление "+number,"","Обновление не установленно",null,Modality.WINDOW_MODAL) );
         UpdateWaiter.close();
         Platform.exit();
