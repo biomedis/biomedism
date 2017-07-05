@@ -48,6 +48,7 @@ public class M2
             usbDeviceHandle = USBHelper.openDevice(productId, vendorId, 0);
             byte[] commandRead = new byte[DATA_PACKET_SIZE];
             commandRead[0]=READ_COMMAND;
+            if(debug)printPacket("Reading command",  commandRead);
             USBHelper.write(usbDeviceHandle,commandRead,OUT_END_POINT,REQUEST_TIMEOUT_MS);
 
             Response response = readResponseBuffer(usbDeviceHandle,debug);
@@ -71,7 +72,6 @@ public class M2
             byte[] deviceData = new byte[DATA_PACKET_SIZE*packets];
             ByteBuffer  data;
             for(int i=0;i<packets;i++){
-
                 //читаем
                 data = USBHelper.read(usbDeviceHandle, DATA_PACKET_SIZE, IN_END_POINT, REQUEST_TIMEOUT_MS);
                 data.position(0);
@@ -173,6 +173,7 @@ public class M2
     private static void writeToDevice(byte[] dataToWrite, int langID,int countComplexes,boolean debug) throws WriteToDeviceException {
         USBHelper.USBDeviceHandle usbDeviceHandle=null;
         clearDevice(debug);
+
         try{
             System.out.print("Write command send..");
 
@@ -188,21 +189,18 @@ public class M2
 
             commandWrite[5]=(byte)langID;
             commandWrite[6]=(byte)countComplexes;
-
+            int packets = (int)Math.ceil((float)dataToWrite.length/(float)DATA_PACKET_SIZE);
             if(debug) {
-                System.out.print("COMMAND PACKET = ");
+                if(debug)printPacket("Command Write",commandWrite);
+                System.out.println("Data size=" + dataToWrite.length);
+                System.out.println("Number packets =" + packets);
 
-                for (int i = 0; i < commandWrite.length; i++) {
-
-                    System.out.print((commandWrite[i] < 0 ? commandWrite[i] + 256 : commandWrite[i]) + ", ");
-
-                }
                 System.out.println("OUT_END_POINT=" + OUT_END_POINT + " IN_END_POINT=" + IN_END_POINT);
             }
 
             //команда на запись
             USBHelper.write(usbDeviceHandle,commandWrite,OUT_END_POINT,REQUEST_TIMEOUT_MS);
-
+            Thread.sleep(200);
             Response response = readResponseBuffer(usbDeviceHandle,debug);
             if(response.status==false) throw new DeviceFailException(response.errorCode);
 
@@ -210,11 +208,12 @@ public class M2
             if(debug)System.out.println("WRITE DATA...");
 
             //запись всего пакета в прибор по 64 байта. Нужно не забыть проверять ответ и статус записи, чтобы отловить ошибки
-            for(int i=0;i < dataToWrite.length/DATA_PACKET_SIZE;i++){
-
+            for(int i=0;i < packets;i++){
+                Thread.sleep(200);
                 USBHelper.write(usbDeviceHandle, Arrays.copyOfRange(dataToWrite,DATA_PACKET_SIZE*i,DATA_PACKET_SIZE*i+DATA_PACKET_SIZE),OUT_END_POINT,REQUEST_TIMEOUT_MS);            //читаем
                  response = readResponseBuffer(usbDeviceHandle,debug);
                 if(response.status==false) throw new DeviceFailException(response.errorCode);
+                System.out.println("N packet =" + (i+1));
             }
 
         } catch (USBHelper.USBException e) {
@@ -251,12 +250,12 @@ public class M2
         byte[] bytes = new byte[DATA_PACKET_SIZE];
         response.get(bytes);
 
-        if(debug)System.out.println("Device response: "+ByteHelper.bytesToHex(bytes,64,' '));
+        //if(debug)System.out.println("Device response: "+ByteHelper.bytesToHex(bytes,64,' '));
 
         Response resp=new Response(bytes[0]==0?true:false,bytes[1]);
         int j=0;
         for(int i=2;i<DATA_PACKET_SIZE;i++)resp.getPayload()[j++]=bytes[i];
-
+        if(debug)printPacket("Response",  bytes);
         return resp;
     }
 
@@ -272,14 +271,15 @@ public class M2
             byte[] commandWrite = new byte[DATA_PACKET_SIZE];
             commandWrite[0]=CLEAR_COMMAND;
 
+            if(debug)printPacket("Clear device",  commandWrite);
             //команда на запись
             USBHelper.write(usbDeviceHandle,commandWrite,OUT_END_POINT,REQUEST_TIMEOUT_MS);
 
-            if(debug)System.out.print("READ RESPONSE...");
+
 
             Response response = readResponseBuffer(usbDeviceHandle,debug);
             if(response.status==false) throw new DeviceFailException(response.errorCode);
-
+            Thread.sleep(200);
         } catch (USBHelper.USBException e) {
             Log.logger.error("",e);
             throw new WriteToDeviceException(e);
@@ -461,5 +461,14 @@ public class M2
         writeToDevice(data,deviceLang.getDeviceLangID(),bf.getComplexesList().size(),debug);
     }
 
+        private static void printPacket(String name, byte[] packet){
+            System.out.println(name+" = ");
 
+            for (int i = 0; i < packet.length; i++) {
+
+                System.out.print((packet[i] < 0 ? packet[i] + 256 : packet[i]) + ", ");
+
+            }
+            System.out.println();
+        }
 }

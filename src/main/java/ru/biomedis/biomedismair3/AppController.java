@@ -1327,9 +1327,11 @@ tab5.disableProperty().bind(m2Ready.not());
             @Override
             public void onAttachDevice() {
                 Platform.runLater(() ->   m2Connected.set(true));
-               // System.out.println("Устройство Trinity подключено");
-
+                m2Ready.setValue(true);
+                System.out.println("Устройство Trinity подключено");
+/*
                 try {
+                Thread.sleep(3000);
                     M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
                     Platform.runLater(() -> {
                                 m2ui.setContent(m2BinaryFile);
@@ -1343,15 +1345,18 @@ tab5.disableProperty().bind(m2Ready.not());
                    });
 
                 }
-
+*/
             }
 
             @Override
             public void onDetachDevice() {
                 System.out.println("Устройство Trinity отключено");
-                Platform.runLater(() ->   m2Connected.set(false));
-                m2Ready.setValue(false);
-                m2ui.cleanView();
+                Platform.runLater(() ->   {
+                    m2Connected.set(false);
+                    m2Ready.setValue(false);
+                    m2ui.cleanView();
+                });
+
             }
         });
     }
@@ -1415,6 +1420,7 @@ tab5.disableProperty().bind(m2Ready.not());
                 showInfoDialog(res.getString("app.ui.uploadM2"), "",res.getString("app.ui.upload_ok"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
 
                 try {
+                    Thread.sleep(4000);//таймаут дает время прибору подумать после записи
                     M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
                     Platform.runLater(() ->m2ui.setContent(m2BinaryFile));
 
@@ -1423,6 +1429,8 @@ tab5.disableProperty().bind(m2Ready.not());
                         showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
                     });
 
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
 
