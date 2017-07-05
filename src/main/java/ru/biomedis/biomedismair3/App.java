@@ -2,7 +2,6 @@ package ru.biomedis.biomedismair3;
 
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -29,6 +28,7 @@ import java.io.*;
 import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 import static ru.biomedis.biomedismair3.BaseController.getApp;
 import static ru.biomedis.biomedismair3.BaseController.showExceptionDialog;
@@ -352,8 +352,11 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
 //доп. обновления требующие ModelDataApp
         if(getUpdateVersion() < currentUpdateFile)
         {
+            UpdateWaiter.show();
+            CompletableFuture<Void> future =new CompletableFuture<>();
             //обновим согласно полученной версии, учесть, что нужно на младшие накатывать все апдейты по порядку
             if(getUpdateVersion()==2) {
+                CompletableFuture.runAsync(() ->  update3(updateOption)).then;
                 update3(updateOption);
                 update4(updateOption);
                 update5(updateOption);
@@ -851,78 +854,52 @@ https://gist.github.com/DemkaAge/8999236
 
     private void update3(ProgramOptions updateOption) {
         logger.info("ОБНОВЛЕНИЕ 3.");
-
-
         //основное изменение в базе - обновление для фр. языка.
         //сделается из файла
 
 
-        Task<Boolean> task =new Task<Boolean>()  {
-            @Override
-            protected Boolean call() throws Exception {
-                File base_translate=null;
-                try {
-                    ResourceUtil ru=new ResourceUtil();
-                    base_translate = ru.saveResource(getTmpDir(),"fr_translanion_bas.xml","/updates/update3/fr_translanion_bas.xml",true);
+        try {
+            ResourceUtil ru = new ResourceUtil();
+            File base_translate = ru.saveResource(getTmpDir(),
+                    "fr_translanion_bas.xml",
+                    "/updates/update3/fr_translanion_bas.xml",
+                    true);
 
-                    if(base_translate==null) throw new Exception();
+            if (base_translate == null) throw new Exception();
 
-                    LoadLanguageFiles ll=new LoadLanguageFiles();
-                    if( ll.parse(Arrays.asList(base_translate),getModel())){
+            LoadLanguageFiles ll = new LoadLanguageFiles();
+            if (ll.parse(Arrays.asList(base_translate), getModel())) {
 
+                setUpdateVersion(updateOption, 3);//установим новую версию обновления
+                logger.info("ОБНОВЛЕНИЕ 3  ЗАВЕРШЕНО.");
 
-                        setUpdateVersion(updateOption,3);//установим новую версию обновления
-                        logger.info("ОБНОВЛЕНИЕ 3  ЗАВЕРШЕНО.");
-                        return true;
-                    }
-                    else  return false;
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    logger.info("ОБНОВЛЕНИЕ 3 НЕ ЗАВЕРШЕНО.");
-                    return false;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    logger.info("ОБНОВЛЕНИЕ 3 НЕ ЗАВЕРШЕНО.");
-                    return false;
-                }
-            }
-        };
-
-        task.setOnSucceeded(event -> {
-            if(!task.getValue().booleanValue()) {
-                BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL);
-                Platform.exit();
-            }
-
-            UpdateWaiter.close();
-        });
-        task.setOnFailed(event -> {
-            Platform.runLater(() -> BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
-            Platform.exit();
-            UpdateWaiter.close();
-        });
-
-        Thread threadTask=new Thread(task);
-        threadTask.setDaemon(true);
-        threadTask.start();
-        UpdateWaiter.show();
+            } else   wrapException("3",  new Exception());
+        } catch (IOException e) {
+            wrapException("3",  e);
+        } catch (Exception e) {
+            wrapException("3",  e);
+        }
 
 
 
     }
 
+    private void wrapException(String msg, Exception e){
+        Log.logger.error("",e);
+        throw new RuntimeException(msg, e);
+    }
+
+    private void showUpdateErrorAndExit(int number){
+        Platform.runLater(() -> BaseController.showErrorDialog("Обновление "+number,"","Обновление не установленно",null,Modality.WINDOW_MODAL) );
+        UpdateWaiter.close();
+        Platform.exit();
+
+    }
+
     private void update4(ProgramOptions updateOption) {
         logger.info("ОБНОВЛЕНИЕ 4.");
-
-
         //основное изменение в базе - обновление для итальянского. языка.
         //сделается из файла
-
-
-        Task<Boolean> task =new Task<Boolean>()  {
-            @Override
-            protected Boolean call() throws Exception {
                 File base_translate=null;
                 try {
                     ResourceUtil ru=new ResourceUtil();
@@ -936,52 +913,25 @@ https://gist.github.com/DemkaAge/8999236
 
                         setUpdateVersion(updateOption,4);//установим новую версию обновления
                         logger.info("ОБНОВЛЕНИЕ 4  ЗАВЕРШЕНО.");
-                        return true;
                     }
-                    else  return false;
+                    else  wrapException("4",new Exception());
 
                 } catch (IOException e) {
-                    e.printStackTrace();
+                   wrapException("4",e);
                     logger.info("ОБНОВЛЕНИЕ 4 НЕ ЗАВЕРШЕНО.");
-                    return false;
+
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    wrapException("4",e);
                     logger.info("ОБНОВЛЕНИЕ 4 НЕ ЗАВЕРШЕНО.");
-                    return false;
+
                 }
-            }
-        };
-
-        task.setOnSucceeded(event -> {
-            if(!task.getValue().booleanValue())  {
-                BaseController.showErrorDialog("Обновление 4","","Обновление не установленно",null,Modality.WINDOW_MODAL);
-                Platform.exit();
-            }
-
-            UpdateWaiter.close();
-        });
-        task.setOnFailed(event -> {
-            Platform.runLater(() -> BaseController.showErrorDialog("Обновление 4","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
-            Platform.exit();
-            UpdateWaiter.close();
-        });
-
-        Thread threadTask=new Thread(task);
-        threadTask.setDaemon(true);
-        threadTask.start();
-        UpdateWaiter.show();
-
-
-
     }
 
 
     private void update5(ProgramOptions updateOption)
     {
         logger.info("ОБНОВЛЕНИЕ 5.");
-        Task<Boolean> task =new Task<Boolean>()  {
-            @Override
-            protected Boolean call() throws Exception {
+
         try
         {
             logger.info("Проверка наличия столбца MULTYFREQ  в THERAPYPROGRAM ");
@@ -999,32 +949,14 @@ https://gist.github.com/DemkaAge/8999236
                 reopenPersistentContext();
                 TherapyComplex therapyComplex;
                 boolean multyCompl=false;
-                /*
-                for (TherapyProgram tp : getModel().findAllTherapyPrograms()) {
 
-                     therapyComplex = tp.getTherapyComplex();
-
-                     if(therapyComplex==null)  tp.setMultyFreq(true);
-                     else   if( therapyComplex.isMulltyFreq()!=tp.isMultyFreq()){
-                         tp.setMultyFreq(therapyComplex.isMulltyFreq());
-                     }
-                    getModel().updateTherapyProgram(tp);
-
-                }
-                */
                 logger.info("Столбец  MULTYFREQ обновлен.");
-
-                //добавление базы чстот Тринити
-
-               // logger.info("Добавление раздела Trinity");
-               // addTrinityBase();
-                //logger.info("Добавление раздела Trinity --- успешно");
 
 
 
             }catch (Exception ex){
                 logger.error("ошибка обновления ALTER TABLE THERAPYPROGRAM ADD MULTYFREQ BOOLEAN(1) DEFAULT 1",ex);
-                return false;
+                wrapException("4",e);
             }finally {
                 if(em!=null) em.close();
             }
@@ -1040,46 +972,16 @@ https://gist.github.com/DemkaAge/8999236
 
         } catch (Exception ex) {
             logger.error("Не удалось выполнить добавление Trinity",ex);
-            return false;
+            wrapException("5",ex);
         }
 
                 setUpdateVersion(updateOption,5);
-            return true;
-
-            }
-        };
-
-
-        task.setOnSucceeded(event -> {
-            if(!task.getValue().booleanValue())  {
-                BaseController.showErrorDialog("Обновление 5","","Обновление не установленно",null,Modality.WINDOW_MODAL);
-                Platform.exit();
-            }
-            else  logger.info("ОБНОВЛЕНИЕ 5. Завершено");
-
-            UpdateWaiter.close();
-        });
-        task.setOnFailed(event -> {
-            Platform.runLater(() -> BaseController.showErrorDialog("Обновление 5 ","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
-            Platform.exit();
-            UpdateWaiter.close();
-        });
-
-        Thread threadTask=new Thread(task);
-        threadTask.setDaemon(true);
-        threadTask.start();
-        UpdateWaiter.show();
-
-
-
     }
 
     private void update6(ProgramOptions updateOption)
     {
         logger.info("ОБНОВЛЕНИЕ 6.");
-        Task<Boolean> task =new Task<Boolean>()  {
-            @Override
-            protected Boolean call() throws Exception {
+
                 boolean tpPosFinded=false;
                 boolean profPosFinded=false;
                 boolean mFreqFinded=false;
@@ -1099,7 +1001,7 @@ https://gist.github.com/DemkaAge/8999236
 
                     }catch (Exception ex){
                         logger.error("ошибка обновления ALTER TABLE THERAPYCOMPLEX DROP `MULLTYFREQ`",ex);
-                        return false;
+                        wrapException("6",ex);
                     }finally {
                         if(em!=null) em.close();
                     }
@@ -1127,7 +1029,7 @@ https://gist.github.com/DemkaAge/8999236
 
                     }catch (Exception ex){
                         logger.error("ошибка обновления ALTER TABLE THERAPYCOMPLEX ADD `POSITION` BIGINT(19) DEFAULT 1",ex);
-                        return false;
+                        wrapException("6",ex);
                     }finally {
                         if(em!=null) em.close();
                     }
@@ -1151,15 +1053,9 @@ https://gist.github.com/DemkaAge/8999236
                         em.getTransaction().commit();
                         logger.info("Столбец  POSITION создан.");
 
-
-
-
-
-
-
                     }catch (Exception ex){
                         logger.error("ошибка обновления ALTER TABLE PROFILE ADD `POSITION` BIGINT(19) DEFAULT 1",ex);
-                        return false;
+                        wrapException("6",ex);
                     }finally {
                         if(em!=null) em.close();
                     }
@@ -1194,7 +1090,7 @@ https://gist.github.com/DemkaAge/8999236
 
                 }catch (Exception e){
                     logger.error("ошибка обновления POSITION",e);
-                    return false;
+                    wrapException("6",e);
                 }
 
 
@@ -1210,31 +1106,34 @@ https://gist.github.com/DemkaAge/8999236
 
                 }catch (Exception e){
                     logger.error(" Ошибка обновления BUNDLESLENGTH",e);
-                    return false;
+                    wrapException("6",e);
                 }finally {
                     if(em!=null) em.close();
                 }
 
-
-             //   d8652bff-a090-451f-bcef-6380195ad2f5 альфа
-             //   c5175f11-cd07-484e-b63c-6b6bd0fcb928    7.84
-
-                Program beta=   getModel().findProgram("c5175f11-cd07-484e-b63c-6b6bd0fcb928");
-                Program alfa=   getModel().findProgram("d8652bff-a090-451f-bcef-6380195ad2f5");
-                     if(beta==null || alfa==null){
-                         logger.error("не найдены комплексы alfa и beta");
-                     }else {
-                         if(beta.getFrequencies().equals("7.84")){
-                             logger.info("Обмен значений альфаи бета ритмов");
-                             beta.setFrequencies(alfa.getFrequencies());
-                             alfa.setFrequencies("7.84");
-                             getModel().updateProgram(alfa);
-                             getModel().updateProgram(beta);
-                         }
-
-                     }
-
                 try {
+
+                    //   d8652bff-a090-451f-bcef-6380195ad2f5 альфа
+                    //   c5175f11-cd07-484e-b63c-6b6bd0fcb928    7.84
+
+                    Program beta=   getModel().findProgram("c5175f11-cd07-484e-b63c-6b6bd0fcb928");
+                    Program alfa=   getModel().findProgram("d8652bff-a090-451f-bcef-6380195ad2f5");
+                    if(beta==null || alfa==null){
+                        logger.error("не найдены комплексы alfa и beta");
+                    }else {
+                        if(beta.getFrequencies().equals("7.84")){
+                            logger.info("Обмен значений альфаи бета ритмов");
+                            beta.setFrequencies(alfa.getFrequencies());
+                            alfa.setFrequencies("7.84");
+                            getModel().updateProgram(alfa);
+                            getModel().updateProgram(beta);
+                        }
+
+                    }
+
+
+
+
                     logger.info("Обновление раздела Trinity");
                     //первый вариант добавления забраковали. Далее используется обновленная версия.
                     //Эта версия обновит если уже было добавлено не верно или создаст верный вариант. При кумулятивном обновлении сработает в update5
@@ -1243,36 +1142,12 @@ https://gist.github.com/DemkaAge/8999236
 
                 } catch (Exception ex) {
                     logger.error("Не удалось выполнить обновление Trinity",ex);
-                    return false;
+                    wrapException("6",ex);
                 }
 
 
                 setUpdateVersion(updateOption,6);
-                return true;
 
-            }
-        };
-
-
-        task.setOnSucceeded(event -> {
-            if(!task.getValue().booleanValue())  {
-                BaseController.showErrorDialog("Обновление 6","","Обновление не установленно",null,Modality.WINDOW_MODAL);
-                Platform.exit();
-            }
-            else  logger.info("ОБНОВЛЕНИЕ 6. Завершено");
-
-            UpdateWaiter.close();
-        });
-        task.setOnFailed(event -> {
-            Platform.runLater(() -> BaseController.showErrorDialog("Обновление 6","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
-            Platform.exit();
-            UpdateWaiter.close();
-        });
-
-        Thread threadTask=new Thread(task);
-        threadTask.setDaemon(true);
-        threadTask.start();
-        UpdateWaiter.show();
 
 
 
@@ -1280,117 +1155,115 @@ https://gist.github.com/DemkaAge/8999236
     private void update7(ProgramOptions updateOption)
     {
         logger.info("ОБНОВЛЕНИЕ 7.");
-        Task<Boolean> task =new Task<Boolean>()  {
-            @Override
-            protected Boolean call() throws Exception {
 
-               Language ru= model.getLanguage("ru");
+            try {
+                Language ru = model.getLanguage("ru");
 
                 //при обновлении 6 забыта установка поля ownerSystem!! В методе update6 исправлено, но для тех у кого оно уже стояло нужен этот код.
-                    //также был установлен не верный язык(пользовательский вместо ru)
-               Section section = model.findAllSectionByTag("TRINITY");
-                if(section!=null) {
+                //также был установлен не верный язык(пользовательский вместо ru)
+                Section section = model.findAllSectionByTag("TRINITY");
+                if (section != null) {
                     Strings nameStringTrin = section.getName();
                     LocalizedString enName = model.getLocalString(nameStringTrin, model.getDefaultLanguage());
-                    if(enName==null)model.addString(nameStringTrin,"Trinity",model.getDefaultLanguage());
+                    if (enName == null) model.addString(nameStringTrin, "Trinity", model.getDefaultLanguage());
                     LocalizedString localString;
-                        for (Complex complex : model.findAllComplexBySection(section)) {
-                             localString = model.getLocalString(complex.getName(), ru);
-                             if(localString==null){
-                                 localString = model.getLocalString(complex.getName(), model.getUserLanguage());
-                             }
-                             if(localString!=null){
-                                 localString.setLanguage(ru);
-                                 model.updateLocalString(localString);
-                             }
-                            localString = model.getLocalString(complex.getDescription(), ru);
-                            if(localString==null){
-                                localString = model.getLocalString(complex.getDescription(), model.getUserLanguage());
+                    for (Complex complex : model.findAllComplexBySection(section)) {
+                        localString = model.getLocalString(complex.getName(), ru);
+                        if (localString == null) {
+                            localString = model.getLocalString(complex.getName(), model.getUserLanguage());
+                        }
+                        if (localString != null) {
+                            localString.setLanguage(ru);
+                            model.updateLocalString(localString);
+                        }
+                        localString = model.getLocalString(complex.getDescription(), ru);
+                        if (localString == null) {
+                            localString = model.getLocalString(complex.getDescription(), model.getUserLanguage());
+                        }
+                        if (localString != null) {
+                            localString.setLanguage(ru);
+                            model.updateLocalString(localString);
+                        }
+
+                        complex.setOwnerSystem(true);
+                        model.updateComplex(complex);
+                        for (Program program : model.findAllProgramByComplex(complex)) {
+                            localString = model.getLocalString(program.getName(), ru);
+                            if (localString == null) {
+                                localString = model.getLocalString(program.getName(), model.getUserLanguage());
                             }
-                            if(localString!=null){
+                            if (localString != null) {
                                 localString.setLanguage(ru);
                                 model.updateLocalString(localString);
                             }
 
-                                complex.setOwnerSystem(true);
-                                model.updateComplex(complex);
-                                for (Program program : model.findAllProgramByComplex(complex)) {
-                                    localString = model.getLocalString(program.getName(), ru);
-                                    if(localString==null){
-                                        localString = model.getLocalString(program.getName(), model.getUserLanguage());
-                                    }
-                                    if(localString!=null){
-                                        localString.setLanguage(ru);
-                                        model.updateLocalString(localString);
-                                    }
-
-                                    localString = model.getLocalString(program.getDescription(), ru);
-                                    if(localString==null){
-                                        localString = model.getLocalString(program.getDescription(), model.getUserLanguage());
-                                    }
-                                    if(localString!=null){
-                                        localString.setLanguage(ru);
-                                        model.updateLocalString(localString);
-                                    }
-                                    if(!program.isOwnerSystem()){
-                                        program.setOwnerSystem(true);
-                                        model.updateProgram(program);
-                                    }
-
-                                }
-
+                            localString = model.getLocalString(program.getDescription(), ru);
+                            if (localString == null) {
+                                localString = model.getLocalString(program.getDescription(), model.getUserLanguage());
+                            }
+                            if (localString != null) {
+                                localString.setLanguage(ru);
+                                model.updateLocalString(localString);
+                            }
+                            if (!program.isOwnerSystem()) {
+                                program.setOwnerSystem(true);
+                                model.updateProgram(program);
+                            }
 
                         }
+
+
+                    }
                 }
-                String[] fileUUIDs=new String[]{
+                String[] fileUUIDs = new String[]{
                         "b57cb360-bffe-4c90-a5f6-c61afa6c5212",
-                "79a622f6-2de5-4693-9ac7-494bb4c37c90",
-               "178ce590-1111-4214-89bb-91974fecbde7",
-                "2c1310c6-4a56-49d0-8644-2cac1e743ad5",
-               "0580dfb7-1da2-4592-9ded-a0fadbe8fcc1",
-               "49683ae8-51d0-4806-9058-5aa8716f961d",
-               "8e638001-a4fa-4dd6-ae1a-9cbfcae27e27",
-              "6b3be161-0c2b-4d61-80be-9a870e6885db",
-               "86908606-b908-48ec-a08f-fd3115c23f58",
-                "664c5042-2117-4cb6-90a7-0c17e9b8795e",
-               "6bbd0b18-bde1-4fa6-9cdc-129ff6bfb4ba",
-                "7c9965a7-fbb3-4f24-ba2c-826f803665fa",
-              "38415e0d-97fc-4b19-8ed2-e4ee16e5812b",
-                "f9747cae-1b8c-4c21-869b-4ff4f1048bd3",
-               "648aa672-63eb-448e-8556-d69cf8243d0b",
-                "966beca0-a24d-4cd1-8fe2-c6384763b88a",
-            "f326b090-3f23-49af-88b2-cb4cc8403a39",
-              "28b917de-eb09-42f9-9823-cd904fe5beb6",
-               "c810faf4-bee2-4b62-8e27-a44983c2d8e4",
-               "0658e74e-a8d5-40be-917b-406e00620b74",
-                "f74c8090-fa32-47a5-abad-f1dba3792308",
-                "b3943a27-91b6-4d19-9c07-3bc928205992",
-               "d65b9e93-ce22-4c01-911d-884446ca2523",
-               "8804b3ec-d49b-44a9-a69d-1b3501538abb",
-               "759b688a-cb72-49e1-9794-d424c15199d5",
-               "30041ef0-1f7c-47bd-8fc3-4f30cbd9297a",
-             "b83e5b99-fa70-48ea-8f46-8a18dc229a1e",
-               "71761ede-a662-4613-8c64-05088baff6d7",
-                "2632cbf9-27d4-4de5-87b6-e42f20782d06",
-               "06093a0e-29c3-4f63-8cea-868fd17632a3",
-               "2dc5f753-1e5e-4508-8879-ece8058e2f8f",
-                "86bb4484-c85b-4288-b84b-9560c9474f12",
-              "ea26e299-8eab-4487-bd9b-92b8d98e53a5",
-               "a61dd92f-de31-4478-bd00-4b16bfffbc28",
-               "c9da8ee8-2b3a-4a91-b650-37b34440bd1c",
-                "3b01a1ca-c198-46ea-a8d0-962a2b5e5eed",
-                "63d78132-3237-4097-a118-2eccd50236c1",
-                "0bef5a32-f83d-45de-ab1a-80e528c77482",
-               "3bc953e5-112d-47c4-bbbf-cf0bddb4fe20",
-                "1fb032c4-2e30-43b1-b7db-437c30c2a2b2",
-                "31cf3fe8-47e4-473f-87df-714eefc0b29e",
-                "720ed79b-c029-4546-b017-0f197944a17d",
-                "933ca1ed-7028-454f-91f6-6a143e204dc8",
-                "93efa3d7-3981-4146-a2bd-e20d1e8a5fb0"
+                        "79a622f6-2de5-4693-9ac7-494bb4c37c90",
+                        "178ce590-1111-4214-89bb-91974fecbde7",
+                        "2c1310c6-4a56-49d0-8644-2cac1e743ad5",
+                        "0580dfb7-1da2-4592-9ded-a0fadbe8fcc1",
+                        "49683ae8-51d0-4806-9058-5aa8716f961d",
+                        "8e638001-a4fa-4dd6-ae1a-9cbfcae27e27",
+                        "6b3be161-0c2b-4d61-80be-9a870e6885db",
+                        "86908606-b908-48ec-a08f-fd3115c23f58",
+                        "664c5042-2117-4cb6-90a7-0c17e9b8795e",
+                        "6bbd0b18-bde1-4fa6-9cdc-129ff6bfb4ba",
+                        "7c9965a7-fbb3-4f24-ba2c-826f803665fa",
+                        "38415e0d-97fc-4b19-8ed2-e4ee16e5812b",
+                        "f9747cae-1b8c-4c21-869b-4ff4f1048bd3",
+                        "648aa672-63eb-448e-8556-d69cf8243d0b",
+                        "966beca0-a24d-4cd1-8fe2-c6384763b88a",
+                        "f326b090-3f23-49af-88b2-cb4cc8403a39",
+                        "28b917de-eb09-42f9-9823-cd904fe5beb6",
+                        "c810faf4-bee2-4b62-8e27-a44983c2d8e4",
+                        "0658e74e-a8d5-40be-917b-406e00620b74",
+                        "f74c8090-fa32-47a5-abad-f1dba3792308",
+                        "b3943a27-91b6-4d19-9c07-3bc928205992",
+                        "d65b9e93-ce22-4c01-911d-884446ca2523",
+                        "8804b3ec-d49b-44a9-a69d-1b3501538abb",
+                        "759b688a-cb72-49e1-9794-d424c15199d5",
+                        "30041ef0-1f7c-47bd-8fc3-4f30cbd9297a",
+                        "b83e5b99-fa70-48ea-8f46-8a18dc229a1e",
+                        "71761ede-a662-4613-8c64-05088baff6d7",
+                        "2632cbf9-27d4-4de5-87b6-e42f20782d06",
+                        "06093a0e-29c3-4f63-8cea-868fd17632a3",
+                        "2dc5f753-1e5e-4508-8879-ece8058e2f8f",
+                        "86bb4484-c85b-4288-b84b-9560c9474f12",
+                        "ea26e299-8eab-4487-bd9b-92b8d98e53a5",
+                        "a61dd92f-de31-4478-bd00-4b16bfffbc28",
+                        "c9da8ee8-2b3a-4a91-b650-37b34440bd1c",
+                        "3b01a1ca-c198-46ea-a8d0-962a2b5e5eed",
+                        "63d78132-3237-4097-a118-2eccd50236c1",
+                        "0bef5a32-f83d-45de-ab1a-80e528c77482",
+                        "3bc953e5-112d-47c4-bbbf-cf0bddb4fe20",
+                        "1fb032c4-2e30-43b1-b7db-437c30c2a2b2",
+                        "31cf3fe8-47e4-473f-87df-714eefc0b29e",
+                        "720ed79b-c029-4546-b017-0f197944a17d",
+                        "933ca1ed-7028-454f-91f6-6a143e204dc8",
+                        "93efa3d7-3981-4146-a2bd-e20d1e8a5fb0"
                 };
 
                 //
-                String[] fixedUUID=new String[]{
+                String[] fixedUUID = new String[]{
                         "4afbd1d5-728e-416b-8ef4-35578f171245",
                         "452f52fb-90d3-4c24-ab62-a94afa89348d",
                         "9d024284-6386-4044-a828-6d537270818e",
@@ -1437,13 +1310,11 @@ https://gist.github.com/DemkaAge/8999236
                         "8df024e8-8e7e-40c3-83d5-de52be1e6fce"
                 };
 
-                Map<String,String> transMap=new HashMap<>();
-
-
+                Map<String, String> transMap = new HashMap<>();
 
 
                 //замена на точные старые UUID, соответствуют файлам перевода
-                int j=0;
+                int j = 0;
                 for (Complex complex : model.findAllComplexBySection(section)) {
                     complex.setUuid(fileUUIDs[j++]);
                     model.updateComplex(complex);
@@ -1454,14 +1325,14 @@ https://gist.github.com/DemkaAge/8999236
                 }
 
                 //замена UUID в TrinityBase
-                j=0;
+                j = 0;
                 section.setUuid("e10ffe0a-1064-4c02-ad32-c3cf15ea958b");
                 getModel().updateSection(section);
 
                 //сначала все программы, потом комплексы не иначе, тк это порядок обработки файла перевода!!
                 for (Complex complex : model.findAllComplexBySection(section)) {
                     for (Program program : model.findAllProgramByComplex(complex)) {
-                        transMap.put(program.getUuid(),fixedUUID[j]);
+                        transMap.put(program.getUuid(), fixedUUID[j]);
                         program.setUuid(fixedUUID[j++]);
                         model.updateProgram(program);
                         //System.out.println("Program" + program.getId());
@@ -1469,25 +1340,24 @@ https://gist.github.com/DemkaAge/8999236
                 }
 
                 for (Complex complex : model.findAllComplexBySection(section)) {
-                    transMap.put(complex.getUuid(),fixedUUID[j]);
+                    transMap.put(complex.getUuid(), fixedUUID[j]);
                     complex.setUuid(fixedUUID[j++]);
                     model.updateComplex(complex);
-                   // System.out.println("complex" + complex.getId());
+                    // System.out.println("complex" + complex.getId());
 
                 }
 
 
-                setTranslate("/updates/update7/trinity_fr_trans.xml","fr",transMap);
-                setTranslate("/updates/update7/trinity_it_trans.xml","it",transMap);
-                setTranslate("/updates/update7/trinity_en_trans.xml","en",transMap);
-                setTranslate("/updates/update7/trinity_el_trans.xml","el",transMap);
+                setTranslate("/updates/update7/trinity_fr_trans.xml", "fr", transMap);
+                setTranslate("/updates/update7/trinity_it_trans.xml", "it", transMap);
+                setTranslate("/updates/update7/trinity_en_trans.xml", "en", transMap);
+                setTranslate("/updates/update7/trinity_el_trans.xml", "el", transMap);
 
 
-
-                rootSectionNames("La Nuova base delle  frequenze","La Vecchia base delle frequenze","it");
-                rootSectionNames("Base de nouvelles fréquences","Base de fréquences anciennes","fr");
-                rootSectionNames("Neue Frequenzen Basis","Alte Frequenzen Basis","de");
-                rootSectionNames("Βάση νέων συχνοτήτων","Βάση παλαιών συχνοτήτων","el");
+                rootSectionNames("La Nuova base delle  frequenze", "La Vecchia base delle frequenze", "it");
+                rootSectionNames("Base de nouvelles fréquences", "Base de fréquences anciennes", "fr");
+                rootSectionNames("Neue Frequenzen Basis", "Alte Frequenzen Basis", "de");
+                rootSectionNames("Βάση νέων συχνοτήτων", "Βάση παλαιών συχνοτήτων", "el");
 
 
                 //заменить частоты в программах
@@ -1496,136 +1366,92 @@ https://gist.github.com/DemkaAge/8999236
                 //  8634ffa9-371b-499f-b64f-00f2ea043fee  1550;880;802;800;787;727;672;444
                 //  f81443c3-1ad8-4f8a-9a73-d57fdf691839 332;698;721;732;749;752;942;991.5;1026.2;3212;4412
 
-                Program p1=   getModel().findProgram("a6e99500-ac4a-486a-98e6-d215dab68afd");
-                Program p2=   getModel().findProgram("8d8a4c44-1e35-4ec9-a653-ec46a7b72804");
-                Program p3=   getModel().findProgram("8634ffa9-371b-499f-b64f-00f2ea043fee");
-                Program p4=   getModel().findProgram("f81443c3-1ad8-4f8a-9a73-d57fdf691839");
-                Program p5=   getModel().findProgram("160ca4f8-ca82-4b7e-8dbe-311d993bf7af");
+                Program p1 = getModel().findProgram("a6e99500-ac4a-486a-98e6-d215dab68afd");
+                Program p2 = getModel().findProgram("8d8a4c44-1e35-4ec9-a653-ec46a7b72804");
+                Program p3 = getModel().findProgram("8634ffa9-371b-499f-b64f-00f2ea043fee");
+                Program p4 = getModel().findProgram("f81443c3-1ad8-4f8a-9a73-d57fdf691839");
+                Program p5 = getModel().findProgram("160ca4f8-ca82-4b7e-8dbe-311d993bf7af");
 
-                if(p1==null || p2==null || p3==null || p4==null|| p5==null){
+                if (p1 == null || p2 == null || p3 == null || p4 == null || p5 == null) {
                     logger.error("не найдены программы для обновления частот");
-                }else {
-                        p1.setFrequencies("2;12;26;26.5;66;75.5;94;95.5");
-                        p2.setFrequencies("6.3;6.5;23.5;60.5;61.5;63;64.5;67");
-                        p3.setFrequencies("1550;880;802;800;787;727;672;444");
-                        p4.setFrequencies("332;698;721;732;749;752;942;991.5;1026.2;3212;4412");
-                        p5.setFrequencies("941.9;425;433;445;941.9;935;1010;1060;457;465;777;778;1214;1216;8478");
-                        getModel().updateProgram(p1);
-                        getModel().updateProgram(p2);
-                        getModel().updateProgram(p3);
-                        getModel().updateProgram(p4);
-                        getModel().updateProgram(p5);
+                } else {
+                    p1.setFrequencies("2;12;26;26.5;66;75.5;94;95.5");
+                    p2.setFrequencies("6.3;6.5;23.5;60.5;61.5;63;64.5;67");
+                    p3.setFrequencies("1550;880;802;800;787;727;672;444");
+                    p4.setFrequencies("332;698;721;732;749;752;942;991.5;1026.2;3212;4412");
+                    p5.setFrequencies("941.9;425;433;445;941.9;935;1010;1060;457;465;777;778;1214;1216;8478");
+                    getModel().updateProgram(p1);
+                    getModel().updateProgram(p2);
+                    getModel().updateProgram(p3);
+                    getModel().updateProgram(p4);
+                    getModel().updateProgram(p5);
 
 
                 }
 
-                setLangNameForSection("6a5d84b9-97b0-415b-9c69-ac1dca3dcad3","Autorenkomplexe","de");
-                setLangNameForSection("c1ff40dd-0e9d-413e-a9d9-d613eeeb8f2d","General Programme","de");
-                setLangNameForSection("15cf155a-cc24-49ed-98f1-a6c3fdec3539","Frequenzen der chemischen Elemente","de");
-                setLangNameForSection("d1a0b290-ccee-4fd9-b635-6861b8a508a7","Vorbeugende komplexe","de");
-                setLangNameForSection("600886d6-5c2b-4a0b-b974-d151f1125c42","Sätze von Programmen","de");
-                setLangNameForSection("205967cf-02fa-4e96-ac00-a19e5dd2a3fb","Antiparasitäre","de");
-                setLangNameForSection("db31c890-3500-4dee-84f3-8c49a7518112","Benutzerbasis","de");
+                setLangNameForSection("6a5d84b9-97b0-415b-9c69-ac1dca3dcad3", "Autorenkomplexe", "de");
+                setLangNameForSection("c1ff40dd-0e9d-413e-a9d9-d613eeeb8f2d", "General Programme", "de");
+                setLangNameForSection("15cf155a-cc24-49ed-98f1-a6c3fdec3539",
+                        "Frequenzen der chemischen Elemente",
+                        "de");
+                setLangNameForSection("d1a0b290-ccee-4fd9-b635-6861b8a508a7", "Vorbeugende komplexe", "de");
+                setLangNameForSection("600886d6-5c2b-4a0b-b974-d151f1125c42", "Sätze von Programmen", "de");
+                setLangNameForSection("205967cf-02fa-4e96-ac00-a19e5dd2a3fb", "Antiparasitäre", "de");
+                setLangNameForSection("db31c890-3500-4dee-84f3-8c49a7518112", "Benutzerbasis", "de");
 
-                setUpdateVersion(updateOption,7);
-                return true;
+                setUpdateVersion(updateOption, 7);
 
+            }catch (Exception e){
+                wrapException("7",e);
             }
-        };
-
-
-        task.setOnSucceeded(event -> {
-            if(!task.getValue().booleanValue())  {
-                BaseController.showErrorDialog("Обновление 7","","Обновление не установленно",null,Modality.WINDOW_MODAL);
-                Platform.exit();
-            }
-            else  logger.info("ОБНОВЛЕНИЕ 7. Завершено");
-
-            UpdateWaiter.close();
-        });
-        task.setOnFailed(event -> {
-            Platform.runLater(() -> BaseController.showErrorDialog("Обновление 7","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
-            Platform.exit();
-            UpdateWaiter.close();
-        });
-
-        Thread threadTask=new Thread(task);
-        threadTask.setDaemon(true);
-        threadTask.start();
-        UpdateWaiter.show();
-
 
 
     }
     private void update8(ProgramOptions updateOption)
     {
         logger.info("ОБНОВЛЕНИЕ 8.");
-        Task<Boolean> task =new Task<Boolean>()  {
-            @Override
-            protected Boolean call() throws Exception {
 
-                Program p5=   getModel().findProgram("160ca4f8-ca82-4b7e-8dbe-311d993bf7af");
+                try {
+                    Program p5 = getModel().findProgram("160ca4f8-ca82-4b7e-8dbe-311d993bf7af");
 
-                if(p5==null){
-                    logger.error("не найдены программы для обновления частот");
-                }else {
-                    p5.setFrequencies("941.9;425;433;445;941.9;935;1010;1060;457;465;777;778;1214;1216;8478");
-                    getModel().updateProgram(p5);
+                    if (p5 == null) {
+                        logger.error("не найдены программы для обновления частот");
+                    } else {
+                        p5.setFrequencies("941.9;425;433;445;941.9;935;1010;1060;457;465;777;778;1214;1216;8478");
+                        getModel().updateProgram(p5);
 
+                    }
+
+                    //обновление имен элементов базы на немецком
+                    //6a5d84b9-97b0-415b-9c69-ac1dca3dcad3   авторские
+                    //c1ff40dd-0e9d-413e-a9d9-d613eeeb8f2d общие программы
+                    //15cf155a-cc24-49ed-98f1-a6c3fdec3539 хим э
+                    //d1a0b290-ccee-4fd9-b635-6861b8a508a7 профилактическ
+                    // 600886d6-5c2b-4a0b-b974-d151f1125c42 наборы программ
+                    //  205967cf-02fa-4e96-ac00-a19e5dd2a3fb  антипараз
+                    //   db31c890-3500-4dee-84f3-8c49a7518112 USER BASE
+                    setLangNameForSection("6a5d84b9-97b0-415b-9c69-ac1dca3dcad3", "Autorenkomplexe", "de");
+                    setLangNameForSection("c1ff40dd-0e9d-413e-a9d9-d613eeeb8f2d", "General Programme", "de");
+                    setLangNameForSection("15cf155a-cc24-49ed-98f1-a6c3fdec3539",
+                            "Frequenzen der chemischen Elemente",
+                            "de");
+                    setLangNameForSection("d1a0b290-ccee-4fd9-b635-6861b8a508a7", "Vorbeugende komplexe", "de");
+                    setLangNameForSection("600886d6-5c2b-4a0b-b974-d151f1125c42", "Sätze von Programmen", "de");
+                    setLangNameForSection("205967cf-02fa-4e96-ac00-a19e5dd2a3fb", "Antiparasitäre", "de");
+                    setLangNameForSection("db31c890-3500-4dee-84f3-8c49a7518112", "Benutzerbasis", "de");
+
+                    setUpdateVersion(updateOption, 8);
+
+                }catch (Exception ex){
+                    wrapException("8",ex);
                 }
 
-                //обновление имен элементов базы на немецком
-                //6a5d84b9-97b0-415b-9c69-ac1dca3dcad3   авторские
-                //c1ff40dd-0e9d-413e-a9d9-d613eeeb8f2d общие программы
-                //15cf155a-cc24-49ed-98f1-a6c3fdec3539 хим э
-                //d1a0b290-ccee-4fd9-b635-6861b8a508a7 профилактическ
-                // 600886d6-5c2b-4a0b-b974-d151f1125c42 наборы программ
-                //  205967cf-02fa-4e96-ac00-a19e5dd2a3fb  антипараз
-                //   db31c890-3500-4dee-84f3-8c49a7518112 USER BASE
-                setLangNameForSection("6a5d84b9-97b0-415b-9c69-ac1dca3dcad3","Autorenkomplexe","de");
-                setLangNameForSection("c1ff40dd-0e9d-413e-a9d9-d613eeeb8f2d","General Programme","de");
-                setLangNameForSection("15cf155a-cc24-49ed-98f1-a6c3fdec3539","Frequenzen der chemischen Elemente","de");
-                setLangNameForSection("d1a0b290-ccee-4fd9-b635-6861b8a508a7","Vorbeugende komplexe","de");
-                setLangNameForSection("600886d6-5c2b-4a0b-b974-d151f1125c42","Sätze von Programmen","de");
-                setLangNameForSection("205967cf-02fa-4e96-ac00-a19e5dd2a3fb","Antiparasitäre","de");
-                setLangNameForSection("db31c890-3500-4dee-84f3-8c49a7518112","Benutzerbasis","de");
 
-                setUpdateVersion(updateOption,8);
-                return true;
-
-            }
-        };
-
-
-        task.setOnSucceeded(event -> {
-            if(!task.getValue().booleanValue())  {
-                BaseController.showErrorDialog("Обновление 8","","Обновление не установленно",null,Modality.WINDOW_MODAL);
-                Platform.exit();
-            }
-            else  logger.info("ОБНОВЛЕНИЕ 8. Завершено");
-
-            UpdateWaiter.close();
-        });
-        task.setOnFailed(event -> {
-            Platform.runLater(() -> BaseController.showErrorDialog("Обновление 8","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
-            Platform.exit();
-            UpdateWaiter.close();
-        });
-
-        Thread threadTask=new Thread(task);
-        threadTask.setDaemon(true);
-        threadTask.start();
-        UpdateWaiter.show();
-
-
-
-    }
+}
 
     private void update9(ProgramOptions updateOption) {
         logger.info("ОБНОВЛЕНИЕ 9.");
-        Task<Boolean> task =new Task<Boolean>()  {
-            @Override
-            protected Boolean call() throws Exception {
+
 
 
                 try
@@ -1647,7 +1473,7 @@ https://gist.github.com/DemkaAge/8999236
 
                     } catch (Exception ex) {
                         logger.error("ALTER TABLE COMPLEX ADD `TIMEFORFREQ` INT DEFAULT 0", ex);
-                        return false;
+                        wrapException("9",ex);
                     } finally {
                         if (em != null) em.close();
                     }
@@ -1680,9 +1506,9 @@ https://gist.github.com/DemkaAge/8999236
                     setTimeForFreqToCompex("67d79b66-f1bb-4cae-b5dc-dca96fd9b4c2" ,60);
 
 
-                }catch (Exception e){
-                    Log.logger.error("Вероятно предыдущие обновления меняющие UUID прошли некорректно",e);
-                    return false;
+                }catch (Exception ex){
+                    Log.logger.error("Вероятно предыдущие обновления меняющие UUID прошли некорректно",ex);
+                    wrapException("9",ex);
                 }
 /*
                 //uuid="7683715f-47f8-427e-8a07-e623ea236ef4" name="Активация жизненной энергии"  timeForFreq="300"
@@ -1710,32 +1536,6 @@ https://gist.github.com/DemkaAge/8999236
 
 */
                 setUpdateVersion(updateOption,9);
-                return true;
-
-            }
-        };
-
-
-        task.setOnSucceeded(event -> {
-            if(!task.getValue().booleanValue())  {
-                BaseController.showErrorDialog("Обновление 9","","Обновление не установленно",null,Modality.WINDOW_MODAL);
-                Platform.exit();
-            }
-            else  logger.info("ОБНОВЛЕНИЕ 9. Завершено");
-
-            UpdateWaiter.close();
-        });
-        task.setOnFailed(event -> {
-            Platform.runLater(() -> BaseController.showErrorDialog("Обновление","","Обновление не установленно",null,Modality.WINDOW_MODAL) );
-            Platform.exit();
-            UpdateWaiter.close();
-        });
-
-        Thread threadTask=new Thread(task);
-        threadTask.setDaemon(true);
-        threadTask.start();
-        UpdateWaiter.show();
-
 
     }
 
