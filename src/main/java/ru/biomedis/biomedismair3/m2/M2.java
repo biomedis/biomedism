@@ -55,6 +55,7 @@ public class M2
 
             int size= ByteHelper.byteArray4ToInt(response.getPayload(),0, ByteHelper.ByteOrder.BIG_TO_SMALL);
             int langID=ByteHelper.byteArray1ToInt(response.getPayload(),4);
+            System.out.println("Размер посылки: "+size);
 
             if(size==0){
                 //если прибор пустой, то создадим пустой файл
@@ -435,7 +436,7 @@ public class M2
         byte[] data = bf.getData();
 
 
-
+        System.out.println("Размер посылки: "+data.length);
         LanguageDevice deviceLang = LanguageDevice.getDeviceLang(mda.getProgramLanguage().getAbbr());
 
         if(debug){

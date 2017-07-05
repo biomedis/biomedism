@@ -1327,7 +1327,7 @@ tab5.disableProperty().bind(m2Ready.not());
             @Override
             public void onAttachDevice() {
                 Platform.runLater(() ->   m2Connected.set(true));
-
+               // System.out.println("Устройство Trinity подключено");
 
                 try {
                     M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
@@ -1335,6 +1335,7 @@ tab5.disableProperty().bind(m2Ready.not());
                                 m2ui.setContent(m2BinaryFile);
                                 m2Ready.setValue(true);
                             });
+
                     System.out.println("Устройство Trinity подключено");
                 } catch (M2.ReadFromDeviceException e) {
                    Platform.runLater(() -> {
