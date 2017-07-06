@@ -40,6 +40,15 @@ public class CreateBaseHelper{
             contentDir.mkdir();
 
             for (Section rootSection : rootSections) {
+
+                if(rootSection.getTag()!=null) if(rootSection.getTag().equals("TRINITY")){
+
+                    System.out.print("Раздел : "+rootSection.getNameString()+"...");
+
+                    exportSection(rootSection,new File(langDir,mda.getString(rootSection.getName(),mda.getDefaultLanguage())+".html"),mda, language,rootSection.getNameString());
+
+                    continue;
+                }
                 List<Section> innerSections = mda.findAllSectionByParent(rootSection);
                 mda.initStringsSection(innerSections,language,true);
 
@@ -53,12 +62,14 @@ public class CreateBaseHelper{
                     fw.write("<head>  <meta charset=\"utf-8\"/><title>"+rootSection.getNameString()+"</title></head>\n");
                     fw.write("<body>\n");
 
-                for (Section section : innerSections) {
-                    System.out.print("Раздел : "+section.getNameString()+"...");
-                    fw.write("<a href='./content/"+section.getId()+".html'>"+section.getNameString()+"</a><br/>\n");
-                    exportSection(section,new File(contentDir,section.getId()+".html"),mda, language,section.getNameString());
-                    System.out.println("..OK");
-                }
+
+
+                    for (Section section : innerSections) {
+                        System.out.print("Раздел : "+section.getNameString()+"...");
+                        fw.write("<a href='./content/"+section.getId()+".html'>"+section.getNameString()+"</a><br/>\n");
+                        exportSection(section,new File(contentDir,section.getId()+".html"),mda, language,section.getNameString());
+                        System.out.println("..OK");
+                    }
 
                 fw.write("</body></html>\n");
 
