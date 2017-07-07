@@ -99,7 +99,7 @@ public class App extends Application {
     public ResourceBundle getResources(){return strings;}
       private final boolean test=false;//указывает что будут проводиться интеграционные тесты. Соответсвенно будет подключена другая БД и запущенны тесты
       private final boolean importDB=false;//импорт базы данных
-      private final boolean updateBaseMenuVisible =true;//показ пункта обновления базы частот
+      private final boolean updateBaseMenuVisible =false;//показ пункта обновления базы частот
 
     public boolean isUpdateBaseMenuVisible() {
         return updateBaseMenuVisible;
@@ -236,6 +236,15 @@ public class App extends Application {
 
     private boolean neadCleanDataFilesAndState=false;
 
+    private boolean needExit=false;
+
+    private boolean isNeedExit() {
+        return needExit;
+    }
+
+    private void setNeedExit(boolean needExit) {
+        this.needExit = needExit;
+    }
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -352,57 +361,95 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
 //доп. обновления требующие ModelDataApp
         if(getUpdateVersion() < currentUpdateFile)
         {
-            UpdateWaiter.show();
-            CompletableFuture<Void> future =null;
+
+
             //обновим согласно полученной версии, учесть, что нужно на младшие накатывать все апдейты по порядку
             if(getUpdateVersion()==2) {
-                future =  CompletableFuture.runAsync(() ->  update3(updateOption))
+                CompletableFuture.runAsync(() -> changeDDL())
+                        .thenRun(() ->  update3(updateOption))
                                  .thenRun(() -> update4(updateOption))
                                  .thenRun(() -> update5(updateOption))
                                  .thenRun(() -> update6(updateOption))
                                  .thenRun(() -> update7(updateOption))
                                  .thenRun(() -> update8(updateOption))
-                                 .thenRun(() -> update9(updateOption));
+                                 .thenRun(() -> update9(updateOption))
+                        .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
+                        .exceptionally(e->{
+                            showUpdateErrorAndExit(e.getMessage());
+                            return null;
+                        });
             }else if(getUpdateVersion()==3){
-                future =  CompletableFuture.runAsync(() ->  update4(updateOption))
+                CompletableFuture.runAsync(() -> changeDDL())
+                        .thenRun(() ->  update4(updateOption))
                                            .thenRun(() -> update5(updateOption))
                                            .thenRun(() -> update6(updateOption))
                                            .thenRun(() -> update7(updateOption))
                                            .thenRun(() -> update8(updateOption))
-                                           .thenRun(() -> update9(updateOption));
+                                           .thenRun(() -> update9(updateOption))
+                        .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
+                        .exceptionally(e->{
+                            showUpdateErrorAndExit(e.getMessage());
+                            return null;
+                        });
             }else if(getUpdateVersion()==4){
-                future =  CompletableFuture.runAsync(() ->  update5(updateOption))
+                CompletableFuture.runAsync(() -> changeDDL())
+                        .thenRun(() ->  update5(updateOption))
                                            .thenRun(() -> update6(updateOption))
                                            .thenRun(() -> update7(updateOption))
                                            .thenRun(() -> update8(updateOption))
-                                           .thenRun(() -> update9(updateOption));
+                                           .thenRun(() -> update9(updateOption))
+                        .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
+                        .exceptionally(e->{
+                            showUpdateErrorAndExit(e.getMessage());
+                            return null;
+                        });
             }else if(getUpdateVersion()==5){
-                future =  CompletableFuture.runAsync(() ->  update6(updateOption))
+                CompletableFuture.runAsync(() -> changeDDL())
+                        .thenRun(() ->  update6(updateOption))
                                            .thenRun(() -> update7(updateOption))
                                            .thenRun(() -> update8(updateOption))
-                                           .thenRun(() -> update9(updateOption));
+                                           .thenRun(() -> update9(updateOption))
+                        .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
+                        .exceptionally(e->{
+                            showUpdateErrorAndExit(e.getMessage());
+                            return null;
+                        });
             }else if(getUpdateVersion()==6){
 
-                future =  CompletableFuture.runAsync(() ->  update7(updateOption))
+                CompletableFuture.runAsync(() -> changeDDL())
+                        .thenRun(() ->  update7(updateOption))
                                            .thenRun(() -> update8(updateOption))
-                                           .thenRun(() -> update9(updateOption));
+                                           .thenRun(() -> update9(updateOption))
+                        .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
+                        .exceptionally(e->{
+                            showUpdateErrorAndExit(e.getMessage());
+                            return null;
+                        });
             }else if(getUpdateVersion()==7){
 
-                future =  CompletableFuture.runAsync(() ->  update8(updateOption))
-                                           .thenRun(() -> update9(updateOption));
+                CompletableFuture.runAsync(() -> changeDDL())
+                        .thenRun(() ->  update8(updateOption))
+                                           .thenRun(() -> update9(updateOption))
+                        .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
+                        .exceptionally(e->{
+                            showUpdateErrorAndExit(e.getMessage());
+                            return null;
+                        });
             }else if(getUpdateVersion()==8){
 
-                future =  CompletableFuture.runAsync(() ->  update9(updateOption));
+                CompletableFuture.runAsync(() -> changeDDL())
+                        .thenRun(() ->  update9(updateOption))
+                        .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
+                        .exceptionally(e->{
+                            showUpdateErrorAndExit(e.getMessage());
+                            return null;
+                        });
 
             }else {
                 showUpdateErrorAndExit("Версия обновления и версия программы конфликтуют. " + getUpdateVersion());
             }
-            if(future==null) showUpdateErrorAndExit("Версия обновления и версия программы конфликтуют. " + getUpdateVersion());
 
-            future.exceptionally(e->{
-                showUpdateErrorAndExit(e.getMessage());
-             return null;
-            });
+            UpdateWaiter.show();
 
 
         }else if(getUpdateVersion() > currentUpdateFile){
@@ -413,7 +460,10 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
             return;
         }
 
-
+        System.out.println("Продолжение запуска программы после обновления");
+        if(isNeedExit()){
+            System.exit(0);
+        }
         //проверка профиля биофона
         checkBiofonProfile();
 
@@ -899,9 +949,13 @@ https://gist.github.com/DemkaAge/8999236
     }
 
     private void showUpdateErrorAndExit(String number){
-        Platform.runLater(() -> BaseController.showErrorDialog("Обновление "+number,"","Обновление не установленно",null,Modality.WINDOW_MODAL) );
-        UpdateWaiter.close();
-        Platform.exit();
+        setNeedExit(true);
+        Platform.runLater(() -> {
+            UpdateWaiter.close();
+            BaseController.showErrorDialog("Обновление "+number,"","Обновление не установленно",null,Modality.WINDOW_MODAL);
+
+        } );
+
 
     }
 
@@ -940,40 +994,6 @@ https://gist.github.com/DemkaAge/8999236
     private void update5(ProgramOptions updateOption)
     {
         logger.info("ОБНОВЛЕНИЕ 5.");
-
-        try
-        {
-            logger.info("Проверка наличия столбца MULTYFREQ  в THERAPYPROGRAM ");
-            Object singleResult = emf.createEntityManager().createNativeQuery("SELECT MULTYFREQ FROM THERAPYPROGRAM LIMIT 1").getSingleResult();
-            logger.info("Столбец  MULTYFREQ  найден.");
-        }catch (Exception e){
-            logger.info("Столбец  MULTYFREQ не найден.");
-            logger.info("Создается  столбец MULTYFREQ  в THERAPYPROGRAM ");
-            EntityManager em = emf.createEntityManager();
-            em.getTransaction().begin();
-            try{
-                em.createNativeQuery("ALTER TABLE THERAPYPROGRAM ADD MULTYFREQ BOOLEAN(1) DEFAULT 1").executeUpdate();
-                em.getTransaction().commit();
-                logger.info("Столбец  MULTYFREQ создан.");
-                reopenPersistentContext();
-                TherapyComplex therapyComplex;
-                boolean multyCompl=false;
-
-                logger.info("Столбец  MULTYFREQ обновлен.");
-
-
-
-            }catch (Exception ex){
-                logger.error("ошибка обновления ALTER TABLE THERAPYPROGRAM ADD MULTYFREQ BOOLEAN(1) DEFAULT 1",ex);
-                wrapException("4",e);
-            }finally {
-                if(em!=null) em.close();
-            }
-
-
-        }
-
-
         try {
             logger.info("Добавление раздела Trinity");
             addTrinityBase();
@@ -991,116 +1011,7 @@ https://gist.github.com/DemkaAge/8999236
     {
         logger.info("ОБНОВЛЕНИЕ 6.");
 
-                boolean tpPosFinded=false;
-                boolean profPosFinded=false;
-                boolean mFreqFinded=false;
-                try
-                {
-                    logger.info("Проверка наличия столбца MULLTYFREQ  в THERAPYCOMPLEX ");
-                    Object singleResult = emf.createEntityManager().createNativeQuery("SELECT MULLTYFREQ FROM THERAPYCOMPLEX LIMIT 1").getSingleResult();
-                    logger.info("Столбец  MULLTYFREQ  найден.");
-                    mFreqFinded=true;
-                    EntityManager em = emf.createEntityManager();
-                    em.getTransaction().begin();
-                    try{
-                        em.createNativeQuery("ALTER TABLE THERAPYCOMPLEX DROP `MULLTYFREQ`").executeUpdate();
-                        em.getTransaction().commit();
-                        logger.info("Столбец  MULLTYFREQ удален.");
 
-
-                    }catch (Exception ex){
-                        logger.error("ошибка обновления ALTER TABLE THERAPYCOMPLEX DROP `MULLTYFREQ`",ex);
-                        wrapException("6",ex);
-                    }finally {
-                        if(em!=null) em.close();
-                    }
-
-                }catch (Exception e){
-                }
-
-                try
-                {
-                    logger.info("Проверка наличия столбца POSITION  в THERAPYCOMPLEX ");
-                    Object singleResult = emf.createEntityManager().createNativeQuery("SELECT `POSITION` FROM THERAPYCOMPLEX LIMIT 1").getSingleResult();
-                    logger.info("Столбец  POSITION  найден.");
-                    tpPosFinded=true;
-                }catch (Exception e){
-                    logger.info("Столбец  POSITION не найден.");
-                    logger.info("Создается  столбец POSITION  в THERAPYPROGRAM ");
-                    EntityManager em = emf.createEntityManager();
-                    em.getTransaction().begin();
-                    try{
-                        em.createNativeQuery("ALTER TABLE THERAPYCOMPLEX ADD `POSITION` BIGINT(19) DEFAULT 1").executeUpdate();
-                        em.getTransaction().commit();
-                        logger.info("Столбец  POSITION создан.");
-
-
-
-                    }catch (Exception ex){
-                        logger.error("ошибка обновления ALTER TABLE THERAPYCOMPLEX ADD `POSITION` BIGINT(19) DEFAULT 1",ex);
-                        wrapException("6",ex);
-                    }finally {
-                        if(em!=null) em.close();
-                    }
-
-
-                }
-                reopenPersistentContext();
-                try
-                {
-                    logger.info("Проверка наличия столбца POSITION  в PROFILE ");
-                    Object singleResult = emf.createEntityManager().createNativeQuery("SELECT `POSITION` FROM PROFILE LIMIT 1").getSingleResult();
-                    logger.info("Столбец  POSITION  найден.");
-                    profPosFinded=true;
-                }catch (Exception e){
-                    logger.info("Столбец  POSITION не найден.");
-                    logger.info("Создается  столбец POSITION  в PROFILE ");
-                    EntityManager em = emf.createEntityManager();
-                    em.getTransaction().begin();
-                    try{
-                        em.createNativeQuery("ALTER TABLE PROFILE ADD `POSITION` BIGINT(19) DEFAULT 1").executeUpdate();
-                        em.getTransaction().commit();
-                        logger.info("Столбец  POSITION создан.");
-
-                    }catch (Exception ex){
-                        logger.error("ошибка обновления ALTER TABLE PROFILE ADD `POSITION` BIGINT(19) DEFAULT 1",ex);
-                        wrapException("6",ex);
-                    }finally {
-                        if(em!=null) em.close();
-                    }
-
-
-                }
-
-                reopenPersistentContext();
-
-                try {
-                    long pos;
-                    if(!tpPosFinded) {
-                        for (TherapyComplex tc : getModel().findAllTherapyComplexes()) {
-
-                            pos = tc.getId();
-                            tc.setPosition(pos);
-                            getModel().updateTherapyComplex(tc);
-
-                        }
-                        logger.info("Столбец  POSITION TherapyComplex обновлен.");
-                    }
-                    if(!profPosFinded) {
-                        for (Profile profile : getModel().findAllProfiles()) {
-
-                            pos = profile.getId();
-                            profile.setPosition(pos);
-                            getModel().updateProfile(profile);
-
-                        }
-                        logger.info("Столбец  POSITION Profile обновлен.");
-                    }
-
-                }catch (Exception e){
-                    logger.error("ошибка обновления POSITION",e);
-                    wrapException("6",e);
-                }
 
 
                 EntityManager em = emf.createEntityManager();
@@ -1461,35 +1372,6 @@ https://gist.github.com/DemkaAge/8999236
     private void update9(ProgramOptions updateOption) {
         logger.info("ОБНОВЛЕНИЕ 9.");
 
-
-
-                try
-                {
-                    logger.info("Проверка наличия столбца TIMEFORFREQ  в COMPLEX ");
-                    Object singleResult = emf.createEntityManager().createNativeQuery("SELECT `TIMEFORFREQ` FROM COMPLEX LIMIT 1").getSingleResult();
-                    logger.info("Столбец  TIMEFORFREQ  найден.");
-
-                }catch (Exception e) {
-                    logger.info("Столбец  TIMEFORFREQ не найден.");
-                    logger.info("Создается  столбец TIMEFORFREQ  в COMPLEX ");
-                    EntityManager em = emf.createEntityManager();
-                    em.getTransaction().begin();
-                    try {
-                        em.createNativeQuery("ALTER TABLE COMPLEX ADD `TIMEFORFREQ` INT DEFAULT 0").executeUpdate();
-                        em.getTransaction().commit();
-                        logger.info("Столбец  TIMEFORFREQ создан.");
-
-
-                    } catch (Exception ex) {
-                        logger.error("ALTER TABLE COMPLEX ADD `TIMEFORFREQ` INT DEFAULT 0", ex);
-                        wrapException("9",ex);
-                    } finally {
-                        if (em != null) em.close();
-                    }
-                }
-
-                    reopenPersistentContext();
-
                 try {
                     setTimeForFreqToCompex("7683715f-47f8-427e-8a07-e623ea236ef4" ,300);
                     setTimeForFreqToCompex("99eb8c06-add6-4803-8227-ce146aeac925" ,30);
@@ -1546,6 +1428,182 @@ https://gist.github.com/DemkaAge/8999236
 */
                 setUpdateVersion(updateOption,9);
 
+    }
+
+
+    private void changeDDL(){
+        try
+        {
+            logger.info("Проверка наличия столбца MULTYFREQ  в THERAPYPROGRAM ");
+             emf.createEntityManager().createNativeQuery("SELECT MULTYFREQ FROM THERAPYPROGRAM LIMIT 1").getResultList();
+            logger.info("Столбец  MULTYFREQ  найден.");
+        }catch (Exception e){
+            Log.logger.error("Поиск столбца", e);
+            logger.info("Столбец  MULTYFREQ не найден.");
+            logger.info("Создается  столбец MULTYFREQ  в THERAPYPROGRAM ");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            try{
+                em.createNativeQuery("ALTER TABLE THERAPYPROGRAM ADD MULTYFREQ BOOLEAN(1) DEFAULT 1").executeUpdate();
+                em.getTransaction().commit();
+                logger.info("Столбец  MULTYFREQ создан.");
+
+
+                logger.info("Столбец  MULTYFREQ обновлен.");
+
+
+
+            }catch (Exception ex){
+                logger.error("ошибка обновления ALTER TABLE THERAPYPROGRAM ADD MULTYFREQ BOOLEAN(1) DEFAULT 1",ex);
+                wrapException("updateDDL",e);
+            }finally {
+                if(em!=null) em.close();
+            }
+
+
+        }
+        reopenPersistentContext();
+
+
+        boolean tpPosFinded=false;
+        boolean profPosFinded=false;
+        boolean mFreqFinded=false;
+        try
+        {
+            logger.info("Проверка наличия столбца MULLTYFREQ  в THERAPYCOMPLEX ");
+            emf.createEntityManager().createNativeQuery("SELECT MULLTYFREQ FROM THERAPYCOMPLEX LIMIT 1").getResultList();
+            logger.info("Столбец  MULLTYFREQ  найден.");
+            mFreqFinded=true;
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            try{
+                em.createNativeQuery("ALTER TABLE THERAPYCOMPLEX DROP `MULLTYFREQ`").executeUpdate();
+                em.getTransaction().commit();
+                logger.info("Столбец  MULLTYFREQ удален.");
+
+
+            }catch (Exception ex){
+                logger.error("ошибка обновления ALTER TABLE THERAPYCOMPLEX DROP `MULLTYFREQ`",ex);
+                wrapException("6",ex);
+            }finally {
+                if(em!=null) em.close();
+            }
+
+        }catch (Exception e){
+        }
+
+        try
+        {
+            logger.info("Проверка наличия столбца POSITION  в THERAPYCOMPLEX ");
+            emf.createEntityManager().createNativeQuery("SELECT `POSITION` FROM THERAPYCOMPLEX LIMIT 1").getResultList();
+            logger.info("Столбец  POSITION  найден.");
+            tpPosFinded=true;
+        }catch (Exception e){
+            logger.info("Столбец  POSITION не найден.");
+            logger.info("Создается  столбец POSITION  в THERAPYPROGRAM ");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            try{
+                em.createNativeQuery("ALTER TABLE THERAPYCOMPLEX ADD `POSITION` BIGINT(19) DEFAULT 1").executeUpdate();
+                em.getTransaction().commit();
+                logger.info("Столбец  POSITION создан.");
+
+
+
+            }catch (Exception ex){
+                logger.error("ошибка обновления ALTER TABLE THERAPYCOMPLEX ADD `POSITION` BIGINT(19) DEFAULT 1",ex);
+                wrapException("6",ex);
+            }finally {
+                if(em!=null) em.close();
+            }
+
+
+        }
+        reopenPersistentContext();
+        try
+        {
+            logger.info("Проверка наличия столбца POSITION  в PROFILE ");
+            emf.createEntityManager().createNativeQuery("SELECT `POSITION` FROM PROFILE LIMIT 1").getResultList();
+            logger.info("Столбец  POSITION  найден.");
+            profPosFinded=true;
+        }catch (Exception e){
+            logger.info("Столбец  POSITION не найден.");
+            logger.info("Создается  столбец POSITION  в PROFILE ");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            try{
+                em.createNativeQuery("ALTER TABLE PROFILE ADD `POSITION` BIGINT(19) DEFAULT 1").executeUpdate();
+                em.getTransaction().commit();
+                logger.info("Столбец  POSITION создан.");
+
+            }catch (Exception ex){
+                logger.error("ошибка обновления ALTER TABLE PROFILE ADD `POSITION` BIGINT(19) DEFAULT 1",ex);
+                wrapException("6",ex);
+            }finally {
+                if(em!=null) em.close();
+            }
+
+
+        }
+
+        reopenPersistentContext();
+
+        try {
+            long pos;
+            if(!tpPosFinded) {
+                for (TherapyComplex tc : getModel().findAllTherapyComplexes()) {
+
+                    pos = tc.getId();
+                    tc.setPosition(pos);
+                    getModel().updateTherapyComplex(tc);
+
+                }
+                logger.info("Столбец  POSITION TherapyComplex обновлен.");
+            }
+            if(!profPosFinded) {
+                for (Profile profile : getModel().findAllProfiles()) {
+
+                    pos = profile.getId();
+                    profile.setPosition(pos);
+                    getModel().updateProfile(profile);
+
+                }
+                logger.info("Столбец  POSITION Profile обновлен.");
+            }
+
+        }catch (Exception e){
+            logger.error("ошибка обновления POSITION",e);
+            wrapException("6",e);
+        }
+
+
+        reopenPersistentContext();
+        try
+        {
+            logger.info("Проверка наличия столбца TIMEFORFREQ  в COMPLEX ");
+             emf.createEntityManager().createNativeQuery("SELECT `TIMEFORFREQ` FROM COMPLEX LIMIT 1").getResultList();
+            logger.info("Столбец  TIMEFORFREQ  найден.");
+
+        }catch (Exception e) {
+            logger.info("Столбец  TIMEFORFREQ не найден.");
+            logger.info("Создается  столбец TIMEFORFREQ  в COMPLEX ");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            try {
+                em.createNativeQuery("ALTER TABLE COMPLEX ADD `TIMEFORFREQ` INT DEFAULT 0").executeUpdate();
+                em.getTransaction().commit();
+                logger.info("Столбец  TIMEFORFREQ создан.");
+
+
+            } catch (Exception ex) {
+                logger.error("ALTER TABLE COMPLEX ADD `TIMEFORFREQ` INT DEFAULT 0", ex);
+                wrapException("9",ex);
+            } finally {
+                if (em != null) em.close();
+            }
+        }
+
+        reopenPersistentContext();
     }
 
     private void setTimeForFreqToCompex(String uuid,int time) throws Exception {
