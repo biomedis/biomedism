@@ -273,9 +273,9 @@ public class M2
             //USBHelper.write(usbDeviceHandle,commandWrite,OUT_END_POINT,REQUEST_TIMEOUT_MS);
             //Response response = readResponseBuffer(usbDeviceHandle,debug);
 
-            Response  response = request( commandWrite,  usbDeviceHandle ,debug, 30000);
+            Response  response = request( commandWrite,  usbDeviceHandle ,debug, 10000);
             if(response.status==false) throw new DeviceFailException(response.errorCode);
-            Thread.sleep(200);
+
         } catch (USBHelper.USBException e) {
             Log.logger.error("",e);
             throw new WriteToDeviceException(e);

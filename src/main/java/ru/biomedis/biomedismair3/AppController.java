@@ -1388,7 +1388,7 @@ tab5.disableProperty().bind(m2Ready.not());
 
                     M2.uploadProfile(profile,true);
                     try {
-                        Thread.sleep(3000);//таймаут дает время прибору подумать после записи
+                        Thread.sleep(4000);//таймаут дает время прибору подумать после записи
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
