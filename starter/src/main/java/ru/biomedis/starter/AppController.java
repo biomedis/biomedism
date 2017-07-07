@@ -443,7 +443,10 @@ public class AppController extends BaseController {
         try {
             Version useVersion;
             if(fVersion.lessThen(version))useVersion =version;
-            else useVersion =fVersion;
+            else {
+                useVersion =fVersion;
+                getControllerWindow().setTitle(getRes().getString("app.name")+" "+useVersion);
+            }
 
             final XmlVersionChecker versionChecker  = AutoUpdater.getAutoUpdater().getVersionChecker(useVersion);
             versionChecker.checkNeedUpdateAsync()
