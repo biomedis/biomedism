@@ -1375,12 +1375,17 @@ tab5.disableProperty().bind(m2Ready.not());
                     getApp().getMainWindow(),Modality.WINDOW_MODAL);
         }
 
+        Platform.runLater(() ->   {
+            m2Connected.set(false);
+            m2Ready.setValue(false);
+        });
 
         Task task = new Task() {
             protected Boolean call() {
                 boolean res1=false;
                 try {
                     System.out.println("Запись на прибор");
+
                     M2.uploadProfile(profile,true);
                     try {
                         Thread.sleep(3000);//таймаут дает время прибору подумать после записи
@@ -1418,6 +1423,11 @@ tab5.disableProperty().bind(m2Ready.not());
                 }catch (Exception e){
                     Platform.runLater(() ->  showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
 
+                }finally {
+                    Platform.runLater(() ->   {
+                        m2Connected.set(true);
+                        m2Ready.setValue(true);
+                    });
                 }
                 return res1;
             }
@@ -1428,7 +1438,8 @@ tab5.disableProperty().bind(m2Ready.not());
         });
         task.setOnFailed(ev -> {
             Waiter.closeLayer();
-            showErrorDialog("Ошибка записи", "", "", getApp().getMainWindow(), Modality.WINDOW_MODAL);
+            Platform.runLater(() ->  showErrorDialog( res.getString("app.ui.record_on_trinity"),"" , res.getString("app.error"), getApp().getMainWindow(),Modality.WINDOW_MODAL));
+
         });
         task.setOnSucceeded(ev -> {
             Waiter.closeLayer();
