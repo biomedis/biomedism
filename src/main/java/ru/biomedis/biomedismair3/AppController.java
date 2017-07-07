@@ -1326,10 +1326,7 @@ tab5.disableProperty().bind(m2Ready.not());
         USBHelper.addPlugEventHandler(M2.productId, M2.vendorId, new PlugDeviceListener() {
             @Override
             public void onAttachDevice() {
-                Platform.runLater(() ->   m2Connected.set(true));
-                m2Ready.setValue(true);
-                System.out.println("Устройство Trinity подключено");
-/*
+
                 try {
                 Thread.sleep(3000);
                     M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
@@ -1341,11 +1338,17 @@ tab5.disableProperty().bind(m2Ready.not());
                     System.out.println("Устройство Trinity подключено");
                 } catch (M2.ReadFromDeviceException e) {
                    Platform.runLater(() -> {
-                       showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                       showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"", e, getApp().getMainWindow(),Modality.WINDOW_MODAL);
                    });
 
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }finally {
+                    Platform.runLater(() ->   m2Connected.set(true));
+                    m2Ready.setValue(true);
+                    System.out.println("Устройство Trinity подключено");
                 }
-*/
+
             }
 
             @Override
@@ -1379,7 +1382,13 @@ tab5.disableProperty().bind(m2Ready.not());
                 try {
                     System.out.println("Запись на прибор");
                     M2.uploadProfile(profile,true);
-                   //Platform.runLater(() -> showInfoDialog(  res.getString("app.ui.record_on_trinity"),"","Запись произошла успешно", getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                    try {
+                        Thread.sleep(3000);//таймаут дает время прибору подумать после записи
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
+                    Platform.runLater(() ->m2ui.setContent(m2BinaryFile));
                     res1=true;
                 } catch (M2Complex.MaxTimeByFreqBoundException e) {
                     Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),
@@ -1402,6 +1411,13 @@ tab5.disableProperty().bind(m2Ready.not());
                     Platform.runLater(() -> showErrorDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),res.getString("app.ui.lang_not_support"), getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2.WriteToDeviceException e) {
                     Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+                } catch (M2.ReadFromDeviceException e) {
+                    Platform.runLater(() -> {
+                        showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                    });
+                }catch (Exception e){
+                    Platform.runLater(() ->  showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
+
                 }
                 return res1;
             }
@@ -1418,20 +1434,6 @@ tab5.disableProperty().bind(m2Ready.not());
             Waiter.closeLayer();
             if(((Boolean)task.getValue()).booleanValue()) {
                 showInfoDialog(res.getString("app.ui.uploadM2"), "",res.getString("app.ui.upload_ok"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-
-                try {
-                    Thread.sleep(4000);//таймаут дает время прибору подумать после записи
-                    M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
-                    Platform.runLater(() ->m2ui.setContent(m2BinaryFile));
-
-                } catch (M2.ReadFromDeviceException e) {
-                    Platform.runLater(() -> {
-                        showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                    });
-
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
             }
 
         });

@@ -199,30 +199,27 @@ public class M2
             }
 
             //команда на запись
+           // USBHelper.write(usbDeviceHandle,commandWrite,OUT_END_POINT,REQUEST_TIMEOUT_MS);
+            //Thread.sleep(200);
+           // Response response = readResponseBuffer(usbDeviceHandle,debug);
+
             USBHelper.write(usbDeviceHandle,commandWrite,OUT_END_POINT,REQUEST_TIMEOUT_MS);
-            Thread.sleep(200);
-            Response response = readResponseBuffer(usbDeviceHandle,debug);
-            if(response.status==false) throw new DeviceFailException(response.errorCode);
 
 
             if(debug)System.out.println("WRITE DATA...");
 
             //запись всего пакета в прибор по 64 байта. Нужно не забыть проверять ответ и статус записи, чтобы отловить ошибки
             for(int i=0;i < packets;i++){
-                Thread.sleep(200);
-                USBHelper.write(usbDeviceHandle, Arrays.copyOfRange(dataToWrite,DATA_PACKET_SIZE*i,DATA_PACKET_SIZE*i+DATA_PACKET_SIZE),OUT_END_POINT,REQUEST_TIMEOUT_MS);            //читаем
-                 response = readResponseBuffer(usbDeviceHandle,debug);
-                if(response.status==false) throw new DeviceFailException(response.errorCode);
-                System.out.println("N packet =" + (i+1));
+
+                USBHelper.write(usbDeviceHandle, Arrays.copyOfRange(dataToWrite,DATA_PACKET_SIZE*i,DATA_PACKET_SIZE*i+DATA_PACKET_SIZE),OUT_END_POINT,REQUEST_TIMEOUT_MS);      //читаем
+
+                if(debug)System.out.println("N packet =" + (i+1));
             }
 
         } catch (USBHelper.USBException e) {
             Log.logger.error("",e);
             throw new WriteToDeviceException(e);
-        } catch (DeviceFailException e) {
-            Log.logger.error("",e);
-            throw new WriteToDeviceException(e);
-        }catch (Exception e){
+        } catch (Exception e){
             Log.logger.error("",e);
             throw new WriteToDeviceException(e);
         }
@@ -273,11 +270,10 @@ public class M2
 
             if(debug)printPacket("Clear device",  commandWrite);
             //команда на запись
-            USBHelper.write(usbDeviceHandle,commandWrite,OUT_END_POINT,REQUEST_TIMEOUT_MS);
+            //USBHelper.write(usbDeviceHandle,commandWrite,OUT_END_POINT,REQUEST_TIMEOUT_MS);
+            //Response response = readResponseBuffer(usbDeviceHandle,debug);
 
-
-
-            Response response = readResponseBuffer(usbDeviceHandle,debug);
+            Response  response = request( commandWrite,  usbDeviceHandle ,debug, 30000);
             if(response.status==false) throw new DeviceFailException(response.errorCode);
             Thread.sleep(200);
         } catch (USBHelper.USBException e) {
@@ -299,7 +295,23 @@ public class M2
         }
     }
 
-
+    private static Response request(byte[] commandWrite,  USBHelper.USBDeviceHandle usbDeviceHandle , boolean debug, int timeoutRead) throws USBHelper.USBException {
+        int counter=0;
+        USBHelper.USBException ex=null;
+        Response  response=null;
+        while(counter<5){
+            try {
+                USBHelper.write(usbDeviceHandle, commandWrite, OUT_END_POINT, timeoutRead);
+                response = readResponseBuffer(usbDeviceHandle, debug);
+                counter=6;
+            }catch (USBHelper.USBException e){
+                ex = e;
+                counter++;
+            }
+        }
+        if(response==null) throw  ex;
+        return response;
+    }
 
     public static class ReadFromDeviceException extends Exception{
         public ReadFromDeviceException(Throwable cause) {
@@ -343,16 +355,16 @@ public class M2
         String str;
         switch (errorCode){
             case 1:
-                str="Data TimeOut Elapsed";
+                str="Error 1";
                 break;
             case 2:
-                str="Data TimeOut Elapsed";
+                str="Error 2";
                 break;
             case 3:
-                str="Data TimeOut Elapsed";
+                str="Error 3";
                 break;
             case 4:
-                str="Data TimeOut Elapsed";
+                str="Error 4";
                 break;
                 default:
                     str="Unknown error code!";
