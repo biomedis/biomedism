@@ -19,6 +19,8 @@ import org.anantacreative.updater.Version;
 import org.anantacreative.updater.VersionCheck.DefineActualVersionError;
 import org.anantacreative.updater.VersionCheck.XML.XmlVersionChecker;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
@@ -411,12 +413,39 @@ public class AppController extends BaseController {
         getApp().startMainApp();
     }
 
+    private Version getVersionFromFile(){
+        //только для винды, проверит файл version.txt в директории assets и считает версию.
+        // Для того чтобы при установке обновления инсталлерром не пытаться обновляться.
+        if(OSValidator.isWindows()){
+
+            TextFileLineReader tlr =new TextFileLineReader(new File("./version.txt"));
+            try {
+                String vString = tlr.readToString(1);
+                String[] split = vString.split("\\.");
+                if(split.length!=3) throw new Exception();
+
+                Version v = new Version(Integer.valueOf(split[0]),Integer.valueOf(split[1]),Integer.valueOf(split[2]));
+                return v;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return new Version(0,0,0);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new Version(0,0,0);
+            }
+
+        }else return new Version(0,0,0);
+
+    }
     private void checkActualVersion(){
             showVersonCheckIndicator();
-
+        Version fVersion =  getVersionFromFile();
         try {
+            Version useVersion;
+            if(fVersion.lessThen(version))useVersion =version;
+            else useVersion =fVersion;
 
-            final XmlVersionChecker versionChecker  = AutoUpdater.getAutoUpdater().getVersionChecker(version);
+            final XmlVersionChecker versionChecker  = AutoUpdater.getAutoUpdater().getVersionChecker(useVersion);
             versionChecker.checkNeedUpdateAsync()
                           .thenAccept(v->{
                               System.out.println("Актуальная версия" +versionChecker.getActualVersion());
