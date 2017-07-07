@@ -416,7 +416,6 @@ public class AppController extends BaseController {
     private Version getVersionFromFile(){
         //только для винды, проверит файл version.txt в директории assets и считает версию.
         // Для того чтобы при установке обновления инсталлерром не пытаться обновляться.
-        if(OSValidator.isWindows()){
 
             TextFileLineReader tlr =new TextFileLineReader(new File("./version.txt"));
             try {
@@ -433,8 +432,6 @@ public class AppController extends BaseController {
                 e.printStackTrace();
                 return new Version(0,0,0);
             }
-
-        }else return new Version(0,0,0);
 
     }
     private void checkActualVersion(){
