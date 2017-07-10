@@ -312,7 +312,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
         int currentUpdateFile=9;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=0;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentMinorVersion=1;//версия исправлений в пределах мажорной версии currentUpdateFile
         //требуется размещение в папке с dist.jar  файла version.txt с текущей версией типа 4.9.0!!! Этот файл в обновление нужно включать
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -357,9 +357,13 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         }
 
         recursiveDeleteTMP();
+        selectUpdateFixVersion();
+        Version jarVersion = new Version(4, currentUpdateFile, currentMinorVersion);
+        Version curVersion = new Version(4, getUpdateVersion(), updateFixVersion);
 
 //доп. обновления требующие ModelDataApp
-        if(getUpdateVersion() < currentUpdateFile)
+        //if(getUpdateVersion() < currentUpdateFile)
+        if(curVersion.lessThen(jarVersion))
         {
 
 
@@ -445,7 +449,20 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                             return null;
                         });
 
-            }else {
+            }
+            else if(getUpdateVersion()==9){
+                CompletableFuture.runAsync(() -> updateIn9(updateOption,updateFixVersion))
+                                 .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
+                                 .exceptionally(e->{
+                                     showUpdateErrorAndExit(e.getMessage());
+                                     return null;
+                                 });
+
+                //здесь потом можно добавить метод 10 апдейта
+              System.out.println("Update >9.0");
+
+            }
+            else {
                 showUpdateErrorAndExit("Версия обновления и версия программы конфликтуют. " + getUpdateVersion());
             }
 
@@ -658,7 +675,37 @@ https://gist.github.com/DemkaAge/8999236
         USBHelper.startHotPlugListener(2);
     }
 
+    private void updateIn9(ProgramOptions updateOption, int updateFixVersion) {
+        //после обновлений минорных не устанавливается число в базу, тк оно внесется по ниже автоматически
+        if(updateFixVersion == 0)updateIn9_1( updateOption);
+    }
 
+    private void updateIn9_1(ProgramOptions updateOption) {
+        System.out.println("Update_9_1");
+        File base_translate=null;
+        try {
+            ResourceUtil ru=new ResourceUtil();
+            base_translate = ru.saveResource(getTmpDir(),"en_translanion_profilactic.xml","/updates/update10/translate_eng.xml",true);
+
+            if(base_translate==null) throw new Exception();
+
+            LoadLanguageFiles ll=new LoadLanguageFiles();
+            if( ll.parse(Arrays.asList(base_translate),getModel())){
+
+                logger.info("ОБНОВЛЕНИЕ 9.1  ЗАВЕРШЕНО.");
+            }
+            else  wrapException("9.1",new Exception());
+
+        } catch (IOException e) {
+            wrapException("9.1",e);
+            logger.info("ОБНОВЛЕНИЕ 9.1 НЕ ЗАВЕРШЕНО.");
+
+        } catch (Exception e) {
+            wrapException("9.1",e);
+            logger.info("ОБНОВЛЕНИЕ 9.1 НЕ ЗАВЕРШЕНО.");
+
+        }
+    }
 
 
     private void checkBiofonProfile() throws Exception {
