@@ -490,6 +490,26 @@ public class ModelDataApp {
         
         return profile;
     }
+
+    public Profile createProfile(String name, long position)throws Exception
+    {
+        Profile profile=new Profile();
+
+
+        try {
+            profile.setPosition(position);
+            profile.setName(name);
+            profile.setUuid(UUID.randomUUID().toString());
+            this.profileDAO.create(profile);
+
+        } catch (Exception ex) {
+            Log.logger.error("",ex);
+            profile=null;
+
+            throw new Exception("Ошибка создания профиля",ex);
+        }
+        return profile;
+    }
     
     public void updateProfile(Profile profile) throws Exception
     {

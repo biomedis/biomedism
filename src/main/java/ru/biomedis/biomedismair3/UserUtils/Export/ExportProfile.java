@@ -79,7 +79,7 @@ public class ExportProfile {
     {
         StringBuilder strb=new StringBuilder();
         strb.append(noops[level]);
-        strb.append("<Profile ").append("name=\"").append(TextUtil.escapeXML(profile.getName())).append("\">\n");
+        strb.append("<Profile ").append("position=\"").append(profile.getPosition()).append("\" ").append("name=\"").append(TextUtil.escapeXML(profile.getName())).append("\">\n");
 
         int lvl=level+1;
           md.findAllTherapyComplexByProfile(profile).forEach(therapyComplex -> strb.append(getComplex(therapyComplex,md,lvl)));

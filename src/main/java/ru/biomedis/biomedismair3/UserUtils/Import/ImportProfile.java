@@ -131,7 +131,10 @@ public class ImportProfile {
             //если у нас профиль биофона, то нужно скопировать комплексы в профиль биофона
             if(profile.name.equals(App.BIOFON_PROFILE_NAME)){
                 profile.profile=App.getBiofonProfile_();
-            }else  profile.profile= mda.createProfile(TextUtil.unEscapeXML(profile.name));
+            }else  {
+                if(profile.position==-1) profile.profile= mda.createProfile(TextUtil.unEscapeXML(profile.name));
+                else  profile.profile= mda.createProfile(TextUtil.unEscapeXML(profile.name),profile.position);
+            }
 
 
 
@@ -244,8 +247,10 @@ public class ImportProfile {
             {
                 if(attributes.getLength()!=0)
                 {
-
-                    profile = new Profile(attributes.getValue("name"));
+                    String position = attributes.getValue("position");
+                    long pos=-1;
+                    if(position!=null)pos = Long.valueOf(position);
+                    profile = new Profile(attributes.getValue("name"),pos);
                 }
 
                 return;
@@ -354,13 +359,15 @@ public class ImportProfile {
     class Profile
     {
         String name;
+        long position;
         ru.biomedis.biomedismair3.entity.Profile profile;
 
 
 
-        public Profile(String name) {
+        public Profile(String name,long position) {
             this.name = name;
 
+            this.position = position;
         }
     }
 

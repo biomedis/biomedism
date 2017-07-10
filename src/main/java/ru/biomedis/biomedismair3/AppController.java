@@ -9713,7 +9713,7 @@ return  true;
         FileChooser fileChooser =new FileChooser();
        fileChooser.setTitle(res.getString("ui.backup.create_backup"));
         fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
-        fileChooser.setInitialFileName( cal.get(Calendar.DAY_OF_MONTH)+"_"+cal.get(Calendar.MONTH)+"_"+cal.get(Calendar.YEAR)+".brecovery");
+        fileChooser.setInitialFileName( cal.get(Calendar.DAY_OF_MONTH)+"_"+(cal.get(Calendar.MONTH)+1)+"_"+cal.get(Calendar.YEAR)+".brecovery");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("brecovery", "*.brecovery"));
         file= fileChooser.showSaveDialog(getApp().getMainWindow());
 
