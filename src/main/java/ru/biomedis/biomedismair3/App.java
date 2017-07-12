@@ -312,7 +312,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
         int currentUpdateFile=9;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=1;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentMinorVersion=2;//версия исправлений в пределах мажорной версии currentUpdateFile
         //требуется размещение в папке с dist.jar  файла version.txt с текущей версией типа 4.9.0!!! Этот файл в обновление нужно включать
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -377,6 +377,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(() -> update7(updateOption))
                                  .thenRun(() -> update8(updateOption))
                                  .thenRun(() -> update9(updateOption))
+                                 .thenRun(()->updateIn9(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -390,6 +391,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                            .thenRun(() -> update7(updateOption))
                                            .thenRun(() -> update8(updateOption))
                                            .thenRun(() -> update9(updateOption))
+                                           .thenRun(()->updateIn9(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -402,6 +404,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                            .thenRun(() -> update7(updateOption))
                                            .thenRun(() -> update8(updateOption))
                                            .thenRun(() -> update9(updateOption))
+                                 .thenRun(()->updateIn9(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -413,6 +416,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                            .thenRun(() -> update7(updateOption))
                                            .thenRun(() -> update8(updateOption))
                                            .thenRun(() -> update9(updateOption))
+                                 .thenRun(()->updateIn9(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -424,6 +428,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                         .thenRun(() ->  update7(updateOption))
                                            .thenRun(() -> update8(updateOption))
                                            .thenRun(() -> update9(updateOption))
+                                 .thenRun(()->updateIn9(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -434,6 +439,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                 CompletableFuture.runAsync(() -> changeDDL())
                         .thenRun(() ->  update8(updateOption))
                                            .thenRun(() -> update9(updateOption))
+                                 .thenRun(()->updateIn9(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -443,6 +449,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
 
                 CompletableFuture.runAsync(() -> changeDDL())
                         .thenRun(() ->  update9(updateOption))
+                                 .thenRun(()->updateIn9(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -677,8 +684,14 @@ https://gist.github.com/DemkaAge/8999236
 
     private void updateIn9(ProgramOptions updateOption, int updateFixVersion) {
         //после обновлений минорных не устанавливается число в базу, тк оно внесется по ниже автоматически
-        if(updateFixVersion == 0)updateIn9_1( updateOption);
+        if(updateFixVersion == 0){
+            updateIn9_1( updateOption);
+            updateIn9_2( updateOption);
+        }
+        else if(updateFixVersion == 1) updateIn9_2( updateOption);
     }
+
+
 
     private void updateIn9_1(ProgramOptions updateOption) {
         System.out.println("Update_9_1");
@@ -708,6 +721,32 @@ https://gist.github.com/DemkaAge/8999236
     }
 
 
+    private void updateIn9_2(ProgramOptions updateOption) {
+        System.out.println("Update_9_2");
+        File base_translate=null;
+        try {
+            ResourceUtil ru=new ResourceUtil();
+            base_translate = ru.saveResource(getTmpDir(),"el_translanion.xml","/updates/update10/translate_el.xml",true);
+
+            if(base_translate==null) throw new Exception();
+
+            LoadLanguageFiles ll=new LoadLanguageFiles();
+            if( ll.parse(Arrays.asList(base_translate),getModel())){
+
+                logger.info("ОБНОВЛЕНИЕ 9.2  ЗАВЕРШЕНО.");
+            }
+            else  wrapException("9.2",new Exception());
+
+        } catch (IOException e) {
+            wrapException("9.2",e);
+            logger.info("ОБНОВЛЕНИЕ 9.2 НЕ ЗАВЕРШЕНО.");
+
+        } catch (Exception e) {
+            wrapException("9.2",e);
+            logger.info("ОБНОВЛЕНИЕ 9.2 НЕ ЗАВЕРШЕНО.");
+
+        }
+    }
     private void checkBiofonProfile() throws Exception {
 
         List<Profile> profiles = getModel().searchProfile(BIOFON_PROFILE_NAME);
