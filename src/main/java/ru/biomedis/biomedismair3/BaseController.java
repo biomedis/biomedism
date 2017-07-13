@@ -128,7 +128,7 @@ public abstract class BaseController implements Initializable {
 
         root.setUserData(userData);
         controller.setParams(params);//до открытия окна в show, можно устанавливать любые параметры. initialize вызывается в контроллере до этого !!
-
+        controller.onCompletedInitialise();
 
         Scene scene = new Scene(root);
 
@@ -177,7 +177,7 @@ public abstract class BaseController implements Initializable {
         BaseController controller = (BaseController) fxmlLoader.getController();
         controller.setWindow(dlg);
         controller.setParams(params);//до открытия окна в show, можно устанавливать любые параметры
-
+        controller.onCompletedInitialise();
 
         Scene scene = new Scene(root);
 
@@ -210,6 +210,27 @@ public abstract class BaseController implements Initializable {
      * @throws IOException
      */
     public static void openDialogNotModal(Stage ownerWindow, String fxml, String title, boolean resizeble, StageStyle st, int minH, int minW, int maxH, int maxW, Object... params) throws IOException {
+        openDialogNotModal( ownerWindow,  fxml,  title,  resizeble, st, minH,
+         minW,  maxH,  maxW,  "", params);
+    }
+
+    /**
+     * Создание окна. Параметры передаются после вызова initialize в контроллере!!! Это нужно учесть при проектировании контроллера. Те если что нужно инициализировать то именно в обработчике установки параметров
+     *
+     * @param ownerWindow - родительское окно. Может быть null для нового отдельного
+     * @param fxml        - строка путь к файлу fxml
+     * @param title       - заголовок окна
+     * @param resizeble   - можно ли окно масштабировать
+     * @param st          --стиль окна StageStyle
+     * @param minH        - минимальная высота(0 для игнора)
+     * @param minW        -минимальная ширина(0 для игнора)
+     * @param maxH        - минимальная высота(0 для игнора)
+     * @param maxW        - минимальная ширина(0 для игнора)
+     * @param cssResourcePath - ресурсный путь к css файлу
+     * @param params      - параметры для контролеера.  Каждый контроллер должен раелизовать класс BaseController и реализовать метод setParams, для разбора параметров если нужно
+     * @throws IOException
+     */
+    public static void openDialogNotModal(Stage ownerWindow, String fxml, String title, boolean resizeble, StageStyle st, int minH, int minW, int maxH, int maxW,String cssResourcePath, Object... params) throws IOException {
         Stage dlg = new Stage(st);
         dlg.initOwner(ownerWindow);
         dlg.initModality(Modality.NONE);
@@ -225,10 +246,10 @@ public abstract class BaseController implements Initializable {
         BaseController controller = (BaseController) fxmlLoader.getController();
         controller.setWindow(dlg);
         controller.setParams(params);//до открытия окна в show, можно устанавливать любые параметры
-
+        controller.onCompletedInitialise();
 
         Scene scene = new Scene(root);
-
+        if(cssResourcePath!="")scene.getStylesheets().add(cssResourcePath);
         dlg.setScene(scene);
         dlg.setTitle(title);
         dlg.setResizable(resizeble);
@@ -277,7 +298,7 @@ public abstract class BaseController implements Initializable {
         BaseController controller = (BaseController) fxmlLoader.getController();
         controller.setWindow(this.window);
         controller.setParams(params);//до открытия окна в show можно устанавливать любые параметры
-
+        controller.onCompletedInitialise();
 
         AnchorPane.setLeftAnchor(root, 0.0);
         AnchorPane.setRightAnchor(root, 0.0);
@@ -303,7 +324,7 @@ public abstract class BaseController implements Initializable {
         BaseController controller = (BaseController) fxmlLoader.getController();
         controller.setWindow(this.window);
         controller.setParams(params);//до открытия окна в show можно устанавливать любые параметры
-
+        controller.onCompletedInitialise();
 
         scrlbr.setContent(root);
 

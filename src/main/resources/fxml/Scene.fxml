@@ -113,6 +113,7 @@
           <Menu mnemonicParsing="false" text="%app.menu.help">
                <items>
                   <MenuItem mnemonicParsing="false" onAction="#onHelp" text="%app.menu.manual" />
+                  <MenuItem mnemonicParsing="false" onAction="#onReference" text="%app.menu.reference" />
                </items>
           </Menu>
         </menus>

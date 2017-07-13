@@ -116,19 +116,10 @@ public class CreateBaseHelper{
     public static boolean exportSection(@NotNull Section startedSection, @NotNull  File file, ModelDataApp md,Language language,String name)
     {
         if(startedSection==null) return false;
-
-
-        String tree = getSection(startedSection, md,0,language);
         //внутри раздела - тут это раздылы базы -общие, терапевт итп. Вложенных подразделов нет. Мы представляем подразделы и комплексы как таблицы с заголовками. В них программы с частотами
         try {
-
             OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(file), "UTF8");
-
-            fw.write("<!DOCTYPE html>\n");
-            fw.write("<html><head>  <meta charset=\"utf-8\"/><title>"+name+"</title></head><body>\n");
-            fw.write("<h1 style='text-align:left;'>"+name+"</h1>");
-           fw.write(tree);
-            fw.write("</body></html>");
+            fw.write(getSection(startedSection, md,0,language));
             fw.close();
 
         } catch (IOException e) {
@@ -139,7 +130,9 @@ public class CreateBaseHelper{
     }
 
 
-    private static String getProgram(Program program, ModelDataApp md, int level,Language language)
+
+
+    public static String getProgram(Program program, ModelDataApp md, int level,Language language)
     {
         StringBuilder strb=new StringBuilder();
         strb.append(noops[level]);
@@ -155,7 +148,7 @@ public class CreateBaseHelper{
 
     }
 
-    private static String getProgramList(List<Program> list, ModelDataApp md,int level,Language language)
+    public static String getProgramList(List<Program> list, ModelDataApp md,int level,Language language)
     {
 
         StringBuilder strb=new StringBuilder();
@@ -176,7 +169,7 @@ public class CreateBaseHelper{
         return strb.toString();
     }
 
-    private static String getComplex(Complex complex, ModelDataApp md, int level,Language language)
+    public static String getComplex(Complex complex, ModelDataApp md, int level,Language language)
     {
         StringBuilder strb=new StringBuilder();
         md.initStringsComplex(complex,language,true);
@@ -199,9 +192,14 @@ public class CreateBaseHelper{
     }
 
 
-    private static String getSection(Section section,ModelDataApp md,int level,Language language)
+    public static String getSection(Section section,ModelDataApp md,int level,Language language)
     {
+
         StringBuilder strb=new StringBuilder();
+        strb.append("<!DOCTYPE html>\n");
+        strb.append("<html><head>  <meta charset=\"utf-8\"/><title>"+section.getNameString()+"</title></head><body>\n");
+        strb.append("<h1 style='text-align:left;'>"+section.getNameString()+"</h1>");
+
         strb.append(noops[level]);
         if(level!=0)//исключаем стартовый раздел
         {
@@ -225,6 +223,8 @@ public class CreateBaseHelper{
 
         strb.append(noops[level]);
         if(level!=0) strb.append("</table>\n");
+
+        strb.append("</body></html>");
         return strb.toString();
     }
 }

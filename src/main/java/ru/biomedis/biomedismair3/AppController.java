@@ -10375,6 +10375,14 @@ return  true;
         }
     }
 
+
+    public void onReference(){
+        try {
+            openDialogNotModal(getApp().getMainWindow(),"/fxml/ReferenceBook.fxml",res.getString("app.menu.reference"),true,StageStyle.DECORATED,600,900,0,0,"/styles/Styles.css");
+        } catch (IOException e) {
+            logger.error("",e);
+        }
+    }
     /***************************************************/
 
 
