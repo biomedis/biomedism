@@ -5,7 +5,6 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
@@ -28,7 +27,6 @@ public class ReferenceController extends BaseController {
 
     private @FXML    WebView webView;
     private WebEngine webEngine;
-    private @FXML Button homeBtn;
     private @FXML VBox menuPane;
 
 
@@ -37,6 +35,7 @@ public class ReferenceController extends BaseController {
     @Override
     protected void onCompletedInitialise() {
         onHome();
+
     }
 
     @Override
@@ -49,20 +48,28 @@ public class ReferenceController extends BaseController {
     {
 
         webEngine =   webView.getEngine();
-        webView.setContextMenuEnabled(false);
+        webView.setContextMenuEnabled(true);
         buildMenu();
         onHome();
     }
 
     private void viewPage(long sectionID){
 
-        Platform.runLater(() -> webEngine.loadContent(buildPage(sectionID)));
+
+        Platform.runLater(() -> {
+            webEngine.loadContent(buildPage(sectionID));
+            if(!getControllerWindow().isMaximized())getControllerWindow().setWidth(getControllerWindow().getWidth()+1);
+        });
 
     }
 
     private String buildPage(long sectionID) {
         Section section = getModel().findSection(sectionID);
-        return CreateBaseHelper.getSection(section, getModel(), 0, getModel().getProgramLanguage());
+        StringBuilder strb=new StringBuilder();
+        strb.append(CreateBaseHelper.getHtmlHeader(section, getModel(),  getModel().getProgramLanguage()))
+            .append(CreateBaseHelper.getSection(section, getModel(), 0, getModel().getProgramLanguage()))
+            .append(CreateBaseHelper.getHtmlBottom());
+        return strb.toString();
     }
 
     private void buildMenu(){
@@ -70,9 +77,6 @@ public class ReferenceController extends BaseController {
                                         .filter(s -> s.getTag()==null?true:!s.getTag().equals("USER"))
                                         .collect(Collectors.toList());
         getModel().initStringsSection(rootSections,getModel().getProgramLanguage(),true);
-
-
-
 
         for (Section rootSection : rootSections) {
 
@@ -86,7 +90,6 @@ public class ReferenceController extends BaseController {
             for (Section innerSection : innerSections) {
                 addMenuItem(innerSection.getNameString(), innerSection);
             }
-
 
         }
 
@@ -111,6 +114,8 @@ public class ReferenceController extends BaseController {
         Label title = new Label(name);
         title.setFont(new Font(13));
         VBox.setMargin(title,new Insets(10,0,0,0));
+        title.setMaxWidth(Double.MAX_VALUE);
+        title.setStyle("-fx-background-color: darkgray");
         menuPane.getChildren().add(title);
 
     }
@@ -126,6 +131,7 @@ public class ReferenceController extends BaseController {
         link.setUserData(section.getId());
         link.setFont(new Font(13));
         link.setOnAction(menuListener);
+        link.setMaxWidth(Double.MAX_VALUE);
         VBox.setMargin(link, new Insets(10,0,0,0));
         menuPane.getChildren().add(link);
     }
@@ -135,6 +141,7 @@ public class ReferenceController extends BaseController {
         link.setUserData(section.getId());
         link.setOnAction(menuListener);
         VBox.setMargin(link, new Insets(0,0,0,10));
+        link.setMaxWidth(Double.MAX_VALUE);
         menuPane.getChildren().add(link);
     }
 

@@ -7,19 +7,13 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.web.WebView?>
 
-<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.Dialogs.ReferenceController">
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.Dialogs.ReferenceController">
    <center>
-      <WebView fx:id="webView" prefHeight="-1.0" prefWidth="-1.0" BorderPane.alignment="CENTER" />
+      <WebView fx:id="webView" prefHeight="-1.0" prefWidth="-1.0" BorderPane.alignment="CENTER" maxWidth="Infinity" maxHeight="Infinity" />
    </center>
    <left>
       <VBox maxHeight="1.7976931348623157E308" minWidth="150.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER" fx:id="menuPane">
          <children>
-            <Button fx:id="homeBtn" mnemonicParsing="false" onAction="#onHome" prefHeight="30.0" prefWidth="30.0">
-               <styleClass>
-                  <String fx:value="HomeBtn" />
-                  <String fx:value="GenericBtn" />
-               </styleClass>
-            </Button>
          </children>
          <padding>
             <Insets left="5.0" top="5.0" />
