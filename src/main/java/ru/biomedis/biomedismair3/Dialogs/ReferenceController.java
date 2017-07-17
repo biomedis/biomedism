@@ -38,7 +38,7 @@ public class ReferenceController extends BaseController {
     private @FXML VBox menuPane;
     private @FXML ComboBox<Language> langBox;
     private long currendSection;
-
+    private ResourceBundle resources;
 
 
     @Override
@@ -55,6 +55,8 @@ public class ReferenceController extends BaseController {
     @Override
     public void initialize(URL location, ResourceBundle resources)
     {
+
+        this.resources = resources;
 
         webEngine =   webView.getEngine();
         webView.setContextMenuEnabled(true);
@@ -226,14 +228,14 @@ public class ReferenceController extends BaseController {
 
             Waiter.closeLayer();
             Platform.runLater(() -> {
-                showExceptionDialog("Создание  справочников","","Завершено c ошибкоай",(Exception)  event.getSource().getException(),this.getControllerWindow(),Modality.WINDOW_MODAL);
+                showExceptionDialog(resources.getString("app.menu.reference"),"","Error!",(Exception)  event.getSource().getException(),this.getControllerWindow(),Modality.WINDOW_MODAL);
 
             });
         });
         task.setOnSucceeded(event -> {
             Waiter.closeLayer();
             Platform.runLater(() -> {
-                showInfoDialog("Создание  справочников","","Завершено",this.getControllerWindow(), Modality.WINDOW_MODAL);
+                showInfoDialog(resources.getString("app.menu.reference"),"",resources.getString("app.success"),this.getControllerWindow(), Modality.WINDOW_MODAL);
 
             });
         });
