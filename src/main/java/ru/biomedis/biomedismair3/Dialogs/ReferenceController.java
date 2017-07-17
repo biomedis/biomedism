@@ -1,20 +1,28 @@
 package ru.biomedis.biomedismair3.Dialogs;
 
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.Modality;
+import javafx.util.StringConverter;
 import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.UserUtils.CreateBaseHelper;
+import ru.biomedis.biomedismair3.Waiter;
+import ru.biomedis.biomedismair3.entity.Language;
 import ru.biomedis.biomedismair3.entity.Section;
 
+import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -28,7 +36,8 @@ public class ReferenceController extends BaseController {
     private @FXML    WebView webView;
     private WebEngine webEngine;
     private @FXML VBox menuPane;
-
+    private @FXML ComboBox<Language> langBox;
+    private long currendSection;
 
 
 
@@ -49,13 +58,54 @@ public class ReferenceController extends BaseController {
 
         webEngine =   webView.getEngine();
         webView.setContextMenuEnabled(true);
+        initLangs();
         buildMenu();
         onHome();
     }
 
+    private void initLangs() {
+        List<Language> langs = getModel().findAllLanguage()
+                                           .stream()
+                                           .filter(l -> l.isAvaliable())
+                                           .collect(Collectors.toList());
+        langBox.setConverter(new StringConverter<Language>() {
+            @Override
+            public String toString(Language object) {
+                return object.getName();
+            }
+
+            @Override
+            public Language fromString(String string) {
+                return null;
+            }
+        });
+
+        Language def = new Language();
+        def.setId(0L);
+        def.setName("-");
+        langBox.getItems().add(def);
+        langBox.getItems().addAll(langs);
+        langBox.getSelectionModel().select(0);
+
+        langBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if(newValue.getId()==0) onHome();
+            else {
+                 if(currendSection==0)onHome();
+                 else viewPage(currendSection);
+            }
+        });
+    }
+
+
+    private Language getAdditionalLang(){
+        if(getModel().getProgramLanguage().getId().equals(langBox.getValue().getId())){
+            return langBox.getItems().get(0);
+        }
+        return langBox.getValue();
+    }
+
     private void viewPage(long sectionID){
-
-
+        currendSection = sectionID;
         Platform.runLater(() -> {
             webEngine.loadContent(buildPage(sectionID));
             if(!getControllerWindow().isMaximized())getControllerWindow().setWidth(getControllerWindow().getWidth()+1);
@@ -66,8 +116,8 @@ public class ReferenceController extends BaseController {
     private String buildPage(long sectionID) {
         Section section = getModel().findSection(sectionID);
         StringBuilder strb=new StringBuilder();
-        strb.append(CreateBaseHelper.getHtmlHeader(section, getModel(),  getModel().getProgramLanguage()))
-            .append(CreateBaseHelper.getSection(section, getModel(), 0, getModel().getProgramLanguage()))
+        strb.append(CreateBaseHelper.getHtmlHeader(section, getModel(),  getModel().getProgramLanguage(),getAdditionalLang()))
+            .append(CreateBaseHelper.getSection(section, getModel(), 0, getModel().getProgramLanguage(),getAdditionalLang()))
             .append(CreateBaseHelper.getHtmlBottom());
         return strb.toString();
     }
@@ -150,6 +200,51 @@ public class ReferenceController extends BaseController {
         String manualPage = getClass().getResource("/reference_main/index.html").toExternalForm();
 
         Platform.runLater(() -> webEngine.load(manualPage));
+    }
+
+    public void onSave(){
+        File file;
+        DirectoryChooser dirChooser =new DirectoryChooser();
+        dirChooser.setTitle("Создание  справочника Выбор директории");
+        dirChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        file= dirChooser.showDialog(getApp().getMainWindow());
+
+        if(file==null)return;
+        File file1=file;
+
+
+
+        Task<Void>  task =new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                CreateBaseHelper.createHelpFiles(file1,getModel(),getModel().getProgramLanguage(),getAdditionalLang());
+                return null;
+            }
+        };
+
+        task.setOnFailed(event -> {
+
+            Waiter.closeLayer();
+            Platform.runLater(() -> {
+                showExceptionDialog("Создание  справочников","","Завершено c ошибкоай",(Exception)  event.getSource().getException(),this.getControllerWindow(),Modality.WINDOW_MODAL);
+
+            });
+        });
+        task.setOnSucceeded(event -> {
+            Waiter.closeLayer();
+            Platform.runLater(() -> {
+                showInfoDialog("Создание  справочников","","Завершено",this.getControllerWindow(), Modality.WINDOW_MODAL);
+
+            });
+        });
+        task.setOnRunning(event -> {
+           Platform.runLater(() -> Waiter.openLayer(getControllerWindow(),true));
+        });
+
+        Thread t=new Thread(task);
+        t.setDaemon(true);
+        t.start();
+
     }
 
 }

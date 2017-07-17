@@ -3,16 +3,19 @@
 <?import java.lang.String?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.web.WebView?>
 
 <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.Dialogs.ReferenceController">
    <center>
-      <WebView fx:id="webView" prefHeight="-1.0" prefWidth="-1.0" BorderPane.alignment="CENTER" maxWidth="Infinity" maxHeight="Infinity" />
+      <WebView fx:id="webView" maxHeight="Infinity" maxWidth="Infinity" prefHeight="-1.0" prefWidth="-1.0" BorderPane.alignment="CENTER" />
    </center>
    <left>
-      <VBox maxHeight="1.7976931348623157E308" minWidth="150.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER" fx:id="menuPane">
+      <VBox fx:id="menuPane" maxHeight="1.7976931348623157E308" minWidth="150.0" style="-fx-background-color: white;" BorderPane.alignment="CENTER">
          <children>
          </children>
          <padding>
@@ -20,4 +23,28 @@
          </padding>
       </VBox>
    </left>
+   <top>
+      <HBox prefHeight="36.0" spacing="8.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button mnemonicParsing="false" onAction="#onSave" prefHeight="30" prefWidth="30">
+               <styleClass>
+                  <String fx:value="GenericBtn" />
+                  <String fx:value="SaveBtn" />
+               </styleClass>
+            </Button>
+            <Label text="%app.additional_lang">
+               <padding>
+                  <Insets top="5.0" />
+               </padding>
+               <HBox.margin>
+                  <Insets left="20.0" />
+               </HBox.margin>
+            </Label>
+            <ComboBox fx:id="langBox" prefWidth="150.0" />
+         </children>
+         <padding>
+            <Insets left="5.0" top="5.0" />
+         </padding>
+      </HBox>
+   </top>
 </BorderPane>

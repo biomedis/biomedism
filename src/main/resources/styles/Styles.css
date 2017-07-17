@@ -94,6 +94,15 @@
     -fx-background-insets: 0,1,2;
     -fx-background-radius: 3,2,1;
 }
+.SaveBtn
+{
+    -fx-background-image: url("../images/save.png");
+    -fx-background-size: 30 30;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position:center;
+    -fx-background-insets: 0,1,2;
+    -fx-background-radius: 3,2,1;
+}
 .GrayBackground{
     -fx-background-color: #242424;
 }
