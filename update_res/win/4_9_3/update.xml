@@ -1,0 +1,14 @@
+<?xml version="1.1" encoding="UTF-8" ?>
+<Update date="10.07.2017">
+    <Action type="Move">
+        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_9_3/dist.jar" dst="assets"/>
+        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_9_3/version.txt" dst="assets"/>
+        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_9_3/manual_de.pdf" dst="assets/manuals"/>
+        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_9_3/manual_it.pdf" dst="assets/manuals"/>
+        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_9_3/manual_el.pdf" dst="assets/manuals"/>
+        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_9_3/manual_fr.pdf" dst="assets/manuals"/>
+        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_9_3/manual_en.pdf" dst="assets/manuals"/>
+        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_9_3/manual_ru.pdf" dst="assets/manuals"/>
+    </Action>
+
+</Update>

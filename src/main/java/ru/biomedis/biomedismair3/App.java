@@ -29,6 +29,7 @@ import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import static ru.biomedis.biomedismair3.BaseController.getApp;
 import static ru.biomedis.biomedismair3.BaseController.showExceptionDialog;
@@ -312,7 +313,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
         int currentUpdateFile=9;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=2;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentMinorVersion=3;//версия исправлений в пределах мажорной версии currentUpdateFile
         //требуется размещение в папке с dist.jar  файла version.txt с текущей версией типа 4.9.0!!! Этот файл в обновление нужно включать
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -687,8 +688,12 @@ https://gist.github.com/DemkaAge/8999236
         if(updateFixVersion == 0){
             updateIn9_1( updateOption);
             updateIn9_2( updateOption);
+            updateIn9_3( updateOption);
         }
-        else if(updateFixVersion == 1) updateIn9_2( updateOption);
+        else if(updateFixVersion == 1) {
+            updateIn9_2( updateOption);
+            updateIn9_3( updateOption);
+        }else if(updateFixVersion == 2) updateIn9_3( updateOption);
     }
 
 
@@ -744,6 +749,32 @@ https://gist.github.com/DemkaAge/8999236
         } catch (Exception e) {
             wrapException("9.2",e);
             logger.info("ОБНОВЛЕНИЕ 9.2 НЕ ЗАВЕРШЕНО.");
+
+        }
+    }
+    private void updateIn9_3(ProgramOptions updateOption) {
+        System.out.println("Update_9_3");
+        File base_translate=null;
+        try {
+            List<Program> programs = getModel().findAllProgram()
+                                              .stream()
+                                              .filter(p -> p.isOwnerSystem())
+                                              .collect(Collectors.toList());
+
+            for (Program program : programs) {
+                String f = program.getFrequencies();
+                if(f.contains("+")){
+                    System.out.println("Было: "+f);
+                    program.setFrequencies(f.replace("+",";"));
+                    System.out.println("Стало: "+program.getFrequencies());
+                    getModel().updateProgram(program);
+                }
+            }
+
+
+        } catch (Exception e) {
+            wrapException("9.3",e);
+            logger.info("ОБНОВЛЕНИЕ 9.3 НЕ ЗАВЕРШЕНО.");
 
         }
     }

@@ -7081,7 +7081,9 @@ public void onAbout()
 
 
 
-
+        if(m2Ready.get()){
+            showWarningDialog(res.getString("app.ui.attention"),"",res.getString("trinity.warn"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        }
         if(tableProfile.getSelectionModel().getSelectedItem()==null){btnGenerate.setDisable(true);return;}
         if(!getModel().isNeedGenerateFilesInProfile(tableProfile.getSelectionModel().getSelectedItem())) {btnGenerate.setDisable(true);return;}
 
