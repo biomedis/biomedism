@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.112" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.starter.TrinityUtil">
+   <center>
+      <TextArea fx:id="outputArea" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="300.0" BorderPane.alignment="CENTER" />
+   </center>
+   <top>
+      <HBox alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="30.0" spacing="10.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button fx:id="clearBtn" mnemonicParsing="false" onAction="#onClear" text="%app.menu.clear_trinity" />
+            <Button fx:id="infoBtn" mnemonicParsing="false" onAction="#onInfo" text="%trinity.info" />
+            <Button mnemonicParsing="false" text="%read_from_trinity" fx:id="readBtn"  onAction="#onReadDevice"/>
+            <Button mnemonicParsing="false" text="%clear_output" onAction="#onClearText"/>
+         </children>
+      </HBox>
+   </top>
+</BorderPane>

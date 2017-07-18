@@ -11,6 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.stage.StageStyle;
 import org.anantacreative.updater.Pack.Exceptions.PackException;
 import org.anantacreative.updater.Update.AbstractUpdateTaskCreator;
 import org.anantacreative.updater.Update.UpdateException;
@@ -48,6 +49,8 @@ public class AppController extends BaseController {
     @FXML private Label currentFileProgress;
     @FXML private HBox centerLayout;
     @FXML private Label vStarter;
+
+    @FXML private Hyperlink trinityUtil;
 
     private Version version=null;
 
@@ -129,6 +132,21 @@ public class AppController extends BaseController {
         hideVersionCheckIndicator();
         hideUpdateProgress();
         hideCurrentFileProgress();
+
+        trinityUtilInit();
+
+
+    }
+
+    private void trinityUtilInit() {
+        trinityUtil.setOnAction(event -> {
+            trinityUtil.setVisited(false);
+            try {
+                openDialog(getControllerWindow(),"/fxml/trinity_util.fxml","Trinity tool",true, StageStyle.DECORATED,600, 800,0,0);
+            } catch (Exception e) {
+                Log.logger.error("",e);
+            }
+        });
 
 
     }

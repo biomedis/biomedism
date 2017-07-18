@@ -126,7 +126,7 @@ public abstract class BaseController implements Initializable {
 
         root.setUserData(userData);
         controller.setParams(params);//до открытия окна в show, можно устанавливать любые параметры. initialize вызывается в контроллере до этого !!
-
+        controller.onCompletedInitialise();
 
         Scene scene = new Scene(root);
 
@@ -175,7 +175,7 @@ public abstract class BaseController implements Initializable {
         BaseController controller = (BaseController) fxmlLoader.getController();
         controller.setWindow(dlg);
         controller.setParams(params);//до открытия окна в show, можно устанавливать любые параметры
-
+        controller.onCompletedInitialise();
 
         Scene scene = new Scene(root);
 
@@ -223,7 +223,7 @@ public abstract class BaseController implements Initializable {
         BaseController controller = (BaseController) fxmlLoader.getController();
         controller.setWindow(dlg);
         controller.setParams(params);//до открытия окна в show, можно устанавливать любые параметры
-
+        controller.onCompletedInitialise();
 
         Scene scene = new Scene(root);
 
@@ -275,7 +275,7 @@ public abstract class BaseController implements Initializable {
         BaseController controller = (BaseController) fxmlLoader.getController();
         controller.setWindow(this.window);
         controller.setParams(params);//до открытия окна в show можно устанавливать любые параметры
-
+        controller.onCompletedInitialise();
 
         AnchorPane.setLeftAnchor(root, 0.0);
         AnchorPane.setRightAnchor(root, 0.0);
@@ -301,7 +301,7 @@ public abstract class BaseController implements Initializable {
         BaseController controller = (BaseController) fxmlLoader.getController();
         controller.setWindow(this.window);
         controller.setParams(params);//до открытия окна в show можно устанавливать любые параметры
-
+        controller.onCompletedInitialise();
 
         scrlbr.setContent(root);
 

@@ -251,6 +251,11 @@
             <artifactId>vertx-web-client</artifactId>
             <version>3.4.2</version>
         </dependency>
+        <dependency>
+            <groupId>org.usb4java</groupId>
+            <artifactId>usb4java</artifactId>
+            <version>1.2.0</version>
+        </dependency>
 
     </dependencies>
 

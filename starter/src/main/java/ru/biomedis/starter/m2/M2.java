@@ -1,20 +1,11 @@
-package ru.biomedis.biomedismair3.m2;
+package ru.biomedis.starter.m2;
 
-
-import ru.biomedis.biomedismair3.App;
-import ru.biomedis.biomedismair3.Log;
-import ru.biomedis.biomedismair3.ModelDataApp;
-import ru.biomedis.biomedismair3.entity.Profile;
-import ru.biomedis.biomedismair3.entity.TherapyComplex;
-import ru.biomedis.biomedismair3.entity.TherapyProgram;
-import ru.biomedis.biomedismair3.utils.USB.ByteHelper;
-import ru.biomedis.biomedismair3.utils.USB.USBHelper;
+import ru.biomedis.starter.Log;
+import ru.biomedis.starter.USB.ByteHelper;
+import ru.biomedis.starter.USB.USBHelper;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class M2
 {
@@ -62,7 +53,7 @@ public class M2
 
             if(size==0){
                 //если прибор пустой, то создадим пустой файл
-               return new M2BinaryFile();
+                return new M2BinaryFile();
 
             }
 
@@ -72,7 +63,7 @@ public class M2
             if(debug) System.out.println("___________________");
 
             byte[] deviceData = new byte[DATA_PACKET_SIZE*packets];
-            ByteBuffer  data;
+            ByteBuffer data;
             for(int i=0;i<packets;i++){
                 //читаем
                 data = USBHelper.read(usbDeviceHandle, DATA_PACKET_SIZE, IN_END_POINT, REQUEST_TIMEOUT_MS);
@@ -116,7 +107,7 @@ public class M2
 
     public static String readDeviceName(boolean debug) throws WriteToDeviceException {
         USBHelper.USBDeviceHandle usbDeviceHandle=null;
-       String str="";
+        String str="";
         try{
 
 
@@ -203,9 +194,9 @@ public class M2
             }
 
             //команда на запись
-           // USBHelper.write(usbDeviceHandle,commandWrite,OUT_END_POINT,REQUEST_TIMEOUT_MS);
+            // USBHelper.write(usbDeviceHandle,commandWrite,OUT_END_POINT,REQUEST_TIMEOUT_MS);
             //Thread.sleep(200);
-           // Response response = readResponseBuffer(usbDeviceHandle,debug);
+            // Response response = readResponseBuffer(usbDeviceHandle,debug);
 
             USBHelper.write(usbDeviceHandle,commandWrite,OUT_END_POINT,REQUEST_TIMEOUT_MS);
 
@@ -245,7 +236,7 @@ public class M2
      */
     private static Response readResponseBuffer( USBHelper.USBDeviceHandle usbDeviceHandle,boolean debug) throws USBHelper.USBException {
 
-        if(debug)System.out.print("READ RESPONSE...");
+       // if(debug)System.out.print("\nREAD RESPONSE...");
         ByteBuffer  response = USBHelper.read(usbDeviceHandle, DATA_PACKET_SIZE, IN_END_POINT, REQUEST_TIMEOUT_MS);
         response.position(0);
         byte[] bytes = new byte[DATA_PACKET_SIZE];
@@ -264,7 +255,7 @@ public class M2
      * Очистка устройства
      */
     public static void clearDevice(boolean debug) throws WriteToDeviceException {
-        if(debug)System.out.print("CLEAR_DEVICE...");
+
         USBHelper.USBDeviceHandle usbDeviceHandle=null;
         try{
 
@@ -371,8 +362,8 @@ public class M2
             case 4:
                 str="Error 4";
                 break;
-                default:
-                    str="Unknown error code!";
+            default:
+                str="Unknown error code!";
 
 
         }
@@ -396,96 +387,16 @@ public class M2
 
     }
 
-    private static String getLang(TherapyComplex tc){
-        return  getLangByOname(tc.getOname());
-    }
-
-    private static String getLang(TherapyProgram tc){
-        return getLangByOname( tc.getOname());
-    }
-
-    /**
-     * Если есть oName, то язык приложения отличается от языка вставки и нужно указать язык из опции языка вставки.
-     * Иначе указывается язык приложения
-     * @param oname
-     * @return
-     */
-    private static String getLangByOname( String oname) {
-        ModelDataApp mda = App.getStaticModel();
-        String lang;
-        if(oname.isEmpty()) lang=mda.getProgramLanguage().getAbbr();
-        else {
-            try {
-                lang = mda.getOption("app.lang_insert_complex");
-                if(lang==null) lang=mda.getDefaultLanguage().getAbbr();
-                else if(lang.isEmpty())lang=mda.getProgramLanguage().getAbbr();
-            } catch (Exception e) {
-                lang=mda.getProgramLanguage().getAbbr();
-            }
-        }
-        return lang;
-    }
 
 
-    public static void uploadProfile(Profile profile,boolean debug) throws M2Complex.MaxTimeByFreqBoundException, M2Complex.MaxPauseBoundException, M2Program.ZeroValueFreqException, M2Program.MaxProgramIDValueBoundException, M2Program.MinFrequenciesBoundException, M2Complex.MaxCountProgramBoundException, M2BinaryFile.MaxBytesBoundException, M2Complex.ZeroCountProgramBoundException, LanguageDevice.NoLangDeviceSupported, WriteToDeviceException {
-        ModelDataApp mda = App.getStaticModel();
-        M2BinaryFile bf=new M2BinaryFile();
-        M2Complex m2c;
-        List<M2Program> pList=new ArrayList<>();
+    private static void printPacket(String name, byte[] packet){
+        System.out.println(name+" = ");
 
-        for (TherapyComplex tc : mda.findAllTherapyComplexByProfile(profile))
-        {
-            String lancTC = LanguageDevice.langByCodePoint(tc.getName()).getAbbr();
+        for (int i = 0; i < packet.length; i++) {
 
-            for (TherapyProgram tp : mda.findTherapyPrograms(tc).stream().filter(i->!i.isMp3()).collect(Collectors.toList())) {
-
-                pList.add(new M2Program(tp.parseFreqs(),tp.getId().intValue(),tp.getName(), LanguageDevice.langByCodePoint(tp.getName()).getAbbr()));
-
-            }
-
-            m2c= new M2Complex(PAUSE_BETWEEN_PROGRAM,tc.getTimeForFrequency(),tc.getName(),lancTC);
-            m2c.addPrograms(pList);
-            bf.addComplex(m2c);
-            pList.clear();
-        }
-
-
-        byte[] data = bf.getData();
-
-
-        System.out.println("Размер посылки: "+data.length);
-        LanguageDevice deviceLang = LanguageDevice.getDeviceLang(mda.getProgramLanguage().getAbbr());
-
-        if(debug){
-           // System.out.println(ByteHelper.bytesToHex(data,32,' '));
-
-           // for (byte dt : data) {
-
-            //    System.out.println(dt<0?dt+256:dt);
-           // }
-
-            try {
-                M2BinaryFile bf2=new M2BinaryFile(data,deviceLang.getDeviceLangID());
-                System.out.println(bf2);
-            } catch (M2BinaryFile.FileParseException e) {
-                e.printStackTrace();
-            }
+            System.out.print((packet[i] < 0 ? packet[i] + 256 : packet[i]) + ", ");
 
         }
-
-        if(deviceLang==null) throw new LanguageDevice.NoLangDeviceSupported(mda.getProgramLanguage().getAbbr());
-        if(debug)System.out.println("Начало записи");
-        writeToDevice(data,deviceLang.getDeviceLangID(),bf.getComplexesList().size(),debug);
+        System.out.println();
     }
-
-        private static void printPacket(String name, byte[] packet){
-            System.out.println(name+" = ");
-
-            for (int i = 0; i < packet.length; i++) {
-
-                System.out.print((packet[i] < 0 ? packet[i] + 256 : packet[i]) + ", ");
-
-            }
-            System.out.println();
-        }
 }
