@@ -35,6 +35,11 @@ public class TrinityUtil extends BaseController {
     protected void onCompletedInitialise() {
         closeAction();
         usbInit();
+        resizeFix();
+    }
+
+    private void resizeFix() {
+        getControllerWindow().setWidth(getControllerWindow().getWidth()+10);
     }
 
 
@@ -83,6 +88,7 @@ public class TrinityUtil extends BaseController {
         getControllerWindow().setOnCloseRequest(event -> {
             System.setErr(err);
             System.setOut(out);
+            USBHelper.stopHotPlugListener();
             USBHelper.removePlugEventHandler(plugDeviceListener);
             USBHelper.closeContext();
         });

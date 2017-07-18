@@ -49,7 +49,7 @@ public class AppController extends BaseController {
     @FXML private Label currentFileProgress;
     @FXML private HBox centerLayout;
     @FXML private Label vStarter;
-
+    @FXML private Label  antivirInfo;
     @FXML private Hyperlink trinityUtil;
 
     private Version version=null;
@@ -135,14 +135,21 @@ public class AppController extends BaseController {
 
         trinityUtilInit();
 
+        initInfoStrings();
 
+
+    }
+
+    private void initInfoStrings() {
+
+        antivirInfo.setGraphic(new ImageView(new Image(AppController.class.getResource("/images/warn.png").toExternalForm())));
     }
 
     private void trinityUtilInit() {
         trinityUtil.setOnAction(event -> {
             trinityUtil.setVisited(false);
             try {
-                openDialog(getControllerWindow(),"/fxml/trinity_util.fxml","Trinity tool",true, StageStyle.DECORATED,600, 800,0,0);
+                openDialog(getControllerWindow(),"/fxml/trinity_util.fxml","Trinity tool",true, StageStyle.DECORATED,0, 0,0,0);
             } catch (Exception e) {
                 Log.logger.error("",e);
             }

@@ -18,11 +18,23 @@
       <Insets bottom="1.0" left="5.0" right="5.0" top="5.0" />
    </padding>
    <center>
-      <HBox fx:id="centerLayout" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="TOP_LEFT">
+      <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+         <children>
+      <HBox fx:id="centerLayout" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="TOP_LEFT" VBox.vgrow="ALWAYS">
          <children>
 
          </children>
       </HBox>
+      <HBox>
+         <children>
+            <Label fx:id="antivirInfo" style="-fx-text-fill: #f19300" text="%antivir_info">
+                     <font>
+                        <Font size="12.0" />
+                     </font></Label>
+         </children>
+      </HBox>
+         </children>
+      </VBox>
    </center>
    <bottom>
       <VBox prefHeight="125.0" BorderPane.alignment="CENTER">

@@ -1,6 +1,6 @@
 <?xml version="1.1" encoding="UTF-8" ?>
-<Update date="07.06.2017">
+<Update date="18.07.2017">
     <Action type="Move">
-        <File url="http://www.biomedis.ru/doc/b_mair/starter/files/1_0_1/starter.jar"  dst="app/starter.jar"/>
+        <File url="http://www.biomedis.ru/doc/b_mair/starter/files/1_1_0/starter.jar"  dst="app/starter.jar"/>
     </Action>
 </Update>
