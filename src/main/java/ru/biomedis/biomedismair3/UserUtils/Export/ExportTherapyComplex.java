@@ -53,6 +53,7 @@ public class ExportTherapyComplex {
             strb.append(noops[level]);
             strb.append("<Program ").append("name=\"").append(TextUtil.escapeXML(program.getName())).append("\" description=\"").append(TextUtil.escapeXML(program.getDescription())).append("\" ").append("frequencies=\"").append(program.getFrequencies().replace(",",".")).append("\" ")
                     .append("multy=\"").append(program.isMultyFreq()).append("\" ")
+                    .append("srcuuid=\"").append(program.getSrcUUID()).append("\" ")
                     .append("/>\n");
         });
         return strb.toString();
@@ -62,7 +63,13 @@ public class ExportTherapyComplex {
         StringBuilder strb = new StringBuilder();
         strb.append(noops[level]);
         int lvl = level + 1;
-        strb.append("<Complex ").append("name=\"").append(TextUtil.escapeXML(complex.getName())).append("\" description=\"").append(TextUtil.escapeXML(complex.getDescription())).append("\"").append(" mullty=\"").append(true).append("\"").append(" timeForFreq=\"").append(complex.getTimeForFrequency()).append("\"").append(" bundlesLength=\"").append(complex.getBundlesLength()).append("\"").append(">\n");
+        strb.append("<Complex ").append("name=\"").append(TextUtil.escapeXML(complex.getName()))
+            .append("\" description=\"").append(TextUtil.escapeXML(complex.getDescription())).append("\"")
+            .append(" mullty=\"").append(true).append("\"")
+            .append(" timeForFreq=\"").append(complex.getTimeForFrequency()).append("\"")
+            .append(" bundlesLength=\"").append(complex.getBundlesLength()).append("\"")
+            .append(" srcuuid=\"").append(complex.getSrcUUID()).append("\"")
+            .append(" >\n");
         List list = md.findTherapyPrograms(complex);
         strb.append(getProgramList(list, md, lvl));
         strb.append(noops[level]);

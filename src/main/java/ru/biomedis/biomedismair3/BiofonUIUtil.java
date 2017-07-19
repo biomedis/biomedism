@@ -365,7 +365,7 @@ public class BiofonUIUtil {
     private void toEditComplex(TherapyComplex therapyComplex,int indbtn) {
 
         try {
-            TherapyComplex tc = mda.createTherapyComplex(app.getBiofonProfile(),
+            TherapyComplex tc = mda.createTherapyComplex(therapyComplex.getSrcUUID(),app.getBiofonProfile(),
                     therapyComplex.getName(),
                     "",
                     therapyComplex.getTimeForFrequency(),
@@ -373,7 +373,7 @@ public class BiofonUIUtil {
                     therapyComplex.getBundlesLength());
 
             List<TherapyProgram> programList = bReadedTherapyPrograms.get(indbtn-1);
-            for (TherapyProgram tp : programList) mda.createTherapyProgram(tc,tp.getName(),tp.getDescription(),tp.getFrequencies());
+            for (TherapyProgram tp : programList) mda.createTherapyProgram(tp.getSrcUUID(),tc,tp.getName(),tp.getDescription(),tp.getFrequencies());
 
 
             if(indbtn==1)bComplex1.get().setId(tc.getId());
@@ -1091,7 +1091,7 @@ Platform.runLater(() -> {
             try {
 
 
-                TherapyComplex therapyComplex = mda.createTherapyComplex(app.getBiofonProfile(),
+                TherapyComplex therapyComplex = mda.createTherapyComplex("",app.getBiofonProfile(),
                         data.getNewName(),
                         data.getNewDescription(),
                         300, 1);

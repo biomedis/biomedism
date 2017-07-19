@@ -89,7 +89,7 @@ public class FilesOldProfileHelper
             //пустая папка
             if(textFile==null)
             {
-                res.add(new ComplexFileData(-1, file.getName().substring(ind2+1, ind), 0, 1, file));
+                res.add(new ComplexFileData(-1, file.getName().substring(ind2+1, ind), 0, 1, file,""));
                 continue;
             }
             //прочитаем файл
@@ -134,7 +134,7 @@ public class FilesOldProfileHelper
                 }
             }
 
-            res.add(new ComplexFileData(-1, file.getName().substring(ind2+1, ind), time,3, file));
+            res.add(new ComplexFileData(-1, file.getName().substring(ind2+1, ind), time,3, file,""));
 
         }
 
@@ -202,7 +202,8 @@ long k=0;
 
             }
 
-            res.put(k--, new ProgramFileData(-1,-1,time,"", strB.toString().replace(",","."), file.getName().substring(ind2+1, ind), file,  null,false,3,true));
+            res.put(k--, new ProgramFileData(-1,-1,time,"", strB.toString().replace(",","."), file.getName().substring(ind2+1, ind), file,
+                    null,false,3,true,"",""));
         }
 
         return res;

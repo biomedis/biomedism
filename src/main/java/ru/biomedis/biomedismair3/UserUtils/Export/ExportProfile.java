@@ -100,6 +100,7 @@ public class ExportProfile {
             strb.append("<Program ").append("name=\"").append(TextUtil.escapeXML(program.getName())).append("\" description=\"").append(TextUtil.escapeXML(program.getDescription())).
                     append("\" ").append("frequencies=\"").append(program.getFrequencies().replace(",",".")).append("\" ")
                     .append("multy=\"").append(program.isMultyFreq()).append("\" ")
+                    .append("srcuuid=\"").append(program.getSrcUUID()).append("\" ")
                     .append("/>\n");
         });
 
@@ -127,7 +128,10 @@ public class ExportProfile {
             .append(" bundlesLength=\"")
             .append(complex.getBundlesLength())
             .append("\"")
-            .append(">\n");
+            .append(" srcuuid=\"")
+            .append(complex.getSrcUUID())
+            .append("\"")
+            .append(" >\n");
 
 
         List<TherapyProgram> list = md.findTherapyPrograms(complex);

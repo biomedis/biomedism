@@ -51,7 +51,7 @@ public class App extends Application {
       public static final  String BIOFON_PROFILE_NAME="B_I_O_F_O_N";
       private Version version;
       private static  AppController  controller;
-      private int updateFixVersion;
+      private int updateFixVersion;//значение в базе
 
 
     /**
@@ -312,8 +312,8 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         /******** Обновления ************/
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
-        int currentUpdateFile=9;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=3;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentUpdateFile=10;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
+        int currentMinorVersion=0;//версия исправлений в пределах мажорной версии currentUpdateFile
         //требуется размещение в папке с dist.jar  файла version.txt с текущей версией типа 4.9.0!!! Этот файл в обновление нужно включать
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -379,6 +379,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(() -> update8(updateOption))
                                  .thenRun(() -> update9(updateOption))
                                  .thenRun(()->updateIn9(updateOption,updateFixVersion))
+                                 .thenRun(() -> update10(updateOption))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -393,6 +394,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                            .thenRun(() -> update8(updateOption))
                                            .thenRun(() -> update9(updateOption))
                                            .thenRun(()->updateIn9(updateOption,updateFixVersion))
+                                 .thenRun(() -> update10(updateOption))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -406,6 +408,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                            .thenRun(() -> update8(updateOption))
                                            .thenRun(() -> update9(updateOption))
                                  .thenRun(()->updateIn9(updateOption,updateFixVersion))
+                                 .thenRun(() -> update10(updateOption))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -418,6 +421,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                            .thenRun(() -> update8(updateOption))
                                            .thenRun(() -> update9(updateOption))
                                  .thenRun(()->updateIn9(updateOption,updateFixVersion))
+                                 .thenRun(() -> update10(updateOption))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -430,6 +434,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                            .thenRun(() -> update8(updateOption))
                                            .thenRun(() -> update9(updateOption))
                                  .thenRun(()->updateIn9(updateOption,updateFixVersion))
+                                 .thenRun(() -> update10(updateOption))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -441,6 +446,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                         .thenRun(() ->  update8(updateOption))
                                            .thenRun(() -> update9(updateOption))
                                  .thenRun(()->updateIn9(updateOption,updateFixVersion))
+                                 .thenRun(() -> update10(updateOption))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -451,6 +457,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                 CompletableFuture.runAsync(() -> changeDDL())
                         .thenRun(() ->  update9(updateOption))
                                  .thenRun(()->updateIn9(updateOption,updateFixVersion))
+                                 .thenRun(() -> update10(updateOption))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -460,6 +467,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
             }
             else if(getUpdateVersion()==9){
                 CompletableFuture.runAsync(() -> updateIn9(updateOption,updateFixVersion))
+                                 .thenRun(() -> update10(updateOption))
                                  .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                                  .exceptionally(e->{
                                      showUpdateErrorAndExit(e.getMessage());
@@ -1546,7 +1554,20 @@ https://gist.github.com/DemkaAge/8999236
                 setUpdateVersion(updateOption,9);
 
     }
+    private void update10(ProgramOptions updateOption)
+    {
+        logger.info("ОБНОВЛЕНИЕ 10.");
 
+        try {
+
+            setUpdateVersion(updateOption, 8);
+
+        }catch (Exception ex){
+            wrapException("10",ex);
+        }
+
+
+    }
 
     private void changeDDL(){
         try
@@ -1721,6 +1742,62 @@ https://gist.github.com/DemkaAge/8999236
         }
 
         reopenPersistentContext();
+
+        try
+        {
+            logger.info("Проверка наличия столбца SRCUUID  в THERAPYCOMPLEX ");
+            emf.createEntityManager().createNativeQuery("SELECT `SRCUUID` FROM THERAPYCOMPLEX LIMIT 1").getResultList();
+            logger.info("Столбец  SRCUUID  найден.");
+
+        }catch (Exception e){
+            logger.info("Столбец  SRCUUID не найден.");
+            logger.info("Создается  столбец SRCUUID  в THERAPYPROGRAM ");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            try{
+                em.createNativeQuery("ALTER TABLE THERAPYCOMPLEX ADD `SRCUUID` VARCHAR(255) DEFAULT ''").executeUpdate();
+                em.getTransaction().commit();
+                logger.info("Столбец  SRCUUID создан.");
+
+
+
+            }catch (Exception ex){
+                logger.error("ошибка обновления ALTER TABLE THERAPYCOMPLEX ADD `SRCUUID` VARCHAR(255) DEFAULT ''",ex);
+                wrapException("10",ex);
+            }finally {
+                if(em!=null) em.close();
+            }
+
+
+        }
+        reopenPersistentContext();
+        try
+        {
+            logger.info("Проверка наличия столбца SRCUUID  в THERAPYPROGRAM ");
+            emf.createEntityManager().createNativeQuery("SELECT `SRCUUID` FROM THERAPYPROGRAM LIMIT 1").getResultList();
+            logger.info("Столбец  SRCUUID  найден.");
+
+        }catch (Exception e){
+            logger.info("Столбец  SRCUUID не найден.");
+            logger.info("Создается  столбец SRCUUID  в THERAPYPROGRAM ");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            try{
+                em.createNativeQuery("ALTER TABLE THERAPYPROGRAM ADD `SRCUUID` VARCHAR(255) DEFAULT ''").executeUpdate();
+                em.getTransaction().commit();
+                logger.info("Столбец  SRCUUID создан.");
+
+
+
+            }catch (Exception ex){
+                logger.error("ошибка обновления ALTER TABLE THERAPYPROGRAM ADD `SRCUUID` VARCHAR(255) DEFAULT ''",ex);
+                wrapException("10",ex);
+            }finally {
+                if(em!=null) em.close();
+            }
+        }
+        reopenPersistentContext();
+
     }
 
     private void setTimeForFreqToCompex(String uuid,int time) throws Exception {

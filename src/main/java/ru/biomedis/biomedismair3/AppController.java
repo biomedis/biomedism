@@ -74,7 +74,6 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Path;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -1101,7 +1100,7 @@ public class AppController  extends BaseController {
                         TherapyComplex selectedTCBiofon = biofonCompexesList.getSelectionModel().getSelectedItem();
                         if(selectedTCBiofon==null) return;
                         try {
-                            TherapyProgram therapyProgram = getModel().createTherapyProgram(selectedTCBiofon, name, descr, p.getFrequencies(),oname);
+                            TherapyProgram therapyProgram = getModel().createTherapyProgram(p.getUuid(),selectedTCBiofon, name, descr, p.getFrequencies(),oname);
                             addProgramToBiofonTab(selectedTCBiofon,therapyProgram);
                         } catch (Exception e) {
                             logger.error("",e);
@@ -1118,7 +1117,7 @@ public class AppController  extends BaseController {
                         try {
 
 
-                            TherapyProgram therapyProgram = getModel().createTherapyProgram(tableComplex.getSelectionModel().getSelectedItem(), name, descr, p.getFrequencies(),oname);
+                            TherapyProgram therapyProgram = getModel().createTherapyProgram(p.getUuid(),tableComplex.getSelectionModel().getSelectedItem(), name, descr, p.getFrequencies(),oname);
                             tableProgram.getItems().add(therapyProgram);
                             updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(), false);
                             therapyTabPane.getSelectionModel().select(2);//выберем таб с программами
@@ -6777,7 +6776,7 @@ final ResourceBundle rest=this.res;
         {
 
             try {
-                TherapyComplex therapyComplex = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), data.getNewName(), data.getNewDescription(), 300,3);
+                TherapyComplex therapyComplex = getModel().createTherapyComplex("", tableProfile.getSelectionModel().getSelectedItem(), data.getNewName(), data.getNewDescription(), 300,3);
 
                 tableComplex.getItems().add(therapyComplex);
 
@@ -7492,7 +7491,8 @@ class ForceCopyProfile
                     //System.out.println("OK");
                     // System.out.print("Создание текста программы: " + nameFile + ".txt...");
                     FilesProfileHelper.copyTxt(therapyProgram.getFrequencies(), cMap2.get(entry.getKey()), therapyProgram.getId().longValue(),
-                            therapyProgram.getUuid(), entry.getKey(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()),false, new File(tempFile, nameFile + ".txt"), therapyProgram.isMultyFreq());
+                            therapyProgram.getUuid(), entry.getKey(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()),
+                            false, new File(tempFile, nameFile + ".txt"), therapyProgram.isMultyFreq(),therapyProgram.getSrcUUID(),therapyComplex.getSrcUUID());
                     // System.out.println("OK");
                 }else
                     {
@@ -7513,7 +7513,8 @@ class ForceCopyProfile
                             FilesProfileHelper.copyBSS(new File(therapyProgram.getFrequencies()),new File(tempFile, nameFile + ".bss"));
 
                             FilesProfileHelper.copyTxt(therapyProgram.getFrequencies(), cMap2.get(entry.getKey()), therapyProgram.getId().longValue(),
-                                    therapyProgram.getUuid(), entry.getKey(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()),true, new File(tempFile, nameFile + ".txt"), therapyProgram.isMultyFreq());
+                                    therapyProgram.getUuid(), entry.getKey(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()),
+                                    true, new File(tempFile, nameFile + ".txt"), therapyProgram.isMultyFreq(),therapyProgram.getSrcUUID(),therapyComplex.getSrcUUID());
 
 
 
@@ -7847,13 +7848,13 @@ class ForceCopyProfile
             m2ui.parseFile(m2BinaryFile,tcs,programsCache);
 
 
-            SimpleDateFormat sdf=new SimpleDateFormat("yyyy_mm_dd");
-            Profile profile = getModel().createProfile("Trinity_" + sdf.format(Calendar.getInstance().getTime()));
+            Calendar cal = Calendar.getInstance();
+            Profile profile = getModel().createProfile("Trinity_" + cal.get(Calendar.DAY_OF_MONTH)+"_"+(cal.get(Calendar.MONTH)+1)+"_"+cal.get(Calendar.YEAR));
             for (TherapyComplex tc : tcs) {
-                TherapyComplex tcn=getModel().createTherapyComplex(profile,tc.getName(),tc.getDescription(),tc.getTimeForFrequency(),tc.getBundlesLength());
+                TherapyComplex tcn=getModel().createTherapyComplex("",profile,tc.getName(),tc.getDescription(),tc.getTimeForFrequency(),tc.getBundlesLength());
                 if(tcn==null) break;
                 for (TherapyProgram tp : programsCache.get(tc.getId())) {
-                    getModel().createTherapyProgram(tcn,tp.getName(),"",tp.getFrequencies());
+                    getModel().createTherapyProgram("",tcn,tp.getName(),"",tp.getFrequencies());
                 }
             }
 
@@ -8543,14 +8544,14 @@ class ForceCopyProfile
                     if(ind==-1) ind= complexFileDataMapEntry.getKey().getName().length()-1;
                     if(ind2==-1) ind2= 0;
 
-                    th=  getModel().createTherapyComplex(profile, complexFileDataMapEntry.getKey().getName().substring(ind2+1,ind), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(),complexFileDataMapEntry.getKey().getBundlesLength());
+                    th=  getModel().createTherapyComplex(complexFileDataMapEntry.getKey().getSrcUUID(),profile, complexFileDataMapEntry.getKey().getName().substring(ind2+1,ind), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(),complexFileDataMapEntry.getKey().getBundlesLength());
 
 
 
                     for (Map.Entry<Long, ProgramFileData> entry : complexFileDataMapEntry.getValue().entrySet())
                     {
                         if(entry.getValue().isMp3())   getModel().createTherapyProgramMp3(th,entry.getValue().getName(),"",entry.getValue().getFreqs());
-                        else getModel().createTherapyProgram(th,entry.getValue().getName(),"",entry.getValue().getFreqs(),entry.getValue().isMulty());
+                        else getModel().createTherapyProgram(entry.getValue().getSrcUUID(), th,entry.getValue().getName(),"",entry.getValue().getFreqs(),entry.getValue().isMulty());
 
                     }
 
@@ -8607,13 +8608,13 @@ class ForceCopyProfile
                 for (Map.Entry<ComplexFileData, Map<Long, ProgramFileData>> complexFileDataMapEntry : data.entrySet())
                 {
 
-                    th=  getModel().createTherapyComplex(profile, complexFileDataMapEntry.getKey().getName(), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(),3);
+                    th=  getModel().createTherapyComplex("",profile, complexFileDataMapEntry.getKey().getName(), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(),3);
 
 
 
                     for (Map.Entry<Long, ProgramFileData> entry : complexFileDataMapEntry.getValue().entrySet())
                     {
-                        getModel().createTherapyProgram(th,entry.getValue().getName(),"",entry.getValue().getFreqs(),true);
+                        getModel().createTherapyProgram("",th,entry.getValue().getName(),"",entry.getValue().getFreqs(),true);
 
                     }
 
@@ -8783,20 +8784,20 @@ return  true;
 
 
 
-                        getModel().createTherapyComplex(profile, name, "", 300,3);
+                        getModel().createTherapyComplex("",profile, name, "", 300,3);
 
 
                     }else
                     {
                         Long next = programms.keySet().iterator().next();
 
-                        TherapyComplex th = getModel().createTherapyComplex(profile, name, "", (int) programms.get(next).getTimeForFreq(),(int) programms.get(next).getBundlesLenght());
+                        TherapyComplex th = getModel().createTherapyComplex(programms.get(next).getSrcUUIDComplex(),profile, name, "", (int) programms.get(next).getTimeForFreq(),(int) programms.get(next).getBundlesLenght());
 
 
                         for (Map.Entry<Long, ProgramFileData> entry : programms.entrySet())
                         {
                             if(entry.getValue().isMp3()) getModel().createTherapyProgramMp3(th,entry.getValue().getName(),"",entry.getValue().getFreqs());
-                            else getModel().createTherapyProgram(th,entry.getValue().getName(),"",entry.getValue().getFreqs(),entry.getValue().isMulty());
+                            else getModel().createTherapyProgram(entry.getValue().getSrcUUID(),th,entry.getValue().getName(),"",entry.getValue().getFreqs(),entry.getValue().isMulty());
 
                         }
                         btnGenerate.setDisable(false);
@@ -9322,7 +9323,8 @@ return  true;
                                                         TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()),
                                                         false,
                                                         new File(tempFile, timeP + ".txt"),
-                                                        therapyProgram.isMultyFreq());
+                                                        therapyProgram.isMultyFreq(),
+                                                        therapyProgram.getSrcUUID(), therapyComplex.getSrcUUID());
                                             } else {
                                                 mp3file = null;
 
@@ -9349,7 +9351,8 @@ return  true;
                                                             TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()),
                                                             true,
                                                             new File(tempFile, nameFile + ".txt"),
-                                                            therapyProgram.isMultyFreq());
+                                                            therapyProgram.isMultyFreq(),
+                                                            therapyProgram.getSrcUUID(), therapyComplex.getSrcUUID());
                                                 }
                                             }
                                         }

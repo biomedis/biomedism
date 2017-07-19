@@ -1605,33 +1605,35 @@ public class ModelDataApp {
       /************ Терапия Комплексы ***/
 
 
+
+
     /**
      * Создаст терапевтический комплекс, с именем name
      * @param profile профиль
      * @param name имя тер.комплекса
      * @param description описание
      * @param timeForFreq время на частоту
-     * @param mulltyFreq мультичастотный режим генерации
+     *
      * @param bundlesLength колличество частот в пачке для мультичастотного режима(<2 пачки не образуются)
      * @return
      * @throws Exception
      */
-      public TherapyComplex createTherapyComplex(Profile profile,String name,String description,int timeForFreq, int bundlesLength) throws Exception
-      {
-          TherapyComplex tc=new TherapyComplex();
-          tc.setDescription(description);
-          tc.setProfile(profile);
-          tc.setTimeForFrequency(timeForFreq);
-          tc.setName(name);
+    public TherapyComplex createTherapyComplex(String srcuuid,Profile profile,String name,String description,int timeForFreq, int bundlesLength) throws Exception
+    {
+        TherapyComplex tc=new TherapyComplex();
+        tc.setDescription(description);
+        tc.setProfile(profile);
+        tc.setTimeForFrequency(timeForFreq);
+        tc.setName(name);
 
-          tc.setBundlesLength(bundlesLength);
-          tc.setOname("");
+        tc.setBundlesLength(bundlesLength);
+        tc.setOname("");
 
-         // tc.setChanged(true);
-        
+        tc.setSrcUUID(srcuuid);
+
         try
-        { 
-         therapyComplexDAO.create(tc);
+        {
+            therapyComplexDAO.create(tc);
         }catch(Exception e){
             Log.logger.error("",e);
             tc=null;
@@ -1643,23 +1645,21 @@ public class ModelDataApp {
             updateTherapyComplex(tc);
         }
         return tc;
-      }
-
-
+    }
 
     /**
      *  Создаст терапевтический комплекс из комплекса complex
      * @param profile профиль
      * @param complex комплекс из которого создается тер.комплекс
      * @param timeForFreq время на частоту
-     * @param mulltyFreq мультичастотный режим генерации
+     *
      * @param bundlesLength колличество частот в пачке для мультичастотного режима(<2 пачки не образуются)
      * @return
      * @throws Exception
      */
       public TherapyComplex createTherapyComplex(Profile profile,Complex complex,int timeForFreq, int bundlesLength) throws Exception
       {
-         
+
           TherapyComplex tc=new TherapyComplex();
           tc.setProfile(profile);
           tc.setTimeForFrequency(timeForFreq);
@@ -1667,7 +1667,7 @@ public class ModelDataApp {
 
           tc.setBundlesLength(bundlesLength);
           //tc.setChanged(true);//только изменения в существующих комплексах должно приводить к регенерации
-
+          tc.setSrcUUID(complex.getUuid());
 
           List<Program> findAllProgramByComplex = findAllProgramByComplex(complex);
           initStringsProgram(findAllProgramByComplex);
@@ -1675,12 +1675,12 @@ public class ModelDataApp {
           initStringsComplex(complex);
           tc.setDescription(complex.getDescriptionString());
           tc.setName(complex.getNameString());
-        
+
         try
-        { 
+        {
          therapyComplexDAO.create(tc);//создадим компелекс
-         for(Program itm: findAllProgramByComplex) createTherapyProgram(tc, itm.getNameString(),itm.getDescriptionString(),itm.getFrequencies());//создадим програмы из комплекса
-         
+         for(Program itm: findAllProgramByComplex) createTherapyProgram(itm.getUuid(),tc, itm.getNameString(),itm.getDescriptionString(),itm.getFrequencies());//создадим програмы из комплекса
+
         }catch(Exception e){Log.logger.error("",e);tc=null;throw new Exception("Ошибка создания терапевтического комплекса",e); }
           if(tc!=null){
               tc.setPosition(tc.getId());
@@ -1694,7 +1694,7 @@ public class ModelDataApp {
      * @param profile профиль
      * @param complex комплекс из которого создается тер.комплекс
      * @param timeForFreq время на частоту
-     * @param mulltyFreq мультичастотный режим генерации
+     *
      * @param bundlesLength колличество частот в пачке для мультичастотного режима(<2 пачки не образуются)
      *                      @param  insertComplexLang язык вставки комплекса
      * @return
@@ -1710,7 +1710,7 @@ public class ModelDataApp {
 
         tc.setBundlesLength(bundlesLength);
         //tc.setChanged(true);//только изменения в существующих комплексах должно приводить к регенерации
-
+        tc.setSrcUUID(complex.getUuid());
 
 
         initStringsComplex(complex);
@@ -1770,14 +1770,14 @@ public class ModelDataApp {
             if(il.equals(lp))
             {
                 for(Program itm: findAllProgramByComplex){
-                    createTherapyProgram(tc,
+                    createTherapyProgram(itm.getUuid(),tc,
                             itm.getNameString(),
                             itm.getDescriptionString(),
                             itm.getFrequencies());//создадим програмы из комплекса
                 }
             }else {
                 for(Program itm: findAllProgramByComplex){
-                    createTherapyProgram(tc,
+                    createTherapyProgram(itm.getUuid(),tc,
                             itm.getNameString(),
                             itm.getDescriptionString(),
                             itm.getFrequencies(),
@@ -2085,12 +2085,12 @@ public class ModelDataApp {
     public TherapyComplex copyTherapyComplexToProfile(Profile profile, TherapyComplex tc) throws Exception {
         TherapyComplex therapyComplex=null;
         try {
-             therapyComplex = createTherapyComplex(profile,
+             therapyComplex = createTherapyComplex(tc.getSrcUUID(),profile,
                     tc.getName(),
                     tc.getDescription(),
                     tc.getTimeForFrequency(),
                     tc.getBundlesLength());
-
+            therapyComplex.setSrcUUID(tc.getSrcUUID());
             therapyComplex.setOname(tc.getOname());
             updateTherapyComplex(therapyComplex);
 
@@ -2118,11 +2118,12 @@ public class ModelDataApp {
        public TherapyProgram copyTherapyProgramToComplex(TherapyComplex complex, TherapyProgram tp) throws Exception{
            TherapyProgram therapyProgram=null;
            try {
-               therapyProgram =createTherapyProgram(complex,tp.getName(),tp.getDescription(),tp.getFrequencies());
+               therapyProgram =createTherapyProgram(tp.getSrcUUID(), complex,tp.getName(),tp.getDescription(),tp.getFrequencies());
                therapyProgram.setPosition(therapyProgram.getId());
                therapyProgram.setOname(tp.getOname());
                therapyProgram.setMp3(tp.isMp3());
                therapyProgram.setMultyFreq(tp.isMultyFreq());
+
                updateTherapyProgram(therapyProgram);
 
 
@@ -2137,11 +2138,12 @@ public class ModelDataApp {
        public TherapyProgram copyTherapyProgramToComplex(TherapyComplex complex, TherapyProgram tp,long position) throws Exception {
            TherapyProgram therapyProgram=null;
            try {
-               therapyProgram =createTherapyProgram(complex,tp.getName(),tp.getDescription(),tp.getFrequencies());
+               therapyProgram =createTherapyProgram(tp.getSrcUUID(), complex,tp.getName(),tp.getDescription(),tp.getFrequencies());
                therapyProgram.setPosition(position);
                therapyProgram.setOname(tp.getOname());
                therapyProgram.setMp3(tp.isMp3());
                therapyProgram.setMultyFreq(tp.isMultyFreq());
+
                updateTherapyProgram(therapyProgram);
 
 
@@ -2155,12 +2157,12 @@ public class ModelDataApp {
 
        }
       
-      public TherapyProgram createTherapyProgram(TherapyComplex therapyComplex, String name,String description, String freqs) throws Exception
+      public TherapyProgram createTherapyProgram(String srcUUID, TherapyComplex therapyComplex, String name,String description, String freqs) throws Exception
       {
-         return createTherapyProgram( therapyComplex,  name, description,  freqs, true);
+         return createTherapyProgram(srcUUID, therapyComplex,  name, description,  freqs, true);
       }
 
-    public TherapyProgram createTherapyProgram(TherapyComplex therapyComplex, String name,String description, String freqs,boolean multy) throws Exception
+    public TherapyProgram createTherapyProgram(String srcUUID,TherapyComplex therapyComplex, String name,String description, String freqs,boolean multy) throws Exception
     {
         TherapyProgram tc=new TherapyProgram();
         tc.setTherapyComplex(therapyComplex);
@@ -2172,7 +2174,7 @@ public class ModelDataApp {
         tc.setMp3(false);
         tc.setOname("");
         tc.setMultyFreq(multy);
-
+        tc.setSrcUUID(srcUUID);
 
         try
         {
@@ -2202,12 +2204,12 @@ public class ModelDataApp {
      * @return
      * @throws Exception
      */
-    public TherapyProgram createTherapyProgram(TherapyComplex therapyComplex, String name,String description, String freqs,String oName) throws Exception
+    public TherapyProgram createTherapyProgram(String srcUUID,TherapyComplex therapyComplex, String name,String description, String freqs,String oName) throws Exception
     {
-       return createTherapyProgram( therapyComplex,  name, description,  freqs, oName,true);
+       return createTherapyProgram(srcUUID, therapyComplex,  name, description,  freqs, oName,true);
     }
 
-    public TherapyProgram createTherapyProgram(TherapyComplex therapyComplex, String name,String description, String freqs,String oName,boolean multy) throws Exception
+    public TherapyProgram createTherapyProgram(String srcUUID,TherapyComplex therapyComplex, String name,String description, String freqs,String oName,boolean multy) throws Exception
     {
         TherapyProgram tc=new TherapyProgram();
         tc.setTherapyComplex(therapyComplex);
@@ -2219,6 +2221,7 @@ public class ModelDataApp {
         tc.setMp3(false);
         tc.setOname(oName);
         tc.setMultyFreq(multy);
+        tc.setSrcUUID(srcUUID);
         try
         {
 
@@ -2255,7 +2258,7 @@ public class ModelDataApp {
         tc.setChanged(false);//по умолчанию файлы mp3 выбиратся из папок, значит они сразу существуют
         tc.setMp3(true);
         tc.setOname("");
-
+        tc.setSrcUUID("");
         try
         {
 

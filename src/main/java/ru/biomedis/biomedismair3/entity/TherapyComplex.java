@@ -20,10 +20,22 @@ public class TherapyComplex implements Serializable {
     private final SimpleStringProperty oname=new SimpleStringProperty();
     private final SimpleLongProperty time=new SimpleLongProperty();
     private final SimpleLongProperty position=new SimpleLongProperty();
-
+    private final SimpleStringProperty srcUUID=new SimpleStringProperty();
 
     public TherapyComplex() {
 
+    }
+
+    public String getSrcUUID() {
+        return srcUUID.get();
+    }
+    @Transient
+    public SimpleStringProperty srcUUIDProperty() {
+        return srcUUID;
+    }
+
+    public void setSrcUUID(String srcUUID) {
+        this.srcUUID.set(srcUUID);
     }
 
     public long getPosition() {

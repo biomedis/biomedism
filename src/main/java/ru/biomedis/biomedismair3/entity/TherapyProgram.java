@@ -32,6 +32,7 @@ public class TherapyProgram implements Serializable {
     private final SimpleBooleanProperty mp3=new SimpleBooleanProperty();//свойство для указания что программа  - на основе mp3 файла, путь к файлу будет в поле частот
     private final SimpleStringProperty oname=new SimpleStringProperty();
     private final SimpleBooleanProperty multyFreq=new SimpleBooleanProperty();
+    private final SimpleStringProperty srcUUID=new SimpleStringProperty();
 
     private String uuid;
    
@@ -39,6 +40,19 @@ public class TherapyProgram implements Serializable {
    //в таблице даные отображаются черех этот объект
    private SearchFreqs searchFreqs =new SearchFreqs();
    private SearchName searchName =new SearchName();
+
+
+    public String getSrcUUID() {
+        return srcUUID.get();
+    }
+    @Transient
+    public SimpleStringProperty srcUUIDProperty() {
+        return srcUUID;
+    }
+
+    public void setSrcUUID(String srcUUID) {
+        this.srcUUID.set(srcUUID);
+    }
 
     /**
      * Было ли совпадение при последнем поиске

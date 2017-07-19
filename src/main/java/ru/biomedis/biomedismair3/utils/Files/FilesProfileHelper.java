@@ -86,7 +86,7 @@ public class FilesProfileHelper
             //пустая папка
             if(textFile==null)
             {
-                res.add(new ComplexFileData(-1, file.getName(), 0,1, file));
+                res.add(new ComplexFileData(-1, file.getName(), 0,1, file,""));
                 continue;
             }
             //прочитаем файл
@@ -106,14 +106,17 @@ public class FilesProfileHelper
                 throw new OldComplexTypeException("Обнаружен комплекс старого формата",textFile.getName().substring(textFile.getName().length()));
             }else if(progrParam.size() == 8){
                 //если 8 параметров, значит это файл с версии обновления 0. И не содержит 9 строкой длину пачки частот
-                res.add(new ComplexFileData(Long.parseLong(progrParam.get(2)), file.getName(), Long.parseLong(progrParam.get(3)),3, file));
+                res.add(new ComplexFileData(Long.parseLong(progrParam.get(2)), file.getName(), Long.parseLong(progrParam.get(3)),3, file,""));
             }else {
                 int bundles = Integer.parseInt(progrParam.get(8));
+                if(bundles>7) bundles=7;
                 res.add(new ComplexFileData(Long.parseLong(progrParam.get(2)),
                         file.getName(),
                         Long.parseLong(progrParam.get(3)),
                         bundles<2?3:bundles,
-                        file));
+                        file,
+                        progrParam.size()<12?"":progrParam.get(11)));
+
             }
 
 
@@ -197,7 +200,10 @@ public class FilesProfileHelper
                             bssFile.exists() ? bssFile : (File)null,
                             Boolean.parseBoolean(progrParam.get(7)),
                             bundlesLength<2?3:bundlesLength,
-                            progrParam.size()<=9 ? true : Boolean.valueOf(progrParam.get(9))));
+                            progrParam.size()<10 ? true : Boolean.valueOf(progrParam.get(9)),
+                            progrParam.size()<11 ? "" : progrParam.get(10),
+                            progrParam.size()<12?"":progrParam.get(11)
+                            ));
 
         }
 
@@ -219,7 +225,8 @@ public class FilesProfileHelper
      *  @programmMulty мультичастотна ли программа
      * @throws Exception
      */
-    public static void copyTxt(String freqs,int timeForFreq,long idProgram, String uuid,long idComplex, int bundlesLength, String nameProgram, boolean mp3,File txtPath,boolean programmMulty) throws Exception {
+    public static void copyTxt(String freqs,int timeForFreq,long idProgram, String uuid,long idComplex, int bundlesLength, String nameProgram,
+                               boolean mp3,File txtPath,boolean programmMulty,String srcUUID,String srcUUIDComplex) throws Exception {
         txtPath=new File(txtPath.toURI());
 
         try(PrintWriter writer = new PrintWriter(txtPath,"UTF-8"))
@@ -235,7 +242,8 @@ public class FilesProfileHelper
             writer.println(mp3?"true":"false");
             writer.println(bundlesLength+"");
             writer.println(programmMulty?"true":"false");
-
+            writer.println(srcUUID);
+            writer.println(srcUUIDComplex);
         }catch (Exception e)
         {
 

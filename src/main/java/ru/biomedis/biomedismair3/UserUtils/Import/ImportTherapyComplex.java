@@ -132,7 +132,7 @@ public class ImportTherapyComplex
         try {
             Iterator<Complex> it1;
             ImportTherapyComplex.Complex complex;
-            for(it1 = this.complexes.iterator(); it1.hasNext(); complex.complex = mda.createTherapyComplex(profile, complex.name, complex.descr, complex.timeForFreq,complex.bundlesLength)) {
+            for(it1 = this.complexes.iterator(); it1.hasNext(); complex.complex = mda.createTherapyComplex(complex.srcuuid,profile, complex.name, complex.descr, complex.timeForFreq,complex.bundlesLength)) {
                 complex =it1.next();
             }
 
@@ -140,7 +140,7 @@ public class ImportTherapyComplex
             ImportTherapyComplex.Program prog;
             while(it.hasNext()) {
                 prog = it.next();
-                mda.createTherapyProgram(this.complexes.get(prog.complexIndex).complex, prog.name, prog.descr, prog.freqs,prog.multy);
+                mda.createTherapyProgram(prog.srcuuid,this.complexes.get(prog.complexIndex).complex, prog.name, prog.descr, prog.freqs,prog.multy);
             }
 
             resSize = this.complexes.size();
@@ -232,9 +232,17 @@ public class ImportTherapyComplex
                     throw saxException;
                 } else if(qName.equals("Complex")) {
                     this.inComplex = true;
+
                     if(attributes.getLength() != 0) {
+
+                        String srcuuid = attributes.getValue("srcuuid");
+                        if (srcuuid == null) srcuuid = "";
+
                         int bundles= Integer.parseInt(attributes.getValue("bundlesLength")==null?"3":attributes.getValue("bundlesLength"));
-                        ImportTherapyComplex.this.complexes.add(ImportTherapyComplex.this.new Complex(TextUtil.unEscapeXML(attributes.getValue("name")), TextUtil.unEscapeXML(attributes.getValue("description")), Integer.parseInt(attributes.getValue("timeForFreq")),bundles<2?3:bundles));
+                        ImportTherapyComplex.this.complexes.add(ImportTherapyComplex.this.new Complex(TextUtil.unEscapeXML(attributes.getValue("name")),
+                                TextUtil.unEscapeXML(attributes.getValue("description")),
+                                Integer.parseInt(attributes.getValue("timeForFreq")),
+                                bundles<2?3:bundles,srcuuid));
                     }
 
                     super.startElement(uri, localName, qName, attributes);
@@ -247,7 +255,15 @@ public class ImportTherapyComplex
                             if(multy_s==null)multy=true;
                             else multy=Boolean.valueOf(multy_s);
 
-                            ImportTherapyComplex.this.listProgram.add(ImportTherapyComplex.this.new Program(TextUtil.unEscapeXML(attributes.getValue("name")), TextUtil.unEscapeXML(attributes.getValue("description")), attributes.getValue("frequencies"), ImportTherapyComplex.this.complexes.size() - 1,multy));
+                            String srcuuid = attributes.getValue("srcuuid");
+                                if (srcuuid == null) srcuuid = "";
+
+
+                            ImportTherapyComplex.this.listProgram.add(ImportTherapyComplex.this.new Program(TextUtil.unEscapeXML(attributes.getValue("name")),
+                                    TextUtil.unEscapeXML(attributes.getValue("description")),
+                                    attributes.getValue("frequencies"),
+                                    ImportTherapyComplex.this.complexes.size() - 1,
+                                    multy,srcuuid));
                         }
 
                         super.startElement(uri, localName, qName, attributes);
@@ -309,13 +325,15 @@ public class ImportTherapyComplex
         boolean multy;
         int complexIndex;
         ru.biomedis.biomedismair3.entity.Program program;
+        String srcuuid;
 
-        public Program(String name, String descr, String freqs, int complexIndex,  boolean multy) {
+        public Program(String name, String descr, String freqs, int complexIndex,  boolean multy,String srcuuid) {
             this.name = name;
             this.descr = descr;
             this.freqs = freqs;
             this.complexIndex = complexIndex;
             this.multy=multy;
+            this.srcuuid = srcuuid;
         }
     }
 
@@ -326,12 +344,14 @@ public class ImportTherapyComplex
         int timeForFreq;
         TherapyComplex complex;
         int bundlesLength=1;
+        String srcuuid;
 
-        public Complex(String name, String descr, int timeForFreq,Integer bundlesLength) {
+        public Complex(String name, String descr, int timeForFreq,Integer bundlesLength,String srcuuid) {
             this.name = name;
             this.descr = descr;
 
             this.timeForFreq = timeForFreq;
+            this.srcuuid = srcuuid;
             if(bundlesLength!=null) this.bundlesLength=bundlesLength;
 
         }

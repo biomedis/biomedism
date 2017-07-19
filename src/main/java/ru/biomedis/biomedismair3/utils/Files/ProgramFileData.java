@@ -23,5 +23,6 @@ public class ProgramFileData
     private boolean mp3;
     private int bundlesLenght;
     private boolean multy;
-
+    private String srcUUID;
+    private String srcUUIDComplex;
 }

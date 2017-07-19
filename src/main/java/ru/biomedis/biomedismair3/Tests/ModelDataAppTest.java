@@ -206,17 +206,17 @@ public class ModelDataAppTest extends BaseTest
 
                 message("тер.комплекс на основе ИМЕНИ. " );
                 //терр комплекс на основе имени. Те пустой
-                TherapyComplex therapyComplex2 = ctx.getModel().createTherapyComplex(profile, "Терап компл","описа", 100,1);
+                TherapyComplex therapyComplex2 = ctx.getModel().createTherapyComplex("",profile, "Терап компл","описа", 100,1);
                 assertNotNull("therapyComplex2 is null", therapyComplex2);
                 message("тер.комплекс - " + therapyComplex2.getName());
 
-                TherapyProgram therapyProgram = ctx.getModel().createTherapyProgram(therapyComplex2, program5.getNameString(),program5.getDescriptionString(),program5.getFrequencies());//программа из секции
+                TherapyProgram therapyProgram = ctx.getModel().createTherapyProgram("",therapyComplex2, program5.getNameString(),program5.getDescriptionString(),program5.getFrequencies());//программа из секции
                 assertNotNull("therapyProgram is null", therapyProgram);
                 message("       тер.программа - " + therapyProgram.getName());
 
 
                 // программа из комплекса добавим ее вручную. также она добавлена в дрой терр комплекс
-                TherapyProgram therapyProgra2 = ctx.getModel().createTherapyProgram(therapyComplex2, program5.getNameString(),program1.getDescriptionString(),program1.getFrequencies());
+                TherapyProgram therapyProgra2 = ctx.getModel().createTherapyProgram("",therapyComplex2, program5.getNameString(),program1.getDescriptionString(),program1.getFrequencies());
                 assertNotNull("therapyProgram is null", therapyProgra2);
                 message("       тер.программа - " + therapyProgra2.getName());
 

@@ -17,6 +17,7 @@ public class ComplexFileData
     private long timeForFreq;
     private int bundlesLength;
     private File file;
+    private String srcUUID;
 
 
 

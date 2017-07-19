@@ -140,12 +140,12 @@ public class ImportProfile {
 
             for (Complex complex : listComplex) {
 
-                complex.complex =  mda.createTherapyComplex(profile.profile,TextUtil.unEscapeXML(complex.name),TextUtil.unEscapeXML(complex.descr),complex.timeForFreq,complex.bundlesLength);
+                complex.complex =  mda.createTherapyComplex(complex.srcuuid, profile.profile,TextUtil.unEscapeXML(complex.name),TextUtil.unEscapeXML(complex.descr),complex.timeForFreq,complex.bundlesLength);
             }
 
             for (Program program : listProgram) {
 
-                mda.createTherapyProgram(listComplex.get(program.complexIndex).complex,TextUtil.unEscapeXML(program.name),TextUtil.unEscapeXML(program.descr),program.freqs,program.multy);
+                mda.createTherapyProgram(program.srcuuid, listComplex.get(program.complexIndex).complex,TextUtil.unEscapeXML(program.name),TextUtil.unEscapeXML(program.descr),program.freqs,program.multy);
             }
 
 
@@ -261,8 +261,12 @@ public class ImportProfile {
 
                 if(attributes.getLength()!=0)
                 {
+                    String srcuuid = attributes.getValue("srcuuid");
+                    if (srcuuid == null) srcuuid = "";
+
                    int bundles= Integer.parseInt(attributes.getValue("bundlesLength")==null?"3":attributes.getValue("bundlesLength"));
-                    complexesStack.push(new Complex(attributes.getValue("name"),attributes.getValue("description"),Integer.parseInt(attributes.getValue("timeForFreq")),bundles<2?3:bundles));//положим на вершину стека
+                    complexesStack.push(new Complex(attributes.getValue("name"),attributes.getValue("description"),
+                            Integer.parseInt(attributes.getValue("timeForFreq")),bundles<2?3:bundles,srcuuid));//положим на вершину стека
                     listComplex.add(complexesStack.peek());
                 }
 
@@ -290,7 +294,11 @@ public class ImportProfile {
                     String multy_s = attributes.getValue("multy");
                     if(multy_s==null)multy=true;
                     else multy=Boolean.valueOf(multy_s);
-                    listProgram.add(new Program(attributes.getValue("name"),attributes.getValue("description"),attributes.getValue("frequencies"),indexCompl,multy));
+
+                    String srcuuid = attributes.getValue("srcuuid");
+                    if (srcuuid == null) srcuuid = "";
+
+                    listProgram.add(new Program(attributes.getValue("name"),attributes.getValue("description"),attributes.getValue("frequencies"),indexCompl,multy,srcuuid));
 
                 }
 
@@ -380,12 +388,14 @@ public class ImportProfile {
         int bundlesLength=1;
 
 TherapyComplex  complex;
+String srcuuid;
 
-        public Complex(String name, String descr,  int timeForFreq,Integer bundlesLength) {
+        public Complex(String name, String descr,  int timeForFreq,Integer bundlesLength, String srcuuid) {
             this.name = name;
             this.descr = descr;
 
             this.timeForFreq=timeForFreq;
+            this.srcuuid = srcuuid;
             if(bundlesLength!=null) this.bundlesLength=bundlesLength;
         }
     }
@@ -398,14 +408,15 @@ TherapyComplex  complex;
         boolean multy;
         int complexIndex=-1;
         ru.biomedis.biomedismair3.entity.TherapyProgram program;
+        String srcuuid;
 
-
-        public Program(String name, String descr, String freqs,  int complexIndex,boolean multy) {
+        public Program(String name, String descr, String freqs,  int complexIndex,boolean multy,String srcuuid) {
             this.name = name;
             this.descr = descr;
             this.freqs = freqs;
             this.multy = multy;
             this.complexIndex = complexIndex;
+            this.srcuuid = srcuuid;
         }
     }
 
