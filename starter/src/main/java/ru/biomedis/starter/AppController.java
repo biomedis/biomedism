@@ -462,9 +462,19 @@ public class AppController extends BaseController {
     private void checkActualVersion(){
             showVersonCheckIndicator();
         Version fVersion =  getVersionFromFile();
+        File distFile=new File("./dist.jar");
         try {
             Version useVersion;
-            if(fVersion.lessThen(version))useVersion =version;
+            if(fVersion.lessThen(version) || distFile.exists()==false){
+                //значит пользователь поставил поверх новой версии старую чрез инсталлер и сейчас нужно обязательно обновить!!! Запускать нельзя тк могут быть ошибки
+                showErrorImage();
+                setTextInfo(getRes().getString("files_corrupted"));
+                hideVersionCheckIndicator();
+                disableUpdateAndStartProgram();
+                enableUpdate();
+                getControllerWindow().setTitle(getRes().getString("app.name")+" "+fVersion);
+                return;
+            }
             else {
                 useVersion =fVersion;
                 getControllerWindow().setTitle(getRes().getString("app.name")+" "+useVersion);
@@ -474,15 +484,16 @@ public class AppController extends BaseController {
             versionChecker.checkNeedUpdateAsync()
                           .thenAccept(v->{
                               System.out.println("Актуальная версия" +versionChecker.getActualVersion());
+
                               if(v){
                                   setTextInfo(getRes().getString("current_version")+": "+ version +". "+getRes().getString("actual_version")+": " + versionChecker.getActualVersion());
                                   hideVersionCheckIndicator();
                                   enableUpdateAndStartProgram();
                               }else {
-                                  showDoneImage();
-                                  setTextInfo(getRes().getString("updates_absent"));
-                                  hideVersionCheckIndicator();
-                                  disableUpdateAndEnableStartProgram();
+                                      showDoneImage();
+                                      setTextInfo(getRes().getString("updates_absent"));
+                                      hideVersionCheckIndicator();
+                                      disableUpdateAndEnableStartProgram();
                               }
 
 
@@ -509,6 +520,14 @@ public class AppController extends BaseController {
     }
 
 
+
+    private void enableUpdate() {
+        installUpdatesBtn.setDisable(false);
+    }
+
+    private void enableStartProgram() {
+        startProgramBtn.setDisable(false);
+    }
     private void disableUpdateAndEnableStartProgram(){
         installUpdatesBtn.setDisable(true);
         startProgramBtn.setDisable(false);

@@ -466,7 +466,8 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
 
             }
             else if(getUpdateVersion()==9){
-                CompletableFuture.runAsync(() -> updateIn9(updateOption,updateFixVersion))
+                CompletableFuture.runAsync(() -> changeDDL())
+                                 .thenRun(() -> updateIn9(updateOption,updateFixVersion))
                                  .thenRun(() -> update10(updateOption))
                                  .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                                  .exceptionally(e->{
@@ -1560,7 +1561,7 @@ https://gist.github.com/DemkaAge/8999236
 
         try {
 
-            setUpdateVersion(updateOption, 8);
+            setUpdateVersion(updateOption, 10);
 
         }catch (Exception ex){
             wrapException("10",ex);
