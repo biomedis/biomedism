@@ -1,6 +1,5 @@
 package ru.biomedis.starter;
 
-import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -18,11 +17,11 @@ import java.util.ResourceBundle;
 /**
  * Created by Anama on 16.02.2016.
  */
-public class Waiter extends BaseController
+public class Waiter2 extends BaseController
 {
     @FXML
     VBox root;
-
+   private Stage stage;
 
     @Override
     protected void onCompletedInitialise() {
@@ -41,19 +40,15 @@ public class Waiter extends BaseController
 
 
 
-
-    private static Waiter controller;
-    private static Stage stage;
-
-
-    private static Stage init(Window owner)
+    public static Waiter2 show(Window owner)
     {
+        Waiter2 controller;
         Stage dlg = new Stage(StageStyle.TRANSPARENT);
         dlg.initOwner(owner);
         dlg.initModality(Modality.APPLICATION_MODAL);
 
 
-        URL location = getApp().getClass().getResource("/fxml/waiter.fxml");
+        URL location = getApp().getClass().getResource("/fxml/waiter2.fxml");
         FXMLLoader fxmlLoader = new FXMLLoader(location,getApp().getResources());
         Parent root=null;
         try {
@@ -62,69 +57,25 @@ public class Waiter extends BaseController
             e.printStackTrace();
             return null;
         }
-        controller = (Waiter)fxmlLoader.getController();
+        controller = (Waiter2)fxmlLoader.getController();
         controller.setWindow(dlg);
         Scene scene = new Scene(root);
         //scene.setFill(Color.TRANSPARENT);
         scene.getStylesheets().add("/styles/CalcLayer.css");
         dlg.setScene(scene);
         dlg.setResizable(false);
-        return dlg;
+        controller.setStage(dlg);
+        return controller;
     }
 
-    public  static boolean isOpen(){
-        if(stage==null) return false;
-            return stage.isShowing();
+    public void setStage(Stage stage ){ this.stage=stage;}
+    public void show(){
+        stage.showAndWait();
     }
-    /**
-     * Открыть диалог расчета
-     *
-     * @return
-     */
-    public  synchronized static void openLayer(Window owner,boolean show)
-    {
-        if(controller==null)
-        {
-            stage = init(owner);
-        }
-
-       if(show) stage.showAndWait();
-        //обработка кнопки  отмены
-
-
-
-
+    public void close(){
+        stage.close();
+        stage =null;
     }
-    public  synchronized static void show(){stage.showAndWait();}
-    /**
-     * Скрывает окно
-     */
-    public synchronized  static void closeLayerSilent()
-    {
-
-        Platform.runLater(() -> stage.hide());
-    }
-
-    /**
-     * Закрывает окно
-     */
-    public synchronized  static void closeLayer()
-    {
-
-        stage.hide();
-    }
-
-    /**
-     * Удаление окна
-     */
-    public synchronized  static void destroyLayer()
-    {
-
-        controller=null;
-        Platform.runLater(() -> {stage.close();stage=null;});
-
-    }
-
     public void minimize(){
 
         getApp().getMainWindow().setIconified(true);

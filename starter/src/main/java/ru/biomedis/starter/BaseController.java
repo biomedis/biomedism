@@ -192,6 +192,38 @@ public abstract class BaseController implements Initializable {
 
     }
 
+    public static void openDialog(Stage dlgStage,Stage ownerWindow, String fxml, String title, boolean resizeble, int minH, int minW, int maxH, int maxW, Object... params) throws IOException {
+        Stage dlg = dlgStage;
+        dlg.initOwner(ownerWindow);
+        dlg.initModality(Modality.WINDOW_MODAL);
+
+        Image image = ownerWindow.getIcons().get(0);
+        dlg.getIcons().clear();
+        dlg.getIcons().add(image);
+
+
+        URL location = app.getClass().getResource(fxml);
+        FXMLLoader fxmlLoader = new FXMLLoader(location, app.getResources());
+        Parent root = fxmlLoader.load();
+        BaseController controller = (BaseController) fxmlLoader.getController();
+        controller.setWindow(dlg);
+        controller.setParams(params);//до открытия окна в show, можно устанавливать любые параметры
+        controller.onCompletedInitialise();
+
+        Scene scene = new Scene(root);
+
+        dlg.setScene(scene);
+        dlg.setTitle(title);
+        dlg.setResizable(resizeble);
+        if (minH != 0) dlg.setMinHeight(minH);
+        if (minW != 0) dlg.setMinWidth(minW);
+        if (maxH != 0) dlg.setMaxHeight(maxH);
+        if (maxW != 0) dlg.setMaxWidth(maxW);
+
+        dlg.showAndWait();
+
+
+    }
     /**
      * Создание окна. Параметры передаются после вызова initialize в контроллере!!! Это нужно учесть при проектировании контроллера. Те если что нужно инициализировать то именно в обработчике установки параметров
      *

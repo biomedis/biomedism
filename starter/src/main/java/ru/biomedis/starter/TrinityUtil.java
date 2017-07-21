@@ -8,12 +8,14 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.usb4java.Device;
 import ru.biomedis.starter.USB.PlugDeviceListener;
 import ru.biomedis.starter.USB.USBHelper;
-import ru.biomedis.starter.m2.M2;
-import ru.biomedis.starter.m2.M2BinaryFile;
+import ru.biomedis.starter.m2.*;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
@@ -21,6 +23,7 @@ import java.util.ResourceBundle;
 
 
 public class TrinityUtil extends BaseController {
+    public @FXML  Button writeBtn;
     private @FXML  Button  clearBtn;
     private @FXML  Button  infoBtn;
     private @FXML  Button  readBtn;
@@ -36,6 +39,7 @@ public class TrinityUtil extends BaseController {
         closeAction();
         usbInit();
         resizeFix();
+
     }
 
     private void resizeFix() {
@@ -82,6 +86,7 @@ public class TrinityUtil extends BaseController {
         clearBtn.disableProperty().bind(m2Connected.not());
         infoBtn.disableProperty().bind(m2Connected.not());
         readBtn.disableProperty().bind(m2Connected.not());
+        writeBtn.disableProperty().bind(m2Connected.not());
     }
 
     private void closeAction() {
@@ -104,7 +109,10 @@ public class TrinityUtil extends BaseController {
     }
 
     public void onClear(ActionEvent actionEvent) {
-        onClearText();
+
+
+        System.out.println("-------- Стирание  устройства/Clearing device ---------");
+        //onClearText();
         Task<Void> task =new Task<Void>() {
             @Override
             protected Void call() throws Exception {
@@ -114,39 +122,65 @@ public class TrinityUtil extends BaseController {
 
             }
         };
-        task.setOnScheduled(event -> Platform.runLater(() -> Waiter.openLayer(getControllerWindow(),true)));
+        Stage stage =new Stage(StageStyle.TRANSPARENT);
+        task.setOnScheduled( event-> openWaiter(stage));
         task.setOnSucceeded(event -> {
-            Waiter.closeLayer();
+            closeWaiter(stage);
             System.out.println("OK!");
+            System.out.println("---------------------------------------\n");
         });
         task.setOnFailed(event -> {
-            Waiter.closeLayer();
+            closeWaiter(stage);
+            System.out.println("Ошибка в процессе стирания устройства");
             event.getSource().getException().printStackTrace();
+            System.out.println("---------------------------------------\n");
         });
+
         Thread t=new Thread(task);
         t.setDaemon(true);
         t.start();
 
+
+
+
+
+
+    }
+
+    private void closeWaiter(Stage stage) {
+        Platform.runLater(stage::close);
+    }
+
+    private void openWaiter(Stage stage) {
+        try {
+            openDialog(stage, getControllerWindow(),"/fxml/waiter.fxml","",false,0,0,0,0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void onInfo(ActionEvent actionEvent) {
-        onClearText();
+        System.out.println("-------- Чтение информации с устройства/Reading information about device ---------");
+        //onClearText();
         try {
             String name = M2.readDeviceName(true);
             System.out.println("\n");
             System.out.println("Device info: "+name);
             System.out.println("\n");
             Device device = USBHelper.findDevice(M2.vendorId, M2.productId);
-            if(device==null) throw new Exception("Device not found!");
+            if(device==null) throw new Exception("Устройство не обнаружено хотя присутствует на шине USB/ Device not found!");
             USBHelper.dumpDevice(device);
         } catch (M2.WriteToDeviceException e) {
+            System.out.println("USB ошибка в процессе отправки команды чтения");
             e.printStackTrace();
         } catch (USBHelper.USBException e) {
+            System.out.println("USB ошибка в процессе выполнеия операций");
             e.printStackTrace();
         } catch (Exception e) {
+            System.out.println("Ошибка в процессе выполнения операций: "+e.getMessage());
             e.printStackTrace();
         }
-
+        System.out.println("---------------------------------------\n");
     }
 
     public void onClearText() {
@@ -156,24 +190,83 @@ public class TrinityUtil extends BaseController {
     }
 
     public void onReadDevice(ActionEvent actionEvent) {
-        onClearText();
-        try {
-            M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
-            System.out.println(m2BinaryFile);
-        } catch (M2.ReadFromDeviceException e) {
-            e.printStackTrace();
-        }
+
+        System.out.println("-------- Чтение с устройства/Reading device ---------");
+        //onClearText();
+        Task<Void> task =new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+
+                M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
+                System.out.println(m2BinaryFile);
+                return null;
+
+            }
+        };
+        Stage stage =new Stage(StageStyle.TRANSPARENT);
+        task.setOnScheduled( event-> openWaiter(stage));
+        task.setOnSucceeded(event -> {
+            closeWaiter(stage);
+            System.out.println("OK!");
+            System.out.println("---------------------------------------\n");
+        });
+        task.setOnFailed(event -> {
+            closeWaiter(stage);
+            System.out.println("Ошибка в процессе чтения устройства:"+ event.getSource().getMessage());
+            event.getSource().getException().printStackTrace();
+            System.out.println("---------------------------------------\n");
+        });
+
+        Thread t=new Thread(task);
+        t.setDaemon(true);
+        t.start();
+
+
+    }
+
+    public void onWriteDevice(ActionEvent actionEvent) {
+
+
+        System.out.println("-------- Запись тестовых данных устройства/Writing test data to device ---------");
+        //onClearText();
+        Task<Void> task =new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+
+                M2BinaryFile m2BinaryFile = Test.testData();
+                M2.writeToDevice(m2BinaryFile, LanguageDevice.getDeviceLang("en").getDeviceLangID(),true);
+                return null;
+
+            }
+        };
+        Stage stage =new Stage(StageStyle.TRANSPARENT);
+        task.setOnScheduled( event-> openWaiter(stage));
+        task.setOnSucceeded(event -> {
+            closeWaiter(stage);
+            System.out.println("OK!");
+            System.out.println("---------------------------------------\n");
+        });
+        task.setOnFailed(event -> {
+            closeWaiter(stage);
+            System.out.println("Ошибка в процессе записи устройства:"+ event.getSource().getMessage());
+            event.getSource().getException().printStackTrace();
+            System.out.println("---------------------------------------\n");
+        });
+
+        Thread t=new Thread(task);
+        t.setDaemon(true);
+        t.start();
+
+
     }
 
 
     public static class UtilPrintStream extends PrintStream
     {
-        private final TextArea area;
-        private static StringBuilder strb=new StringBuilder();
+        private  final TextArea area;
 
         public void clear(){
             area.setText("");
-            strb=new StringBuilder();
         }
 
         public UtilPrintStream(OutputStream out, TextArea area) {
@@ -183,23 +276,32 @@ public class TrinityUtil extends BaseController {
 
         @Override
         public void println(String x) {
-            strb.append("\n").append(x);
-            area.setText(strb.toString());
+           addText(x,"\n");
         }
+
         @Override
         public void print(String x) {
-            strb.append(x);
-            area.setText(strb.toString());
+            addText(x,"");
         }
+
         @Override
         public void println(Object x) {
-            strb.append("\n").append(x.toString());
-            area.setText(strb.toString());
+            addText(x.toString(),"\n");
+
         }
+
         @Override
         public void print(Object x) {
-            strb.append(x.toString());
-            area.setText(strb.toString());
+            addText(x.toString(),"");
+        }
+
+        private void addText(String text, String prefix){
+            Platform.runLater(() -> {
+                if(prefix.isEmpty())area.appendText(text);
+                else area.appendText(prefix+text);
+                area.setScrollTop(Double.MAX_VALUE);
+                area.setScrollLeft(0);
+            });
         }
 
     }

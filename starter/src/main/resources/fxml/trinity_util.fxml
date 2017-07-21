@@ -14,6 +14,7 @@
          <children>
             <Button fx:id="clearBtn" mnemonicParsing="false" onAction="#onClear" text="%app.menu.clear_trinity" />
             <Button fx:id="infoBtn" mnemonicParsing="false" onAction="#onInfo" text="%trinity.info" />
+            <Button mnemonicParsing="false" text="%write_test_data" fx:id="writeBtn"  onAction="#onWriteDevice"/>
             <Button mnemonicParsing="false" text="%read_from_trinity" fx:id="readBtn"  onAction="#onReadDevice"/>
             <Button mnemonicParsing="false" text="%clear_output" onAction="#onClearText"/>
          </children>

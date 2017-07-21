@@ -37,7 +37,7 @@ public class M2
         M2BinaryFile m2BinaryFile=null;
         try {
             usbDeviceHandle = USBHelper.openDevice(productId, vendorId, 0);
-            if(usbDeviceHandle==null) throw new Exception("Не удалось открыть устройство");
+            if(usbDeviceHandle==null) throw new Exception("Не удалось открыть устройство. Возможно отказано  доступе");
 
             byte[] commandRead = new byte[DATA_PACKET_SIZE];
             commandRead[0]=READ_COMMAND;
@@ -136,7 +136,12 @@ public class M2
         } catch (USBHelper.USBException e) {
             Log.logger.error("",e);
             throw new WriteToDeviceException(e);
-        } catch (Exception e) {
+        }
+        catch (DeviceFailException e){
+            System.err.println(e.getDescr()+" code: "+e.getErrorCode());
+            e.printStackTrace();
+        }
+        catch (Exception e) {
             Log.logger.error("",e);
             e.printStackTrace();
         } finally {
