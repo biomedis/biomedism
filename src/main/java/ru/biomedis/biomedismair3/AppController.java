@@ -45,10 +45,7 @@ import ru.biomedis.biomedismair3.Dialogs.NameDescroptionDialogController;
 import ru.biomedis.biomedismair3.Dialogs.ProgramDialogController;
 import ru.biomedis.biomedismair3.Dialogs.SearchProfile;
 import ru.biomedis.biomedismair3.Dialogs.TextInputValidationController;
-import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.CreateFrequenciesFile;
-import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.CreateLanguageFiles;
-import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadFrequenciesFile;
-import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadLanguageFiles;
+import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.*;
 import ru.biomedis.biomedismair3.UserUtils.CreateBaseHelper;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportProfile;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportTherapyComplex;
@@ -9594,7 +9591,25 @@ return  true;
         showInfoDialog("Создание  языковых файлов.","","Завершено",getApp().getMainWindow(),Modality.WINDOW_MODAL);
 
     }
+    /**
+     * Языковые файлы
+     */
+    public void onCreateLanguageFilesLatin()
+    {
+        File file=null;
 
+
+        DirectoryChooser dirChooser =new DirectoryChooser();
+        dirChooser.setTitle("Создание  языковых файлов. Выбор директории");
+        dirChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+        file= dirChooser.showDialog(getApp().getMainWindow());
+
+        if(file==null)return;
+
+        CreateLanguageFilesCheckLatin.export(file,getModel());
+        showInfoDialog("Создание  языковых файлов.","","Завершено",getApp().getMainWindow(),Modality.WINDOW_MODAL);
+
+    }
 
     public void onloadLanguageFiles()
     {

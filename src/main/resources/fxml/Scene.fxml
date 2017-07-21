@@ -76,6 +76,8 @@
                         <Menu mnemonicParsing="false" text="Переводы">
                           <items>
                             <MenuItem mnemonicParsing="false" onAction="#onCreateLanguageFiles" text="Получить файлы для перевода" />
+                              <MenuItem mnemonicParsing="false" onAction="#onCreateLanguageFilesLatin" text="Получить файлы для перевода c проверкой на латиницу" />
+
                             <MenuItem mnemonicParsing="false" onAction="#onloadLanguageFiles" text="Применить файлы переводов" />
                           </items>
                         </Menu>

@@ -65,6 +65,32 @@ public class LanguageDevice {
 
     }
 
+    public static boolean hasLatinInString(String text){
+        int cp;
+        for(int i=0;i<text.length();i++){
+            cp= text.codePointAt(i);
+            //если попали  в общие символы для всех кодировок
+            if(cp >= 0 && cp <= 0x0040)continue;
+
+            if(cp>=0x0000 && cp<=0x02D9)return true;
+
+        }
+        return false;
+    }
+
+    public static boolean hasRusInString(String text){
+        int cp;
+        for(int i=0;i<text.length();i++){
+            cp= text.codePointAt(i);
+            //если попали  в общие символы для всех кодировок
+            if(cp >= 0 && cp <= 0x0040)continue;
+
+            if(cp>=0x0000 && cp<=0x02D9)return true;
+
+        }
+        return false;
+    }
+
     /**
      * Преобразует строку из UTF8 в кодировку заданную языком.
      * @param src
