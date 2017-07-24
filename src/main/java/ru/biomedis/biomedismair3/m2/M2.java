@@ -53,7 +53,7 @@ public class M2
             if(debug)printPacket("Reading command",  commandRead);
             USBHelper.write(usbDeviceHandle,commandRead,OUT_END_POINT,REQUEST_TIMEOUT_MS);
 
-            Response response = readResponseBuffer(usbDeviceHandle,debug);
+            Response response = readResponseBuffer(usbDeviceHandle,200,3,debug);
             if(response.status==false) throw new DeviceFailException(response.errorCode);
 
             int size= ByteHelper.byteArray4ToInt(response.getPayload(),0, ByteHelper.ByteOrder.BIG_TO_SMALL);
@@ -72,12 +72,26 @@ public class M2
             if(debug) System.out.println("___________________");
 
             byte[] deviceData = new byte[DATA_PACKET_SIZE*packets];
-            ByteBuffer  data;
+            ByteBuffer data=null;
+            USBHelper.USBException e=new USBHelper.USBException("Ошибка чтения",0);
             for(int i=0;i<packets;i++){
                 //читаем
-                data = USBHelper.read(usbDeviceHandle, DATA_PACKET_SIZE, IN_END_POINT, REQUEST_TIMEOUT_MS);
-                data.position(0);
+                data=null;
+                int cnt =3;
+                while (cnt > 0) {
+                    try {
+                        data = USBHelper.read(usbDeviceHandle, DATA_PACKET_SIZE, IN_END_POINT, 200);
+                        cnt=0;
+                    }
+                    catch (USBHelper.USBException ex){
+                        ex =e;
 
+                        cnt--;
+                        if(debug) System.out.print("Try reading: "+(3-cnt));
+                    }
+                }
+                if(data==null) throw e;
+                data.position(0);
                 data.get(deviceData,i*DATA_PACKET_SIZE,DATA_PACKET_SIZE);
 
             }
@@ -128,7 +142,7 @@ public class M2
             //команда на запись
             USBHelper.write(usbDeviceHandle,commandWrite,OUT_END_POINT,REQUEST_TIMEOUT_MS);
 
-            Response response = readResponseBuffer(usbDeviceHandle,debug);
+            Response response = readResponseBuffer(usbDeviceHandle,200,3,debug);
             if(response.status==false) throw new DeviceFailException(response.errorCode);
 
             int strSize=0;
@@ -300,15 +314,55 @@ public class M2
         }
     }
 
+
+    /**
+     * Читает буффер ответа, с повтором по таймауту
+     * @param usbDeviceHandle
+     * @return Response
+     * @throws USBHelper.USBException
+     */
+    private static Response readResponseBuffer( USBHelper.USBDeviceHandle usbDeviceHandle,int timeout,int tryCount, boolean debug) throws USBHelper.USBException {
+
+
+        ByteBuffer  response = null;
+        USBHelper.USBException ex=new USBHelper.USBException("Ошибка чтения",0);
+        int cnt=tryCount;
+
+        while (cnt > 0){
+            try {
+                response = USBHelper.read(usbDeviceHandle, DATA_PACKET_SIZE, IN_END_POINT, timeout);
+                cnt=0;
+            }catch (USBHelper.USBException e){
+                ex=e;
+                cnt--;
+                if(debug)System.out.println("Retry reading: "+(3-cnt));
+            }
+        }
+
+        if(response == null)throw ex;
+        response.position(0);
+        byte[] bytes = new byte[DATA_PACKET_SIZE];
+        response.get(bytes);
+
+        //if(debug)System.out.println("Device response: "+ByteHelper.bytesToHex(bytes,64,' '));
+
+        Response resp=new Response(bytes[0]==0?true:false,bytes[1]);
+        int j=0;
+        for(int i=2;i<DATA_PACKET_SIZE;i++)resp.getPayload()[j++]=bytes[i];
+        if(debug)printPacket("Response",  bytes);
+        return resp;
+    }
+
+
     private static Response request(byte[] commandWrite,  USBHelper.USBDeviceHandle usbDeviceHandle , boolean debug, int timeoutRead) throws USBHelper.USBException {
         int counter=0;
         USBHelper.USBException ex=null;
         Response  response=null;
-        while(counter<5){
+        while(counter<2){
             try {
                 USBHelper.write(usbDeviceHandle, commandWrite, OUT_END_POINT, timeoutRead);
-                response = readResponseBuffer(usbDeviceHandle, debug);
-                counter=6;
+                response = readResponseBuffer(usbDeviceHandle,timeoutRead,2, debug);
+                counter=2;
             }catch (USBHelper.USBException e){
                 ex = e;
                 counter++;
