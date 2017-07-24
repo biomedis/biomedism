@@ -40,7 +40,7 @@ public class M2
      */
     public static M2BinaryFile readFromDevice(final boolean debug) throws ReadFromDeviceException {
 
-        USBHelper.stopHotPlugListener();
+
 
         USBHelper.USBDeviceHandle usbDeviceHandle=null;
         M2BinaryFile m2BinaryFile=null;
@@ -115,7 +115,7 @@ public class M2
             Log.logger.error("",e);
             throw new ReadFromDeviceException(e);
         } finally {
-            USBHelper.startHotPlugListener(4);
+
             try {
                 USBHelper.closeDevice(usbDeviceHandle,0);
             } catch (USBHelper.USBException e) {
@@ -188,7 +188,7 @@ public class M2
 
 
     private static void writeToDevice(byte[] dataToWrite, int langID,int countComplexes,boolean debug) throws WriteToDeviceException {
-        USBHelper.stopHotPlugListener();
+
         USBHelper.USBDeviceHandle usbDeviceHandle=null;
         clearDevice(debug);
 
@@ -243,7 +243,7 @@ public class M2
             throw new WriteToDeviceException(e);
         }
         finally {
-            USBHelper.startHotPlugListener(4);
+
             try {
                 USBHelper.closeDevice(usbDeviceHandle,0);
             } catch (USBHelper.USBException e) {
@@ -280,7 +280,7 @@ public class M2
      * Очистка устройства
      */
     public static void clearDevice(boolean debug) throws WriteToDeviceException {
-        USBHelper.stopHotPlugListener();
+
         if(debug)System.out.print("CLEAR_DEVICE...");
         USBHelper.USBDeviceHandle usbDeviceHandle=null;
         try{
@@ -309,7 +309,7 @@ public class M2
             throw new WriteToDeviceException(e);
         }
         finally {
-            USBHelper.startHotPlugListener(4);
+
             try {
                 USBHelper.closeDevice(usbDeviceHandle,0);
             } catch (USBHelper.USBException e) {
