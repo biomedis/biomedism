@@ -1324,26 +1324,30 @@ tab5.disableProperty().bind(m2Ready.not());
             public void onAttachDevice() {
 
                 try {
-                Thread.sleep(3000);
-                    M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
+                Thread.sleep(1000);
+                    //M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
+                    M2BinaryFile m2BinaryFile = new M2BinaryFile();
                     Platform.runLater(() -> {
                                 m2ui.setContent(m2BinaryFile);
                                 m2Ready.setValue(true);
                             });
 
                     System.out.println("Устройство Trinity подключено");
-                } catch (M2.ReadFromDeviceException e) {
+                } /*catch (M2.ReadFromDeviceException e) {
                    Platform.runLater(() -> {
                        showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"", e, getApp().getMainWindow(),Modality.WINDOW_MODAL);
                    });
 
-                } catch (InterruptedException e) {
+
+                }*/ catch (InterruptedException e) {
                     e.printStackTrace();
                 }finally {
                     Platform.runLater(() ->   m2Connected.set(true));
                     m2Ready.setValue(true);
                     System.out.println("Устройство Trinity подключено");
                 }
+
+
 
             }
 
@@ -1379,17 +1383,22 @@ tab5.disableProperty().bind(m2Ready.not());
         Task task = new Task() {
             protected Boolean call() {
                 boolean res1=false;
+                M2BinaryFile m2BinaryFile=null;
                 try {
                     System.out.println("Запись на прибор");
 
-                    M2.uploadProfile(profile,true);
+                    m2BinaryFile = M2.uploadProfile(profile,true);
+
                     try {
-                        Thread.sleep(4000);//таймаут дает время прибору подумать после записи
+                        Thread.sleep(1000);//таймаут дает время прибору подумать после записи
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
-                    Platform.runLater(() ->m2ui.setContent(m2BinaryFile));
+                   // M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
+                    M2BinaryFile bf=m2BinaryFile;
+                    Platform.runLater(() ->m2ui.setContent(bf));
+
+
                     res1=true;
                 } catch (M2Complex.MaxTimeByFreqBoundException e) {
                     Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),
@@ -1412,11 +1421,11 @@ tab5.disableProperty().bind(m2Ready.not());
                     Platform.runLater(() -> showErrorDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),res.getString("app.ui.lang_not_support"), getApp().getMainWindow(),Modality.WINDOW_MODAL));
                 } catch (M2.WriteToDeviceException e) {
                     Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
-                } catch (M2.ReadFromDeviceException e) {
+                } /*catch (M2.ReadFromDeviceException e) {
                     Platform.runLater(() -> {
                         showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
                     });
-                }catch (Exception e){
+                }*/catch (Exception e){
                     Platform.runLater(() ->  showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
 
                 }finally {

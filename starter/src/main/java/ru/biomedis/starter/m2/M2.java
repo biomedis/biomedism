@@ -30,9 +30,9 @@ public class M2
      * @return
      */
     public static M2BinaryFile readFromDevice(final boolean debug) throws ReadFromDeviceException {
+        USBHelper.stopHotPlugListener();
 
-
-
+        int retryCnt=0;
         USBHelper.USBDeviceHandle usbDeviceHandle=null;
         M2BinaryFile m2BinaryFile=null;
         try {
@@ -66,26 +66,40 @@ public class M2
             ByteBuffer data=null;
             USBHelper.USBException e=new USBHelper.USBException("Ошибка чтения",0);
             for(int i=0;i<packets;i++){
+                if(debug) System.out.println("Читается пакет: "+(i+1));
                 //читаем
                 data=null;
-                int cnt =3;
+                int cnt =15;
+
                 while (cnt > 0) {
                     try {
                         data = USBHelper.read(usbDeviceHandle, DATA_PACKET_SIZE, IN_END_POINT, 200);
                         cnt=0;
+                        if(debug) System.out.println("");
                     }
                     catch (USBHelper.USBException ex){
-                            ex =e;
-
+                            e=ex;
+                        retryCnt++;
                         cnt--;
-                        if(debug) System.out.print("Try reading: "+(3-cnt));
+                        System.out.println("Error: "+ e.getMessage());
+                        if(debug) System.out.print(" Tr-"+(15-cnt));
+
+                    }catch (Throwable t){
+                        e=new USBHelper.USBException("Ошибка чтения",-1);
+                        System.out.println("Error: "+ t.getMessage());
+                        retryCnt++;
+                        cnt--;
+                        if(debug) System.out.print(" Tr-"+(15-cnt));
                     }
                 }
+
+                //data = USBHelper.read(usbDeviceHandle, DATA_PACKET_SIZE, IN_END_POINT, 1000);
                 if(data==null) throw e;
                 data.position(0);
                 data.get(deviceData,i*DATA_PACKET_SIZE,DATA_PACKET_SIZE);
 
             }
+            if(debug) System.out.print("Retry Count: "+retryCnt);
             if(debug) System.out.println(ByteHelper.bytesToHex(deviceData,16,' '));
             if(debug) System.out.print("Parse data...");
 
@@ -106,7 +120,8 @@ public class M2
             Log.logger.error("",e);
             throw new ReadFromDeviceException(e);
         } finally {
-
+            if(debug) System.out.println("Retry Count: "+retryCnt);
+            USBHelper.startHotPlugListener(4);
             try {
                 USBHelper.closeDevice(usbDeviceHandle,0);
             } catch (USBHelper.USBException e) {
@@ -184,6 +199,7 @@ public class M2
 
 
     private static void writeToDevice(byte[] dataToWrite, int langID,int countComplexes,boolean debug) throws WriteToDeviceException {
+        USBHelper.stopHotPlugListener();
         USBHelper.USBDeviceHandle usbDeviceHandle=null;
         clearDevice(debug);
 
@@ -238,6 +254,7 @@ public class M2
             throw new WriteToDeviceException(e);
         }
         finally {
+            USBHelper.startHotPlugListener(4);
             try {
                 USBHelper.closeDevice(usbDeviceHandle,0);
             } catch (USBHelper.USBException e) {

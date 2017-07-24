@@ -40,7 +40,7 @@ public class M2
      */
     public static M2BinaryFile readFromDevice(final boolean debug) throws ReadFromDeviceException {
 
-
+        USBHelper.stopHotPlugListener();
 
         USBHelper.USBDeviceHandle usbDeviceHandle=null;
         M2BinaryFile m2BinaryFile=null;
@@ -84,7 +84,7 @@ public class M2
                         cnt=0;
                     }
                     catch (USBHelper.USBException ex){
-                        ex =e;
+                       e=ex;
 
                         cnt--;
                         if(debug) System.out.print("Try reading: "+(3-cnt));
@@ -115,7 +115,7 @@ public class M2
             Log.logger.error("",e);
             throw new ReadFromDeviceException(e);
         } finally {
-
+            USBHelper.startHotPlugListener(4);
             try {
                 USBHelper.closeDevice(usbDeviceHandle,0);
             } catch (USBHelper.USBException e) {
@@ -188,6 +188,7 @@ public class M2
 
 
     private static void writeToDevice(byte[] dataToWrite, int langID,int countComplexes,boolean debug) throws WriteToDeviceException {
+        USBHelper.stopHotPlugListener();
         USBHelper.USBDeviceHandle usbDeviceHandle=null;
         clearDevice(debug);
 
@@ -242,6 +243,7 @@ public class M2
             throw new WriteToDeviceException(e);
         }
         finally {
+            USBHelper.startHotPlugListener(4);
             try {
                 USBHelper.closeDevice(usbDeviceHandle,0);
             } catch (USBHelper.USBException e) {
@@ -278,6 +280,7 @@ public class M2
      * Очистка устройства
      */
     public static void clearDevice(boolean debug) throws WriteToDeviceException {
+        USBHelper.stopHotPlugListener();
         if(debug)System.out.print("CLEAR_DEVICE...");
         USBHelper.USBDeviceHandle usbDeviceHandle=null;
         try{
@@ -306,6 +309,7 @@ public class M2
             throw new WriteToDeviceException(e);
         }
         finally {
+            USBHelper.startHotPlugListener(4);
             try {
                 USBHelper.closeDevice(usbDeviceHandle,0);
             } catch (USBHelper.USBException e) {
@@ -481,7 +485,7 @@ public class M2
     }
 
 
-    public static void uploadProfile(Profile profile,boolean debug) throws M2Complex.MaxTimeByFreqBoundException, M2Complex.MaxPauseBoundException, M2Program.ZeroValueFreqException, M2Program.MaxProgramIDValueBoundException, M2Program.MinFrequenciesBoundException, M2Complex.MaxCountProgramBoundException, M2BinaryFile.MaxBytesBoundException, M2Complex.ZeroCountProgramBoundException, LanguageDevice.NoLangDeviceSupported, WriteToDeviceException {
+    public static M2BinaryFile uploadProfile(Profile profile,boolean debug) throws M2Complex.MaxTimeByFreqBoundException, M2Complex.MaxPauseBoundException, M2Program.ZeroValueFreqException, M2Program.MaxProgramIDValueBoundException, M2Program.MinFrequenciesBoundException, M2Complex.MaxCountProgramBoundException, M2BinaryFile.MaxBytesBoundException, M2Complex.ZeroCountProgramBoundException, LanguageDevice.NoLangDeviceSupported, WriteToDeviceException {
         ModelDataApp mda = App.getStaticModel();
         M2BinaryFile bf=new M2BinaryFile();
         M2Complex m2c;
@@ -530,6 +534,7 @@ public class M2
         if(deviceLang==null) throw new LanguageDevice.NoLangDeviceSupported(mda.getProgramLanguage().getAbbr());
         if(debug)System.out.println("Начало записи");
         writeToDevice(data,deviceLang.getDeviceLangID(),bf.getComplexesList().size(),debug);
+        return bf;
     }
 
         private static void printPacket(String name, byte[] packet){

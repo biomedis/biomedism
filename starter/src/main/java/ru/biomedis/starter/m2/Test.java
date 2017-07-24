@@ -143,7 +143,10 @@ public class Test
         for (M2Complex m2Complex : listComplexes) {
             binaryFile.addComplex(m2Complex);
         }
-        
+        for (M2Complex m2Complex : listComplexes) {
+            binaryFile.addComplex(m2Complex);
+        }
+
         return binaryFile;
         }
 

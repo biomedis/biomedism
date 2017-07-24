@@ -172,13 +172,16 @@ public class TrinityUtil extends BaseController {
             USBHelper.dumpDevice(device);
         } catch (M2.WriteToDeviceException e) {
             System.out.println("USB ошибка в процессе отправки команды чтения");
-            e.printStackTrace();
+            System.out.println(e.getMessage());
+            //e.printStackTrace();
         } catch (USBHelper.USBException e) {
             System.out.println("USB ошибка в процессе выполнеия операций");
-            e.printStackTrace();
+           // e.printStackTrace();
+            System.out.println(e.getMessage());
         } catch (Exception e) {
             System.out.println("Ошибка в процессе выполнения операций: "+e.getMessage());
-            e.printStackTrace();
+            //e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         System.out.println("---------------------------------------\n");
     }
