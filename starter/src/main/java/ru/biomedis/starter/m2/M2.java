@@ -30,7 +30,7 @@ public class M2
      * @return
      */
     public static M2BinaryFile readFromDevice(final boolean debug) throws ReadFromDeviceException {
-        USBHelper.stopHotPlugListener();
+
 
         int retryCnt=0;
         USBHelper.USBDeviceHandle usbDeviceHandle=null;
@@ -121,7 +121,7 @@ public class M2
             throw new ReadFromDeviceException(e);
         } finally {
             if(debug) System.out.println("Retry Count: "+retryCnt);
-            USBHelper.startHotPlugListener(4);
+
             try {
                 USBHelper.closeDevice(usbDeviceHandle,0);
             } catch (USBHelper.USBException e) {
@@ -199,7 +199,7 @@ public class M2
 
 
     private static void writeToDevice(byte[] dataToWrite, int langID,int countComplexes,boolean debug) throws WriteToDeviceException {
-        USBHelper.stopHotPlugListener();
+
         USBHelper.USBDeviceHandle usbDeviceHandle=null;
         clearDevice(debug);
 
@@ -254,7 +254,7 @@ public class M2
             throw new WriteToDeviceException(e);
         }
         finally {
-            USBHelper.startHotPlugListener(4);
+
             try {
                 USBHelper.closeDevice(usbDeviceHandle,0);
             } catch (USBHelper.USBException e) {
