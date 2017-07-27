@@ -1973,662 +1973,515 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         return 2 == therapyTabPane.getSelectionModel().getSelectedIndex();
     }
     private List<MenuItem> tablesMenuHelper;
+
     private void initTables()
     {
-            tablesMenuHelper=new ArrayList<>();
-        MenuItem mh1 = new MenuItem(this.res.getString("app.ui.copy"));
-        MenuItem mh2 =new MenuItem(this.res.getString("app.ui.paste"));
-        MenuItem mh3 =new MenuItem(this.res.getString("app.cut"));
-        MenuItem mh4 =new MenuItem(this.res.getString("app.delete"));
-
-        tablesMenuHelper.add(mh1);
-        tablesMenuHelper.add(mh2);
-        tablesMenuHelper.add(mh3);
-        tablesMenuHelper.add(mh4);
-
-        mh1.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
-        mh2.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
-        mh3.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
-        mh4.setAccelerator(KeyCombination.keyCombination("Delete"));
-
-        mh1.setOnAction(e->cutInTables());
-        mh1.setOnAction(e->copyInTables());
-        mh1.setOnAction(e->pasteInTables());
-        mh1.setOnAction(e->deleteInTables());
-
+        tablesMenuHelper = initContextMenuHotKeyHolders();
         //установка имени таба комплексов с учетом времени
-        textComplexTime.addListener((observable, oldValue, newValue) -> {
-
-            String[] strings = newValue.split("#");
-             if(strings.length!=0)
-             {
-                 TherapyComplex selectedItem = tableComplex.getSelectionModel().getSelectedItem();
-                 if(selectedItem==null) return;
-
-
-                 long idC= Long.parseLong(strings[1]);
-                 if(idC!=selectedItem.getId().longValue())return;//если изменения не в выбраном комплексе, то и считать не надо
-                 setComplexTabName(baseComplexTabName+" ("+ selectedItem.getName() +") +("+strings[0]+")") ;
-             }
-
-        });
-
-
-
-        //значения времени(хранятся в соответств. классах сущностей) устанавливаются при инициализации данных. После обновляются при изменении времени, удалении и добавлении програм и комплексов.
+        initTabNameListener();
 
         /*** Профили  ****/
-        //номер по порядку
-        TableColumn<Profile,Number> numProfileCol =new TableColumn<>("№");
-        numProfileCol.setCellValueFactory(param -> new SimpleIntegerProperty(param.getTableView().getItems().indexOf(param.getValue())+1));
+        initProfileTable();
+        initProfileCntextMenu();
+        initProfileSelectedListener();
 
-        //имя профиля
-        TableColumn<Profile,String> nameCol=new TableColumn<>(res.getString("app.table.profile_name"));
-        nameCol.cellValueFactoryProperty().setValue(new PropertyValueFactory<Profile, String>("name"));
-        nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        nameCol.setOnEditCommit(event ->
-        {
-
-            if (!event.getNewValue().equals(event.getOldValue())) {
-
-                String s = event.getNewValue();
-                if (s.length() == 0) {
-                    event.getRowValue().setName(event.getOldValue());
-                    Profile p = event.getRowValue();
-                    int i = tableProfile.getItems().indexOf(event.getRowValue());
-                    tableProfile.getItems().set(i, null);
-                    tableProfile.getItems().set(i, p);
-                    p = null;
-                    tableProfile.getSelectionModel().select(i);
-                    return;
-                }
-                event.getRowValue().setName(s);
-                try {
-                    getModel().updateProfile(event.getRowValue());
-                    Profile p = event.getRowValue();
-                    int i = tableProfile.getItems().indexOf(event.getRowValue());
-                    tableProfile.getItems().set(i, null);
-                    tableProfile.getItems().set(i, p);
-                    tableProfile.getSelectionModel().select(i);
-                    p = null;
-
-                } catch (Exception e) {
-                    logger.error("",e);
-                }
-
-
-            }
-        });
-
-
-
-        //общая длительность, зависит от количества комплексов, програм их частот и мультичастотного режима, также времени на частоту
-        TableColumn<Profile,String> timeCol=new TableColumn<>(res.getString("app.table.delay"));
-        timeCol.setCellValueFactory(param -> {
-            SimpleStringProperty property = new SimpleStringProperty();
-            property.bind(new StringBinding() {
-                {
-                    super.bind(param.getValue().timeProperty());//используем фейковое свойство, для инициализации расчета
-                }
-
-                @Override
-                protected String computeValue() {
-                    return DateUtil.convertSecondsToHMmSs(AppController.this.getModel().getTimeProfile(param.getValue()));
-                }
-            });
-            return property;
-        });
-
-
-        TableColumn<Profile,String> weightCol=new TableColumn<>(res.getString("app.table.file_size"));
-        weightCol.setCellValueFactory(param -> {
-            SimpleStringProperty property = new SimpleStringProperty();
-            property.bind(new StringBinding() {
-                {
-                    super.bind(param.getValue().profileWeightProperty());//используем фейковое свойство, для инициализации расчета
-                }
-
-                @Override
-                protected String computeValue() {
-
-                    File f = null;
-                    double summ = 0;
-                    if(getModel().isNeedGenerateFilesInProfile(param.getValue())) return "";
-                    for (Long v : getModel().getProfileFiles(param.getValue())) {
-
-                        f = new File(getApp().getDataDir(), v + ".dat");
-                        if (f.exists()) summ += f.length() ;
-                    }
-                    for (String v : getModel().mp3ProgramPathsInProfile(param.getValue())) {
-
-                        f = new File(v);
-                        if (f.exists()) summ += f.length();
-                    }
-                    summ = (double)summ / 1048576;
-                    return Math.ceil(summ) + " Mb";
-                }
-            });
-            return property;
-        });
-
-        timeCol.setStyle( "-fx-alignment: CENTER;");
-        numProfileCol.setStyle( "-fx-alignment: CENTER;");
-        weightCol.setStyle( "-fx-alignment: CENTER;");
-        tableProfile.getColumns().addAll(numProfileCol, nameCol, timeCol, weightCol);
-        tableProfile.placeholderProperty().setValue(new Label(res.getString("app.table.profile_not_avaliable")));
-        tableProfile.setEditable(true);
-
-        tableProfile.getItems().addAll(getModel().findAllProfiles()
-                                                 .stream()
-                                                 .filter(i->!i.getName().equals(App.BIOFON_PROFILE_NAME))
-                                                 .collect(Collectors.toList()));
-
-
-        numProfileCol.prefWidthProperty().bind(tableProfile.widthProperty().multiply(0.1));
-        nameCol.prefWidthProperty().bind(tableProfile.widthProperty().multiply(0.50));
-        timeCol.prefWidthProperty().bind(tableProfile.widthProperty().multiply(0.25));
-        weightCol.prefWidthProperty().bind(tableProfile.widthProperty().multiply(0.15));
-
-        weightCol.setEditable(false);
-        numProfileCol.setEditable(false);
-        nameCol.setEditable(true);
-        timeCol.setEditable(false);
-
-        numProfileCol.setSortable(false);
-        nameCol.setSortable(false);
-        timeCol.setSortable(false);
-        weightCol.setSortable(false);
-
-
-
-        //MenuItem mip1 = new MenuItem(this.res.getString("app.ui.copy"));
-        MenuItem mip2 =new MenuItem(this.res.getString("app.ui.paste"));
-        MenuItem mip3 =new MenuItem(this.res.getString("app.cut"));
-        MenuItem mip4 =new MenuItem(this.res.getString("app.delete"));
-        MenuItem mip5 =new MenuItem(this.res.getString("app.menu.print_profile"));
-        MenuItem mip6 =new SeparatorMenuItem();
-
-        mip5.setOnAction(e->onPrintProfile());
-
-
-                mip3.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
-        //mip1.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
-        mip2.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
-        mip4.setAccelerator(KeyCombination.keyCombination("Delete"));
-        profileMenu.getItems().addAll(mip3,mip2,mip4,mip6,mip5);
-        mip3.setOnAction(e->cutInTables());
-        mip2.setOnAction(e->pasteInTables());
-        mip4.setOnAction(e->deleteInTables());
-        tableProfile.setContextMenu(profileMenu);
-        profileMenu.setOnShowing(e->{
-            mip2.setDisable(false);
-            mip3.setDisable(false);
-            mip4.setDisable(false);
-            mip5.setDisable(false);
-         if(tableProfile.getSelectionModel().getSelectedItem()==null) {
-             mip2.setDisable(true);
-             mip3.setDisable(true);
-             mip4.setDisable(true);
-             mip5.setDisable(true);
-         }else {
-
-             mip4.setDisable(false);
-             Clipboard clipboard= Clipboard.getSystemClipboard();
-             if(clipboard.hasContent(PROFILE_CUT_ITEM_ID)){
-                 Integer ind = (Integer)clipboard.getContent(PROFILE_CUT_ITEM_INDEX);
-                 if(ind ==null) mip2.setDisable(true);
-                 else {
-                     if(tableProfile.getSelectionModel().getSelectedIndex()==ind)mip2.setDisable(true);
-                     else mip2.setDisable(false);
-                 }
-
-             }else  mip2.setDisable(true);
-         }
-
-        });
-        //profileMenu
-
-
-
-
-    /**********/
 
         /*** Комплексы  ****/
-        //номер по порядку
-        TableColumn<TherapyComplex,Number> numComplexCol =new TableColumn<>("№");
-        numComplexCol.setCellValueFactory(param -> new SimpleIntegerProperty(param.getTableView().getItems().indexOf(param.getValue()) + 1));
+        initComplexesTable();
+        initGenerateComplexesButton();
+        initComplexesContextMenu();
+        initUploadComplexesContextMenu();
+        initComplexSelectedListener();
+        initComplexSpinnerTimeForFreq();
+        initComplexBundlesLength();
+
+        /*** Программы  ****/
+        initProgramsTable();
+        initProgramsTableContextMenu();
 
 
-        //имя
-        TableColumn<TherapyComplex,String> nameColTC=new TableColumn<>(res.getString("app.table.name_complex"));
-        nameColTC.cellValueFactoryProperty().setValue(new PropertyValueFactory<TherapyComplex, String>("name"));
-        nameColTC.setCellFactory(TextFieldTableCell.forTableColumn());
-        nameColTC.setOnEditCommit(event ->
+        initDeleteAndSwitchTableKeys();
+        initSwitchTabByDoubleClick();
+
+    }
+
+    private void initComplexBundlesLength() {
+        ObservableList<String> bundlesSpinnerData = FXCollections.observableArrayList();
+        for(int i=2; i<=MAX_BUNDLES; i++)bundlesSpinnerData.add(String.valueOf(i));
+        // Value factory.
+
+        bundlesSpinner.setValueFactory(new SpinnerValueFactory.ListSpinnerValueFactory<String>(bundlesSpinnerData));
+        bundlesSpinner.getValueFactory().setValue("2");
+
+        //показывает кнопки при изменениях спинера
+        bundlesSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {if(oldValue!=newValue) bundlesBtnPan.setVisible(true);});
+        //кнопка отмены
+        btnCancelBundles.setOnAction(event ->hideBundlesSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength()) );
+
+
+        //принять изменения пачек частот
+        btnOkBundles.setOnAction(event ->
         {
 
-            if (!event.getNewValue().equals(event.getOldValue())) {
+            if(!this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
+                List<TherapyComplex> items = new ArrayList<>(this.tableComplex.getSelectionModel().getSelectedItems());
 
-                String s = event.getNewValue();
-                if (s.length() == 0) {
-                    event.getRowValue().setName(event.getOldValue());
-                    TherapyComplex p = event.getRowValue();
-                    int i = tableComplex.getItems().indexOf(event.getRowValue());
-                    tableComplex.getItems().set(i, null);
-                    tableComplex.getItems().set(i, p);
-                    tableComplex.getSelectionModel().select(i);
-                    p = null;
-                    return;
-                }
-                event.getRowValue().setName(s);
                 try {
-                    getModel().updateTherapyComplex(event.getRowValue());
-                    TherapyComplex p = event.getRowValue();
-                    int i = tableComplex.getItems().indexOf(event.getRowValue());
-                    tableComplex.getItems().set(i, null);
-                    tableComplex.getItems().set(i, p);
-                    tableComplex.getSelectionModel().select(i);
-                    p = null;
 
-                } catch (Exception e) {
-                    logger.error("",e);
+
+                    for(TherapyComplex item:items) {
+
+
+                        item.setBundlesLength(Integer.parseInt(bundlesSpinner.getValue()));
+                        item.setChanged(true);
+                        this.getModel().updateTherapyComplex(item);
+                        this.btnGenerate.setDisable(false);                   }
+
+                    this.updateComplexsTime(items, true);
+                } catch (Exception var8) {
+                    this.hideBundlesSpinnerBTNPan(this.tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
+                    Log.logger.error("", var8);
+                    showExceptionDialog("Ошибка обновления времени в терапевтическом комплексе", "", "", var8, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                } finally {
+                    this.hideTFSpinnerBTNPan();
                 }
 
+            }
+
+        });
+    }
+
+    private void initComplexSpinnerTimeForFreq() {
+        //показывает кнопки при изменениях спинера
+        timeToFreqSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+            if(oldValue!=newValue) {
+                spinnerBtnPan.setVisible(true);
+            }
+            //коррекция значения не кратного 30сек
+            int newTime=(int)(newValue*60);
+            if(newTime%30!=0){
+                TherapyComplex sCompl = tableComplex.getSelectionModel().getSelectedItem();
+                if(sCompl!=null) {
+                    int st=0;
+                    if( newTime % 30 >15)st=newTime + (30-newTime % 30);
+                    else st=newTime - newTime % 30;
+                    sCompl.setTimeForFrequency(st);
+                    try {
+                        this.getModel().updateTherapyComplex(sCompl);
+                        timeToFreqSpinner.getValueFactory().setValue(st / 60.0);
+                    } catch (Exception e) {
+                      logger.error("",e);
+                    }
+
+                }
+            }
+        });
+        //кнопка отмены
+        btnCancelSpinner.setOnAction(event ->hideTFSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency()) );
+        //принять изменения времени
+        btnOkSpinner.setOnAction(event ->
+        {
+
+
+            if(!this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
+                List<TherapyComplex> items = new ArrayList<>(this.tableComplex.getSelectionModel().getSelectedItems());
+
+                try {
+
+
+                   for(TherapyComplex item:items) {
+
+
+                        item.setTimeForFrequency((int)(this.timeToFreqSpinner.getValue()*60));
+                        item.setChanged(true);
+                        this.getModel().updateTherapyComplex(item);
+                        this.btnGenerate.setDisable(false);
+                    }
+
+                    this.updateComplexsTime(items, true);
+                } catch (Exception var8) {
+                    this.hideTFSpinnerBTNPan(this.tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency().intValue());
+                    Log.logger.error("", var8);
+                    showExceptionDialog("Ошибка обновления времени в терапевтическом комплексе", "", "", var8, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                } finally {
+                    this.hideTFSpinnerBTNPan();
+                }
 
             }
         });
+    }
 
-        //описание
-        TableColumn<TherapyComplex,String> descColTC=new TableColumn<>(res.getString("app.table.complex_descr"));
-        descColTC.cellValueFactoryProperty().setValue(new PropertyValueFactory<TherapyComplex, String>("description"));
-        descColTC.setCellFactory(TextAreaTableCell.forTableColumn());
-        descColTC.setOnEditCommit(event ->
-        {
-
-            if (!event.getNewValue().equals(event.getOldValue())) {
-
-                String s = event.getNewValue();
-                if (s.length() == 0) {
-                    event.getRowValue().setDescription(event.getOldValue());
-                    TherapyComplex p = event.getRowValue();
-                    int i = tableComplex.getItems().indexOf(event.getRowValue());
-                    tableComplex.getItems().set(i, null);
-                    tableComplex.getItems().set(i, p);
-                    p = null;
-                    return;
-                }
-                event.getRowValue().setDescription(s);
-                try {
-                    getModel().updateTherapyComplex(event.getRowValue());
-                    TherapyComplex p = event.getRowValue();
-                    int i = tableComplex.getItems().indexOf(event.getRowValue());
-                    tableComplex.getItems().set(i, null);
-                    tableComplex.getItems().set(i, p);
-                    p = null;
-
-                } catch (Exception e) {
-                    logger.error("",e);
-                }
-
-
-            }
-        });
-
-        //общая длительность, зависит от количества програм их частот и мультичастотного режима, также времени на частоту
-        TableColumn<TherapyComplex,String> timeColTC=new TableColumn<>(res.getString("app.table.delay"));
-      //  timeColTC.setCellValueFactory(param -> new SimpleStringProperty(DateUtil.convertSecondsToHMmSs(getModel().getTimeTherapyComplex(param.getValue()))));
-       //пересчет индуцируется при изменении свойства time
+    private void initComplexSelectedListener() {
+        tableComplex.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
 
 
 
+                if( tableComplex.getSelectionModel().getSelectedItems().size()>0)bundlesSpinner.setDisable(false);
+                else bundlesSpinner.setDisable(true);
 
-        timeColTC.setCellValueFactory(param -> {
-            SimpleStringProperty property = new SimpleStringProperty();
-            property.bind(new StringBinding() {
-                {
-                    super.bind(param.getValue().timeProperty());
-                }
+            if (oldValue != newValue) {
 
-                @Override
-                protected String computeValue() {
-                    String s = DateUtil.convertSecondsToHMmSs(AppController.this.getModel().getTimeTherapyComplex(param.getValue()));
-                    textComplexTime.setValue(s+"#"+param.getValue().getId().longValue());
-                    return s;
-                }
-            });
-            return property;
-        });
-
-
-
-
-
-        TableColumn<TherapyComplex,Boolean>fileComplexCol=new TableColumn<>(res.getString("app.table.file"));
-        fileComplexCol.cellValueFactoryProperty().setValue(param -> {
-            SimpleBooleanProperty property = new SimpleBooleanProperty();
-            property.bind(param.getValue().changedProperty());
-            return property;
-        });
-        fileComplexCol.setCellFactory(col ->
-        {
-            TableCell<TherapyComplex, Boolean> cell = new TableCell<TherapyComplex, Boolean>() {
-                @Override
-                protected void updateItem(Boolean item, boolean empty) {
-
-                    super.updateItem(item, empty);
-                    this.setText(null);
-                    this.setGraphic(null);
-
-                    HBox hbox=null;
-                    ImageView iv=null;
-
-                    if( this.getUserData()!=null)
-                    {
-                        hbox=(HBox)this.getUserData();
-                        if(hbox!=null){
-                            iv=(ImageView)hbox.getChildren().get(0);
-
+                //закроем кнопки спинера времени на частоту, при переключении компелекса
+                if(newValue!=null) {
+                    Platform.runLater(() -> {
+                        if(newValue!=null){
+                            hideTFSpinnerBTNPan(newValue.getTimeForFrequency());
+                            if(tableComplex.getSelectionModel().getSelectedItem()==null) hideBundlesSpinnerBTNPan();
+                            else  hideBundlesSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
                         }else {
-                            iv=new ImageView();
-                            hbox=new HBox();
-                            hbox.setSpacing(3);
-                            hbox.getChildren().addAll(iv);
+                            hideTFSpinnerBTNPan();
+                            hideBundlesSpinnerBTNPan();
                         }
-                    }else {
-                        iv=new ImageView(imageCancel);
-
-                        hbox=new HBox();
-                        hbox.setSpacing(3);
-                        hbox.getChildren().addAll(iv);
-                        this.setUserData(hbox);
-                    }
 
 
-                    if (!empty) {
-                        if (this.getTableRow().getItem() == null) {
-                            setText("");
-                            return;
-                        }
-                            if (item)  iv.setImage(imageCancel);
-                             else {
-                                TherapyComplex thisComplex = (TherapyComplex) getTableRow().getItem();
-                                if(thisComplex==null) return;
+                    });
 
-                                if(getModel().countTherapyPrograms(thisComplex)==0)iv.setImage(imageCancel);
-                                else if(getModel().hasNeedGenerateProgramInComplex(thisComplex))  iv.setImage(imageCancel);
-                                 else  {
-                                    long sum=0;
-                                    File f;
-                                    for (Long id : getModel().getTherapyComplexFiles(thisComplex)) {
-                                        f=new File(getApp().getDataDir(),id+".dat");
-                                        if(f.exists())sum+=f.length();
-                                    }
-                                    for (String v : getModel().mp3ProgramPathsInComplex(thisComplex)) {
-
-                                        f = new File(v);
-                                        if (f.exists()) sum += f.length();
-                                    }
-
-
-                                    if(sum>0) setText(Math.ceil((double)sum / 1048576.0) + " Mb");
-                                     iv.setImage(imageDone);
-                                }
-
-                            }
-
-
-
-                        setGraphic(hbox);
-                    }
                 }
-            };
+                else  {
+                    hideTFSpinnerBTNPan();
+                    hideBundlesSpinnerBTNPan();
 
-            return cell;
+                }
+
+                tableProgram.getItems().clear();
+
+                tableProgram.getItems().addAll(getModel().findTherapyPrograms(newValue));
+
+
+            }
+
+
         });
+    }
+
+    private void initProfileSelectedListener() {
+        tableProfile.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
+        {
 
 
+            if (oldValue != newValue) {
+                //закроем кнопки спинера времени на частоту
+                hideTFSpinnerBTNPan();
+                hideBundlesSpinnerBTNPan();
 
+                tableComplex.getItems().clear();
+                //добавляем через therapyComplexItems иначе не будет работать event на изменение элементов массива и не будут работать галочки мультичастот
 
-        numComplexCol.setStyle( "-fx-alignment: CENTER;");
-        timeColTC.setStyle( "-fx-alignment: CENTER;");
-        nameColTC.setStyle( "-fx-alignment: CENTER-LEFT;");
-        this.tableComplex.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        tableComplex.getColumns().addAll(numComplexCol, nameColTC, descColTC, timeColTC, fileComplexCol);
-        tableComplex.placeholderProperty().setValue(new Label(res.getString("app.table.complex_placeholder")));
-        tableComplex.setEditable(true);
-
-
-
-        numComplexCol.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.1));
-        nameColTC.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.325));
-        descColTC.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.325));
-        timeColTC.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.1));
-        fileComplexCol.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.15));
-
-        numComplexCol.setSortable(false);
-        nameColTC.setSortable(false);
-        descColTC.setSortable(false);
-        timeColTC.setSortable(false);
-        fileComplexCol.setSortable(false);
-
-        fileComplexCol.setEditable(true);
-
-        generationComplexesBtn.disableProperty().bind(new BooleanBinding() {
-            {super.bind(tableComplex.getSelectionModel().selectedItemProperty());}
-            @Override
-            protected boolean computeValue() {
-                boolean res=true;
-                for (TherapyComplex therapyComplex : tableComplex.getSelectionModel().getSelectedItems()) {
-                    if( therapyComplex.isChanged() || getModel().hasNeedGenerateProgramInComplex(therapyComplex) ){
-                       res=false;
-                       break;
-                    }
+                List<TherapyComplex> therapyComplexes = getModel().findTherapyComplexes(newValue);
+                try {
+                    checkBundlesLength(therapyComplexes);
+                } catch (Exception e) {
+                    Log.logger.error("",e);
+                   showExceptionDialog("Ошибка обновления комплексов","","",e,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                   return;
                 }
 
-                return res;
+                tableComplex.getItems().addAll(therapyComplexes);
+
+
+                if(newValue!=null){
+
+                    btnGenerate.setDisable(!getModel().isNeedGenerateFilesInProfile(newValue));
+
+                }
+            }
+
+        });
+    }
+
+    private void initSwitchTabByDoubleClick() {
+        tableProfile.setOnMouseClicked(event -> {
+            if(event.getClickCount()==2) {
+                event.consume();
+                //int selectedIndex = tableProfile.getSelectionModel().getSelectedIndex();
+               // tableProfile.getSelectionModel().clearSelection();
+                //tableProfile.getSelectionModel().select(selectedIndex);
+                if(tableProfile.getSelectionModel().getSelectedItem()!=null) therapyTabPane.getSelectionModel().select(1);
 
             }
         });
-        generationComplexesBtn.setOnAction(e->generateComplexes());
 
-        MenuItem mic1 = new MenuItem(this.res.getString("app.to_user_base"));
-        MenuItem mic2 = new MenuItem(this.res.getString("app.ui_comlexes_generation"));
-        MenuItem mic3 = new MenuItem(this.res.getString("app.upload_to_dir"));
-        MenuItem mic5 = new MenuItem(this.res.getString("app.upload_to_biomedism"));
-        MenuItem mic4 =new MenuItem(this.res.getString("app.to_biofon"));
+        tableComplex.setOnMouseClicked(event -> {
+            if(event.getClickCount()==2) {
+                event.consume();
 
-        MenuItem mic6=new SeparatorMenuItem();
-        MenuItem mic7=new SeparatorMenuItem();
-        MenuItem mic8=new SeparatorMenuItem();
+                if(tableProfile.getSelectionModel().getSelectedItem()!=null)therapyTabPane.getSelectionModel().select(2);
 
-        MenuItem mic9 = new MenuItem(this.res.getString("app.ui.copy"));
-        MenuItem mic10 =new MenuItem(this.res.getString("app.ui.paste"));
-        MenuItem mic11 =new MenuItem(this.res.getString("app.cut"));
-        MenuItem mic12 =new MenuItem(this.res.getString("app.delete"));
+            }
+        });
+    }
 
-        MenuItem mic13 =new MenuItem(this.res.getString("app.ui.printing_complexes"));
+    private void initProgramsTableContextMenu() {
+        MenuItem mi1=new MenuItem(res.getString("app.cut"));
+        MenuItem mi6=new MenuItem(res.getString("app.ui.edit_file_path"));
+        MenuItem mi7=new MenuItem(res.getString("app.ui.copy"));
+        MenuItem mi2=new MenuItem(res.getString("app.paste"));
+        MenuItem mi16=new MenuItem(res.getString("app.delete"));
 
-        mic11.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
-        mic9.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
-        mic10.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
-        mic12.setAccelerator(KeyCombination.keyCombination("Delete"));
+        mi1.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
+        mi7.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
+        mi2.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
+        mi16.setAccelerator(KeyCombination.keyCombination("Delete"));
 
-        mic13.setOnAction(e->onPrintComplex());
-        mic11.setOnAction(e-> cutInTables());
-        mic12.setOnAction(e->deleteInTables());
+        MenuItem mi3=new SeparatorMenuItem();
+        MenuItem mi4=new MenuItem(res.getString("app.to_user_base"));
+        MenuItem mi5=new SeparatorMenuItem();
+        MenuItem mi8=new MenuItem(res.getString("app.ui.multy_switch_on"));
+        MenuItem mi9=new MenuItem(res.getString("app.ui.multy_switch_off"));
+        MenuItem mi10=new SeparatorMenuItem();
+        MenuItem mi11=new MenuItem(res.getString("app.ui.copy_program_name"));
+        MenuItem mi12=new MenuItem(res.getString("app.ui.copy_program_name_main"));
+        MenuItem mi13=new MenuItem(res.getString("app.ui.copy_program_freq"));
+        MenuItem mi14=new MenuItem(res.getString("app.ui.invert_seletion"));
+        MenuItem mi15=new SeparatorMenuItem();
+        MenuItem mi17=new MenuItem(res.getString("app.copy_freq_and_name"));
 
-        mic1.setOnAction((event2) -> {
-            this.copyTherapyComplexToBase();
+        mi11.setOnAction(e->{
+            TherapyProgram selectedItem = tableProgram.getSelectionModel().getSelectedItem();
+            if(selectedItem==null) return;
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(selectedItem.getName());
+            clipboard.setContent(content);
+
+        });
+        mi17.setOnAction(e->{
+            TherapyProgram selectedItem = tableProgram.getSelectionModel().getSelectedItem();
+            if(selectedItem==null) return;
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(selectedItem.getName()+" \n"+selectedItem.getFrequencies());
+            clipboard.setContent(content);
+
+        });
+        mi12.setOnAction(e->{
+            TherapyProgram selectedItem = tableProgram.getSelectionModel().getSelectedItem();
+            if(selectedItem==null) return;
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(selectedItem.getOname());
+            clipboard.setContent(content);
+
+        });
+        mi13.setOnAction(e->{
+            TherapyProgram selectedItem = tableProgram.getSelectionModel().getSelectedItem();
+            if(selectedItem==null) return;
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(selectedItem.getFrequencies());
+            clipboard.setContent(content);
+
+        });
+        mi14.setOnAction(e->{
+            List<Integer> selected = tableProgram.getSelectionModel().getSelectedIndices().stream().collect(Collectors.toList());
+            tableProgram.getSelectionModel().selectAll();
+            for (Integer ind : selected) {
+                tableProgram.getSelectionModel().clearSelection(ind);
+            }
+
+
         });
 
-        mic2.setOnAction((event2) -> {
-            this.generateComplexes();
-        });
-        mic3.setOnAction((event2) -> {
-            this.uploadComplexesToDir();
-        });
-        mic5.setOnAction((event2) -> {
-            this.uploadComplexesToM();
-        });
-        mic9.setOnAction(event -> copyInTables());
-        mic10.setOnAction(event -> pasteInTables());
-        mic4.setOnAction(event -> complexesToBiofon(tableComplex.getSelectionModel().getSelectedItems()));
-        this.complexesMenu.getItems().addAll(
-                mic11,
-                mic9,
-                mic10,
-                mic12,
-                mic6,
-                mic2,
-                mic3,
-                mic5,
-                mic7,
-                mic4,
-                mic1,
-                mic13);
-        this.tableComplex.setContextMenu(this.complexesMenu);
-        this.complexesMenu.setOnShowing((event1) -> {
-            mic1.setDisable(false);
-            mic2.setDisable(true);
-            mic3.setDisable(false);
-            mic4.setDisable(false);
-            mic5.setDisable(false);
-            mic13.setDisable(false);
-            mic9.setDisable(false);
-            mic10.setDisable(true);
-Clipboard clipboard =Clipboard.getSystemClipboard();
-            if(this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
+        mi4.setOnAction(event2 -> copyTherapyProgramToBase());
+        mi6.setOnAction(event2 -> editMP3ProgramPath());
 
-                mic1.setDisable(true);
-                mic2.setDisable(true);
-                mic3.setDisable(true);
-                mic4.setDisable(true);
-                mic5.setDisable(true);
-                mic9.setDisable(true);
-                mic11.setDisable(true);
-                mic12.setDisable(true);
-                mic13.setDisable(true);
+        mi1.setOnAction(e ->
+        {
+            cutInTables();
 
-                //вставить можно и в пустую таблицу
-                if(clipboard.hasContent(COMPLEX_COPY_ITEM) || clipboard.hasContent(COMPLEX_CUT_ITEM_ID)  )  mic10.setDisable(false);
+        });
 
+        mi7.setOnAction(e->{
+            copyInTables();
+        });
+        mi8.setOnAction(e-> multyFreqProgramSwitchOn());
+        mi9.setOnAction(e->multyFreqProgramSwitchOff());
+        mi2.setOnAction(e -> pasteInTables());
+        mi16.setOnAction(e->deleteInTables());
+        programmMenu.getItems().addAll(mi1,
+                mi7,
+                mi2,
+                mi16,
+                mi3,
+                mi8,
+                mi9,
+                mi15,
+                mi17,
+                mi11,
+                mi12,
+                mi13,
+                mi14,
+                mi10,
+                mi4,
+                mi6);
+
+        tableProgram.setContextMenu(programmMenu);
+        this.programmMenu.setOnShowing((event1) -> {
+            if(this.tableProgram.getSelectionModel().getSelectedItem() == null) {
+                mi2.setDisable(true);
+                mi1.setDisable(true);
+                mi3.setDisable(true);
+                mi4.setDisable(true);
+                mi5.setDisable(true);
+                mi6.setDisable(true);
+                mi7.setDisable(true);
+                mi8.setDisable(true);
+                mi9.setDisable(true);
+                mi11.setDisable(true);
+                mi12.setDisable(true);
+                mi13.setDisable(true);
+                mi14.setDisable(true);
+                mi16.setDisable(true);
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                if(clipboard.hasContent(this.PROGRAM_COPY_ITEM))if(therapyProgramsCopied)   mi2.setDisable(false);
+                if(clipboard.hasContent(this.PROGRAM_CUT_ITEM_ID))   mi2.setDisable(false);
             } else {
-                mic9.setDisable(false);
-                mic11.setDisable(false);
+                mi16.setDisable(false);
+                if(tableProgram.getSelectionModel().getSelectedIndices().size()==1){
+                    mi11.setDisable(false);
+                    mi12.setDisable(false);
+                    mi13.setDisable(false);
+
+                }else {
+                    mi11.setDisable(true);
+                    mi12.setDisable(true);
+                    mi13.setDisable(true);
+
+                }
+                mi14.setDisable(false);
+                mi2.setDisable(true);
+                mi1.setDisable(false);//всегда можно вырезать
+                mi3.setDisable(true);
+                mi4.setDisable(true);
+                mi5.setDisable(true);
+                if(tableProgram.getSelectionModel().getSelectedIndices().size()==1 && tableProgram.getSelectionModel().getSelectedItem().isMp3())mi6.setDisable(false);
+                else mi6.setDisable(true);
+
+                mi7.setDisable(false);
+
+                    mi8.setDisable(false);
+                    mi9.setDisable(false);
 
 
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                if(clipboard.hasContent(this.PROGRAM_CUT_ITEM_INDEX) || clipboard.hasContent(this.PROGRAM_COPY_ITEM)) {
 
-                if(clipboard.hasContent(COMPLEX_COPY_ITEM) || clipboard.hasContent(this.COMPLEX_CUT_ITEM_ID)) {
 
-
-                    if (clipboard.hasContent(COMPLEX_COPY_ITEM)) {
-                        if(tableComplex.getSelectionModel().getSelectedIndices().size()==1) mic10.setDisable(false);
-                        else mic10.setDisable(true);
+                    if (clipboard.hasContent(this.PROGRAM_COPY_ITEM)) {
+                      if(tableProgram.getSelectionModel().getSelectedIndices().size()==1) mi2.setDisable(false);
+                        else mi2.setDisable(true);
                     }
-                    else  if(tableComplex.getSelectionModel().getSelectedIndices().size()==1) {
-                        mic10.setDisable(true);
-                        Integer[] ind = (Integer[]) clipboard.getContent(COMPLEX_CUT_ITEM_INDEX);
+                   else  if(tableProgram.getSelectionModel().getSelectedIndices().size()==1) {
+
+                            Integer[] ind = (Integer[]) clipboard.getContent(PROGRAM_CUT_ITEM_INDEX);
                         if (ind != null) {
                             if (ind.length != 0) {
-                                Long idProfile = (Long) clipboard.getContent(COMPLEX_CUT_ITEM_PROFILE);
-                                if(idProfile==null)mic10.setDisable(true);
-                                else if(idProfile.longValue()==tableProfile.getSelectionModel().getSelectedItem().getId().longValue()){
+                                Long idComplex = (Long) clipboard.getContent(PROGRAM_CUT_ITEM_COMPLEX);
+                                if(idComplex==null)mi2.setDisable(true);
+                                else if(idComplex.longValue()==tableComplex.getSelectionModel().getSelectedItem().getId().longValue()){
                                     //вставка в том же профиле
-                                    int dropIndex = tableComplex.getSelectionModel().getSelectedIndex();
-                                    if(isEnablePaste(dropIndex,ind))mic10.setDisable(false);
+                                int dropIndex = tableProgram.getSelectionModel().getSelectedIndex();
+                                if(isEnablePaste(dropIndex,ind))mi2.setDisable(false);
 
-                                }else   mic10.setDisable(false);//вставка в другом профиле, можно в любое место
+                                }else   mi2.setDisable(false);//вставка в другом профиле, можно в любое место
                             }
                         }
 
                     }
 
                 } else {
-                    mic10.setDisable(true);
+                    mi2.setDisable(true);
+                    mi1.setDisable(false);
                 }
 
-
-                mic12.setDisable(false);
-
-                Iterator tag = this.tableComplex.getSelectionModel().getSelectedItems().iterator();
-
-                while(tag.hasNext()) {
-                    TherapyComplex therapyComplex = (TherapyComplex)tag.next();
-
-                    if( therapyComplex.isChanged() || this.getModel().hasNeedGenerateProgramInComplex(therapyComplex) ) {
-                        if(getModel().countTherapyPrograms(therapyComplex)==0) continue;
-                        mic2.setDisable(false);
-                        mic3.setDisable(true);
-                        mic5.setDisable(true);
-                        break;
-                    }
+                if(this.tableProgram.getSelectionModel().getSelectedItem() == null) {
+                    mi4.setDisable(true);
                 }
 
                 if(this.sectionTree.getSelectionModel().getSelectedItem() != null) {
-                    if(((TreeItem)this.sectionTree.getSelectionModel().getSelectedItem()).getValue() instanceof Section) {
-                        String tag1 = ((Section)this.baseCombo.getSelectionModel().getSelectedItem()).getTag();
-                        if(tag1 != null && tag1.equals("USER")) {
-                            mic1.setDisable(false);
+                    INamed value = this.sectionTree.getSelectionModel().getSelectedItem().getValue();
+                    if( value instanceof Section || value instanceof Complex) {
+                        String tag = ((Section)this.baseCombo.getSelectionModel().getSelectedItem()).getTag();
+                        if(tag != null && tag.equals("USER")) {
+                            mi4.setDisable(false);
                         } else {
-                            mic1.setDisable(true);
+                            mi4.setDisable(true);
                         }
                     } else {
-                        mic1.setDisable(true);
+                        mi4.setDisable(true);
+                    }
+
+                    if(((TherapyProgram)this.tableProgram.getSelectionModel().getSelectedItem()).isMp3()
+                            && tableProgram.getSelectionModel().getSelectedItems().size()==1) {
+                        mi4.setDisable(true);
+                        mi6.setDisable(false);
                     }
                 } else {
-                    mic1.setDisable(true);
+                    mi4.setDisable(true);
                 }
 
-
-                if(devicePath!=null && !mic5.isDisable() )   mic5.setDisable(false);
-                else  mic5.setDisable(true);
             }
         });
-        MenuItem mic3_ = new MenuItem(this.res.getString("app.upload_to_dir"));
-        MenuItem mic5_ = new MenuItem(this.res.getString("app.upload_to_biomedism"));
-        mic3_.setOnAction(event -> uploadComplexesToDir());
-        mic5_.setOnAction(event -> uploadComplexesToM());
-        uploadComplexesMenu.setOnShowing(event -> {
-            mic3_.setDisable(false);
-            mic5_.setDisable(false);
-            if(this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
+    }
 
-                mic3_.setDisable(true);
-                mic5_.setDisable(true);
-            } else{
-                Iterator tag = this.tableComplex.getSelectionModel().getSelectedItems().iterator();
+    private void initDeleteAndSwitchTableKeys() {
+        tableProfile.setOnKeyReleased(event ->
+        {
+            if(event.getCode()== KeyCode.DELETE) onRemoveProfile();
+            else
+            if(event.getCode()==KeyCode.RIGHT && !tab2.isDisable()){
 
-                while(tag.hasNext()) {
-                    TherapyComplex therapyComplex = (TherapyComplex)tag.next();
+                therapyTabPane.getSelectionModel().select(1);
+                tableComplex.requestFocus();
+                if(tableComplex.getItems().size()!=0){
+                    tableComplex.getFocusModel().focus(tableComplex.getSelectionModel().getSelectedIndex());
 
-
-                    if( therapyComplex.isChanged() || this.getModel().hasNeedGenerateProgramInComplex(therapyComplex) ) {
-                        mic3_.setDisable(true);
-                        mic5_.setDisable(true);
-                        break;
-                    }
                 }
-                if(devicePath!=null && !mic5_.isDisable() )   mic5_.setDisable(false);
-                else  mic5_.setDisable(true);
             }
         });
 
+        this.tableComplex.setOnKeyReleased((e) -> {
+            if(e.getCode() == KeyCode.DELETE) {
+                this.onRemoveComplex();
+            }else
 
-        uploadComplexesMenu.getItems().addAll(new MenuItem[]{ mic3_, mic5_});
-        uploadComplexesBtn.setOnAction(event ->
-                {
-                    if(!uploadComplexesMenu.isShowing()) uploadComplexesMenu.show(uploadComplexesBtn, Side.BOTTOM, 0, 0);
-                    else uploadComplexesMenu.hide();
+            if(e.getCode() == KeyCode.A && e.isControlDown()) {
+                this.tableComplex.getSelectionModel().selectAll();
+            }else
+
+            if(e.getCode()==KeyCode.RIGHT  && !tab3.isDisable()) {
+                therapyTabPane.getSelectionModel().select(2);
+                tableProgram.requestFocus();
+                if(tableProgram.getItems().size()!=0){
+                    tableProgram.getFocusModel().focus(tableProgram.getSelectionModel().getSelectedIndex());
 
                 }
-        );
+            }else
+            if(e.getCode()==KeyCode.LEFT  && !tab1.isDisable()) {
+                therapyTabPane.getSelectionModel().select(0);
+                tableProfile.requestFocus();
+                if(tableProfile.getItems().size()!=0){
+                    tableProfile.getFocusModel().focus(tableProgram.getSelectionModel().getSelectedIndex());
+
+            }
+
+        }});
+
+        tableProgram.setOnKeyReleased(e ->{
+            //if(e.getCode()==KeyCode.DELETE) onRemovePrograms();
+             if(e.getCode()==KeyCode.LEFT && !tab2.isDisable()) {
+                therapyTabPane.getSelectionModel().select(1);
+                tableComplex.requestFocus();
+                if(tableComplex.getItems().size()!=0){
+                    tableComplex.getFocusModel().focus(tableComplex.getSelectionModel().getSelectedIndex());
+                }
+            }
 
 
-        /**********/
+        });
+    }
 
-
-
-        /*** Программы  ****/
-
+    private void initProgramsTable() {
         tableProgram.setFixedCellSize(Region.USE_COMPUTED_SIZE);
         //номер по порядку
         TableColumn<TherapyProgram,Number> numProgCol =new TableColumn<>("№");
@@ -2739,10 +2592,10 @@ Clipboard clipboard =Clipboard.getSystemClipboard();
 
             TableCell<TherapyProgram, String> cell = new TableCell<TherapyProgram, String>() {
                 //private Text text;
-                private  FlowPane textFlow;
+                private FlowPane textFlow;
                 //private  Font normalFont = Font.font(null, FontWeight.NORMAL, 12);
                 private  Font boldFont = Font.font(null, FontWeight.BOLD, 12);
-                private  Text text;
+                private Text text;
                 private Insets padding =new Insets(0,3,0,0);
                 private  Color colorAllMatching = Color.rgb(136, 0, 255);
                 @Override
@@ -2974,513 +2827,647 @@ Clipboard clipboard =Clipboard.getSystemClipboard();
         descColTP.setSortable(false);
         timeColTP.setSortable(false);
         fileCol.setSortable(false);
+    }
 
-        tableProfile.setOnKeyReleased(event ->
-        {
-            if(event.getCode()==KeyCode.DELETE) onRemoveProfile();
-            else
-            if(event.getCode()==KeyCode.RIGHT && !tab2.isDisable()){
-
-                therapyTabPane.getSelectionModel().select(1);
-                tableComplex.requestFocus();
-                if(tableComplex.getItems().size()!=0){
-                    tableComplex.getFocusModel().focus(tableComplex.getSelectionModel().getSelectedIndex());
-
-                }
-            }
-        });
-
-        this.tableComplex.setOnKeyReleased((e) -> {
-            if(e.getCode() == KeyCode.DELETE) {
-                this.onRemoveComplex();
-            }else
-
-            if(e.getCode() == KeyCode.A && e.isControlDown()) {
-                this.tableComplex.getSelectionModel().selectAll();
-            }else
-
-            if(e.getCode()==KeyCode.RIGHT  && !tab3.isDisable()) {
-                therapyTabPane.getSelectionModel().select(2);
-                tableProgram.requestFocus();
-                if(tableProgram.getItems().size()!=0){
-                    tableProgram.getFocusModel().focus(tableProgram.getSelectionModel().getSelectedIndex());
-
-                }
-            }else
-            if(e.getCode()==KeyCode.LEFT  && !tab1.isDisable()) {
-                therapyTabPane.getSelectionModel().select(0);
-                tableProfile.requestFocus();
-                if(tableProfile.getItems().size()!=0){
-                    tableProfile.getFocusModel().focus(tableProgram.getSelectionModel().getSelectedIndex());
-
-            }
-
-        }});
-
-        tableProgram.setOnKeyReleased(e ->{
-            //if(e.getCode()==KeyCode.DELETE) onRemovePrograms();
-             if(e.getCode()==KeyCode.LEFT && !tab2.isDisable()) {
-                therapyTabPane.getSelectionModel().select(1);
-                tableComplex.requestFocus();
-                if(tableComplex.getItems().size()!=0){
-                    tableComplex.getFocusModel().focus(tableComplex.getSelectionModel().getSelectedIndex());
-                }
-            }
-
-
-        });
-//контекстное меню для программ - вырезать и вставить, зависит от выбрано или нет
-
-        MenuItem mi1=new MenuItem(res.getString("app.cut"));
-        MenuItem mi6=new MenuItem(res.getString("app.ui.edit_file_path"));
-        MenuItem mi7=new MenuItem(res.getString("app.ui.copy"));
-        MenuItem mi2=new MenuItem(res.getString("app.paste"));
-        MenuItem mi16=new MenuItem(res.getString("app.delete"));
-
-        mi1.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
-        mi7.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
-        mi2.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
-        mi16.setAccelerator(KeyCombination.keyCombination("Delete"));
-
-        MenuItem mi3=new SeparatorMenuItem();
-        MenuItem mi4=new MenuItem(res.getString("app.to_user_base"));
-        MenuItem mi5=new SeparatorMenuItem();
-        MenuItem mi8=new MenuItem(res.getString("app.ui.multy_switch_on"));
-        MenuItem mi9=new MenuItem(res.getString("app.ui.multy_switch_off"));
-        MenuItem mi10=new SeparatorMenuItem();
-        MenuItem mi11=new MenuItem(res.getString("app.ui.copy_program_name"));
-        MenuItem mi12=new MenuItem(res.getString("app.ui.copy_program_name_main"));
-        MenuItem mi13=new MenuItem(res.getString("app.ui.copy_program_freq"));
-        MenuItem mi14=new MenuItem(res.getString("app.ui.invert_seletion"));
-        MenuItem mi15=new SeparatorMenuItem();
-        MenuItem mi17=new MenuItem(res.getString("app.copy_freq_and_name"));
-
-        mi11.setOnAction(e->{
-            TherapyProgram selectedItem = tableProgram.getSelectionModel().getSelectedItem();
-            if(selectedItem==null) return;
-            Clipboard clipboard = Clipboard.getSystemClipboard();
-            ClipboardContent content = new ClipboardContent();
-            content.putString(selectedItem.getName());
-            clipboard.setContent(content);
-
-        });
-        mi17.setOnAction(e->{
-            TherapyProgram selectedItem = tableProgram.getSelectionModel().getSelectedItem();
-            if(selectedItem==null) return;
-            Clipboard clipboard = Clipboard.getSystemClipboard();
-            ClipboardContent content = new ClipboardContent();
-            content.putString(selectedItem.getName()+" \n"+selectedItem.getFrequencies());
-            clipboard.setContent(content);
-
-        });
-        mi12.setOnAction(e->{
-            TherapyProgram selectedItem = tableProgram.getSelectionModel().getSelectedItem();
-            if(selectedItem==null) return;
-            Clipboard clipboard = Clipboard.getSystemClipboard();
-            ClipboardContent content = new ClipboardContent();
-            content.putString(selectedItem.getOname());
-            clipboard.setContent(content);
-
-        });
-        mi13.setOnAction(e->{
-            TherapyProgram selectedItem = tableProgram.getSelectionModel().getSelectedItem();
-            if(selectedItem==null) return;
-            Clipboard clipboard = Clipboard.getSystemClipboard();
-            ClipboardContent content = new ClipboardContent();
-            content.putString(selectedItem.getFrequencies());
-            clipboard.setContent(content);
-
-        });
-        mi14.setOnAction(e->{
-            List<Integer> selected = tableProgram.getSelectionModel().getSelectedIndices().stream().collect(Collectors.toList());
-            tableProgram.getSelectionModel().selectAll();
-            for (Integer ind : selected) {
-                tableProgram.getSelectionModel().clearSelection(ind);
-            }
-
-
-        });
-
-        mi4.setOnAction(event2 -> copyTherapyProgramToBase());
-        mi6.setOnAction(event2 -> editMP3ProgramPath());
-
-        mi1.setOnAction(e ->
-        {
-            cutInTables();
-
-        });
-
-        mi7.setOnAction(e->{
-            copyInTables();
-        });
-        mi8.setOnAction(e-> multyFreqProgramSwitchOn());
-        mi9.setOnAction(e->multyFreqProgramSwitchOff());
-        mi2.setOnAction(e -> pasteInTables());
-        mi16.setOnAction(e->deleteInTables());
-        programmMenu.getItems().addAll(mi1,
-                mi7,
-                mi2,
-                mi16,
-                mi3,
-                mi8,
-                mi9,
-                mi15,
-                mi17,
-                mi11,
-                mi12,
-                mi13,
-                mi14,
-                mi10,
-                mi4,
-                mi6);
-
-        tableProgram.setContextMenu(programmMenu);
-        this.programmMenu.setOnShowing((event1) -> {
-            if(this.tableProgram.getSelectionModel().getSelectedItem() == null) {
-                mi2.setDisable(true);
-                mi1.setDisable(true);
-                mi3.setDisable(true);
-                mi4.setDisable(true);
-                mi5.setDisable(true);
-                mi6.setDisable(true);
-                mi7.setDisable(true);
-                mi8.setDisable(true);
-                mi9.setDisable(true);
-                mi11.setDisable(true);
-                mi12.setDisable(true);
-                mi13.setDisable(true);
-                mi14.setDisable(true);
-                mi16.setDisable(true);
-                Clipboard clipboard = Clipboard.getSystemClipboard();
-                if(clipboard.hasContent(this.PROGRAM_COPY_ITEM))if(therapyProgramsCopied)   mi2.setDisable(false);
-                if(clipboard.hasContent(this.PROGRAM_CUT_ITEM_ID))   mi2.setDisable(false);
-            } else {
-                mi16.setDisable(false);
-                if(tableProgram.getSelectionModel().getSelectedIndices().size()==1){
-                    mi11.setDisable(false);
-                    mi12.setDisable(false);
-                    mi13.setDisable(false);
-
-                }else {
-                    mi11.setDisable(true);
-                    mi12.setDisable(true);
-                    mi13.setDisable(true);
-
-                }
-                mi14.setDisable(false);
-                mi2.setDisable(true);
-                mi1.setDisable(false);//всегда можно вырезать
-                mi3.setDisable(true);
-                mi4.setDisable(true);
-                mi5.setDisable(true);
-                if(tableProgram.getSelectionModel().getSelectedIndices().size()==1 && tableProgram.getSelectionModel().getSelectedItem().isMp3())mi6.setDisable(false);
-                else mi6.setDisable(true);
-
-                mi7.setDisable(false);
-
-                    mi8.setDisable(false);
-                    mi9.setDisable(false);
-
-
-                Clipboard clipboard = Clipboard.getSystemClipboard();
-                if(clipboard.hasContent(this.PROGRAM_CUT_ITEM_INDEX) || clipboard.hasContent(this.PROGRAM_COPY_ITEM)) {
-
-
-                    if (clipboard.hasContent(this.PROGRAM_COPY_ITEM)) {
-                      if(tableProgram.getSelectionModel().getSelectedIndices().size()==1) mi2.setDisable(false);
-                        else mi2.setDisable(true);
+    private void initGenerateComplexesButton() {
+        generationComplexesBtn.disableProperty().bind(new BooleanBinding() {
+            {super.bind(tableComplex.getSelectionModel().selectedItemProperty());}
+            @Override
+            protected boolean computeValue() {
+                boolean res=true;
+                for (TherapyComplex therapyComplex : tableComplex.getSelectionModel().getSelectedItems()) {
+                    if( therapyComplex.isChanged() || getModel().hasNeedGenerateProgramInComplex(therapyComplex) ){
+                       res=false;
+                       break;
                     }
-                   else  if(tableProgram.getSelectionModel().getSelectedIndices().size()==1) {
+                }
 
-                            Integer[] ind = (Integer[]) clipboard.getContent(PROGRAM_CUT_ITEM_INDEX);
+                return res;
+
+            }
+        });
+        generationComplexesBtn.setOnAction(e->generateComplexes());
+    }
+
+    private void initComplexesTable() {
+        //номер по порядку
+        TableColumn<TherapyComplex,Number> numComplexCol =new TableColumn<>("№");
+        numComplexCol.setCellValueFactory(param -> new SimpleIntegerProperty(param.getTableView().getItems().indexOf(param.getValue()) + 1));
+
+
+        //имя
+        TableColumn<TherapyComplex,String> nameColTC=new TableColumn<>(res.getString("app.table.name_complex"));
+        nameColTC.cellValueFactoryProperty().setValue(new PropertyValueFactory<TherapyComplex, String>("name"));
+        nameColTC.setCellFactory(TextFieldTableCell.forTableColumn());
+        nameColTC.setOnEditCommit(event ->
+        {
+
+            if (!event.getNewValue().equals(event.getOldValue())) {
+
+                String s = event.getNewValue();
+                if (s.length() == 0) {
+                    event.getRowValue().setName(event.getOldValue());
+                    TherapyComplex p = event.getRowValue();
+                    int i = tableComplex.getItems().indexOf(event.getRowValue());
+                    tableComplex.getItems().set(i, null);
+                    tableComplex.getItems().set(i, p);
+                    tableComplex.getSelectionModel().select(i);
+                    p = null;
+                    return;
+                }
+                event.getRowValue().setName(s);
+                try {
+                    getModel().updateTherapyComplex(event.getRowValue());
+                    TherapyComplex p = event.getRowValue();
+                    int i = tableComplex.getItems().indexOf(event.getRowValue());
+                    tableComplex.getItems().set(i, null);
+                    tableComplex.getItems().set(i, p);
+                    tableComplex.getSelectionModel().select(i);
+                    p = null;
+
+                } catch (Exception e) {
+                    logger.error("",e);
+                }
+
+
+            }
+        });
+
+        //описание
+        TableColumn<TherapyComplex,String> descColTC=new TableColumn<>(res.getString("app.table.complex_descr"));
+        descColTC.cellValueFactoryProperty().setValue(new PropertyValueFactory<TherapyComplex, String>("description"));
+        descColTC.setCellFactory(TextAreaTableCell.forTableColumn());
+        descColTC.setOnEditCommit(event ->
+        {
+
+            if (!event.getNewValue().equals(event.getOldValue())) {
+
+                String s = event.getNewValue();
+                if (s.length() == 0) {
+                    event.getRowValue().setDescription(event.getOldValue());
+                    TherapyComplex p = event.getRowValue();
+                    int i = tableComplex.getItems().indexOf(event.getRowValue());
+                    tableComplex.getItems().set(i, null);
+                    tableComplex.getItems().set(i, p);
+                    p = null;
+                    return;
+                }
+                event.getRowValue().setDescription(s);
+                try {
+                    getModel().updateTherapyComplex(event.getRowValue());
+                    TherapyComplex p = event.getRowValue();
+                    int i = tableComplex.getItems().indexOf(event.getRowValue());
+                    tableComplex.getItems().set(i, null);
+                    tableComplex.getItems().set(i, p);
+                    p = null;
+
+                } catch (Exception e) {
+                    logger.error("",e);
+                }
+
+
+            }
+        });
+
+        //общая длительность, зависит от количества програм их частот и мультичастотного режима, также времени на частоту
+        TableColumn<TherapyComplex,String> timeColTC=new TableColumn<>(res.getString("app.table.delay"));
+        //  timeColTC.setCellValueFactory(param -> new SimpleStringProperty(DateUtil.convertSecondsToHMmSs(getModel().getTimeTherapyComplex(param.getValue()))));
+        //пересчет индуцируется при изменении свойства time
+
+
+        timeColTC.setCellValueFactory(param -> {
+            SimpleStringProperty property = new SimpleStringProperty();
+            property.bind(new StringBinding() {
+                {
+                    super.bind(param.getValue().timeProperty());
+                }
+
+                @Override
+                protected String computeValue() {
+                    String s = DateUtil.convertSecondsToHMmSs(AppController.this.getModel().getTimeTherapyComplex(param.getValue()));
+                    textComplexTime.setValue(s+"#"+param.getValue().getId().longValue());
+                    return s;
+                }
+            });
+            return property;
+        });
+
+
+        TableColumn<TherapyComplex,Boolean>fileComplexCol=new TableColumn<>(res.getString("app.table.file"));
+        fileComplexCol.cellValueFactoryProperty().setValue(param -> {
+            SimpleBooleanProperty property = new SimpleBooleanProperty();
+            property.bind(param.getValue().changedProperty());
+            return property;
+        });
+        fileComplexCol.setCellFactory(col ->
+        {
+            TableCell<TherapyComplex, Boolean> cell = new TableCell<TherapyComplex, Boolean>() {
+                @Override
+                protected void updateItem(Boolean item, boolean empty) {
+
+                    super.updateItem(item, empty);
+                    this.setText(null);
+                    this.setGraphic(null);
+
+                    HBox hbox=null;
+                    ImageView iv=null;
+
+                    if( this.getUserData()!=null)
+                    {
+                        hbox=(HBox)this.getUserData();
+                        if(hbox!=null){
+                            iv=(ImageView)hbox.getChildren().get(0);
+
+                        }else {
+                            iv=new ImageView();
+                            hbox=new HBox();
+                            hbox.setSpacing(3);
+                            hbox.getChildren().addAll(iv);
+                        }
+                    }else {
+                        iv=new ImageView(imageCancel);
+
+                        hbox=new HBox();
+                        hbox.setSpacing(3);
+                        hbox.getChildren().addAll(iv);
+                        this.setUserData(hbox);
+                    }
+
+
+                    if (!empty) {
+                        if (this.getTableRow().getItem() == null) {
+                            setText("");
+                            return;
+                        }
+                            if (item)  iv.setImage(imageCancel);
+                             else {
+                                TherapyComplex thisComplex = (TherapyComplex) getTableRow().getItem();
+                                if(thisComplex==null) return;
+
+                                if(getModel().countTherapyPrograms(thisComplex)==0)iv.setImage(imageCancel);
+                                else if(getModel().hasNeedGenerateProgramInComplex(thisComplex))  iv.setImage(imageCancel);
+                                 else  {
+                                    long sum=0;
+                                    File f;
+                                    for (Long id : getModel().getTherapyComplexFiles(thisComplex)) {
+                                        f=new File(getApp().getDataDir(),id+".dat");
+                                        if(f.exists())sum+=f.length();
+                                    }
+                                    for (String v : getModel().mp3ProgramPathsInComplex(thisComplex)) {
+
+                                        f = new File(v);
+                                        if (f.exists()) sum += f.length();
+                                    }
+
+
+                                    if(sum>0) setText(Math.ceil((double)sum / 1048576.0) + " Mb");
+                                     iv.setImage(imageDone);
+                                }
+
+                            }
+
+
+
+                        setGraphic(hbox);
+                    }
+                }
+            };
+
+            return cell;
+        });
+
+
+        numComplexCol.setStyle( "-fx-alignment: CENTER;");
+        timeColTC.setStyle( "-fx-alignment: CENTER;");
+        nameColTC.setStyle( "-fx-alignment: CENTER-LEFT;");
+        this.tableComplex.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        tableComplex.getColumns().addAll(numComplexCol, nameColTC, descColTC, timeColTC, fileComplexCol);
+        tableComplex.placeholderProperty().setValue(new Label(res.getString("app.table.complex_placeholder")));
+        tableComplex.setEditable(true);
+
+
+        numComplexCol.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.1));
+        nameColTC.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.325));
+        descColTC.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.325));
+        timeColTC.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.1));
+        fileComplexCol.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.15));
+
+        numComplexCol.setSortable(false);
+        nameColTC.setSortable(false);
+        descColTC.setSortable(false);
+        timeColTC.setSortable(false);
+        fileComplexCol.setSortable(false);
+
+        fileComplexCol.setEditable(true);
+    }
+
+    private void initProfileCntextMenu() {
+        //MenuItem mip1 = new MenuItem(this.res.getString("app.ui.copy"));
+        MenuItem mip2 =new MenuItem(this.res.getString("app.ui.paste"));
+        MenuItem mip3 =new MenuItem(this.res.getString("app.cut"));
+        MenuItem mip4 =new MenuItem(this.res.getString("app.delete"));
+        MenuItem mip5 =new MenuItem(this.res.getString("app.menu.print_profile"));
+        MenuItem mip6 =new SeparatorMenuItem();
+
+        mip5.setOnAction(e->onPrintProfile());
+
+
+        mip3.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
+        //mip1.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
+        mip2.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
+        mip4.setAccelerator(KeyCombination.keyCombination("Delete"));
+        profileMenu.getItems().addAll(mip3,mip2,mip4,mip6,mip5);
+        mip3.setOnAction(e->cutInTables());
+        mip2.setOnAction(e->pasteInTables());
+        mip4.setOnAction(e->deleteInTables());
+        tableProfile.setContextMenu(profileMenu);
+        profileMenu.setOnShowing(e->{
+            mip2.setDisable(false);
+            mip3.setDisable(false);
+            mip4.setDisable(false);
+            mip5.setDisable(false);
+         if(tableProfile.getSelectionModel().getSelectedItem()==null) {
+             mip2.setDisable(true);
+             mip3.setDisable(true);
+             mip4.setDisable(true);
+             mip5.setDisable(true);
+         }else {
+
+             mip4.setDisable(false);
+             Clipboard clipboard= Clipboard.getSystemClipboard();
+             if(clipboard.hasContent(PROFILE_CUT_ITEM_ID)){
+                 Integer ind = (Integer)clipboard.getContent(PROFILE_CUT_ITEM_INDEX);
+                 if(ind ==null) mip2.setDisable(true);
+                 else {
+                     if(tableProfile.getSelectionModel().getSelectedIndex()==ind)mip2.setDisable(true);
+                     else mip2.setDisable(false);
+                 }
+
+             }else  mip2.setDisable(true);
+         }
+
+        });
+    }
+
+    private void initProfileTable() {
+        //номер по порядку
+        TableColumn<Profile,Number> numProfileCol =new TableColumn<>("№");
+        numProfileCol.setCellValueFactory(param -> new SimpleIntegerProperty(param.getTableView().getItems().indexOf(param.getValue())+1));
+
+        //имя профиля
+        TableColumn<Profile,String> nameCol=new TableColumn<>(res.getString("app.table.profile_name"));
+        nameCol.cellValueFactoryProperty().setValue(new PropertyValueFactory<Profile, String>("name"));
+        nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
+        nameCol.setOnEditCommit(event ->
+        {
+
+            if (!event.getNewValue().equals(event.getOldValue())) {
+
+                String s = event.getNewValue();
+                if (s.length() == 0) {
+                    event.getRowValue().setName(event.getOldValue());
+                    Profile p = event.getRowValue();
+                    int i = tableProfile.getItems().indexOf(event.getRowValue());
+                    tableProfile.getItems().set(i, null);
+                    tableProfile.getItems().set(i, p);
+                    p = null;
+                    tableProfile.getSelectionModel().select(i);
+                    return;
+                }
+                event.getRowValue().setName(s);
+                try {
+                    getModel().updateProfile(event.getRowValue());
+                    Profile p = event.getRowValue();
+                    int i = tableProfile.getItems().indexOf(event.getRowValue());
+                    tableProfile.getItems().set(i, null);
+                    tableProfile.getItems().set(i, p);
+                    tableProfile.getSelectionModel().select(i);
+                    p = null;
+
+                } catch (Exception e) {
+                    logger.error("",e);
+                }
+
+
+            }
+        });
+
+
+        //общая длительность, зависит от количества комплексов, програм их частот и мультичастотного режима, также времени на частоту
+        TableColumn<Profile,String> timeCol=new TableColumn<>(res.getString("app.table.delay"));
+        timeCol.setCellValueFactory(param -> {
+            SimpleStringProperty property = new SimpleStringProperty();
+            property.bind(new StringBinding() {
+                {
+                    super.bind(param.getValue().timeProperty());//используем фейковое свойство, для инициализации расчета
+                }
+
+                @Override
+                protected String computeValue() {
+                    return DateUtil.convertSecondsToHMmSs(AppController.this.getModel().getTimeProfile(param.getValue()));
+                }
+            });
+            return property;
+        });
+
+
+        TableColumn<Profile,String> weightCol=new TableColumn<>(res.getString("app.table.file_size"));
+        weightCol.setCellValueFactory(param -> {
+            SimpleStringProperty property = new SimpleStringProperty();
+            property.bind(new StringBinding() {
+                {
+                    super.bind(param.getValue().profileWeightProperty());//используем фейковое свойство, для инициализации расчета
+                }
+
+                @Override
+                protected String computeValue() {
+
+                    File f = null;
+                    double summ = 0;
+                    if(getModel().isNeedGenerateFilesInProfile(param.getValue())) return "";
+                    for (Long v : getModel().getProfileFiles(param.getValue())) {
+
+                        f = new File(getApp().getDataDir(), v + ".dat");
+                        if (f.exists()) summ += f.length() ;
+                    }
+                    for (String v : getModel().mp3ProgramPathsInProfile(param.getValue())) {
+
+                        f = new File(v);
+                        if (f.exists()) summ += f.length();
+                    }
+                    summ = (double)summ / 1048576;
+                    return Math.ceil(summ) + " Mb";
+                }
+            });
+            return property;
+        });
+
+        timeCol.setStyle( "-fx-alignment: CENTER;");
+        numProfileCol.setStyle( "-fx-alignment: CENTER;");
+        weightCol.setStyle( "-fx-alignment: CENTER;");
+        tableProfile.getColumns().addAll(numProfileCol, nameCol, timeCol, weightCol);
+        tableProfile.placeholderProperty().setValue(new Label(res.getString("app.table.profile_not_avaliable")));
+        tableProfile.setEditable(true);
+
+        tableProfile.getItems().addAll(getModel().findAllProfiles()
+                                                 .stream()
+                                                 .filter(i->!i.getName().equals(App.BIOFON_PROFILE_NAME))
+                                                 .collect(Collectors.toList()));
+
+
+        numProfileCol.prefWidthProperty().bind(tableProfile.widthProperty().multiply(0.1));
+        nameCol.prefWidthProperty().bind(tableProfile.widthProperty().multiply(0.50));
+        timeCol.prefWidthProperty().bind(tableProfile.widthProperty().multiply(0.25));
+        weightCol.prefWidthProperty().bind(tableProfile.widthProperty().multiply(0.15));
+
+        weightCol.setEditable(false);
+        numProfileCol.setEditable(false);
+        nameCol.setEditable(true);
+        timeCol.setEditable(false);
+
+        numProfileCol.setSortable(false);
+        nameCol.setSortable(false);
+        timeCol.setSortable(false);
+        weightCol.setSortable(false);
+    }
+
+    private void initTabNameListener() {
+        textComplexTime.addListener((observable, oldValue, newValue) -> {
+
+            String[] strings = newValue.split("#");
+             if(strings.length!=0)
+             {
+                 TherapyComplex selectedItem = tableComplex.getSelectionModel().getSelectedItem();
+                 if(selectedItem==null) return;
+
+
+                 long idC= Long.parseLong(strings[1]);
+                 if(idC!=selectedItem.getId().longValue())return;//если изменения не в выбраном комплексе, то и считать не надо
+                 setComplexTabName(baseComplexTabName+" ("+ selectedItem.getName() +") +("+strings[0]+")") ;
+             }
+
+        });
+    }
+
+    private List<MenuItem> initContextMenuHotKeyHolders() {
+        tablesMenuHelper=new ArrayList<>();
+        MenuItem mh1 = new MenuItem(this.res.getString("app.ui.copy"));
+        MenuItem mh2 =new MenuItem(this.res.getString("app.ui.paste"));
+        MenuItem mh3 =new MenuItem(this.res.getString("app.cut"));
+        MenuItem mh4 =new MenuItem(this.res.getString("app.delete"));
+
+        tablesMenuHelper.add(mh1);
+        tablesMenuHelper.add(mh2);
+        tablesMenuHelper.add(mh3);
+        tablesMenuHelper.add(mh4);
+
+        mh1.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
+        mh2.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
+        mh3.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
+        mh4.setAccelerator(KeyCombination.keyCombination("Delete"));
+
+        mh1.setOnAction(e->cutInTables());
+        mh1.setOnAction(e->copyInTables());
+        mh1.setOnAction(e->pasteInTables());
+        mh1.setOnAction(e->deleteInTables());
+        return  tablesMenuHelper;
+    }
+
+    private void initUploadComplexesContextMenu() {
+        MenuItem mic3_ = new MenuItem(this.res.getString("app.upload_to_dir"));
+        MenuItem mic5_ = new MenuItem(this.res.getString("app.upload_to_biomedism"));
+        mic3_.setOnAction(event -> uploadComplexesToDir());
+        mic5_.setOnAction(event -> uploadComplexesToM());
+        uploadComplexesMenu.setOnShowing(event -> {
+            mic3_.setDisable(false);
+            mic5_.setDisable(false);
+            if(this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
+
+                mic3_.setDisable(true);
+                mic5_.setDisable(true);
+            } else{
+                Iterator tag = this.tableComplex.getSelectionModel().getSelectedItems().iterator();
+
+                while(tag.hasNext()) {
+                    TherapyComplex therapyComplex = (TherapyComplex)tag.next();
+
+
+                    if( therapyComplex.isChanged() || this.getModel().hasNeedGenerateProgramInComplex(therapyComplex) ) {
+                        mic3_.setDisable(true);
+                        mic5_.setDisable(true);
+                        break;
+                    }
+                }
+                if(devicePath!=null && !mic5_.isDisable() )   mic5_.setDisable(false);
+                else  mic5_.setDisable(true);
+            }
+        });
+
+
+        uploadComplexesMenu.getItems().addAll(new MenuItem[]{ mic3_, mic5_});
+        uploadComplexesBtn.setOnAction(event ->
+                {
+                    if(!uploadComplexesMenu.isShowing()) uploadComplexesMenu.show(uploadComplexesBtn, Side.BOTTOM, 0, 0);
+                    else uploadComplexesMenu.hide();
+
+                }
+        );
+    }
+
+    private void initComplexesContextMenu() {
+        MenuItem mic1 = new MenuItem(this.res.getString("app.to_user_base"));
+        MenuItem mic2 = new MenuItem(this.res.getString("app.ui_comlexes_generation"));
+        MenuItem mic3 = new MenuItem(this.res.getString("app.upload_to_dir"));
+        MenuItem mic5 = new MenuItem(this.res.getString("app.upload_to_biomedism"));
+        MenuItem mic4 =new MenuItem(this.res.getString("app.to_biofon"));
+
+        MenuItem mic6=new SeparatorMenuItem();
+        MenuItem mic7=new SeparatorMenuItem();
+        MenuItem mic8=new SeparatorMenuItem();
+
+        MenuItem mic9 = new MenuItem(this.res.getString("app.ui.copy"));
+        MenuItem mic10 =new MenuItem(this.res.getString("app.ui.paste"));
+        MenuItem mic11 =new MenuItem(this.res.getString("app.cut"));
+        MenuItem mic12 =new MenuItem(this.res.getString("app.delete"));
+
+        MenuItem mic13 =new MenuItem(this.res.getString("app.ui.printing_complexes"));
+
+        mic11.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
+        mic9.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
+        mic10.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
+        mic12.setAccelerator(KeyCombination.keyCombination("Delete"));
+
+        mic13.setOnAction(e->onPrintComplex());
+        mic11.setOnAction(e-> cutInTables());
+        mic12.setOnAction(e->deleteInTables());
+
+        mic1.setOnAction((event2) -> {
+            this.copyTherapyComplexToBase();
+        });
+
+        mic2.setOnAction((event2) -> {
+            this.generateComplexes();
+        });
+        mic3.setOnAction((event2) -> {
+            this.uploadComplexesToDir();
+        });
+        mic5.setOnAction((event2) -> {
+            this.uploadComplexesToM();
+        });
+        mic9.setOnAction(event -> copyInTables());
+        mic10.setOnAction(event -> pasteInTables());
+        mic4.setOnAction(event -> complexesToBiofon(tableComplex.getSelectionModel().getSelectedItems()));
+        this.complexesMenu.getItems().addAll(
+                mic11,
+                mic9,
+                mic10,
+                mic12,
+                mic6,
+                mic2,
+                mic3,
+                mic5,
+                mic7,
+                mic4,
+                mic1,
+                mic13);
+        this.tableComplex.setContextMenu(this.complexesMenu);
+        this.complexesMenu.setOnShowing((event1) -> {
+            mic1.setDisable(false);
+            mic2.setDisable(true);
+            mic3.setDisable(false);
+            mic4.setDisable(false);
+            mic5.setDisable(false);
+            mic13.setDisable(false);
+            mic9.setDisable(false);
+            mic10.setDisable(true);
+Clipboard clipboard =Clipboard.getSystemClipboard();
+            if(this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
+
+                mic1.setDisable(true);
+                mic2.setDisable(true);
+                mic3.setDisable(true);
+                mic4.setDisable(true);
+                mic5.setDisable(true);
+                mic9.setDisable(true);
+                mic11.setDisable(true);
+                mic12.setDisable(true);
+                mic13.setDisable(true);
+
+                //вставить можно и в пустую таблицу
+                if(clipboard.hasContent(COMPLEX_COPY_ITEM) || clipboard.hasContent(COMPLEX_CUT_ITEM_ID)  )  mic10.setDisable(false);
+
+            } else {
+                mic9.setDisable(false);
+                mic11.setDisable(false);
+
+
+
+                if(clipboard.hasContent(COMPLEX_COPY_ITEM) || clipboard.hasContent(this.COMPLEX_CUT_ITEM_ID)) {
+
+
+                    if (clipboard.hasContent(COMPLEX_COPY_ITEM)) {
+                        if(tableComplex.getSelectionModel().getSelectedIndices().size()==1) mic10.setDisable(false);
+                        else mic10.setDisable(true);
+                    }
+                    else  if(tableComplex.getSelectionModel().getSelectedIndices().size()==1) {
+                        mic10.setDisable(true);
+                        Integer[] ind = (Integer[]) clipboard.getContent(COMPLEX_CUT_ITEM_INDEX);
                         if (ind != null) {
                             if (ind.length != 0) {
-                                Long idComplex = (Long) clipboard.getContent(PROGRAM_CUT_ITEM_COMPLEX);
-                                if(idComplex==null)mi2.setDisable(true);
-                                else if(idComplex.longValue()==tableComplex.getSelectionModel().getSelectedItem().getId().longValue()){
+                                Long idProfile = (Long) clipboard.getContent(COMPLEX_CUT_ITEM_PROFILE);
+                                if(idProfile==null)mic10.setDisable(true);
+                                else if(idProfile.longValue()==tableProfile.getSelectionModel().getSelectedItem().getId().longValue()){
                                     //вставка в том же профиле
-                                int dropIndex = tableProgram.getSelectionModel().getSelectedIndex();
-                                if(isEnablePaste(dropIndex,ind))mi2.setDisable(false);
+                                    int dropIndex = tableComplex.getSelectionModel().getSelectedIndex();
+                                    if(isEnablePaste(dropIndex,ind))mic10.setDisable(false);
 
-                                }else   mi2.setDisable(false);//вставка в другом профиле, можно в любое место
+                                }else   mic10.setDisable(false);//вставка в другом профиле, можно в любое место
                             }
                         }
 
                     }
 
                 } else {
-                    mi2.setDisable(true);
-                    mi1.setDisable(false);
+                    mic10.setDisable(true);
                 }
 
-                if(this.tableProgram.getSelectionModel().getSelectedItem() == null) {
-                    mi4.setDisable(true);
+
+                mic12.setDisable(false);
+
+                Iterator tag = this.tableComplex.getSelectionModel().getSelectedItems().iterator();
+
+                while(tag.hasNext()) {
+                    TherapyComplex therapyComplex = (TherapyComplex)tag.next();
+
+                    if( therapyComplex.isChanged() || this.getModel().hasNeedGenerateProgramInComplex(therapyComplex) ) {
+                        if(getModel().countTherapyPrograms(therapyComplex)==0) continue;
+                        mic2.setDisable(false);
+                        mic3.setDisable(true);
+                        mic5.setDisable(true);
+                        break;
+                    }
                 }
 
                 if(this.sectionTree.getSelectionModel().getSelectedItem() != null) {
-                    INamed value = this.sectionTree.getSelectionModel().getSelectedItem().getValue();
-                    if( value instanceof Section || value instanceof Complex) {
-                        String tag = ((Section)this.baseCombo.getSelectionModel().getSelectedItem()).getTag();
-                        if(tag != null && tag.equals("USER")) {
-                            mi4.setDisable(false);
+                    if(((TreeItem)this.sectionTree.getSelectionModel().getSelectedItem()).getValue() instanceof Section) {
+                        String tag1 = ((Section)this.baseCombo.getSelectionModel().getSelectedItem()).getTag();
+                        if(tag1 != null && tag1.equals("USER")) {
+                            mic1.setDisable(false);
                         } else {
-                            mi4.setDisable(true);
+                            mic1.setDisable(true);
                         }
                     } else {
-                        mi4.setDisable(true);
-                    }
-
-                    if(((TherapyProgram)this.tableProgram.getSelectionModel().getSelectedItem()).isMp3()
-                            && tableProgram.getSelectionModel().getSelectedItems().size()==1) {
-                        mi4.setDisable(true);
-                        mi6.setDisable(false);
+                        mic1.setDisable(true);
                     }
                 } else {
-                    mi4.setDisable(true);
+                    mic1.setDisable(true);
                 }
 
+
+                if(devicePath!=null && !mic5.isDisable() )   mic5.setDisable(false);
+                else  mic5.setDisable(true);
             }
         });
-
-
-
-
-
-        /**********/
-
-
-
-
-
-        tableProfile.setOnMouseClicked(event -> {
-            if(event.getClickCount()==2) {
-                event.consume();
-                //int selectedIndex = tableProfile.getSelectionModel().getSelectedIndex();
-               // tableProfile.getSelectionModel().clearSelection();
-                //tableProfile.getSelectionModel().select(selectedIndex);
-                if(tableProfile.getSelectionModel().getSelectedItem()!=null) therapyTabPane.getSelectionModel().select(1);
-
-            }
-        });
-
-        tableComplex.setOnMouseClicked(event -> {
-            if(event.getClickCount()==2) {
-                event.consume();
-
-                if(tableProfile.getSelectionModel().getSelectedItem()!=null)therapyTabPane.getSelectionModel().select(2);
-
-            }
-        });
-
-        tableProfile.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
-        {
-
-
-            if (oldValue != newValue) {
-                //закроем кнопки спинера времени на частоту
-                hideTFSpinnerBTNPan();
-                hideBundlesSpinnerBTNPan();
-
-                tableComplex.getItems().clear();
-                //добавляем через therapyComplexItems иначе не будет работать event на изменение элементов массива и не будут работать галочки мультичастот
-
-                List<TherapyComplex> therapyComplexes = getModel().findTherapyComplexes(newValue);
-                try {
-                    checkBundlesLength(therapyComplexes);
-                } catch (Exception e) {
-                    Log.logger.error("",e);
-                   showExceptionDialog("Ошибка обновления комплексов","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                   return;
-                }
-
-                tableComplex.getItems().addAll(therapyComplexes);
-
-
-                if(newValue!=null){
-
-                    btnGenerate.setDisable(!getModel().isNeedGenerateFilesInProfile(newValue));
-
-                }
-            }
-
-        });
-
-
-
-        tableComplex.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-
-
-
-                if( tableComplex.getSelectionModel().getSelectedItems().size()>0)bundlesSpinner.setDisable(false);
-                else bundlesSpinner.setDisable(true);
-
-            if (oldValue != newValue) {
-
-                //закроем кнопки спинера времени на частоту, при переключении компелекса
-                if(newValue!=null) {
-                    Platform.runLater(() -> {
-                        if(newValue!=null){
-                            hideTFSpinnerBTNPan(newValue.getTimeForFrequency());
-                            if(tableComplex.getSelectionModel().getSelectedItem()==null) hideBundlesSpinnerBTNPan();
-                            else  hideBundlesSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
-                        }else {
-                            hideTFSpinnerBTNPan();
-                            hideBundlesSpinnerBTNPan();
-                        }
-
-
-                    });
-
-                }
-                else  {
-                    hideTFSpinnerBTNPan();
-                    hideBundlesSpinnerBTNPan();
-
-                }
-
-                tableProgram.getItems().clear();
-
-                tableProgram.getItems().addAll(getModel().findTherapyPrograms(newValue));
-
-
-            }
-
-
-        });
-
-        /*
-tableProgram.getSelectionModel().selectedItemProperty().addListener((observable1, oldValue1, newValue1) ->
-{
-    if(spinnerBtnPan.isVisible()) {
-        //закроем кнопки спинера времени на частоту, при переключении на программу
-
-      if(tableComplex.getSelectionModel().getSelectedItem()!=null)  {
-          hideTFSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency());
-          //hideBundlesSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
-      }
-        else { hideTFSpinnerBTNPan();}
-    }
-});
-*/
-
-        /***** Спиннер времени на частоту ****/
-        //показывает кнопки при изменениях спинера
-        timeToFreqSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if(oldValue!=newValue) {
-                spinnerBtnPan.setVisible(true);
-            }
-            //коррекция значения не кратного 30сек
-            int newTime=(int)(newValue*60);
-            if(newTime%30!=0){
-                TherapyComplex sCompl = tableComplex.getSelectionModel().getSelectedItem();
-                if(sCompl!=null) {
-                    int st=0;
-                    if( newTime % 30 >15)st=newTime + (30-newTime % 30);
-                    else st=newTime - newTime % 30;
-                    sCompl.setTimeForFrequency(st);
-                    try {
-                        this.getModel().updateTherapyComplex(sCompl);
-                        timeToFreqSpinner.getValueFactory().setValue(st / 60.0);
-                    } catch (Exception e) {
-                      logger.error("",e);
-                    }
-
-                }
-            }
-        });
-        //кнопка отмены
-        btnCancelSpinner.setOnAction(event ->hideTFSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency()) );
-        //принять изменения времени
-        btnOkSpinner.setOnAction(event ->
-        {
-
-
-            if(!this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
-                List<TherapyComplex> items = new ArrayList<>(this.tableComplex.getSelectionModel().getSelectedItems());
-
-                try {
-
-
-                   for(TherapyComplex item:items) {
-
-
-                        item.setTimeForFrequency((int)(this.timeToFreqSpinner.getValue()*60));
-                        item.setChanged(true);
-                        this.getModel().updateTherapyComplex(item);
-                        this.btnGenerate.setDisable(false);
-                    }
-
-                    this.updateComplexsTime(items, true);
-                } catch (Exception var8) {
-                    this.hideTFSpinnerBTNPan(this.tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency().intValue());
-                    Log.logger.error("", var8);
-                    showExceptionDialog("Ошибка обновления времени в терапевтическом комплексе", "", "", var8, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                } finally {
-                    this.hideTFSpinnerBTNPan();
-                }
-
-            }
-        });
-
-
-        /***************/
-
-        /** Комбо пачек частот **/
-        ObservableList<String> bundlesSpinnerData = FXCollections.observableArrayList();
-        for(int i=2; i<=MAX_BUNDLES; i++)bundlesSpinnerData.add(String.valueOf(i));
-        // Value factory.
-
-        bundlesSpinner.setValueFactory(new SpinnerValueFactory.ListSpinnerValueFactory<String>(bundlesSpinnerData));
-        bundlesSpinner.getValueFactory().setValue("2");
-
-        //показывает кнопки при изменениях спинера
-        bundlesSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {if(oldValue!=newValue) bundlesBtnPan.setVisible(true);});
-        //кнопка отмены
-        btnCancelBundles.setOnAction(event ->hideBundlesSpinnerBTNPan(tableComplex.getSelectionModel().getSelectedItem().getBundlesLength()) );
-
-
-
-        //принять изменения пачек частот
-        btnOkBundles.setOnAction(event ->
-        {
-
-            if(!this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
-                List<TherapyComplex> items = new ArrayList<>(this.tableComplex.getSelectionModel().getSelectedItems());
-
-                try {
-
-
-                    for(TherapyComplex item:items) {
-
-
-                        item.setBundlesLength(Integer.parseInt(bundlesSpinner.getValue()));
-                        item.setChanged(true);
-                        this.getModel().updateTherapyComplex(item);
-                        this.btnGenerate.setDisable(false);                   }
-
-                    this.updateComplexsTime(items, true);
-                } catch (Exception var8) {
-                    this.hideBundlesSpinnerBTNPan(this.tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
-                    Log.logger.error("", var8);
-                    showExceptionDialog("Ошибка обновления времени в терапевтическом комплексе", "", "", var8, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                } finally {
-                    this.hideTFSpinnerBTNPan();
-                }
-
-            }
-
-        });
-
-
-        /***************/
-
-
-
-
-
-        //помогает узнать видимые строки
-     //   loadVirtualFlowTableProgramm();
-
     }
 
     private void deleteInTables() {
