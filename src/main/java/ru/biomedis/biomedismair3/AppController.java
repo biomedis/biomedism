@@ -573,250 +573,264 @@ public class AppController  extends BaseController {
         sectionTree.setRoot(rootItem);
         rootItem.setExpanded(true);
 
+        sectionTree.setCellFactory(param -> new SectionTreeCell());
+        sectionTree.setOnMouseClicked(this::sectionTreeClickAction);
+    }
 
-        sectionTree.setCellFactory(param -> new TreeCell<INamed>() {
-            @Override
-            protected void updateItem(INamed item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
+    private static class SectionTreeCell extends TreeCell<INamed>{
+        @Override
+        protected void updateItem(INamed item, boolean empty) {
+            super.updateItem(item, empty);
+            if (empty) {
+                this.setText(null);
+                this.setGraphic(null);
+            } else {
+                if (getTreeItem().getValue() == null) {
                     this.setText(null);
                     this.setGraphic(null);
-                } else {
-                    if (getTreeItem().getValue() == null) {
-                        this.setText(null);
-                        this.setGraphic(null);
-                        return;
-                    }
-                    this.setText(getTreeItem().getValue().getNameString());//имя из названия INamed
-                    this.setGraphic(getTreeItem().getGraphic());//иконку мы устанавливали для элементов в NamedTreeItem согласно типу содержимого
+                    return;
                 }
+                this.setText(getTreeItem().getValue().getNameString());//имя из названия INamed
+                this.setGraphic(getTreeItem().getGraphic());//иконку мы устанавливали для элементов в NamedTreeItem согласно типу содержимого
             }
+        }
+    }
 
-        });
+    private void sectionTreeClickAction(MouseEvent event) {
+        //по одиночному клику
 
-        sectionTree.setOnMouseClicked(event -> {
+        TreeItem<INamed> selectedItem = sectionTree.getSelectionModel().getSelectedItem();
+        if (selectedItem == null) return;
 
+        singleClickOnSectionTreeAction(selectedItem);
+        if (event.getClickCount() == 2)doubleClickOnSectionTreeAction(selectedItem);
+    }
 
+    private void singleClickOnSectionTreeAction(TreeItem<INamed> selectedItem) {
+        if (selectedItem.getValue() instanceof Program)
+        {
+            singleClickOnSectionTreeProgramItemAction(selectedItem);
+        } else  if (selectedItem.getValue() instanceof Section)
+        {
+            singleClickOnSectionTreeSectionItemAction(selectedItem);
+        } else  if (selectedItem.getValue() instanceof Complex)
+        {
+            singleClickOnSectionTreeComplexItemAction(selectedItem);
+        }
+    }
 
+    private void doubleClickOnSectionTreeAction(TreeItem<INamed> selectedItem) {
+        int tabSelectedIndex = therapyTabPane.getSelectionModel().getSelectedIndex();
+        //перенос программы в текущий комплекс  в такблицу справа.
+        if (selectedItem.getValue() instanceof Program)
+        {
+            doubleClickOnSectionTreeProgramItemAction(selectedItem, tabSelectedIndex);
+        } else if (selectedItem.getValue() instanceof Complex) {
+            doubleClickOnSectionTreeComplexItemAction(selectedItem, tabSelectedIndex);
+        }
+    }
 
-            //по одиночному клику
+    private void doubleClickOnSectionTreeComplexItemAction(TreeItem<INamed> selectedItem, int tabSelectedIndex) {
+        //если выбран биофон вкладка
+        if(tabSelectedIndex==3){
+            //добавляется комплекс в биофон
+            Complex c = (Complex) selectedItem.getValue();
+            try {
+                TherapyComplex th = getModel().createTherapyComplex(getApp().getBiofonProfile(), c, c.getTimeForFreq()==0?180:c.getTimeForFreq(),3,getInsertComplexLang());
 
-            TreeItem<INamed> selectedItem = sectionTree.getSelectionModel().getSelectedItem();
+                addComplexToBiofonTab(th);
 
+            } catch (Exception e) {
+                logger.error("",e);
+                showExceptionDialog("Ошибка создания терапевтического комплекса ", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
 
-            if (selectedItem == null) return;
-            if (selectedItem.getValue() instanceof Program)
-            {
-                String pathtext="";
-                if(((Program) selectedItem.getValue()).getComplex()!=null)
-                {
-                    Complex tC=  ((Program) selectedItem.getValue()).getComplex();
-                    getModel().initStringsComplex(tC);
-                    pathtext=tC.getNameString();
-
-                    if(tC.getSection()!=null)
-                    {
-                        Section tS= tC.getSection();
-                        getModel().initStringsSection(tS);
-                        pathtext=tS.getNameString()+" -> "+pathtext;
-                    }
-                }else if(((Program) selectedItem.getValue()).getSection()!=null)
-                {
-                    Section tS=  ((Program) selectedItem.getValue()).getSection();
-                    getModel().initStringsSection(tS);
-                    pathtext=tS.getNameString();
-
-                    if(tS.getParent()!=null)
-                    {
-                        Section tS1= tS.getParent();
-                        getModel().initStringsSection(tS1);
-                        pathtext=tS1.getNameString()+" -> "+pathtext;
-                    }
-                }
-
-               if(!pathtext.isEmpty()) pathtext+=" -> "+selectedItem.getValue().getNameString(); else pathtext=selectedItem.getValue().getNameString();
-                programDescription.setText(pathtext+"\n"+((Program) selectedItem.getValue()).getDescriptionString());
-                programInfo.setText(((Program) selectedItem.getValue()).getFrequencies().replace(";", ";  "));
-                createUserBtn.setDisable(true);
-            } else  if (selectedItem.getValue() instanceof Section)
-            {
-                String pathtext="";
-                if(((Section) selectedItem.getValue()).getParent()!=null)
-                {
-                    Section tS=  ((Section) selectedItem.getValue()).getParent();
-                    getModel().initStringsSection(tS);
-                    pathtext=tS.getNameString();
-
-                    if(tS.getParent()!=null)
-                    {
-                        Section tS1= tS.getParent();
-                        getModel().initStringsSection(tS1);
-                        pathtext=tS1.getNameString()+" -> "+pathtext;
-                    }
-                }
-                if(!pathtext.isEmpty()) pathtext+=" -> "+selectedItem.getValue().getNameString(); else pathtext=selectedItem.getValue().getNameString();
-                programDescription.setText(pathtext+"\n"+((IDescriptioned) selectedItem.getValue()).getDescriptionString());
-                programInfo.setText("");
-                createUserBtn.setDisable(false);
-            } else  if (selectedItem.getValue() instanceof Complex)
-            {
-                String pathtext="";
-
-                if(((Complex) selectedItem.getValue()).getSection()!=null)
-                {
-                    Section tS=  ((Complex) selectedItem.getValue()).getSection();
-                    getModel().initStringsSection(tS);
-                    pathtext=tS.getNameString();
-                    if(tS.getParent()!=null)
-                    {
-                        Section tS1= tS.getParent();
-                        getModel().initStringsSection(tS1);
-                        pathtext=tS1.getNameString()+" -> "+pathtext;
-                    }
-                }
-                if(!pathtext.isEmpty()) pathtext+=" -> "+selectedItem.getValue().getNameString(); else pathtext=selectedItem.getValue().getNameString();
-                programDescription.setText(pathtext+"\n"+((IDescriptioned) selectedItem.getValue()).getDescriptionString());
-                programInfo.setText("");
-                createUserBtn.setDisable(false);
             }
 
 
+        }else
+        if (tableProfile.getSelectionModel().getSelectedItem() != null)//добавление комплекса в профиль
+        {
 
-            if (event.getClickCount() == 2)
+            Complex c = (Complex) selectedItem.getValue();
+
+            try {
+                TherapyComplex th = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), c, c.getTimeForFreq()==0?180:c.getTimeForFreq(),3,getInsertComplexLang());
+
+                //therapyComplexItems.clear();
+                //therapyComplexItems содержит отслеживаемый список, элементы которого добавляются в таблицу. Его не нужно очищать
+
+                tableComplex.getItems().add(th);
+                tableComplex.getSelectionModel().clearSelection();
+                therapyTabPane.getSelectionModel().select(2);//выберем таб с программами
+                tableComplex.getSelectionModel().select(tableComplex.getItems().size() - 1);
+                updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
+
+                    //если есть программы  к перенесенном комплексе то можно разрешить генерацию
+                if(getModel().countTherapyPrograms(th)>0) btnGenerate.setDisable(false);
+                else btnGenerate.setDisable(true);
+                th = null;
+            } catch (Exception e) {
+                logger.error("",e);
+                showExceptionDialog("Ошибка создания терапевтического комплекса ", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+            }
+            c = null;
+
+        }
+    }
+
+    private void doubleClickOnSectionTreeProgramItemAction(TreeItem<INamed> selectedItem, int tabSelectedIndex) {
+        //проверим язык програмы и язык вставки
+        Program p = (Program) selectedItem.getValue();
+        String il=getInsertComplexLang();
+        String lp=getModel().getProgramLanguage().getAbbr();
+
+        String name="";
+        String oname="";
+        String descr="";
+
+        if(il.equals(lp))
+        {
+            name=p.getNameString();
+            descr=p.getDescriptionString();
+        }else {
+            //вставим имя на языке вставки. oname - на языке который программа
+            oname=p.getNameString();
+            try {
+                name = getModel().getString2(p.getName(),getModel().getLanguage(il));
+                descr=getModel().getString2(p.getDescription(),getModel().getLanguage(il));
+            } catch (Exception e) {
+                logger.error("",e);
+                showExceptionDialog("Ошибка создания терапевтической программы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+            }
+
+        }
+
+
+        if(tabSelectedIndex==3){
+            TherapyComplex selectedTCBiofon = biofonCompexesList.getSelectionModel().getSelectedItem();
+            if(selectedTCBiofon==null) return;
+            try {
+                TherapyProgram therapyProgram = getModel().createTherapyProgram(p.getUuid(),selectedTCBiofon, name, descr, p.getFrequencies(),oname);
+                addProgramToBiofonTab(selectedTCBiofon,therapyProgram);
+            } catch (Exception e) {
+                logger.error("",e);
+                showExceptionDialog("Ошибка создания терапевтической программы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+            }
+
+
+
+        }else
+        if (tableComplex.getSelectionModel().getSelectedItem() != null) {
+            //если выбран комплекс в таблице комплексов
+
+            try {
+
+
+                TherapyProgram therapyProgram = getModel().createTherapyProgram(p.getUuid(),tableComplex.getSelectionModel().getSelectedItem(), name, descr, p.getFrequencies(),oname);
+                tableProgram.getItems().add(therapyProgram);
+                updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(), false);
+                therapyTabPane.getSelectionModel().select(2);//выберем таб с программами
+
+
+                Platform.runLater(() -> {
+                    updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(),true);
+                    tableProgram.getSelectionModel().clearSelection();
+                    tableProgram.requestFocus();
+                    tableProgram.getSelectionModel().select(tableProgram.getItems().size() - 1);
+                    tableProgram.getFocusModel().focus(tableProgram.getItems().size() - 1);
+                    tableProgram.scrollTo(tableProgram.getItems().size() - 1);
+                });
+
+                btnGenerate.setDisable(false);
+                therapyProgram = null;
+            } catch (Exception e) {
+
+                logger.error("",e);
+                showExceptionDialog("Ошибка создания терапевтической программы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+            }
+            p = null;
+
+        }
+    }
+
+
+
+    private void singleClickOnSectionTreeComplexItemAction(TreeItem<INamed> selectedItem) {
+        String pathtext="";
+
+        if(((Complex) selectedItem.getValue()).getSection()!=null)
+        {
+            Section tS=  ((Complex) selectedItem.getValue()).getSection();
+            getModel().initStringsSection(tS);
+            pathtext=tS.getNameString();
+            if(tS.getParent()!=null)
             {
-                int tabSelectedIndex = therapyTabPane.getSelectionModel().getSelectedIndex();
-                //перенос программы в текущий комплекс  в такблицу справа.
-                if (selectedItem.getValue() instanceof Program)
-                {
+                Section tS1= tS.getParent();
+                getModel().initStringsSection(tS1);
+                pathtext=tS1.getNameString()+" -> "+pathtext;
+            }
+        }
+        if(!pathtext.isEmpty()) pathtext+=" -> "+selectedItem.getValue().getNameString(); else pathtext=selectedItem.getValue().getNameString();
+        programDescription.setText(pathtext+"\n"+((IDescriptioned) selectedItem.getValue()).getDescriptionString());
+        programInfo.setText("");
+        createUserBtn.setDisable(false);
+    }
 
+    private void singleClickOnSectionTreeSectionItemAction(TreeItem<INamed> selectedItem) {
+        String pathtext="";
+        if(((Section) selectedItem.getValue()).getParent()!=null)
+        {
+            Section tS=  ((Section) selectedItem.getValue()).getParent();
+            getModel().initStringsSection(tS);
+            pathtext=tS.getNameString();
 
-                    //проверим язык програмы и язык вставки
-                    Program p = (Program) selectedItem.getValue();
-                    String il=getInsertComplexLang();
-                    String lp=getModel().getProgramLanguage().getAbbr();
+            if(tS.getParent()!=null)
+            {
+                Section tS1= tS.getParent();
+                getModel().initStringsSection(tS1);
+                pathtext=tS1.getNameString()+" -> "+pathtext;
+            }
+        }
+        if(!pathtext.isEmpty()) pathtext+=" -> "+selectedItem.getValue().getNameString(); else pathtext=selectedItem.getValue().getNameString();
+        programDescription.setText(pathtext+"\n"+((IDescriptioned) selectedItem.getValue()).getDescriptionString());
+        programInfo.setText("");
+        createUserBtn.setDisable(false);
+    }
 
-                    String name="";
-                    String oname="";
-                    String descr="";
+    private void singleClickOnSectionTreeProgramItemAction(TreeItem<INamed> selectedItem) {
+        String pathtext="";
+        if(((Program) selectedItem.getValue()).getComplex()!=null)
+        {
+            Complex tC=  ((Program) selectedItem.getValue()).getComplex();
+            getModel().initStringsComplex(tC);
+            pathtext=tC.getNameString();
 
-                    if(il.equals(lp))
-                    {
-                        name=p.getNameString();
-                        descr=p.getDescriptionString();
-                    }else {
-                        //вставим имя на языке вставки. oname - на языке который программа
-                        oname=p.getNameString();
-                        try {
-                            name = getModel().getString2(p.getName(),getModel().getLanguage(il));
-                            descr=getModel().getString2(p.getDescription(),getModel().getLanguage(il));
-                        } catch (Exception e) {
-                            logger.error("",e);
-                            showExceptionDialog("Ошибка создания терапевтической программы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+            if(tC.getSection()!=null)
+            {
+                Section tS= tC.getSection();
+                getModel().initStringsSection(tS);
+                pathtext=tS.getNameString()+" -> "+pathtext;
+            }
+        }else if(((Program) selectedItem.getValue()).getSection()!=null)
+        {
+            Section tS=  ((Program) selectedItem.getValue()).getSection();
+            getModel().initStringsSection(tS);
+            pathtext=tS.getNameString();
 
-                        }
+            if(tS.getParent()!=null)
+            {
+                Section tS1= tS.getParent();
+                getModel().initStringsSection(tS1);
+                pathtext=tS1.getNameString()+" -> "+pathtext;
+            }
+        }
 
-                    }
-
-
-                    if(tabSelectedIndex==3){
-                        TherapyComplex selectedTCBiofon = biofonCompexesList.getSelectionModel().getSelectedItem();
-                        if(selectedTCBiofon==null) return;
-                        try {
-                            TherapyProgram therapyProgram = getModel().createTherapyProgram(p.getUuid(),selectedTCBiofon, name, descr, p.getFrequencies(),oname);
-                            addProgramToBiofonTab(selectedTCBiofon,therapyProgram);
-                        } catch (Exception e) {
-                            logger.error("",e);
-                            showExceptionDialog("Ошибка создания терапевтической программы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-
-                        }
-
-
-
-                    }else
-                    if (tableComplex.getSelectionModel().getSelectedItem() != null) {
-                        //если выбран комплекс в таблице комплексов
-
-                        try {
-
-
-                            TherapyProgram therapyProgram = getModel().createTherapyProgram(p.getUuid(),tableComplex.getSelectionModel().getSelectedItem(), name, descr, p.getFrequencies(),oname);
-                            tableProgram.getItems().add(therapyProgram);
-                            updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(), false);
-                            therapyTabPane.getSelectionModel().select(2);//выберем таб с программами
-
-
-                            Platform.runLater(() -> {
-                                updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(),true);
-                                tableProgram.getSelectionModel().clearSelection();
-                                tableProgram.requestFocus();
-                                tableProgram.getSelectionModel().select(tableProgram.getItems().size() - 1);
-                                tableProgram.getFocusModel().focus(tableProgram.getItems().size() - 1);
-                                tableProgram.scrollTo(tableProgram.getItems().size() - 1);
-                            });
-
-                            btnGenerate.setDisable(false);
-                            therapyProgram = null;
-                        } catch (Exception e) {
-
-                            logger.error("",e);
-                            showExceptionDialog("Ошибка создания терапевтической программы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                        }
-                        p = null;
-
-                    }
-
-                } else if (selectedItem.getValue() instanceof Complex) {
-
-                    //если выбран биофон вкладка
-                    if(tabSelectedIndex==3){
-                        //добавляется комплекс в биофон
-                        Complex c = (Complex) selectedItem.getValue();
-                        try {
-                            TherapyComplex th = getModel().createTherapyComplex(getApp().getBiofonProfile(), c, c.getTimeForFreq()==0?180:c.getTimeForFreq(),3,getInsertComplexLang());
-
-                            addComplexToBiofonTab(th);
-
-                        } catch (Exception e) {
-                            logger.error("",e);
-                            showExceptionDialog("Ошибка создания терапевтического комплекса ", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-
-                        }
-
-
-                    }else
-                    if (tableProfile.getSelectionModel().getSelectedItem() != null)//добавление комплекса в профиль
-                    {
-
-                        Complex c = (Complex) selectedItem.getValue();
-
-                        try {
-                            TherapyComplex th = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), c, c.getTimeForFreq()==0?180:c.getTimeForFreq(),3,getInsertComplexLang());
-
-                            //therapyComplexItems.clear();
-                            //therapyComplexItems содержит отслеживаемый список, элементы которого добавляются в таблицу. Его не нужно очищать
-
-                            tableComplex.getItems().add(th);
-                            tableComplex.getSelectionModel().clearSelection();
-                            therapyTabPane.getSelectionModel().select(2);//выберем таб с программами
-                            tableComplex.getSelectionModel().select(tableComplex.getItems().size() - 1);
-                            updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
-
-                                //если есть программы  к перенесенном комплексе то можно разрешить генерацию
-                            if(getModel().countTherapyPrograms(th)>0) btnGenerate.setDisable(false);
-                            else btnGenerate.setDisable(true);
-                            th = null;
-                        } catch (Exception e) {
-                            logger.error("",e);
-                            showExceptionDialog("Ошибка создания терапевтического комплекса ", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                        }
-                        c = null;
-
-                    }
-
-                }
-                }
-
-        });
+        if(!pathtext.isEmpty()) pathtext+=" -> "+selectedItem.getValue().getNameString(); else pathtext=selectedItem.getValue().getNameString();
+        programDescription.setText(pathtext+"\n"+((Program) selectedItem.getValue()).getDescriptionString());
+        programInfo.setText(((Program) selectedItem.getValue()).getFrequencies().replace(";", ";  "));
+        createUserBtn.setDisable(true);
     }
 
     private void initBaseCombo() {
