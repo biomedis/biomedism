@@ -66,13 +66,15 @@ private CalcActionListener actionListener;
         if(stage==null) return false;
         return stage.isShowing();
     }
+
+
     public void onCancel()
 {
 cancel.setDisable(true);
     if(actionListener!=null) actionListener.onCancel();
 }
 
-
+protected void enableCancellBtn(){cancel.setDisable(false);}
 
     public void setActionListener(CalcActionListener a){actionListener=a;}
 
@@ -133,11 +135,13 @@ cancel.setDisable(true);
      */
     public  synchronized static void openLayer(CalcActionListener actionListener, Window owner,boolean show)
     {
+
         if(controller==null)
         {
            stage = init(owner);
         }
         controller.setActionListener(actionListener);
+        controller.enableCancellBtn();
        if(show) stage.showAndWait();
         //обработка кнопки  отмены
 
@@ -146,7 +150,10 @@ cancel.setDisable(true);
 
     }
 
-    public synchronized static void showLayer(){stage.showAndWait();}
+    public synchronized static void showLayer(){
+        controller.enableCancellBtn();
+        stage.showAndWait();
+    }
 
     public  synchronized static void openLayer(CalcActionListener actionListener, Window owner)
     {
