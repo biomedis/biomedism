@@ -10,7 +10,9 @@ import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.StringBinding;
-import javafx.beans.property.*;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -23,7 +25,6 @@ import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -38,13 +39,14 @@ import javafx.stage.*;
 import javafx.util.Duration;
 import org.anantacreative.updater.Update.UpdateException;
 import org.anantacreative.updater.Update.UpdateTask;
-import ru.biomedis.biomedismair3.CellFactories.TextAreaTableCell;
 import ru.biomedis.biomedismair3.Converters.SectionConverter;
 import ru.biomedis.biomedismair3.DBImport.NewDBImport;
 import ru.biomedis.biomedismair3.Dialogs.NameDescroptionDialogController;
 import ru.biomedis.biomedismair3.Dialogs.ProgramDialogController;
 import ru.biomedis.biomedismair3.Dialogs.SearchProfile;
 import ru.biomedis.biomedismair3.Dialogs.TextInputValidationController;
+import ru.biomedis.biomedismair3.TherapyTabs.Complex.ComplexTable;
+import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileTable;
 import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.*;
 import ru.biomedis.biomedismair3.UserUtils.CreateBaseHelper;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportProfile;
@@ -1837,8 +1839,8 @@ public class AppController  extends BaseController {
 
 
 
-    //хранит время комплекса в строковом представлении и через # id комплекса. Используется в выводе в табе комплекса времени и его обновления
-private SimpleStringProperty textComplexTime=new SimpleStringProperty();
+
+
 
 
 
@@ -1882,19 +1884,21 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
     }
     private List<MenuItem> tablesMenuHelper;
 
+    private ProfileTable profileTable;
+    private ComplexTable complexTable;
     private void initTables()
     {
         tablesMenuHelper = initContextMenuHotKeyHolders();
 
 
         /*** Профили  ****/
-        initProfileTable();
+         profileTable = initProfileTable();
         initProfileContextMenu();
         initProfileSelectedListener();
 
 
         /*** Комплексы  ****/
-        initComplexesTable();
+         complexTable = initComplexesTable();
         initGenerateComplexesButton();
         initComplexesContextMenu();
         initUploadComplexesContextMenu();
@@ -1902,7 +1906,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         initComplexSpinnerTimeForFreq();
         initComplexBundlesLength();
         //установка имени таба комплексов с учетом времени
-        initTabNameListener();
+        initTabComplexNameListener();
 
         /*** Программы  ****/
         initProgramsTable();
@@ -2758,216 +2762,8 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         generationComplexesBtn.setOnAction(e->generateComplexes());
     }
 
-    private void initComplexesTable() {
-        //номер по порядку
-        TableColumn<TherapyComplex,Number> numComplexCol =new TableColumn<>("№");
-        numComplexCol.setCellValueFactory(param -> new SimpleIntegerProperty(param.getTableView().getItems().indexOf(param.getValue()) + 1));
-
-
-        //имя
-        TableColumn<TherapyComplex,String> nameColTC=new TableColumn<>(res.getString("app.table.name_complex"));
-        nameColTC.cellValueFactoryProperty().setValue(new PropertyValueFactory<TherapyComplex, String>("name"));
-        nameColTC.setCellFactory(TextFieldTableCell.forTableColumn());
-        nameColTC.setOnEditCommit(event ->
-        {
-
-            if (!event.getNewValue().equals(event.getOldValue())) {
-
-                String s = event.getNewValue();
-                if (s.length() == 0) {
-                    event.getRowValue().setName(event.getOldValue());
-                    TherapyComplex p = event.getRowValue();
-                    int i = tableComplex.getItems().indexOf(event.getRowValue());
-                    tableComplex.getItems().set(i, null);
-                    tableComplex.getItems().set(i, p);
-                    tableComplex.getSelectionModel().select(i);
-                    p = null;
-                    return;
-                }
-                event.getRowValue().setName(s);
-                try {
-                    getModel().updateTherapyComplex(event.getRowValue());
-                    TherapyComplex p = event.getRowValue();
-                    int i = tableComplex.getItems().indexOf(event.getRowValue());
-                    tableComplex.getItems().set(i, null);
-                    tableComplex.getItems().set(i, p);
-                    tableComplex.getSelectionModel().select(i);
-                    p = null;
-
-                } catch (Exception e) {
-                    logger.error("",e);
-                }
-
-
-            }
-        });
-
-        //описание
-        TableColumn<TherapyComplex,String> descColTC=new TableColumn<>(res.getString("app.table.complex_descr"));
-        descColTC.cellValueFactoryProperty().setValue(new PropertyValueFactory<TherapyComplex, String>("description"));
-        descColTC.setCellFactory(TextAreaTableCell.forTableColumn());
-        descColTC.setOnEditCommit(event ->
-        {
-
-            if (!event.getNewValue().equals(event.getOldValue())) {
-
-                String s = event.getNewValue();
-                if (s.length() == 0) {
-                    event.getRowValue().setDescription(event.getOldValue());
-                    TherapyComplex p = event.getRowValue();
-                    int i = tableComplex.getItems().indexOf(event.getRowValue());
-                    tableComplex.getItems().set(i, null);
-                    tableComplex.getItems().set(i, p);
-                    p = null;
-                    return;
-                }
-                event.getRowValue().setDescription(s);
-                try {
-                    getModel().updateTherapyComplex(event.getRowValue());
-                    TherapyComplex p = event.getRowValue();
-                    int i = tableComplex.getItems().indexOf(event.getRowValue());
-                    tableComplex.getItems().set(i, null);
-                    tableComplex.getItems().set(i, p);
-                    p = null;
-
-                } catch (Exception e) {
-                    logger.error("",e);
-                }
-
-
-            }
-        });
-
-        //общая длительность, зависит от количества програм их частот и мультичастотного режима, также времени на частоту
-        TableColumn<TherapyComplex,String> timeColTC=new TableColumn<>(res.getString("app.table.delay"));
-        //  timeColTC.setCellValueFactory(param -> new SimpleStringProperty(DateUtil.convertSecondsToHMmSs(getModel().getTimeTherapyComplex(param.getValue()))));
-        //пересчет индуцируется при изменении свойства time
-
-
-        timeColTC.setCellValueFactory(param -> {
-            SimpleStringProperty property = new SimpleStringProperty();
-            property.bind(new StringBinding() {
-                {
-                    super.bind(param.getValue().timeProperty());
-                }
-
-                @Override
-                protected String computeValue() {
-                    String s = DateUtil.convertSecondsToHMmSs(AppController.this.getModel().getTimeTherapyComplex(param.getValue()));
-                    textComplexTime.setValue(s+"#"+param.getValue().getId().longValue());
-                    return s;
-                }
-            });
-            return property;
-        });
-
-
-        TableColumn<TherapyComplex,Boolean>fileComplexCol=new TableColumn<>(res.getString("app.table.file"));
-        fileComplexCol.cellValueFactoryProperty().setValue(param -> {
-            SimpleBooleanProperty property = new SimpleBooleanProperty();
-            property.bind(param.getValue().changedProperty());
-            return property;
-        });
-        fileComplexCol.setCellFactory(col ->
-        {
-            TableCell<TherapyComplex, Boolean> cell = new TableCell<TherapyComplex, Boolean>() {
-                @Override
-                protected void updateItem(Boolean item, boolean empty) {
-
-                    super.updateItem(item, empty);
-                    this.setText(null);
-                    this.setGraphic(null);
-
-                    HBox hbox=null;
-                    ImageView iv=null;
-
-                    if( this.getUserData()!=null)
-                    {
-                        hbox=(HBox)this.getUserData();
-                        if(hbox!=null){
-                            iv=(ImageView)hbox.getChildren().get(0);
-
-                        }else {
-                            iv=new ImageView();
-                            hbox=new HBox();
-                            hbox.setSpacing(3);
-                            hbox.getChildren().addAll(iv);
-                        }
-                    }else {
-                        iv=new ImageView(imageCancel);
-
-                        hbox=new HBox();
-                        hbox.setSpacing(3);
-                        hbox.getChildren().addAll(iv);
-                        this.setUserData(hbox);
-                    }
-
-
-                    if (!empty) {
-                        if (this.getTableRow().getItem() == null) {
-                            setText("");
-                            return;
-                        }
-                            if (item)  iv.setImage(imageCancel);
-                             else {
-                                TherapyComplex thisComplex = (TherapyComplex) getTableRow().getItem();
-                                if(thisComplex==null) return;
-
-                                if(getModel().countTherapyPrograms(thisComplex)==0)iv.setImage(imageCancel);
-                                else if(getModel().hasNeedGenerateProgramInComplex(thisComplex))  iv.setImage(imageCancel);
-                                 else  {
-                                    long sum=0;
-                                    File f;
-                                    for (Long id : getModel().getTherapyComplexFiles(thisComplex)) {
-                                        f=new File(getApp().getDataDir(),id+".dat");
-                                        if(f.exists())sum+=f.length();
-                                    }
-                                    for (String v : getModel().mp3ProgramPathsInComplex(thisComplex)) {
-
-                                        f = new File(v);
-                                        if (f.exists()) sum += f.length();
-                                    }
-
-
-                                    if(sum>0) setText(Math.ceil((double)sum / 1048576.0) + " Mb");
-                                     iv.setImage(imageDone);
-                                }
-
-                            }
-
-
-
-                        setGraphic(hbox);
-                    }
-                }
-            };
-
-            return cell;
-        });
-
-
-        numComplexCol.setStyle( "-fx-alignment: CENTER;");
-        timeColTC.setStyle( "-fx-alignment: CENTER;");
-        nameColTC.setStyle( "-fx-alignment: CENTER-LEFT;");
-        this.tableComplex.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        tableComplex.getColumns().addAll(numComplexCol, nameColTC, descColTC, timeColTC, fileComplexCol);
-        tableComplex.placeholderProperty().setValue(new Label(res.getString("app.table.complex_placeholder")));
-        tableComplex.setEditable(true);
-
-
-        numComplexCol.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.1));
-        nameColTC.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.325));
-        descColTC.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.325));
-        timeColTC.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.1));
-        fileComplexCol.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.15));
-
-        numComplexCol.setSortable(false);
-        nameColTC.setSortable(false);
-        descColTC.setSortable(false);
-        timeColTC.setSortable(false);
-        fileComplexCol.setSortable(false);
-
-        fileComplexCol.setEditable(true);
+    private ComplexTable initComplexesTable() {
+       return ComplexTable.getInstance(tableComplex,res,imageCancel,imageDone);
     }
 
     private void initProfileContextMenu() {
@@ -3018,130 +2814,12 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         });
     }
 
-    private void initProfileTable() {
-        //номер по порядку
-        TableColumn<Profile,Number> numProfileCol =new TableColumn<>("№");
-        numProfileCol.setCellValueFactory(param -> new SimpleIntegerProperty(param.getTableView().getItems().indexOf(param.getValue())+1));
-
-        //имя профиля
-        TableColumn<Profile,String> nameCol=new TableColumn<>(res.getString("app.table.profile_name"));
-        nameCol.cellValueFactoryProperty().setValue(new PropertyValueFactory<Profile, String>("name"));
-        nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
-        nameCol.setOnEditCommit(event ->
-        {
-
-            if (!event.getNewValue().equals(event.getOldValue())) {
-
-                String s = event.getNewValue();
-                if (s.length() == 0) {
-                    event.getRowValue().setName(event.getOldValue());
-                    Profile p = event.getRowValue();
-                    int i = tableProfile.getItems().indexOf(event.getRowValue());
-                    tableProfile.getItems().set(i, null);
-                    tableProfile.getItems().set(i, p);
-                    p = null;
-                    tableProfile.getSelectionModel().select(i);
-                    return;
-                }
-                event.getRowValue().setName(s);
-                try {
-                    getModel().updateProfile(event.getRowValue());
-                    Profile p = event.getRowValue();
-                    int i = tableProfile.getItems().indexOf(event.getRowValue());
-                    tableProfile.getItems().set(i, null);
-                    tableProfile.getItems().set(i, p);
-                    tableProfile.getSelectionModel().select(i);
-                    p = null;
-
-                } catch (Exception e) {
-                    logger.error("",e);
-                }
-
-
-            }
-        });
-
-
-        //общая длительность, зависит от количества комплексов, програм их частот и мультичастотного режима, также времени на частоту
-        TableColumn<Profile,String> timeCol=new TableColumn<>(res.getString("app.table.delay"));
-        timeCol.setCellValueFactory(param -> {
-            SimpleStringProperty property = new SimpleStringProperty();
-            property.bind(new StringBinding() {
-                {
-                    super.bind(param.getValue().timeProperty());//используем фейковое свойство, для инициализации расчета
-                }
-
-                @Override
-                protected String computeValue() {
-                    return DateUtil.convertSecondsToHMmSs(AppController.this.getModel().getTimeProfile(param.getValue()));
-                }
-            });
-            return property;
-        });
-
-
-        TableColumn<Profile,String> weightCol=new TableColumn<>(res.getString("app.table.file_size"));
-        weightCol.setCellValueFactory(param -> {
-            SimpleStringProperty property = new SimpleStringProperty();
-            property.bind(new StringBinding() {
-                {
-                    super.bind(param.getValue().profileWeightProperty());//используем фейковое свойство, для инициализации расчета
-                }
-
-                @Override
-                protected String computeValue() {
-
-                    File f = null;
-                    double summ = 0;
-                    if(getModel().isNeedGenerateFilesInProfile(param.getValue())) return "";
-                    for (Long v : getModel().getProfileFiles(param.getValue())) {
-
-                        f = new File(getApp().getDataDir(), v + ".dat");
-                        if (f.exists()) summ += f.length() ;
-                    }
-                    for (String v : getModel().mp3ProgramPathsInProfile(param.getValue())) {
-
-                        f = new File(v);
-                        if (f.exists()) summ += f.length();
-                    }
-                    summ = (double)summ / 1048576;
-                    return Math.ceil(summ) + " Mb";
-                }
-            });
-            return property;
-        });
-
-        timeCol.setStyle( "-fx-alignment: CENTER;");
-        numProfileCol.setStyle( "-fx-alignment: CENTER;");
-        weightCol.setStyle( "-fx-alignment: CENTER;");
-        tableProfile.getColumns().addAll(numProfileCol, nameCol, timeCol, weightCol);
-        tableProfile.placeholderProperty().setValue(new Label(res.getString("app.table.profile_not_avaliable")));
-        tableProfile.setEditable(true);
-
-        tableProfile.getItems().addAll(getModel().findAllProfiles()
-                                                 .stream()
-                                                 .filter(i->!i.getName().equals(App.BIOFON_PROFILE_NAME))
-                                                 .collect(Collectors.toList()));
-
-
-        numProfileCol.prefWidthProperty().bind(tableProfile.widthProperty().multiply(0.1));
-        nameCol.prefWidthProperty().bind(tableProfile.widthProperty().multiply(0.50));
-        timeCol.prefWidthProperty().bind(tableProfile.widthProperty().multiply(0.25));
-        weightCol.prefWidthProperty().bind(tableProfile.widthProperty().multiply(0.15));
-
-        weightCol.setEditable(false);
-        numProfileCol.setEditable(false);
-        nameCol.setEditable(true);
-        timeCol.setEditable(false);
-
-        numProfileCol.setSortable(false);
-        nameCol.setSortable(false);
-        timeCol.setSortable(false);
-        weightCol.setSortable(false);
+    private ProfileTable initProfileTable() {
+        return ProfileTable.getInstance(tableProfile, res);
     }
 
-    private void initTabNameListener() {
-        textComplexTime.addListener((observable, oldValue, newValue) -> {
+    private void initTabComplexNameListener() {
+        complexTable.textComplexTimeProperty().addListener((observable, oldValue, newValue) -> {
 
             String[] strings = newValue.split("#");
              if(strings.length!=0)
