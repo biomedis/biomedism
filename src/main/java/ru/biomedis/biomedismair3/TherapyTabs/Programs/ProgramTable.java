@@ -28,6 +28,7 @@ import ru.biomedis.biomedismair3.entity.TherapyProgram;
 import ru.biomedis.biomedismair3.utils.Date.DateUtil;
 
 import java.io.File;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import static ru.biomedis.biomedismair3.BaseController.getApp;
@@ -39,15 +40,15 @@ public class ProgramTable {
     private  Image imageDone;
     private  Image imageSeq;
     private  Image imageParallel;
-    private TableView<TherapyProgram> tableProgram;
+    private TableView<TherapyProgram> table;
     private static ProgramTable instance;
     private NeedUpdateComplexTime needUpdateListener;
 
 
-    public static ProgramTable init(TableView<TherapyProgram> tableComplex, ResourceBundle res, Image imageCancel, Image imageDone, Image imageSeq, Image imageParallel,NeedUpdateComplexTime needUpdateListener){
+    public static ProgramTable init(TableView<TherapyProgram> tableProgram, ResourceBundle res, Image imageCancel, Image imageDone, Image imageSeq, Image imageParallel,NeedUpdateComplexTime needUpdateListener){
 
         if(instance==null){
-            instance =new ProgramTable(tableComplex,res,imageCancel,imageDone,imageSeq,imageParallel, needUpdateListener);
+            instance =new ProgramTable(tableProgram,res,imageCancel,imageDone,imageSeq,imageParallel, needUpdateListener);
             instance.initTable();
         }
         return instance;
@@ -64,7 +65,7 @@ public class ProgramTable {
     }
 
     private ProgramTable(TableView<TherapyProgram> tableProgram, ResourceBundle res, Image imageCancel, Image imageDone, Image imageSeq, Image imageParallel,NeedUpdateComplexTime needUpdateListener) {
-        this.tableProgram = tableProgram;
+        this.table = tableProgram;
         this.res = res;
 
         this.imageCancel = imageCancel;
@@ -75,7 +76,7 @@ public class ProgramTable {
     }
 
     private void initTable(){
-        tableProgram.setFixedCellSize(Region.USE_COMPUTED_SIZE);
+        table.setFixedCellSize(Region.USE_COMPUTED_SIZE);
         //номер по порядку
         TableColumn<TherapyProgram,Number> numProgCol =new TableColumn<>("№");
         numProgCol.setCellValueFactory(param -> new SimpleIntegerProperty(param.getTableView().getItems().indexOf(param.getValue()) + 1));
@@ -404,16 +405,16 @@ public class ProgramTable {
         numProgCol.setStyle( "-fx-alignment: CENTER;");
         timeColTP.setStyle( "-fx-alignment: CENTER;");
         nameColTP.setStyle( "-fx-alignment: CENTER-LEFT;");
-        tableProgram.getColumns().addAll(numProgCol, nameColTP, descColTP, timeColTP, fileCol);
-        tableProgram.placeholderProperty().setValue(new Label(res.getString("app.table.programm_placeholder")));
+        table.getColumns().addAll(numProgCol, nameColTP, descColTP, timeColTP, fileCol);
+        table.placeholderProperty().setValue(new Label(res.getString("app.table.programm_placeholder")));
 
-        tableProgram.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
-        numProgCol.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.033));
-        nameColTP.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.2));
-        descColTP.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.557));
-        timeColTP.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.1));
-        fileCol.prefWidthProperty().bind(tableProgram.widthProperty().multiply(0.11));
+        numProgCol.prefWidthProperty().bind(table.widthProperty().multiply(0.033));
+        nameColTP.prefWidthProperty().bind(table.widthProperty().multiply(0.2));
+        descColTP.prefWidthProperty().bind(table.widthProperty().multiply(0.557));
+        timeColTP.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
+        fileCol.prefWidthProperty().bind(table.widthProperty().multiply(0.11));
 
         numProgCol.setSortable(false);
         nameColTP.setSortable(false);
@@ -443,6 +444,16 @@ public class ProgramTable {
 
     private ModelDataApp getModel() {
         return App.getStaticModel();
+    }
+
+    public TherapyProgram getSelectedItem(){
+        return table.getSelectionModel().getSelectedItem();
+    }
+    public List<TherapyProgram> getSelectedItems(){
+        return table.getSelectionModel().getSelectedItems();
+    }
+    public List<Integer> getSelectedIndexes(){
+        return table.getSelectionModel().getSelectedIndices();
     }
 
     public interface NeedUpdateComplexTime{

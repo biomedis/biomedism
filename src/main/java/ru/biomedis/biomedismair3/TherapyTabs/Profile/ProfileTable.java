@@ -15,6 +15,7 @@ import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.utils.Date.DateUtil;
 
 import java.io.File;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
@@ -23,7 +24,7 @@ import static ru.biomedis.biomedismair3.Log.logger;
 
 public class ProfileTable {
     private  ResourceBundle res;
-    private TableView<Profile> tableProfile;
+    private TableView<Profile> table;
     private static ProfileTable instance;
     private ContextMenu  profileMenu=new ContextMenu();
 
@@ -48,7 +49,7 @@ public class ProfileTable {
     }
 
     private ProfileTable(TableView<Profile> tableProfile,ResourceBundle res) {
-        this.tableProfile = tableProfile;
+        this.table = tableProfile;
         this.res = res;
 
     }
@@ -71,21 +72,21 @@ public class ProfileTable {
                 if (s.length() == 0) {
                     event.getRowValue().setName(event.getOldValue());
                     Profile p = event.getRowValue();
-                    int i = tableProfile.getItems().indexOf(event.getRowValue());
-                    tableProfile.getItems().set(i, null);
-                    tableProfile.getItems().set(i, p);
+                    int i = table.getItems().indexOf(event.getRowValue());
+                    table.getItems().set(i, null);
+                    table.getItems().set(i, p);
                     p = null;
-                    tableProfile.getSelectionModel().select(i);
+                    table.getSelectionModel().select(i);
                     return;
                 }
                 event.getRowValue().setName(s);
                 try {
                     getModel().updateProfile(event.getRowValue());
                     Profile p = event.getRowValue();
-                    int i = tableProfile.getItems().indexOf(event.getRowValue());
-                    tableProfile.getItems().set(i, null);
-                    tableProfile.getItems().set(i, p);
-                    tableProfile.getSelectionModel().select(i);
+                    int i = table.getItems().indexOf(event.getRowValue());
+                    table.getItems().set(i, null);
+                    table.getItems().set(i, p);
+                    table.getSelectionModel().select(i);
                     p = null;
 
                 } catch (Exception e) {
@@ -149,20 +150,20 @@ public class ProfileTable {
         timeCol.setStyle( "-fx-alignment: CENTER;");
         numProfileCol.setStyle( "-fx-alignment: CENTER;");
         weightCol.setStyle( "-fx-alignment: CENTER;");
-        tableProfile.getColumns().addAll(numProfileCol, nameCol, timeCol, weightCol);
-        tableProfile.placeholderProperty().setValue(new Label(res.getString("app.table.profile_not_avaliable")));
-        tableProfile.setEditable(true);
+        table.getColumns().addAll(numProfileCol, nameCol, timeCol, weightCol);
+        table.placeholderProperty().setValue(new Label(res.getString("app.table.profile_not_avaliable")));
+        table.setEditable(true);
 
-        tableProfile.getItems().addAll(getModel().findAllProfiles()
-                                                 .stream()
-                                                 .filter(i->!i.getName().equals(App.BIOFON_PROFILE_NAME))
-                                                 .collect(Collectors.toList()));
+        table.getItems().addAll(getModel().findAllProfiles()
+                                          .stream()
+                                          .filter(i->!i.getName().equals(App.BIOFON_PROFILE_NAME))
+                                          .collect(Collectors.toList()));
 
 
-        numProfileCol.prefWidthProperty().bind(tableProfile.widthProperty().multiply(0.1));
-        nameCol.prefWidthProperty().bind(tableProfile.widthProperty().multiply(0.50));
-        timeCol.prefWidthProperty().bind(tableProfile.widthProperty().multiply(0.25));
-        weightCol.prefWidthProperty().bind(tableProfile.widthProperty().multiply(0.15));
+        numProfileCol.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
+        nameCol.prefWidthProperty().bind(table.widthProperty().multiply(0.50));
+        timeCol.prefWidthProperty().bind(table.widthProperty().multiply(0.25));
+        weightCol.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
 
         weightCol.setEditable(false);
         numProfileCol.setEditable(false);
@@ -194,13 +195,13 @@ public class ProfileTable {
         mip3.setOnAction(e->cutInTables.run());
         mip2.setOnAction(e->pasteInTables.run());
         mip4.setOnAction(e->deleteInTables.run());
-        tableProfile.setContextMenu(profileMenu);
+        table.setContextMenu(profileMenu);
         profileMenu.setOnShowing(e->{
             mip2.setDisable(false);
             mip3.setDisable(false);
             mip4.setDisable(false);
             mip5.setDisable(false);
-            if(tableProfile.getSelectionModel().getSelectedItem()==null) {
+            if(table.getSelectionModel().getSelectedItem()==null) {
                 mip2.setDisable(true);
                 mip3.setDisable(true);
                 mip4.setDisable(true);
@@ -213,7 +214,7 @@ public class ProfileTable {
                     Integer ind = (Integer)clipboard.getContent(PROFILE_CUT_ITEM_INDEX);
                     if(ind ==null) mip2.setDisable(true);
                     else {
-                        if(tableProfile.getSelectionModel().getSelectedIndex()==ind)mip2.setDisable(true);
+                        if(table.getSelectionModel().getSelectedIndex()==ind)mip2.setDisable(true);
                         else mip2.setDisable(false);
                     }
 
@@ -227,4 +228,13 @@ public class ProfileTable {
         return App.getStaticModel();
     }
 
+    public Profile getSelectedItem(){
+        return table.getSelectionModel().getSelectedItem();
+    }
+    public List<Profile> getSelectedItems(){
+        return table.getSelectionModel().getSelectedItems();
+    }
+    public List<Integer> getSelectedIndexes(){
+        return table.getSelectionModel().getSelectedIndices();
+    }
 }
