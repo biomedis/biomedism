@@ -191,8 +191,7 @@ public class AppController  extends BaseController {
     private ContextMenu  programmMenu=new ContextMenu();
     private ContextMenu  complexesMenu=new ContextMenu();
     private ContextMenu uploadMenu=new ContextMenu();
-    private  MenuItem btnUpload;
-    MenuItem btnUploadDir;
+
 
     private SimpleBooleanProperty connectedDevice =new SimpleBooleanProperty(false);//подключено ли устройство
 
@@ -205,7 +204,7 @@ public class AppController  extends BaseController {
 
     private Image imageDeviceOff;
     private Image imageDeviceOn;
-    private List<Section> allRootSection;// разделы старая и новая база
+
 
 
 
@@ -240,7 +239,6 @@ public class AppController  extends BaseController {
 
 
 
-    private DropShadow borderGlow;
 
 
     private M2UI m2ui;
@@ -262,21 +260,7 @@ public class AppController  extends BaseController {
 
     //сборщик мусора. Собирает мусор периодически, тк мы много объектов создаем при построении дерева
     //нужно его отключать вкогда плодим файлы!!!!!
-    private Thread gcThreadRunner =new Thread(() ->
-    {
-        try {
-            while (true)
-            {
-                    if(isStopGCthread()) break;
-                    Thread.sleep(46000);
-                    System.gc();
-                System.out.println("GC");
-            }
-        } catch (InterruptedException e) {
-            logger.error("",e);
-        }
-
-    });
+    private Thread gcThreadRunner;
 
     synchronized   public boolean isStopGCthread() {
         return stopGCthread;
@@ -419,253 +403,42 @@ public class AppController  extends BaseController {
     public void initialize(URL url, ResourceBundle rb) {
 
         res=rb;
-        baseProfileTabName=res.getString("app.ui.tab1");
-        baseComplexTabName=res.getString("app.ui.tab2");
-        baseProgramTabName=res.getString("app.ui.tab3");
-
-
-        searchReturn.setDisable(true);
-        searchReturn.disableProperty().bind(searchState.searchedProperty().not());
+        initNamesTables();
+        initSearchUI();
 
         dataPathMenuItem.setVisible(OSValidator.isWindows());//видимость пункта меню для введения пути к папки данных, только на винде!
-
-        //if (!searchState.isSearch()) smi4.setDisable(true);
-        //else smi4.setDisable(false);
-
+        clearTrinityItem.disableProperty().bind(m2Connected.not());
         updateBaseMenu.setVisible(getApp().isUpdateBaseMenuVisible());
 
-
-        onameComplex.textProperty().bind(new StringBinding() {
-            {
-                bind(tableComplex.getSelectionModel().selectedItemProperty());
-            }
-            @Override
-            protected String computeValue() {
-               if (tableComplex.getSelectionModel().getSelectedItem()==null) return "";
-                return tableComplex.getSelectionModel().getSelectedItem().getOname();
-            }
-        });
-
-
-
-
-        //настройка подписей в табах
-        ObservableList<Tab> tabs = therapyTabPane.getTabs();
-        tabs.get(1).disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
-        tabs.get(2).disableProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNull());
-
-
-    //при переключении на вкладку профилей проверяем можно ли грузить файлы
-        tabs.get(0).setOnSelectionChanged(e -> {if(tabs.get(0).isSelected()) checkUpploadBtn();});
-
-        tabs.get(0).textProperty().bind(new StringBinding() {
-            {
-                //указывается через , список свойств изменения которых приведут к срабатыванию этого
-                super.bind(tableProfile.getSelectionModel().selectedItemProperty());
-            }
-            @Override
-            protected String computeValue() {
-                if(tableProfile.getSelectionModel().getSelectedItem()!=null)
-                {
-                   return  baseProfileTabName+" ("+tableProfile.getSelectionModel().getSelectedItem().getName()+")";
-                }else return baseProfileTabName;
-            }
-        });
-
-
-        tableComplex.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-
-            if(newValue !=null)
-            {
-                String s = DateUtil.convertSecondsToHMmSs(AppController.this.getModel().getTimeTherapyComplex(newValue));
-                setComplexTabName(baseComplexTabName+" ("+ newValue.getName() +") +("+s+")");
-
-
-            }else setComplexTabName(baseComplexTabName);
-
-        });
-
-        /*
-        tabs.get(1).textProperty().bind(new StringBinding() {
-            {
-                //указывается через , список свойств изменения которых приведут к срабатыванию этого
-                super.bind(tableComplex.getSelectionModel().selectedItemProperty());
-            }
-            @Override
-            protected String computeValue() {
-                TherapyComplex selected = tableComplex.getSelectionModel().getSelectedItem();
-                if(selected !=null)
-                {
-                    String s = DateUtil.convertSecondsToHMmSs(AppController.this.getModel().getTimeTherapyComplex(selected));
-                    return  baseComplexTabName+" ("+ selected.getName() +") +("+s+")";
-
-
-                }else{
-
-                    return baseComplexTabName;
-                }
-            }
-        });
-*/
-        tabs.get(2).textProperty().bind(new StringBinding() {
-            {
-                //указывается через , список свойств изменения которых приведут к срабатыванию этого
-                super.bind(tableProgram.getSelectionModel().selectedItemProperty());
-            }
-            @Override
-            protected String computeValue() {
-                if(tableProgram.getSelectionModel().getSelectedItem()!=null)
-                {
-                    return  baseProgramTabName+" ("+tableProgram.getSelectionModel().getSelectedItem().getName()+")";
-                }else return baseProgramTabName;
-            }
-        });
-
-
-        clearTrinityItem.disableProperty().bind(m2Connected.not());
-
-        /** Контекстное меню загрузки в прибор **/
-
-        btnUploadDir=new MenuItem(res.getString("app.upload_to_dir"));
-        MenuItem btnUploadM2=new MenuItem(res.getString("app.ui.record_on_trinity"));
-        btnUploadM2.setOnAction(event ->  uploadM2(tableProfile.getSelectionModel().getSelectedItem()));
-        btnUpload=new MenuItem(res.getString("app.uppload"));
-        btnUpload.setOnAction(event -> onUploadProfile());
-        btnUploadDir.setOnAction(event -> uploadInDir());
-        uploadMenu.getItems().addAll(btnUploadDir,btnUpload,btnUploadM2);
-        btnUploadm.setOnAction(event4 ->
-        {
-            if(!uploadMenu.isShowing()) uploadMenu.show(btnUploadm, Side.BOTTOM, 0, 0);
-            else uploadMenu.hide();
-
-        }
-        );
-
-        //btnUploadM2.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull().and(m2Ready.not()));
-        btnUploadM2.disableProperty().bind(m2Ready.and(tableProfile.getSelectionModel().selectedItemProperty().isNotNull()).not());
-
-
-        /*********/
-
-        menuDelGeneratedFiles.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
-        btnUpload.setDisable(true);
-        btnUploadDir.setDisable(true);
         btnGenerate.setDisable(true);
 
+        initOriginalLangComplexNameView();
+        //настройка подписей в табах
+        initTabs();
+
+        /** Контекстное меню загрузки в прибор **/
+        initUploadMenuBtn();
+        initVerticalDivider();
+
+        /** Конопки меню верхнего ***/
+        menuDelGeneratedFiles.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
 
         printProfileMenu.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
         printComplexMenu.disableProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNull());
         menuImportComplex.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
-        //меню импорта комплекса из папки в пользовательскую базу
-
-        //splitOuter.setStyle("-fx-box-border: transparent;");
-        Platform.runLater(() -> balanceSpitterDividers());
-
-        //будем подстраивать  dividers при изменении размеров контейнера таблиц, при движ ползунков это не работает, при изм размеров окна срабатывает
-        splitOuter.widthProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> balanceSpitterDividers());
-
-
-
-        //btnGenerate.disableProperty().addListener((observable, oldValue, newValue) -> checkUpploadBtn());
-
-/*
-        btnGenerate.disableProperty().bind(new BooleanBinding()
-        {
-            {
-                super.bind(tableComplex.itemsProperty());
-            }
-            @Override
-            protected boolean computeValue()
-            {
-                return false;
-            }
-        });
-*/
-
-        btnUpload.disableProperty().bind(new BooleanBinding() {
-            {
-                super.bind(tableProfile.getSelectionModel().selectedItemProperty(),connectedDeviceProperty(),checkUppload, btnGenerate.disabledProperty());//подключение устройств или выключение вызывает проверку computeValue() также если появиться необходимость генерации или мы переключаем профиль(если вдруг выбор пустой стал)
-            }
-
-            @Override
-            protected boolean computeValue() {
-
-                boolean res=false;
-             if(btnGenerate.isDisable())  if(tableProfile.getSelectionModel().getSelectedItem()!=null)res = !getModel().isNeedGenerateFilesInProfile(tableProfile.getSelectionModel().getSelectedItem());
-
-
-
-
-                    //если устройство подключено, выбран профиль и не активна кнопка генерации, то можно совершить загрузку в устройство
-                return !(res && tableProfile.getSelectionModel().getSelectedItem() != null && getConnectedDevice());
-
-            }
-        });
-
-        btnUploadDir.disableProperty().bind(new BooleanBinding() {
-            {
-                super.bind(tableProfile.getSelectionModel().selectedItemProperty(),checkUppload, btnGenerate.disabledProperty());//подключение устройств или выключение вызывает проверку computeValue() также если появиться необходимость генерации или мы переключаем профиль(если вдруг выбор пустой стал)
-            }
-
-            @Override
-            protected boolean computeValue() {
-
-                boolean res=false;
-                if(btnGenerate.isDisable())  if(tableProfile.getSelectionModel().getSelectedItem()!=null)res = !getModel().isNeedGenerateFilesInProfile(tableProfile.getSelectionModel().getSelectedItem());
-
-
-                //если устройство подключено, выбран профиль и не активна кнопка генерации, то можно совершить загрузку в устройство
-                return !(res && tableProfile.getSelectionModel().getSelectedItem() != null);
-
-            }
-        });
-
-
-
-
-
-        /** Конопки меню верхнего ***/
         menuExportProfile.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
         menuExportTherapyComplex.disableProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNull());
         menuImportTherapyComplex.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
         /***************/
 
-/** Спиннер внемя на частоту **/
-
-        //timeToFreqSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(10, 1000, 180, 10));
-        timeToFreqSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0.5,10.0,3.0,0.5));
-        timeToFreqSpinner.setEditable(false);
-        spinnerPan.setVisible(false);
-        spinnerBtnPan.setVisible(false);
-
-
-        URL okUrl = getClass().getResource("/images/ok.png");
-        URL cancelUrl = getClass().getResource("/images/cancel.png");
-        btnOkSpinner.setGraphic(new ImageView(new Image(okUrl.toExternalForm())));
-        btnCancelSpinner.setGraphic(new ImageView(new Image(cancelUrl.toExternalForm())));
-
-/*******************/
-
-        /** Спиннер пачек частот **/
-
-
-        bundlesPan.setVisible(false);
-        bundlesBtnPan.setVisible(false);
-
-        btnOkBundles.setGraphic(new ImageView(new Image(okUrl.toExternalForm())));
-        btnCancelBundles.setGraphic(new ImageView(new Image(cancelUrl.toExternalForm())));
-
-
-
-/*******************/
+        baseInitSpinnerTimeForFreq();
+        baseInitBundlesSpinner();
 
 
         progress1Pane.setVisible(false);
         progress2Pane.setVisible(false);
         progress3Pane.setVisible(false);
 
-        gcThreadRunner.setDaemon(true);
-        gcThreadRunner.start();
 
         userActionPane.setDisable(true);
         diskSpaceBar.setVisible(false);
@@ -673,288 +446,19 @@ public class AppController  extends BaseController {
         hackTooltipStartTiming(diskSpaceTooltip, 250, 15000);
 
 
+        initDeleteFromUserBaseMenu(rb);
 
+        initDoneCancelImages();
+        initSeqParallelImages();
 
-/**** Контекстное меню поиска **/
+        initGCRunner();
+        getApp().addCloseApplistener(()->{
+            setStopGCthread();
+            DiskDetector.stopDetectingService();
+        } );
 
-        MenuItem smi1=new MenuItem(res.getString("app.text.search_in_dep"));
-        MenuItem smi2=new MenuItem(res.getString("app.text.search_in_cbase"));
-        MenuItem smi3=new MenuItem(res.getString("app.text.search_in_allbase"));
-        SeparatorMenuItem spmi=new SeparatorMenuItem();
-        MenuItem smi4=new MenuItem(res.getString("app.back"));
 
-        smi1.setOnAction(event2 ->  fillTreeFind(new FindFilter(SearchActionType.IN_SELECTED_DEP,searchPatternField.getText())));
-        smi2.setOnAction(event2 ->  fillTreeFind(new FindFilter(SearchActionType.IN_SELECTED_BASE, searchPatternField.getText())));
-        smi3.setOnAction(event2 ->  fillTreeFind(new FindFilter(SearchActionType.IN_ALL_BASE,searchPatternField.getText())));
-        smi4.setOnAction(event2 ->    clearSearch(true,true));
-
-
-
-        searchMenu.getItems().addAll(smi3, smi2, smi1, spmi, smi4);
-        searchBtn.setOnAction(event1 ->
-        {
-            //покажем пункты меню в зависимости от выбранных элементов базы и режима поиска!
-            if (!searchState.isSearch()) smi4.setDisable(true);
-            else smi4.setDisable(false);
-
-            if (sectionCombo.getValue().getId().longValue() == 0) smi1.setDisable(true);
-            else smi1.setDisable(false);
-
-
-            //используем searchState объект
-            if(!searchMenu.isShowing())searchMenu.show(searchBtn, Side.BOTTOM, 0, 0);
-            else searchMenu.hide();
-        });
-
-        //нажатие на ввод вызовет поиск по всей базе
-        searchPatternField.setOnAction(event1 ->
-        {
-            fillTreeFind(new FindFilter(SearchActionType.IN_ALL_BASE, searchPatternField.getText()));
-            /*
-              //нажатие на ввод вызовет поиск по выбранному разделу или базе
-            if (sectionCombo.getValue().getId().longValue() == 0) fillTreeFind(new FindFilter(SearchActionType.IN_SELECTED_BASE, searchPatternField.getText()));
-            else fillTreeFind(new FindFilter(SearchActionType.IN_SELECTED_DEP, searchPatternField.getText()));
-            */
-        });
-/*
-        searchTooltip.setText("Происк производится по нажатию кнопки 'Найти'\nили по нажатию кнопки 'Enter' на клавиатуре\n( произойдет поиск в выбранном разделе или базе если раздел не выбран).");
-        searchPatternField.setTooltip(searchTooltip);
-        hackTooltipStartTiming(searchTooltip, 250, 15000);
-*/
-
-
-
-
-
-/*******/
-
-/***************** Удаление из дерева ************************/
-        MenuItem mi1=new MenuItem(rb.getString("app.delete"));
-        MenuItem mi2=new MenuItem(rb.getString("app.clear"));
-
-        mi1.setOnAction(event2 -> onDeleteItm());
-        mi2.setOnAction(event2 -> onClearItm());
-
-        deleteMenu.getItems().addAll(mi1, mi2);
-
-        delUserBtn.setOnAction(event3 ->
-        {
-
-            if (sectionTree.getSelectionModel().getSelectedItem() == null )
-            {
-                if(sectionCombo.getSelectionModel().getSelectedItem().getId()==0)return;
-                else
-                {
-                    //это для выбранного меню разделов в комбо для секций
-                    mi1.setDisable(false);
-                    mi2.setDisable(true);
-
-                    deleteMenu.show(delUserBtn, Side.BOTTOM, 0, 0);
-                    return;
-
-                }
-            }
-            mi1.setDisable(false);
-            mi2.setDisable(false);
-
-
-            if (sectionTree.getSelectionModel().getSelectedItem().getValue() instanceof Section)
-            {
-                //можно удалять разделы если в них все пустые разделы, но есть програмы и комплексы
-                long count = sectionTree.getSelectionModel().getSelectedItem().getChildren().stream().filter(itm -> (itm.getValue() instanceof Section && !itm.getChildren().isEmpty())).count();
-                if(count!=0)  mi1.setDisable(true);
-
-               // if (!sectionTree.getSelectionModel().getSelectedItem().getChildren().isEmpty())
-            } else if (sectionTree.getSelectionModel().getSelectedItem().getValue() instanceof Program)
-                mi2.setDisable(true);
-
-
-            deleteMenu.show(delUserBtn, Side.BOTTOM, 0, 0);
-        });
-
-
-        /****/
-
-
-        //btnDownload.setText(rb.getString("ui.main.load_from_device"));
-        borderGlow= new DropShadow();
-        borderGlow.setOffsetY(0f);
-        borderGlow.setOffsetX(0f);
-        borderGlow.setColor(Color.GREEN);
-        borderGlow.setWidth(20);
-        borderGlow.setHeight(20);
-
-        URL location = getClass().getResource("/images/done.png");
-        imageDone=new Image(location.toExternalForm());
-         location = getClass().getResource("/images/cancel.png");
-        imageCancel=new Image(location.toExternalForm());
-
-        location = getClass().getResource("/images/seq_16.png");
-        imageSeq=new Image(location.toExternalForm());
-        location = getClass().getResource("/images/parallel_16.png");
-        imageParallel=new Image(location.toExternalForm());
-
-        //при закрытии приложения мы закроем сервис детектирования диска
-        getApp().addCloseApplistener(()->{setStopGCthread(); DiskDetector.stopDetectingService();} );
-
-        location = getClass().getResource("/images/DeviceOff.png");
-        imageDeviceOff=new Image(location.toExternalForm());
-
-        location = getClass().getResource("/images/DeviceOn.png");
-        imageDeviceOn=new Image(location.toExternalForm());
-        deviceIcon.setImage(imageDeviceOff);
-        deviceIcon.setEffect(null);
-        try {
-            DiskDetector.waitForDeviceNotifying(4,getModel().getOption("device.disk.mark"),(state,fs)->{
-
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(state)
-                        {
-
-                            //вытащим путь к устройству, в перыый раз или когда он будет отличаться.
-                           if(fsDeviceName.isEmpty()){
-                               fsDeviceName=fs.name();
-                               try {
-                                   devicePath=DiskDetector.getRootPath(fs);
-                               } catch (Exception e) {
-                                   devicePath=null;
-                                   logger.error("",e);
-                               }
-                           }
-                            else if(!fsDeviceName.equals(fs.name()))
-                           {
-                               fsDeviceName=fs.name();
-                               try {
-                                   devicePath=DiskDetector.getRootPath(fs);
-                               } catch (Exception e) {
-                                   devicePath=null;
-                                   logger.error("",e);
-                               }
-
-                           }
-
-                            connectedDevice.setValue(true);
-
-                           // checkUpploadBtn();
-                            deviceIcon.setImage(imageDeviceOn);
-                            deviceIcon.setEffect(borderGlow);
-
-                            DiskSpaceData diskSpace = DiskDetector.getDiskSpace(fs);
-                            double progr = (double)diskSpace.getUsed(DiskSpaceData.SizeDiskType.MEGA) /(double) diskSpace.getTotal(DiskSpaceData.SizeDiskType.MEGA);
-                            if(progr>1.0)progr=1.0;
-
-                            diskSpaceBar.setProgress(progr);
-                            if(!diskSpaceBar.isVisible()) diskSpaceBar.setVisible(true);
-
-                            StringBuilder strb=new StringBuilder();
-
-
-
-                            strb.append(rb.getString("ui.main.avaliable_space"));
-                            strb.append(" ");
-                            strb.append(diskSpace.getAvaliable(DiskSpaceData.SizeDiskType.MEGA));
-                            strb.append(rb.getString("app.mb"));
-                            strb.append("\n");
-
-                            strb.append(rb.getString("ui.main.used_space"));
-                            strb.append(" ");
-                            strb.append(diskSpace.getUsed(DiskSpaceData.SizeDiskType.MEGA));
-                            strb.append(rb.getString("app.mb"));
-                            strb.append("\n");
-
-                            strb.append(rb.getString("ui.main.total_space"));
-                            strb.append(" ");
-                            strb.append(diskSpace.getTotal(DiskSpaceData.SizeDiskType.MEGA));
-                            strb.append(rb.getString("app.mb"));
-
-
-
-
-
-                            diskSpaceTooltip.setText(strb.toString());
-
-                            strb=null;
-                            diskSpace=null;
-
-
-
-
-                        }
-                        else {
-                            connectedDevice.setValue(false);
-
-                            fsDeviceName="";
-                            devicePath=null;
-
-
-                            deviceIcon.setImage(imageDeviceOff);
-                            deviceIcon.setEffect(null);
-                            if(diskSpaceBar.isVisible()) diskSpaceBar.setVisible(false);
-
-                        }
-                    }
-                });
-
-
-            });
-        } catch (Exception e) {
-            logger.error("",e);
-        }
-
-
-//заполнение комбобокс
-        allRootSection = getModel().findAllRootSection();// разделы разных баз(старая и новая)
-        getModel().initStringsSection(allRootSection);
-        baseCombo.setConverter(new SectionConverter(getModel().getProgramLanguage().getAbbr()));
-        baseCombo.getItems().addAll(allRootSection);
-        baseCombo.setVisibleRowCount(5);
-
-
-        sectionCombo.setConverter(new SectionConverter(getModel().getProgramLanguage().getAbbr()));//конвертер секции в строку
-        sectionCombo.setVisibleRowCount(10);
-
-     //  sectionCombo.setPlaceholder(new Label(rb.getString("ui.main.empty_list")));
-        //выбор базы
-        baseCombo.setOnAction(event ->
-        {
-            programDescription.setText("");
-            programInfo.setText("");
-            clearSearch(false,false);//очистка состояния поиска
-            sectionTree.setShowRoot(false);
-            //переключение панели кнопок действий для пользовательского раздела
-            String tag = baseCombo.getSelectionModel().getSelectedItem().getTag();
-            if (tag != null ? tag.equals("USER") : false) userActionPane.setDisable(false);
-            else userActionPane.setDisable(true);
-
-            sectionsBase.clear();
-            sectionsBase.add(new Section());//пустой элемент вставим для выбора он с ID =0
-            sectionsBase.addAll(getModel().findAllSectionByParent(baseCombo.getSelectionModel().getSelectedItem()));
-            getModel().initStringsSection(sectionsBase);
-            //очистка и заполение комбобокса разделов 2 уровня согласно выбранному 1 разделу
-            sectionCombo.getItems().clear();
-            sectionCombo.getItems().addAll(sectionsBase);
-            rootItem.setValue(null);
-            if(baseCombo.getSelectionModel().getSelectedIndex()<=1)sectionCombo.getSelectionModel().select(1);
-            else sectionCombo.getSelectionModel().select(0);//автоматически очистит дерево, тк сработает sectionCombo.setOnAction(event....
-
-            //если список подразделов пуст, то попробуем заполнить дерево из корня, те из выбранной базы. Для тринити сейчас так
-            if(sectionsBase.size()<=1 && !tag.equals("USER")){
-                clearSearch(false,false);//очистка состояния поиска
-                Section selectedItem = baseCombo.getSelectionModel().getSelectedItem();
-                programDescription.setText("");
-                programInfo.setText("");
-                fillTree(selectedItem);//очистит и заполнит дерево, родительский раздел передается как параметр
-            }
-
-
-        });
-
-        //откроем первую базу
-        baseCombo.getSelectionModel().select(0);
-        baseCombo.fireEvent(new ActionEvent());//создадим эвент для baseCombo.setOnAction и заполним комбобок тем самым
-
+        initDeviceMDetection(rb);
 
 
         programInfo.setEditable(false);
@@ -962,12 +466,133 @@ public class AppController  extends BaseController {
         programDescription.setEditable(false);
         programDescription.setWrapText(true);
 
-//настроим дерево разделов
+
+        initBaseCombo();
+        initSectionCombo();
+        //настроим дерево разделов
+        initSectionTree();
+
+        initTables();
+        initProgramSearch();
+        initBiofon();
+        initUSBDetectionM2();
+
+        initTrinityReadingMenuItemDisabledPolicy();
+        initM2UI();
+
+        initSpinnersPaneVisibilityPolicy();
+        /** кнопки  таблиц **/
+        initTablesButtonVisibilityPolicy();
+
+        initMenuItemImportComplexToBase();
+    }
+
+    private void initTrinityReadingMenuItemDisabledPolicy() {
+        readFromTrinityMenu.disableProperty().bind(m2Ready.not());
+    }
+
+    private void initM2UI() {
+        tab5.disableProperty().bind(m2Ready.not());
+        try {
+            m2ui=(M2UI)replaceContent("/fxml/M2UI.fxml",tab5_content);
+
+        } catch (Exception e) {
+            showExceptionDialog("Ошибка инициализации M2UI","","",e,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+        }
+    }
+
+    private void initTablesButtonVisibilityPolicy() {
+        btnDeleteProfile.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
+        btnCreateTherapy.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
+        btnDeleteTherapy.disableProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNull());
+
+
+        btnDeleteProgram.disableProperty().bind(tableProgram.getSelectionModel().selectedItemProperty().isNull());
+
+
+        btnUpProgram.disableProperty().bind(new BooleanBinding() {
+            {bind(tableProgram.getSelectionModel().selectedItemProperty());}
+            @Override
+            protected boolean computeValue() {
+                if(tableProgram.getSelectionModel().getSelectedIndices().size()==0)return true;
+                 if(tableProgram.getSelectionModel().getSelectedIndices().size()>1) return true;
+                 if(tableProgram.getSelectionModel().getSelectedIndex()==0) return true;//верхний элемент
+                 return false;
+            }
+        });
+
+        btnDownProgram.disableProperty().bind(new BooleanBinding() {
+            {
+                //заставит этот биндинг обновляться при изменении свойства selectedIndexProperty
+              super.bind(tableProgram.getSelectionModel().selectedItemProperty());
+
+            }
+             @Override
+             protected boolean computeValue()
+             {
+
+                 if(tableProgram.getSelectionModel().getSelectedIndices().size()==0)return true;
+                 if(tableProgram.getSelectionModel().getSelectedIndices().size()>1) return true;
+
+                if( tableProgram.getSelectionModel().getSelectedIndex() == tableProgram.getItems().size()-1) return true;
+                return false;
+             }
+         });
+    }
+
+    private void initSpinnersPaneVisibilityPolicy() {
+        spinnerPan.visibleProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNotNull());
+        bundlesPan.visibleProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNotNull());
+    }
+
+    private void initMenuItemImportComplexToBase() {
+        menuImportComplexToBase.disableProperty().bind(new BooleanBinding() {
+
+            {
+                super.bind(sectionTree.getSelectionModel().selectedIndexProperty());
+            }
+            @Override
+            protected boolean computeValue()
+            {
+
+
+                if (baseCombo.getSelectionModel().getSelectedItem().getTag() != null ? baseCombo.getSelectionModel().getSelectedItem().getTag().equals("USER") : false) {
+
+                    if (sectionTree.getSelectionModel().getSelectedItem() == null) return true;
+                    if (sectionTree.getSelectionModel().getSelectedItem().getValue() instanceof Complex) return false;
+                    else if (sectionTree.getSelectionModel().getSelectedItem().getValue() instanceof Section)
+                        return false;
+                    else return true;
+                }else  return true;
+            }
+        });
+    }
+
+    private void initSectionTree() {
         sectionTree.setShowRoot(false);
         sectionTree.setRoot(rootItem);
         rootItem.setExpanded(true);
 
 
+        sectionTree.setCellFactory(param -> new TreeCell<INamed>() {
+            @Override
+            protected void updateItem(INamed item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    this.setText(null);
+                    this.setGraphic(null);
+                } else {
+                    if (getTreeItem().getValue() == null) {
+                        this.setText(null);
+                        this.setGraphic(null);
+                        return;
+                    }
+                    this.setText(getTreeItem().getValue().getNameString());//имя из названия INamed
+                    this.setGraphic(getTreeItem().getGraphic());//иконку мы устанавливали для элементов в NamedTreeItem согласно типу содержимого
+                }
+            }
+
+        });
 
         sectionTree.setOnMouseClicked(event -> {
 
@@ -1192,28 +817,51 @@ public class AppController  extends BaseController {
                 }
 
         });
+    }
 
-        sectionTree.setCellFactory(param -> new TreeCell<INamed>() {
-            @Override
-            protected void updateItem(INamed item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    this.setText(null);
-                    this.setGraphic(null);
-                } else {
-                    if (getTreeItem().getValue() == null) {
-                        this.setText(null);
-                        this.setGraphic(null);
-                        return;
-                    }
-                    this.setText(getTreeItem().getValue().getNameString());//имя из названия INamed
-                    this.setGraphic(getTreeItem().getGraphic());//иконку мы устанавливали для элементов в NamedTreeItem согласно типу содержимого
-                }
+    private void initBaseCombo() {
+        List<Section> allRootSection;// разделы старая и новая база
+        allRootSection = getModel().findAllRootSection();// разделы разных баз(старая и новая)
+        getModel().initStringsSection(allRootSection);
+        baseCombo.setConverter(new SectionConverter(getModel().getProgramLanguage().getAbbr()));
+        baseCombo.getItems().addAll(allRootSection);
+        baseCombo.setVisibleRowCount(5);
+
+        //  sectionCombo.setPlaceholder(new Label(rb.getString("ui.main.empty_list")));
+        //выбор базы
+        baseCombo.setOnAction(event ->
+        {
+            programDescription.setText("");
+            programInfo.setText("");
+            clearSearch(false,false);//очистка состояния поиска
+            sectionTree.setShowRoot(false);
+            //переключение панели кнопок действий для пользовательского раздела
+            String tag = baseCombo.getSelectionModel().getSelectedItem().getTag();
+            if (tag != null ? tag.equals("USER") : false) userActionPane.setDisable(false);
+            else userActionPane.setDisable(true);
+
+            fillSectionsSelectedBase();
+
+            //если список подразделов пуст, то попробуем заполнить дерево из корня, те из выбранной базы. Для тринити сейчас так
+            if(sectionsBase.size()<=1 && !tag.equals("USER")){
+                clearSearch(false,false);//очистка состояния поиска
+                Section selectedItem = baseCombo.getSelectionModel().getSelectedItem();
+                programDescription.setText("");
+                programInfo.setText("");
+                fillTree(selectedItem);//очистит и заполнит дерево, родительский раздел передается как параметр
             }
+
 
         });
 
+        //откроем первую базу
+        baseCombo.getSelectionModel().select(0);
+        baseCombo.fireEvent(new ActionEvent());//создадим эвент для baseCombo.setOnAction и заполним комбобок тем самым
+    }
 
+    private void initSectionCombo() {
+        sectionCombo.setConverter(new SectionConverter(getModel().getProgramLanguage().getAbbr()));//конвертер секции в строку
+        sectionCombo.setVisibleRowCount(10);
 
         //выбор рездела. Заполнение дерева после выбора раздела
         sectionCombo.setOnAction(event ->
@@ -1228,94 +876,442 @@ public class AppController  extends BaseController {
 
         sectionCombo.getSelectionModel().select(1);
         sectionCombo.getOnAction().handle(new ActionEvent());
+    }
 
-initTables();
-        initProgramSearch();
-initBiofon();
-initUSBDetectionM2();
-        readFromTrinityMenu.disableProperty().bind(m2Ready.not());
-tab5.disableProperty().bind(m2Ready.not());
+    private void fillSectionsSelectedBase() {
+        sectionsBase.clear();
+        sectionsBase.add(new Section());//пустой элемент вставим для выбора он с ID =0
+        sectionsBase.addAll(getModel().findAllSectionByParent(baseCombo.getSelectionModel().getSelectedItem()));
+        getModel().initStringsSection(sectionsBase);
+        //очистка и заполение комбобокса разделов 2 уровня согласно выбранному 1 разделу
+        sectionCombo.getItems().clear();
+        sectionCombo.getItems().addAll(sectionsBase);
+        rootItem.setValue(null);
+        if(baseCombo.getSelectionModel().getSelectedIndex()<=1)sectionCombo.getSelectionModel().select(1);
+        else sectionCombo.getSelectionModel().select(0);//автоматически очистит дерево, тк сработает sectionCombo.setOnAction(event....
+    }
+
+    private void initGCRunner() {
+        gcThreadRunner =new Thread(() ->
+        {
+            try {
+                while (true)
+                {
+                    if(isStopGCthread()) break;
+                    Thread.sleep(46000);
+                    System.gc();
+                    System.out.println("GC");
+                }
+            } catch (InterruptedException e) {
+                logger.error("",e);
+            }
+
+        });
+        gcThreadRunner.setDaemon(true);
+        gcThreadRunner.start();
+    }
+
+    private void initDeleteFromUserBaseMenu(ResourceBundle rb) {
+        MenuItem mi1=new MenuItem(rb.getString("app.delete"));
+        MenuItem mi2=new MenuItem(rb.getString("app.clear"));
+
+        mi1.setOnAction(event2 -> onDeleteItm());
+        mi2.setOnAction(event2 -> onClearItm());
+
+        deleteMenu.getItems().addAll(mi1, mi2);
+
+        delUserBtn.setOnAction(event3 ->
+        {
+
+            if (sectionTree.getSelectionModel().getSelectedItem() == null )
+            {
+                if(sectionCombo.getSelectionModel().getSelectedItem().getId()==0)return;
+                else
+                {
+                    //это для выбранного меню разделов в комбо для секций
+                    mi1.setDisable(false);
+                    mi2.setDisable(true);
+
+                    deleteMenu.show(delUserBtn, Side.BOTTOM, 0, 0);
+                    return;
+
+                }
+            }
+            mi1.setDisable(false);
+            mi2.setDisable(false);
+
+
+            if (sectionTree.getSelectionModel().getSelectedItem().getValue() instanceof Section)
+            {
+                //можно удалять разделы если в них все пустые разделы, но есть програмы и комплексы
+                long count = sectionTree.getSelectionModel().getSelectedItem().getChildren().stream().filter(itm -> (itm.getValue() instanceof Section && !itm.getChildren().isEmpty())).count();
+                if(count!=0)  mi1.setDisable(true);
+
+               // if (!sectionTree.getSelectionModel().getSelectedItem().getChildren().isEmpty())
+            } else if (sectionTree.getSelectionModel().getSelectedItem().getValue() instanceof Program)
+                mi2.setDisable(true);
+
+
+            deleteMenu.show(delUserBtn, Side.BOTTOM, 0, 0);
+        });
+    }
+
+    private void initDeviceMDetection(ResourceBundle rb) {
+        DropShadow borderGlow;
+        borderGlow= new DropShadow();
+        borderGlow.setOffsetY(0f);
+        borderGlow.setOffsetX(0f);
+        borderGlow.setColor(Color.GREEN);
+        borderGlow.setWidth(20);
+        borderGlow.setHeight(20);
+
+
+        //при закрытии приложения мы закроем сервис детектирования диска
+
+        URL location;
+        location = getClass().getResource("/images/DeviceOff.png");
+        imageDeviceOff=new Image(location.toExternalForm());
+
+        location = getClass().getResource("/images/DeviceOn.png");
+        imageDeviceOn=new Image(location.toExternalForm());
+        deviceIcon.setImage(imageDeviceOff);
+        deviceIcon.setEffect(null);
         try {
-            m2ui=(M2UI)replaceContent("/fxml/M2UI.fxml",tab5_content);
-            //Test m2t=new Test();
-            //m2ui.setContent(m2t.testData());
+            DiskDetector.waitForDeviceNotifying(4,getModel().getOption("device.disk.mark"),(state, fs)->{
+
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        if(state)
+                        {
+
+                            //вытащим путь к устройству, в перыый раз или когда он будет отличаться.
+                           if(fsDeviceName.isEmpty()){
+                               fsDeviceName=fs.name();
+                               try {
+                                   devicePath=DiskDetector.getRootPath(fs);
+                               } catch (Exception e) {
+                                   devicePath=null;
+                                   logger.error("",e);
+                               }
+                           }
+                            else if(!fsDeviceName.equals(fs.name()))
+                           {
+                               fsDeviceName=fs.name();
+                               try {
+                                   devicePath=DiskDetector.getRootPath(fs);
+                               } catch (Exception e) {
+                                   devicePath=null;
+                                   logger.error("",e);
+                               }
+
+                           }
+
+                            connectedDevice.setValue(true);
+
+                           // checkUpploadBtn();
+                            deviceIcon.setImage(imageDeviceOn);
+                            deviceIcon.setEffect(borderGlow);
+
+                            DiskSpaceData diskSpace = DiskDetector.getDiskSpace(fs);
+                            double progr = (double)diskSpace.getUsed(DiskSpaceData.SizeDiskType.MEGA) /(double) diskSpace.getTotal(DiskSpaceData.SizeDiskType.MEGA);
+                            if(progr>1.0)progr=1.0;
+
+                            diskSpaceBar.setProgress(progr);
+                            if(!diskSpaceBar.isVisible()) diskSpaceBar.setVisible(true);
+
+                            StringBuilder strb=new StringBuilder();
+
+
+
+                            strb.append(rb.getString("ui.main.avaliable_space"));
+                            strb.append(" ");
+                            strb.append(diskSpace.getAvaliable(DiskSpaceData.SizeDiskType.MEGA));
+                            strb.append(rb.getString("app.mb"));
+                            strb.append("\n");
+
+                            strb.append(rb.getString("ui.main.used_space"));
+                            strb.append(" ");
+                            strb.append(diskSpace.getUsed(DiskSpaceData.SizeDiskType.MEGA));
+                            strb.append(rb.getString("app.mb"));
+                            strb.append("\n");
+
+                            strb.append(rb.getString("ui.main.total_space"));
+                            strb.append(" ");
+                            strb.append(diskSpace.getTotal(DiskSpaceData.SizeDiskType.MEGA));
+                            strb.append(rb.getString("app.mb"));
+
+
+
+
+
+                            diskSpaceTooltip.setText(strb.toString());
+
+                            strb=null;
+                            diskSpace=null;
+
+
+
+
+                        }
+                        else {
+                            connectedDevice.setValue(false);
+
+                            fsDeviceName="";
+                            devicePath=null;
+
+
+                            deviceIcon.setImage(imageDeviceOff);
+                            deviceIcon.setEffect(null);
+                            if(diskSpaceBar.isVisible()) diskSpaceBar.setVisible(false);
+
+                        }
+                    }
+                });
+
+
+            });
         } catch (Exception e) {
-            showExceptionDialog("Ошибка инициализации M2UI","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+            logger.error("",e);
         }
+    }
+
+    private void initSeqParallelImages() {
+        URL location;
+        location = getClass().getResource("/images/seq_16.png");
+        imageSeq=new Image(location.toExternalForm());
+        location = getClass().getResource("/images/parallel_16.png");
+        imageParallel=new Image(location.toExternalForm());
+    }
+
+    private void initDoneCancelImages() {
+        URL location = getClass().getResource("/images/done.png");
+        imageDone=new Image(location.toExternalForm());
+        location = getClass().getResource("/images/cancel.png");
+        imageCancel=new Image(location.toExternalForm());
+    }
+
+    private void initSearchUI() {
+        searchReturn.setDisable(true);
+        searchReturn.disableProperty().bind(searchState.searchedProperty().not());
+        initSearchContextMenu();
+    }
+
+    private void initSearchContextMenu() {
+        MenuItem smi1=new MenuItem(res.getString("app.text.search_in_dep"));
+        MenuItem smi2=new MenuItem(res.getString("app.text.search_in_cbase"));
+        MenuItem smi3=new MenuItem(res.getString("app.text.search_in_allbase"));
+        SeparatorMenuItem spmi=new SeparatorMenuItem();
+        MenuItem smi4=new MenuItem(res.getString("app.back"));
+
+        smi1.setOnAction(event2 ->  fillTreeFind(new FindFilter(SearchActionType.IN_SELECTED_DEP,searchPatternField.getText())));
+        smi2.setOnAction(event2 ->  fillTreeFind(new FindFilter(SearchActionType.IN_SELECTED_BASE, searchPatternField.getText())));
+        smi3.setOnAction(event2 ->  fillTreeFind(new FindFilter(SearchActionType.IN_ALL_BASE,searchPatternField.getText())));
+        smi4.setOnAction(event2 ->    clearSearch(true,true));
 
 
-        /** кнопки  таблиц **/
+        searchMenu.getItems().addAll(smi3, smi2, smi1, spmi, smi4);
+        searchBtn.setOnAction(event1 ->
+        {
+            //покажем пункты меню в зависимости от выбранных элементов базы и режима поиска!
+            if (!searchState.isSearch()) smi4.setDisable(true);
+            else smi4.setDisable(false);
 
-             btnDeleteProfile.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
-             btnCreateTherapy.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
-             btnDeleteTherapy.disableProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNull());
-
-           spinnerPan.visibleProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNotNull());
-           bundlesPan.visibleProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNotNull());
-
-
-         btnDeleteProgram.disableProperty().bind(tableProgram.getSelectionModel().selectedItemProperty().isNull());
+            if (sectionCombo.getValue().getId().longValue() == 0) smi1.setDisable(true);
+            else smi1.setDisable(false);
 
 
-        btnUpProgram.disableProperty().bind(new BooleanBinding() {
-            {bind(tableProgram.getSelectionModel().selectedItemProperty());}
+            //используем searchState объект
+            if(!searchMenu.isShowing())searchMenu.show(searchBtn, Side.BOTTOM, 0, 0);
+            else searchMenu.hide();
+        });
+
+        //нажатие на ввод вызовет поиск по всей базе
+        searchPatternField.setOnAction(event1 ->
+        {
+            fillTreeFind(new FindFilter(SearchActionType.IN_ALL_BASE, searchPatternField.getText()));
+            /*
+              //нажатие на ввод вызовет поиск по выбранному разделу или базе
+            if (sectionCombo.getValue().getId().longValue() == 0) fillTreeFind(new FindFilter(SearchActionType.IN_SELECTED_BASE, searchPatternField.getText()));
+            else fillTreeFind(new FindFilter(SearchActionType.IN_SELECTED_DEP, searchPatternField.getText()));
+            */
+        });
+/*
+        searchTooltip.setText("Происк производится по нажатию кнопки 'Найти'\nили по нажатию кнопки 'Enter' на клавиатуре\n( произойдет поиск в выбранном разделе или базе если раздел не выбран).");
+        searchPatternField.setTooltip(searchTooltip);
+        hackTooltipStartTiming(searchTooltip, 250, 15000);
+*/
+    }
+
+    private void baseInitBundlesSpinner() {
+        bundlesPan.setVisible(false);
+        bundlesBtnPan.setVisible(false);
+        URL okUrl = getClass().getResource("/images/ok.png");
+        URL cancelUrl = getClass().getResource("/images/cancel.png");
+        btnOkBundles.setGraphic(new ImageView(new Image(okUrl.toExternalForm())));
+        btnCancelBundles.setGraphic(new ImageView(new Image(cancelUrl.toExternalForm())));
+    }
+
+    private void baseInitSpinnerTimeForFreq() {
+        timeToFreqSpinner.setValueFactory(new SpinnerValueFactory.DoubleSpinnerValueFactory(0.5,10.0,3.0,0.5));
+        timeToFreqSpinner.setEditable(false);
+        spinnerPan.setVisible(false);
+        spinnerBtnPan.setVisible(false);
+        URL okUrl = getClass().getResource("/images/ok.png");
+        URL cancelUrl = getClass().getResource("/images/cancel.png");
+        btnOkSpinner.setGraphic(new ImageView(new Image(okUrl.toExternalForm())));
+        btnCancelSpinner.setGraphic(new ImageView(new Image(cancelUrl.toExternalForm())));
+    }
+
+    private void initUploadToDirDisabledPolicy(MenuItem btnUploadDir) {
+        btnUploadDir.disableProperty().bind(new BooleanBinding() {
+            {
+                super.bind(tableProfile.getSelectionModel().selectedItemProperty(),checkUppload, btnGenerate.disabledProperty());//подключение устройств или выключение вызывает проверку computeValue() также если появиться необходимость генерации или мы переключаем профиль(если вдруг выбор пустой стал)
+            }
+
             @Override
             protected boolean computeValue() {
-                if(tableProgram.getSelectionModel().getSelectedIndices().size()==0)return true;
-                 if(tableProgram.getSelectionModel().getSelectedIndices().size()>1) return true;
-                 if(tableProgram.getSelectionModel().getSelectedIndex()==0) return true;//верхний элемент
-                 return false;
+
+                boolean res=false;
+                if(btnGenerate.isDisable())  if(tableProfile.getSelectionModel().getSelectedItem()!=null)res = !getModel().isNeedGenerateFilesInProfile(tableProfile.getSelectionModel().getSelectedItem());
+
+
+                //если устройство подключено, выбран профиль и не активна кнопка генерации, то можно совершить загрузку в устройство
+                return !(res && tableProfile.getSelectionModel().getSelectedItem() != null);
+
             }
         });
+    }
 
-        btnDownProgram.disableProperty().bind(new BooleanBinding() {
+    private void initButtonUploadDisabledPolicy(MenuItem btnUpload) {
+        btnUpload.disableProperty().bind(new BooleanBinding() {
             {
-                //заставит этот биндинг обновляться при изменении свойства selectedIndexProperty
-              super.bind(tableProgram.getSelectionModel().selectedItemProperty());
-
+                super.bind(tableProfile.getSelectionModel().selectedItemProperty(),connectedDeviceProperty(),checkUppload, btnGenerate.disabledProperty());//подключение устройств или выключение вызывает проверку computeValue() также если появиться необходимость генерации или мы переключаем профиль(если вдруг выбор пустой стал)
             }
-             @Override
-             protected boolean computeValue()
-             {
 
-                 if(tableProgram.getSelectionModel().getSelectedIndices().size()==0)return true;
-                 if(tableProgram.getSelectionModel().getSelectedIndices().size()>1) return true;
-
-                if( tableProgram.getSelectionModel().getSelectedIndex() == tableProgram.getItems().size()-1) return true;
-                return false;
-             }
-         });
-
-        menuImportComplexToBase.disableProperty().bind(new BooleanBinding() {
-
-            {
-                super.bind(sectionTree.getSelectionModel().selectedIndexProperty());
-            }
             @Override
-            protected boolean computeValue()
-            {
+            protected boolean computeValue() {
+
+                boolean res=false;
+             if(btnGenerate.isDisable())  if(tableProfile.getSelectionModel().getSelectedItem()!=null)res = !getModel().isNeedGenerateFilesInProfile(tableProfile.getSelectionModel().getSelectedItem());
 
 
-                if (baseCombo.getSelectionModel().getSelectedItem().getTag() != null ? baseCombo.getSelectionModel().getSelectedItem().getTag().equals("USER") : false) {
 
-                    if (sectionTree.getSelectionModel().getSelectedItem() == null) return true;
-                    if (sectionTree.getSelectionModel().getSelectedItem().getValue() instanceof Complex) return false;
-                    else if (sectionTree.getSelectionModel().getSelectedItem().getValue() instanceof Section)
-                        return false;
-                    else return true;
-                }else  return true;
+
+                    //если устройство подключено, выбран профиль и не активна кнопка генерации, то можно совершить загрузку в устройство
+                return !(res && tableProfile.getSelectionModel().getSelectedItem() != null && getConnectedDevice());
+
             }
         });
-        /********************/
+    }
+
+    private void initVerticalDivider() {
+        Platform.runLater(() -> balanceSpitterDividers());
+
+        //будем подстраивать  dividers при изменении размеров контейнера таблиц, при движ ползунков это не работает, при изм размеров окна срабатывает
+        splitOuter.widthProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> balanceSpitterDividers());
+    }
+
+    private void initUploadMenuBtn() {
+
+        MenuItem btnUploadDir=new MenuItem(res.getString("app.upload_to_dir"));
+        btnUploadDir.setDisable(true);
+        btnUploadDir.setOnAction(event -> uploadInDir());
+        initUploadToDirDisabledPolicy(btnUploadDir);
+
+        MenuItem btnUploadM2=new MenuItem(res.getString("app.ui.record_on_trinity"));
+        btnUploadM2.setOnAction(event ->  uploadM2(tableProfile.getSelectionModel().getSelectedItem()));
+        btnUploadM2.disableProperty().bind(m2Ready.and(tableProfile.getSelectionModel().selectedItemProperty().isNotNull()).not());
+
+        MenuItem btnUpload=new MenuItem(res.getString("app.uppload"));
+        btnUpload.setDisable(true);
+        btnUpload.setOnAction(event -> onUploadProfile());
+        initButtonUploadDisabledPolicy(btnUpload);
+
+        uploadMenu.getItems().addAll(btnUploadDir,btnUpload, btnUploadM2);
+        btnUploadm.setOnAction(event4 ->
+        {
+            if(!uploadMenu.isShowing()) uploadMenu.show(btnUploadm, Side.BOTTOM, 0, 0);
+            else uploadMenu.hide();
+
+        });
 
 
 
     }
 
+    private void initTabs() {
+        ObservableList<Tab> tabs = therapyTabPane.getTabs();
+        tabs.get(1).disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
+        tabs.get(2).disableProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNull());
 
 
+        //при переключении на вкладку профилей проверяем можно ли грузить файлы
+        tabs.get(0).setOnSelectionChanged(e -> {if(tabs.get(0).isSelected()) checkUpploadBtn();});
 
-   @FXML private AnchorPane tab5_content;
+        tabs.get(0).textProperty().bind(new StringBinding() {
+            {
+                //указывается через , список свойств изменения которых приведут к срабатыванию этого
+                super.bind(tableProfile.getSelectionModel().selectedItemProperty());
+            }
+            @Override
+            protected String computeValue() {
+                if(tableProfile.getSelectionModel().getSelectedItem()!=null)
+                {
+                   return  baseProfileTabName+" ("+tableProfile.getSelectionModel().getSelectedItem().getName()+")";
+                }else return baseProfileTabName;
+            }
+        });
+
+        tableComplex.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+
+            if(newValue !=null)
+            {
+                String s = DateUtil.convertSecondsToHMmSs(AppController.this.getModel().getTimeTherapyComplex(newValue));
+                setComplexTabName(baseComplexTabName+" ("+ newValue.getName() +") +("+s+")");
+
+
+            }else setComplexTabName(baseComplexTabName);
+
+        });
+
+        tabs.get(2).textProperty().bind(new StringBinding() {
+            {
+                //указывается через , список свойств изменения которых приведут к срабатыванию этого
+                super.bind(tableProgram.getSelectionModel().selectedItemProperty());
+            }
+            @Override
+            protected String computeValue() {
+                if(tableProgram.getSelectionModel().getSelectedItem()!=null)
+                {
+                    return  baseProgramTabName+" ("+tableProgram.getSelectionModel().getSelectedItem().getName()+")";
+                }else return baseProgramTabName;
+            }
+        });
+
+    }
+
+    private void initOriginalLangComplexNameView() {
+        onameComplex.textProperty().bind(new StringBinding() {
+            {
+                bind(tableComplex.getSelectionModel().selectedItemProperty());
+            }
+            @Override
+            protected String computeValue() {
+               if (tableComplex.getSelectionModel().getSelectedItem()==null) return "";
+                return tableComplex.getSelectionModel().getSelectedItem().getOname();
+            }
+        });
+    }
+
+    private void initNamesTables() {
+        baseProfileTabName=res.getString("app.ui.tab1");
+        baseComplexTabName=res.getString("app.ui.tab2");
+        baseProgramTabName=res.getString("app.ui.tab3");
+    }
+
+
+    @FXML private AnchorPane tab5_content;
     private SimpleBooleanProperty m2Ready =new SimpleBooleanProperty(false);
     private SimpleBooleanProperty m2Connected=new SimpleBooleanProperty(false);
     private void initUSBDetectionM2() {
