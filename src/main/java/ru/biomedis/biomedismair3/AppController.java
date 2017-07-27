@@ -226,8 +226,7 @@ public class AppController  extends BaseController {
     private final DataFormat COMPLEX_CUT_ITEM_ID=new DataFormat("biomedis/cut_complex_item_id");
     private final DataFormat COMPLEX_CUT_ITEM_PROFILE =new DataFormat("biomedis/cut_complex_profile");
 
-    private final DataFormat PROFILE_CUT_ITEM_INDEX =new DataFormat("biomedis/cut_profile_item_index");
-    private final DataFormat PROFILE_CUT_ITEM_ID=new DataFormat("biomedis/cut_profile_item_id");
+
 
 
     private final DataFormat PROGRAM_COPY_ITEM=new DataFormat("biomedis/copy_programitem");
@@ -1870,8 +1869,8 @@ public class AppController  extends BaseController {
 
 
         /*** Профили  ****/
-         profileTable = initProfileTable();
-        initProfileContextMenu();
+        profileTable = initProfileTable();
+        profileTable.initProfileContextMenu( this::onPrintProfile,  this::cutInTables,  this::pasteInTables, this::deleteInTables);
         initProfileSelectedListener();
 
 
@@ -2402,53 +2401,7 @@ public class AppController  extends BaseController {
        return ComplexTable.init(tableComplex,res,imageCancel,imageDone);
     }
 
-    private void initProfileContextMenu() {
-        //MenuItem mip1 = new MenuItem(this.res.getString("app.ui.copy"));
-        MenuItem mip2 =new MenuItem(this.res.getString("app.ui.paste"));
-        MenuItem mip3 =new MenuItem(this.res.getString("app.cut"));
-        MenuItem mip4 =new MenuItem(this.res.getString("app.delete"));
-        MenuItem mip5 =new MenuItem(this.res.getString("app.menu.print_profile"));
-        MenuItem mip6 =new SeparatorMenuItem();
 
-        mip5.setOnAction(e->onPrintProfile());
-
-
-        mip3.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
-        //mip1.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
-        mip2.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
-        mip4.setAccelerator(KeyCombination.keyCombination("Delete"));
-        profileMenu.getItems().addAll(mip3,mip2,mip4,mip6,mip5);
-        mip3.setOnAction(e->cutInTables());
-        mip2.setOnAction(e->pasteInTables());
-        mip4.setOnAction(e->deleteInTables());
-        tableProfile.setContextMenu(profileMenu);
-        profileMenu.setOnShowing(e->{
-            mip2.setDisable(false);
-            mip3.setDisable(false);
-            mip4.setDisable(false);
-            mip5.setDisable(false);
-         if(tableProfile.getSelectionModel().getSelectedItem()==null) {
-             mip2.setDisable(true);
-             mip3.setDisable(true);
-             mip4.setDisable(true);
-             mip5.setDisable(true);
-         }else {
-
-             mip4.setDisable(false);
-             Clipboard clipboard= Clipboard.getSystemClipboard();
-             if(clipboard.hasContent(PROFILE_CUT_ITEM_ID)){
-                 Integer ind = (Integer)clipboard.getContent(PROFILE_CUT_ITEM_INDEX);
-                 if(ind ==null) mip2.setDisable(true);
-                 else {
-                     if(tableProfile.getSelectionModel().getSelectedIndex()==ind)mip2.setDisable(true);
-                     else mip2.setDisable(false);
-                 }
-
-             }else  mip2.setDisable(true);
-         }
-
-        });
-    }
 
     private ProfileTable initProfileTable() {
         return ProfileTable.init(tableProfile, res);
@@ -2723,11 +2676,11 @@ Clipboard clipboard =Clipboard.getSystemClipboard();
         int dropIndex=tableProfile.getSelectionModel().getSelectedIndex();
 
         Clipboard clipboard= Clipboard.getSystemClipboard();
-        if(!clipboard.hasContent(PROFILE_CUT_ITEM_ID)) return;
-        if(!clipboard.hasContent(PROFILE_CUT_ITEM_INDEX)) return;
+        if(!clipboard.hasContent(ProfileTable.PROFILE_CUT_ITEM_ID)) return;
+        if(!clipboard.hasContent(ProfileTable.PROFILE_CUT_ITEM_INDEX)) return;
 
 
-            Integer ind = (Integer) clipboard.getContent(PROFILE_CUT_ITEM_INDEX);
+            Integer ind = (Integer) clipboard.getContent(ProfileTable.PROFILE_CUT_ITEM_INDEX);
             if (ind == null) return;
             else {
                 if (dropIndex == ind) return;
@@ -2768,8 +2721,8 @@ Clipboard clipboard =Clipboard.getSystemClipboard();
         Clipboard clipboard=Clipboard.getSystemClipboard();
         clipboard.clear();
         ClipboardContent content = new ClipboardContent();
-        content.put(PROFILE_CUT_ITEM_ID, profile.getId());
-        content.put(PROFILE_CUT_ITEM_INDEX, tableProfile.getSelectionModel().getSelectedIndex());
+        content.put(ProfileTable.PROFILE_CUT_ITEM_ID, profile.getId());
+        content.put(ProfileTable.PROFILE_CUT_ITEM_INDEX, tableProfile.getSelectionModel().getSelectedIndex());
         clipboard.setContent(content);
     }
 

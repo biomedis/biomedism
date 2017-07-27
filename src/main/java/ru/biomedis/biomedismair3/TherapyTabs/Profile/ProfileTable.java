@@ -3,11 +3,12 @@ package ru.biomedis.biomedismair3.TherapyTabs.Profile;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.KeyCombination;
 import ru.biomedis.biomedismair3.App;
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.Profile;
@@ -24,6 +25,10 @@ public class ProfileTable {
     private  ResourceBundle res;
     private TableView<Profile> tableProfile;
     private static ProfileTable instance;
+    private ContextMenu  profileMenu=new ContextMenu();
+
+    public static  final DataFormat PROFILE_CUT_ITEM_INDEX =new DataFormat("biomedis/cut_profile_item_index");
+    public static  DataFormat PROFILE_CUT_ITEM_ID=new DataFormat("biomedis/cut_profile_item_id");
 
     public static ProfileTable init(TableView<Profile> tableProfile, ResourceBundle res){
 
@@ -170,7 +175,56 @@ public class ProfileTable {
         weightCol.setSortable(false);
     }
 
+    public void initProfileContextMenu(Runnable onPrintProfile, Runnable cutInTables, Runnable pasteInTables,Runnable deleteInTables) {
+        //MenuItem mip1 = new MenuItem(this.res.getString("app.ui.copy"));
+        MenuItem mip2 =new MenuItem(this.res.getString("app.ui.paste"));
+        MenuItem mip3 =new MenuItem(this.res.getString("app.cut"));
+        MenuItem mip4 =new MenuItem(this.res.getString("app.delete"));
+        MenuItem mip5 =new MenuItem(this.res.getString("app.menu.print_profile"));
+        MenuItem mip6 =new SeparatorMenuItem();
+
+        mip5.setOnAction(e->onPrintProfile.run());
+
+
+        mip3.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
+        //mip1.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
+        mip2.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
+        mip4.setAccelerator(KeyCombination.keyCombination("Delete"));
+        profileMenu.getItems().addAll(mip3,mip2,mip4,mip6,mip5);
+        mip3.setOnAction(e->cutInTables.run());
+        mip2.setOnAction(e->pasteInTables.run());
+        mip4.setOnAction(e->deleteInTables.run());
+        tableProfile.setContextMenu(profileMenu);
+        profileMenu.setOnShowing(e->{
+            mip2.setDisable(false);
+            mip3.setDisable(false);
+            mip4.setDisable(false);
+            mip5.setDisable(false);
+            if(tableProfile.getSelectionModel().getSelectedItem()==null) {
+                mip2.setDisable(true);
+                mip3.setDisable(true);
+                mip4.setDisable(true);
+                mip5.setDisable(true);
+            }else {
+
+                mip4.setDisable(false);
+                Clipboard clipboard= Clipboard.getSystemClipboard();
+                if(clipboard.hasContent(PROFILE_CUT_ITEM_ID)){
+                    Integer ind = (Integer)clipboard.getContent(PROFILE_CUT_ITEM_INDEX);
+                    if(ind ==null) mip2.setDisable(true);
+                    else {
+                        if(tableProfile.getSelectionModel().getSelectedIndex()==ind)mip2.setDisable(true);
+                        else mip2.setDisable(false);
+                    }
+
+                }else  mip2.setDisable(true);
+            }
+
+        });
+    }
+
     private ModelDataApp getModel() {
         return App.getStaticModel();
     }
+
 }
