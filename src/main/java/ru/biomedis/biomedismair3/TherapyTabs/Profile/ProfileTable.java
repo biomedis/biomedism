@@ -25,7 +25,7 @@ public class ProfileTable {
     private TableView<Profile> tableProfile;
     private static ProfileTable instance;
 
-    public static ProfileTable getInstance(TableView<Profile> tableProfile, ResourceBundle res){
+    public static ProfileTable init(TableView<Profile> tableProfile, ResourceBundle res){
 
         if(instance==null){
             instance =new ProfileTable(tableProfile,res);
@@ -33,7 +33,12 @@ public class ProfileTable {
         }
         return instance;
     }
+    public static ProfileTable getInstance(){
 
+        if(instance==null){
+           return null;
+        }else   return instance;
+    }
     private ProfileTable() {
     }
 

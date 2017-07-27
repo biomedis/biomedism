@@ -2373,7 +2373,7 @@ public class AppController  extends BaseController {
     }
 
     private ProgramTable initProgramsTable() {
-        return ProgramTable.getInstance(tableProgram,res,imageCancel,imageDone,imageSeq,imageParallel,() -> {
+        return ProgramTable.init(tableProgram,res,imageCancel,imageDone,imageSeq,imageParallel,() -> {
             updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(),true);
         });
     }
@@ -2399,7 +2399,7 @@ public class AppController  extends BaseController {
     }
 
     private ComplexTable initComplexesTable() {
-       return ComplexTable.getInstance(tableComplex,res,imageCancel,imageDone);
+       return ComplexTable.init(tableComplex,res,imageCancel,imageDone);
     }
 
     private void initProfileContextMenu() {
@@ -2451,7 +2451,7 @@ public class AppController  extends BaseController {
     }
 
     private ProfileTable initProfileTable() {
-        return ProfileTable.getInstance(tableProfile, res);
+        return ProfileTable.init(tableProfile, res);
     }
 
     private void initTabComplexNameListener() {

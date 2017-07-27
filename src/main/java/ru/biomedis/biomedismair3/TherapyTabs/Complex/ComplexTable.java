@@ -34,7 +34,7 @@ public class ComplexTable {
         return textComplexTime;
     }
 
-    public static ComplexTable getInstance(TableView<TherapyComplex> tableComplex, ResourceBundle res, Image imageCancel, Image imageDone){
+    public static ComplexTable init(TableView<TherapyComplex> tableComplex, ResourceBundle res, Image imageCancel, Image imageDone){
 
         if(instance==null){
             instance =new ComplexTable(tableComplex,res,imageCancel,imageDone);
@@ -43,6 +43,12 @@ public class ComplexTable {
         return instance;
     }
 
+    public static ComplexTable getInstance(){
+
+        if(instance==null){
+           return null;
+        }else return  instance;
+    }
     private ComplexTable() {
     }
 

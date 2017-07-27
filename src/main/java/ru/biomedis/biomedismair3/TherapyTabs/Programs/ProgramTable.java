@@ -44,13 +44,20 @@ public class ProgramTable {
     private NeedUpdateComplexTime needUpdateListener;
 
 
-    public static ProgramTable getInstance(TableView<TherapyProgram> tableComplex, ResourceBundle res, Image imageCancel, Image imageDone, Image imageSeq, Image imageParallel,NeedUpdateComplexTime needUpdateListener){
+    public static ProgramTable init(TableView<TherapyProgram> tableComplex, ResourceBundle res, Image imageCancel, Image imageDone, Image imageSeq, Image imageParallel,NeedUpdateComplexTime needUpdateListener){
 
         if(instance==null){
             instance =new ProgramTable(tableComplex,res,imageCancel,imageDone,imageSeq,imageParallel, needUpdateListener);
             instance.initTable();
         }
         return instance;
+    }
+
+    public static ProgramTable getInstance(){
+
+        if(instance==null){
+           return null;
+        }else  return instance;
     }
 
     private ProgramTable() {
