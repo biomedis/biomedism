@@ -292,59 +292,6 @@ public class AppController  extends BaseController {
     }
 
     /**
-     * Установка текста над табл комплексов
-     * @param name
-     */
-    private void setOnameComplex(String name){
-        onameComplex.setText(name);
-    }
-
-    /**
-     * Статус поиска по базе
-     * Раздел открытый до поиска чиатается из ComboBox тк любое его изменение отменит поиск
-     */
-    class SearchState
-    {
-       private   boolean search=false;
-        private String searchText="";
-
-        private ReadOnlyBooleanWrapper searched=new ReadOnlyBooleanWrapper(false);
-
-
-
-
-        public ReadOnlyBooleanProperty searchedProperty() {
-            return searched.getReadOnlyProperty();
-        }
-
-
-
-        public boolean isSearch() {
-            return this.search;
-        }
-
-        public void setSearch(boolean search) {
-            this.search = search;
-            searched.set(search);
-        }
-
-        public String getSearchText() {
-            return this.searchText;
-        }
-
-        public void setSearchText(String searchText) {
-            this.searchText = searchText;
-        }
-
-        public void clear(){
-
-           setSearch(false);
-           setSearchText("");
-
-        }
-    }
-
-    /**
      *  возврат к состоянию дерева как до поиска, возврат состояния других элементов
      * @param restoreState восстановить старое дерево до поиска?
      */
@@ -575,25 +522,6 @@ public class AppController  extends BaseController {
 
         sectionTree.setCellFactory(param -> new SectionTreeCell());
         sectionTree.setOnMouseClicked(this::sectionTreeClickAction);
-    }
-
-    private static class SectionTreeCell extends TreeCell<INamed>{
-        @Override
-        protected void updateItem(INamed item, boolean empty) {
-            super.updateItem(item, empty);
-            if (empty) {
-                this.setText(null);
-                this.setGraphic(null);
-            } else {
-                if (getTreeItem().getValue() == null) {
-                    this.setText(null);
-                    this.setGraphic(null);
-                    return;
-                }
-                this.setText(getTreeItem().getValue().getNameString());//имя из названия INamed
-                this.setGraphic(getTreeItem().getGraphic());//иконку мы устанавливали для элементов в NamedTreeItem согласно типу содержимого
-            }
-        }
     }
 
     private void sectionTreeClickAction(MouseEvent event) {
@@ -1902,36 +1830,6 @@ public class AppController  extends BaseController {
 
         });
 
-/*
-        Tooltip t = new Tooltip("Добавить пустой комплекс");
-        Tooltip.install(bComplexAdd, t);
-
-
-        t = new Tooltip("Редактировать имя комплекса");
-        Tooltip.install(bComplexEdit, t);
-
-        t = new Tooltip("Экспортировать комплексы");
-        Tooltip.install(biofonExportMi, t);
-
-        t = new Tooltip("Импортировать комплексы");
-        Tooltip.install(bComplexImport, t);
-
-        t = new Tooltip("Печать комплексов");
-        Tooltip.install(bComplexPrint, t);
-
-        t = new Tooltip("Удалить комплексы");
-        Tooltip.install(bComplexDel, t);
-
-        t = new Tooltip("Вверх");
-        Tooltip.install(bProgramUp, t);
-
-        t = new Tooltip("Вниз");
-        Tooltip.install(bProgramDown, t);
-
-        t = new Tooltip("Удалить программу");
-        Tooltip.install(bProgramDel, t);
-        */
-
     }
 
 
@@ -1987,12 +1885,11 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
     private void initTables()
     {
         tablesMenuHelper = initContextMenuHotKeyHolders();
-        //установка имени таба комплексов с учетом времени
-        initTabNameListener();
+
 
         /*** Профили  ****/
         initProfileTable();
-        initProfileCntextMenu();
+        initProfileContextMenu();
         initProfileSelectedListener();
 
 
@@ -2004,6 +1901,8 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         initComplexSelectedListener();
         initComplexSpinnerTimeForFreq();
         initComplexBundlesLength();
+        //установка имени таба комплексов с учетом времени
+        initTabNameListener();
 
         /*** Программы  ****/
         initProgramsTable();
@@ -3071,7 +2970,7 @@ private SimpleStringProperty textComplexTime=new SimpleStringProperty();
         fileComplexCol.setEditable(true);
     }
 
-    private void initProfileCntextMenu() {
+    private void initProfileContextMenu() {
         //MenuItem mip1 = new MenuItem(this.res.getString("app.ui.copy"));
         MenuItem mip2 =new MenuItem(this.res.getString("app.ui.paste"));
         MenuItem mip3 =new MenuItem(this.res.getString("app.cut"));
