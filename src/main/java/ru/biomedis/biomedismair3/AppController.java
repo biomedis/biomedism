@@ -185,8 +185,6 @@ public class AppController  extends BaseController {
     private ContextMenu searchMenu=new ContextMenu();
     private SearchState searchState=new SearchState();
 
-    private ContextMenu  programmMenu=new ContextMenu();
-
     private ContextMenu uploadMenu=new ContextMenu();
 
 
@@ -218,20 +216,6 @@ public class AppController  extends BaseController {
     private boolean stopGCthread=false;
 
     private final DataFormat PROGRAM_DRAG_ITEM=new DataFormat("biomedis/programitem");
-
-    private final DataFormat PROGRAM_CUT_ITEM_INDEX =new DataFormat("biomedis/cut_programitem_index");
-    private final DataFormat PROGRAM_CUT_ITEM_ID=new DataFormat("biomedis/cut_programitem_id");
-    private final DataFormat PROGRAM_CUT_ITEM_COMPLEX =new DataFormat("biomedis/cut_programitem_complex");
-
-
-
-
-
-    private final DataFormat PROGRAM_COPY_ITEM=new DataFormat("biomedis/copy_programitem");
-
-
-
-
 
 
     private M2UI m2ui;
@@ -1906,7 +1890,26 @@ public class AppController  extends BaseController {
 
         /*** Программы  ****/
          programTable = initProgramsTable();
-        initProgramsTableContextMenu();
+        programTable.initProgramsTableContextMenu(this::copyTherapyProgramToBase,
+                this::editMP3ProgramPath,
+                this::cutInTables,
+                this::copyInTables,
+                this::multyFreqProgramSwitchOn,
+                this::multyFreqProgramSwitchOff,
+                this::pasteInTables,
+                this::deleteInTables,
+                ()->therapyProgramsCopied,
+                ()-> {
+                    boolean res = true;
+                    if (sectionTree.getSelectionModel().getSelectedItem() != null) {
+                        INamed value = sectionTree.getSelectionModel().getSelectedItem().getValue();
+                        if (value instanceof Section || value instanceof Complex) {
+                            String tag = ((Section) baseCombo.getSelectionModel().getSelectedItem()).getTag();
+                            if (tag != null && tag.equals("USER")) return false;
+                        }
+                    }
+                    return res;
+                });
 
 
         initDeleteAndSwitchTableKeys();
@@ -2120,218 +2123,7 @@ public class AppController  extends BaseController {
         });
     }
 
-    private void initProgramsTableContextMenu() {
-        MenuItem mi1=new MenuItem(res.getString("app.cut"));
-        MenuItem mi6=new MenuItem(res.getString("app.ui.edit_file_path"));
-        MenuItem mi7=new MenuItem(res.getString("app.ui.copy"));
-        MenuItem mi2=new MenuItem(res.getString("app.paste"));
-        MenuItem mi16=new MenuItem(res.getString("app.delete"));
 
-        mi1.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
-        mi7.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
-        mi2.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
-        mi16.setAccelerator(KeyCombination.keyCombination("Delete"));
-
-        MenuItem mi3=new SeparatorMenuItem();
-        MenuItem mi4=new MenuItem(res.getString("app.to_user_base"));
-        MenuItem mi5=new SeparatorMenuItem();
-        MenuItem mi8=new MenuItem(res.getString("app.ui.multy_switch_on"));
-        MenuItem mi9=new MenuItem(res.getString("app.ui.multy_switch_off"));
-        MenuItem mi10=new SeparatorMenuItem();
-        MenuItem mi11=new MenuItem(res.getString("app.ui.copy_program_name"));
-        MenuItem mi12=new MenuItem(res.getString("app.ui.copy_program_name_main"));
-        MenuItem mi13=new MenuItem(res.getString("app.ui.copy_program_freq"));
-        MenuItem mi14=new MenuItem(res.getString("app.ui.invert_seletion"));
-        MenuItem mi15=new SeparatorMenuItem();
-        MenuItem mi17=new MenuItem(res.getString("app.copy_freq_and_name"));
-
-        mi11.setOnAction(e->{
-            TherapyProgram selectedItem = tableProgram.getSelectionModel().getSelectedItem();
-            if(selectedItem==null) return;
-            Clipboard clipboard = Clipboard.getSystemClipboard();
-            ClipboardContent content = new ClipboardContent();
-            content.putString(selectedItem.getName());
-            clipboard.setContent(content);
-
-        });
-        mi17.setOnAction(e->{
-            TherapyProgram selectedItem = tableProgram.getSelectionModel().getSelectedItem();
-            if(selectedItem==null) return;
-            Clipboard clipboard = Clipboard.getSystemClipboard();
-            ClipboardContent content = new ClipboardContent();
-            content.putString(selectedItem.getName()+" \n"+selectedItem.getFrequencies());
-            clipboard.setContent(content);
-
-        });
-        mi12.setOnAction(e->{
-            TherapyProgram selectedItem = tableProgram.getSelectionModel().getSelectedItem();
-            if(selectedItem==null) return;
-            Clipboard clipboard = Clipboard.getSystemClipboard();
-            ClipboardContent content = new ClipboardContent();
-            content.putString(selectedItem.getOname());
-            clipboard.setContent(content);
-
-        });
-        mi13.setOnAction(e->{
-            TherapyProgram selectedItem = tableProgram.getSelectionModel().getSelectedItem();
-            if(selectedItem==null) return;
-            Clipboard clipboard = Clipboard.getSystemClipboard();
-            ClipboardContent content = new ClipboardContent();
-            content.putString(selectedItem.getFrequencies());
-            clipboard.setContent(content);
-
-        });
-        mi14.setOnAction(e->{
-            List<Integer> selected = tableProgram.getSelectionModel().getSelectedIndices().stream().collect(Collectors.toList());
-            tableProgram.getSelectionModel().selectAll();
-            for (Integer ind : selected) {
-                tableProgram.getSelectionModel().clearSelection(ind);
-            }
-
-
-        });
-
-        mi4.setOnAction(event2 -> copyTherapyProgramToBase());
-        mi6.setOnAction(event2 -> editMP3ProgramPath());
-
-        mi1.setOnAction(e ->
-        {
-            cutInTables();
-
-        });
-
-        mi7.setOnAction(e->{
-            copyInTables();
-        });
-        mi8.setOnAction(e-> multyFreqProgramSwitchOn());
-        mi9.setOnAction(e->multyFreqProgramSwitchOff());
-        mi2.setOnAction(e -> pasteInTables());
-        mi16.setOnAction(e->deleteInTables());
-        programmMenu.getItems().addAll(mi1,
-                mi7,
-                mi2,
-                mi16,
-                mi3,
-                mi8,
-                mi9,
-                mi15,
-                mi17,
-                mi11,
-                mi12,
-                mi13,
-                mi14,
-                mi10,
-                mi4,
-                mi6);
-
-        tableProgram.setContextMenu(programmMenu);
-        this.programmMenu.setOnShowing((event1) -> {
-            if(this.tableProgram.getSelectionModel().getSelectedItem() == null) {
-                mi2.setDisable(true);
-                mi1.setDisable(true);
-                mi3.setDisable(true);
-                mi4.setDisable(true);
-                mi5.setDisable(true);
-                mi6.setDisable(true);
-                mi7.setDisable(true);
-                mi8.setDisable(true);
-                mi9.setDisable(true);
-                mi11.setDisable(true);
-                mi12.setDisable(true);
-                mi13.setDisable(true);
-                mi14.setDisable(true);
-                mi16.setDisable(true);
-                Clipboard clipboard = Clipboard.getSystemClipboard();
-                if(clipboard.hasContent(this.PROGRAM_COPY_ITEM))if(therapyProgramsCopied)   mi2.setDisable(false);
-                if(clipboard.hasContent(this.PROGRAM_CUT_ITEM_ID))   mi2.setDisable(false);
-            } else {
-                mi16.setDisable(false);
-                if(tableProgram.getSelectionModel().getSelectedIndices().size()==1){
-                    mi11.setDisable(false);
-                    mi12.setDisable(false);
-                    mi13.setDisable(false);
-
-                }else {
-                    mi11.setDisable(true);
-                    mi12.setDisable(true);
-                    mi13.setDisable(true);
-
-                }
-                mi14.setDisable(false);
-                mi2.setDisable(true);
-                mi1.setDisable(false);//всегда можно вырезать
-                mi3.setDisable(true);
-                mi4.setDisable(true);
-                mi5.setDisable(true);
-                if(tableProgram.getSelectionModel().getSelectedIndices().size()==1 && tableProgram.getSelectionModel().getSelectedItem().isMp3())mi6.setDisable(false);
-                else mi6.setDisable(true);
-
-                mi7.setDisable(false);
-
-                    mi8.setDisable(false);
-                    mi9.setDisable(false);
-
-
-                Clipboard clipboard = Clipboard.getSystemClipboard();
-                if(clipboard.hasContent(this.PROGRAM_CUT_ITEM_INDEX) || clipboard.hasContent(this.PROGRAM_COPY_ITEM)) {
-
-
-                    if (clipboard.hasContent(this.PROGRAM_COPY_ITEM)) {
-                      if(tableProgram.getSelectionModel().getSelectedIndices().size()==1) mi2.setDisable(false);
-                        else mi2.setDisable(true);
-                    }
-                   else  if(tableProgram.getSelectionModel().getSelectedIndices().size()==1) {
-
-                            Integer[] ind = (Integer[]) clipboard.getContent(PROGRAM_CUT_ITEM_INDEX);
-                        if (ind != null) {
-                            if (ind.length != 0) {
-                                Long idComplex = (Long) clipboard.getContent(PROGRAM_CUT_ITEM_COMPLEX);
-                                if(idComplex==null)mi2.setDisable(true);
-                                else if(idComplex.longValue()==tableComplex.getSelectionModel().getSelectedItem().getId().longValue()){
-                                    //вставка в том же профиле
-                                int dropIndex = tableProgram.getSelectionModel().getSelectedIndex();
-                                if(TablesCommon.isEnablePaste(dropIndex,ind))mi2.setDisable(false);
-
-                                }else   mi2.setDisable(false);//вставка в другом профиле, можно в любое место
-                            }
-                        }
-
-                    }
-
-                } else {
-                    mi2.setDisable(true);
-                    mi1.setDisable(false);
-                }
-
-                if(this.tableProgram.getSelectionModel().getSelectedItem() == null) {
-                    mi4.setDisable(true);
-                }
-
-                if(this.sectionTree.getSelectionModel().getSelectedItem() != null) {
-                    INamed value = this.sectionTree.getSelectionModel().getSelectedItem().getValue();
-                    if( value instanceof Section || value instanceof Complex) {
-                        String tag = ((Section)this.baseCombo.getSelectionModel().getSelectedItem()).getTag();
-                        if(tag != null && tag.equals("USER")) {
-                            mi4.setDisable(false);
-                        } else {
-                            mi4.setDisable(true);
-                        }
-                    } else {
-                        mi4.setDisable(true);
-                    }
-
-                    if(((TherapyProgram)this.tableProgram.getSelectionModel().getSelectedItem()).isMp3()
-                            && tableProgram.getSelectionModel().getSelectedItems().size()==1) {
-                        mi4.setDisable(true);
-                        mi6.setDisable(false);
-                    }
-                } else {
-                    mi4.setDisable(true);
-                }
-
-            }
-        });
-    }
 
     private void initDeleteAndSwitchTableKeys() {
         tableProfile.setOnKeyReleased(event ->
@@ -2600,9 +2392,9 @@ public class AppController  extends BaseController {
         ClipboardContent content = new ClipboardContent();
         content.clear();
 
-        content.put(PROGRAM_CUT_ITEM_INDEX, tableProgram.getSelectionModel().getSelectedIndices().toArray(new Integer[0]));
-        content.put(PROGRAM_CUT_ITEM_COMPLEX, tableComplex.getSelectionModel().getSelectedItem().getId());
-        content.put(PROGRAM_CUT_ITEM_ID, tableProgram.getSelectionModel().getSelectedItems().stream()
+        content.put(ProgramTable.PROGRAM_CUT_ITEM_INDEX, tableProgram.getSelectionModel().getSelectedIndices().toArray(new Integer[0]));
+        content.put(ProgramTable.PROGRAM_CUT_ITEM_COMPLEX, tableComplex.getSelectionModel().getSelectedItem().getId());
+        content.put(ProgramTable.PROGRAM_CUT_ITEM_ID, tableProgram.getSelectionModel().getSelectedItems().stream()
                 .map(i->i.getId())
                 .collect(Collectors.toList())
                 .toArray(new Long[0])
@@ -2617,7 +2409,7 @@ public class AppController  extends BaseController {
         ClipboardContent content = new ClipboardContent();
         content.clear();
 
-        content.put(PROGRAM_COPY_ITEM, tableProgram.getSelectionModel().getSelectedItems().stream()
+        content.put(ProgramTable.PROGRAM_COPY_ITEM, tableProgram.getSelectionModel().getSelectedItems().stream()
                .map(i->i.getId()).collect(Collectors.toList()).toArray(new Long[0]));
         clipboard.setContent(content);
         therapyProgramsCopied=true;
@@ -2923,8 +2715,8 @@ public class AppController  extends BaseController {
         if (tableProgram.getSelectionModel().getSelectedItems().size()>1) return;
         Clipboard clipboard = Clipboard.getSystemClipboard();
 
-        if (!clipboard.hasContent(PROGRAM_COPY_ITEM)) return;
-        Long[] ids = (Long[]) clipboard.getContent(PROGRAM_COPY_ITEM);
+        if (!clipboard.hasContent(ProgramTable.PROGRAM_COPY_ITEM)) return;
+        Long[] ids = (Long[]) clipboard.getContent(ProgramTable.PROGRAM_COPY_ITEM);
         if(ids==null) return;
         if(ids.length==0) return;
 
@@ -3012,19 +2804,19 @@ public class AppController  extends BaseController {
 
         Clipboard clipboard = Clipboard.getSystemClipboard();
 
-        if (!clipboard.hasContent(PROGRAM_CUT_ITEM_COMPLEX)) return;
-        if (!clipboard.hasContent(PROGRAM_CUT_ITEM_ID)) return;
-        if (!clipboard.hasContent(PROGRAM_CUT_ITEM_INDEX)) return;
+        if (!clipboard.hasContent(ProgramTable.PROGRAM_CUT_ITEM_COMPLEX)) return;
+        if (!clipboard.hasContent(ProgramTable.PROGRAM_CUT_ITEM_ID)) return;
+        if (!clipboard.hasContent(ProgramTable.PROGRAM_CUT_ITEM_INDEX)) return;
         try {
         TherapyComplex selectedComplex=tableComplex.getSelectionModel().getSelectedItem();
-        Long idComplex = (Long) clipboard.getContent(PROGRAM_CUT_ITEM_COMPLEX);
+        Long idComplex = (Long) clipboard.getContent(ProgramTable.PROGRAM_CUT_ITEM_COMPLEX);
         if(idComplex==null)return;
         else if(idComplex.longValue()==selectedComplex.getId().longValue()){
             //вставка в текущем комплексе
             if (tableProgram.getSelectionModel().getSelectedItems().isEmpty()) return;
             if (tableProgram.getSelectionModel().getSelectedItems().size()!=1) return;
 
-            Integer[] indexes = (Integer[]) clipboard.getContent(PROGRAM_CUT_ITEM_INDEX);
+            Integer[] indexes = (Integer[]) clipboard.getContent(ProgramTable.PROGRAM_CUT_ITEM_INDEX);
             if(indexes==null) return;
             if(indexes.length==0) return;
             List<Integer> ind = Arrays.stream(indexes).collect(Collectors.toList());
@@ -3075,7 +2867,7 @@ public class AppController  extends BaseController {
 
 
 
-            Long[] ids = (Long[]) clipboard.getContent(PROGRAM_CUT_ITEM_ID);
+            Long[] ids = (Long[]) clipboard.getContent(ProgramTable.PROGRAM_CUT_ITEM_ID);
 
             if(ids==null) return;
             if(ids.length==0) return;

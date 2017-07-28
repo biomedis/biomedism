@@ -4,12 +4,17 @@ import com.mpatric.mp3agic.Mp3File;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -21,6 +26,8 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import ru.biomedis.biomedismair3.App;
 import ru.biomedis.biomedismair3.ModelDataApp;
+import ru.biomedis.biomedismair3.TherapyTabs.Complex.ComplexTable;
+import ru.biomedis.biomedismair3.TherapyTabs.TablesCommon;
 import ru.biomedis.biomedismair3.entity.SearchFreqs;
 import ru.biomedis.biomedismair3.entity.SearchName;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
@@ -30,6 +37,8 @@ import ru.biomedis.biomedismair3.utils.Date.DateUtil;
 import java.io.File;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static ru.biomedis.biomedismair3.BaseController.getApp;
 import static ru.biomedis.biomedismair3.Log.logger;
@@ -44,6 +53,11 @@ public class ProgramTable {
     private static ProgramTable instance;
     private NeedUpdateComplexTime needUpdateListener;
 
+    public static final DataFormat PROGRAM_CUT_ITEM_INDEX =new DataFormat("biomedis/cut_programitem_index");
+    public static final DataFormat PROGRAM_CUT_ITEM_ID=new DataFormat("biomedis/cut_programitem_id");
+    public static final DataFormat PROGRAM_CUT_ITEM_COMPLEX =new DataFormat("biomedis/cut_programitem_complex");
+    public static final DataFormat PROGRAM_COPY_ITEM=new DataFormat("biomedis/copy_programitem");
+    private ContextMenu programMenu =new ContextMenu();
 
     public static ProgramTable init(TableView<TherapyProgram> tableProgram, ResourceBundle res, Image imageCancel, Image imageDone, Image imageSeq, Image imageParallel,NeedUpdateComplexTime needUpdateListener){
 
@@ -456,7 +470,220 @@ public class ProgramTable {
         return table.getSelectionModel().getSelectedIndices();
     }
 
-    public interface NeedUpdateComplexTime{
-        public void update();
+    public ObservableList<TherapyProgram> getAllItems(){
+        return table.getItems();
     }
+
+    public interface NeedUpdateComplexTime{
+         void update();
+    }
+
+
+    public void initProgramsTableContextMenu(Runnable copyTherapyProgramToBase,
+                                              Runnable editMP3ProgramPath,
+                                              Runnable cutInTables,
+                                              Runnable copyInTables,
+                                              Runnable multyFreqProgramSwitchOn,
+                                              Runnable multyFreqProgramSwitchOff,
+                                              Runnable pasteInTables,
+                                              Runnable deleteInTables,
+                                              Supplier<Boolean> therapyProgramsCopied,
+                                              Supplier<Boolean> toUserBaseMenuItemPredicate) {
+        MenuItem mi1=new MenuItem(res.getString("app.cut"));
+        MenuItem mi6=new MenuItem(res.getString("app.ui.edit_file_path"));
+        MenuItem mi7=new MenuItem(res.getString("app.ui.copy"));
+        MenuItem mi2=new MenuItem(res.getString("app.paste"));
+        MenuItem mi16=new MenuItem(res.getString("app.delete"));
+
+        mi1.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
+        mi7.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
+        mi2.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
+        mi16.setAccelerator(KeyCombination.keyCombination("Delete"));
+
+        MenuItem mi3=new SeparatorMenuItem();
+        MenuItem mi4=new MenuItem(res.getString("app.to_user_base"));
+        MenuItem mi5=new SeparatorMenuItem();
+        MenuItem mi8=new MenuItem(res.getString("app.ui.multy_switch_on"));
+        MenuItem mi9=new MenuItem(res.getString("app.ui.multy_switch_off"));
+        MenuItem mi10=new SeparatorMenuItem();
+        MenuItem mi11=new MenuItem(res.getString("app.ui.copy_program_name"));
+        MenuItem mi12=new MenuItem(res.getString("app.ui.copy_program_name_main"));
+        MenuItem mi13=new MenuItem(res.getString("app.ui.copy_program_freq"));
+        MenuItem mi14=new MenuItem(res.getString("app.ui.invert_seletion"));
+        MenuItem mi15=new SeparatorMenuItem();
+        MenuItem mi17=new MenuItem(res.getString("app.copy_freq_and_name"));
+
+        mi11.setOnAction(e->{
+            TherapyProgram selectedItem = getSelectedItem();
+            if(selectedItem==null) return;
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(selectedItem.getName());
+            clipboard.setContent(content);
+
+        });
+        mi17.setOnAction(e->{
+            TherapyProgram selectedItem = getSelectedItem();
+            if(selectedItem==null) return;
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(selectedItem.getName()+" \n"+selectedItem.getFrequencies());
+            clipboard.setContent(content);
+
+        });
+        mi12.setOnAction(e->{
+            TherapyProgram selectedItem = getSelectedItem();
+            if(selectedItem==null) return;
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(selectedItem.getOname());
+            clipboard.setContent(content);
+
+        });
+        mi13.setOnAction(e->{
+            TherapyProgram selectedItem = getSelectedItem();
+            if(selectedItem==null) return;
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(selectedItem.getFrequencies());
+            clipboard.setContent(content);
+
+        });
+        mi14.setOnAction(e->{
+            List<Integer> selected = getSelectedIndexes().stream().collect(Collectors.toList());
+            table.getSelectionModel().selectAll();
+            for (Integer ind : selected) {
+                table.getSelectionModel().clearSelection(ind);
+            }
+
+
+        });
+
+        mi4.setOnAction(event2 -> copyTherapyProgramToBase.run());
+        mi6.setOnAction(event2 -> editMP3ProgramPath.run());
+
+        mi1.setOnAction(e ->
+        {
+            cutInTables.run();
+
+        });
+
+        mi7.setOnAction(e->{
+            copyInTables.run();
+        });
+        mi8.setOnAction(e-> multyFreqProgramSwitchOn.run());
+        mi9.setOnAction(e->multyFreqProgramSwitchOff.run());
+        mi2.setOnAction(e -> pasteInTables.run());
+        mi16.setOnAction(e->deleteInTables.run());
+        programMenu.getItems().addAll(mi1,
+                mi7,
+                mi2,
+                mi16,
+                mi3,
+                mi8,
+                mi9,
+                mi15,
+                mi17,
+                mi11,
+                mi12,
+                mi13,
+                mi14,
+                mi10,
+                mi4,
+                mi6);
+
+        table.setContextMenu(programMenu);
+        programMenu.setOnShowing((event1) -> {
+            if(getSelectedItem() == null) {
+                mi2.setDisable(true);
+                mi1.setDisable(true);
+                mi3.setDisable(true);
+                mi4.setDisable(true);
+                mi5.setDisable(true);
+                mi6.setDisable(true);
+                mi7.setDisable(true);
+                mi8.setDisable(true);
+                mi9.setDisable(true);
+                mi11.setDisable(true);
+                mi12.setDisable(true);
+                mi13.setDisable(true);
+                mi14.setDisable(true);
+                mi16.setDisable(true);
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                if(clipboard.hasContent(PROGRAM_COPY_ITEM))if(therapyProgramsCopied.get())   mi2.setDisable(false);
+                if(clipboard.hasContent(PROGRAM_CUT_ITEM_ID))   mi2.setDisable(false);
+            } else {
+                mi16.setDisable(false);
+                if(getSelectedIndexes().size()==1){
+                    mi11.setDisable(false);
+                    mi12.setDisable(false);
+                    mi13.setDisable(false);
+
+                }else {
+                    mi11.setDisable(true);
+                    mi12.setDisable(true);
+                    mi13.setDisable(true);
+
+                }
+                mi14.setDisable(false);
+                mi2.setDisable(true);
+                mi1.setDisable(false);//всегда можно вырезать
+                mi3.setDisable(true);
+                mi4.setDisable(true);
+                mi5.setDisable(true);
+                if(getSelectedIndexes().size()==1 && getSelectedItem().isMp3())mi6.setDisable(false);
+                else mi6.setDisable(true);
+
+                mi7.setDisable(false);
+
+                mi8.setDisable(false);
+                mi9.setDisable(false);
+
+
+                Clipboard clipboard = Clipboard.getSystemClipboard();
+                if(clipboard.hasContent(PROGRAM_CUT_ITEM_INDEX) || clipboard.hasContent(PROGRAM_COPY_ITEM)) {
+
+
+                    if (clipboard.hasContent(PROGRAM_COPY_ITEM)) {
+                        if(getSelectedIndexes().size()==1) mi2.setDisable(false);
+                        else mi2.setDisable(true);
+                    }
+                    else  if(getSelectedIndexes().size()==1) {
+
+                        Integer[] ind = (Integer[]) clipboard.getContent(PROGRAM_CUT_ITEM_INDEX);
+                        if (ind != null) {
+                            if (ind.length != 0) {
+                                Long idComplex = (Long) clipboard.getContent(PROGRAM_CUT_ITEM_COMPLEX);
+                                if(idComplex==null)mi2.setDisable(true);
+                                else if(idComplex.longValue()== ComplexTable.getInstance().getSelectedItem().getId().longValue()){
+                                    //вставка в том же профиле
+                                    int dropIndex = table.getSelectionModel().getSelectedIndex();
+                                    if(TablesCommon.isEnablePaste(dropIndex,ind))mi2.setDisable(false);
+
+                                }else   mi2.setDisable(false);//вставка в другом профиле, можно в любое место
+                            }
+                        }
+
+                    }
+
+                } else {
+                    mi2.setDisable(true);
+                    mi1.setDisable(false);
+                }
+
+                if(getSelectedItem() == null) {
+                    mi4.setDisable(true);
+                }
+
+                mi4.setDisable(toUserBaseMenuItemPredicate.get());
+
+                if(getSelectedItem().isMp3() && getSelectedItems().size()==1) {
+                    mi4.setDisable(true);
+                    mi6.setDisable(false);
+                }
+            }
+        });
+    }
+
+
 }

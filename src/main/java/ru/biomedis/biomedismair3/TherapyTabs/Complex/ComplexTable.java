@@ -4,6 +4,7 @@ import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -36,7 +37,7 @@ public class ComplexTable {
     private  ResourceBundle res;
     private  Image imageCancel;
     private  Image imageDone;
-    private TableView<TherapyComplex> tableComplex;
+    private TableView<TherapyComplex> table;
     private static ComplexTable instance;
     private SimpleStringProperty textComplexTime=new SimpleStringProperty();//хранит время комплекса в строковом представлении и через # id комплекса. Используется в выводе в табе комплекса времени и его обновления
 
@@ -70,7 +71,7 @@ public class ComplexTable {
     }
 
     private ComplexTable(TableView<TherapyComplex> tableComplex, ResourceBundle res,Image imageCancel, Image imageDone) {
-        this.tableComplex = tableComplex;
+        this.table = tableComplex;
         this.res = res;
 
         this.imageCancel = imageCancel;
@@ -96,10 +97,10 @@ public class ComplexTable {
                 if (s.length() == 0) {
                     event.getRowValue().setName(event.getOldValue());
                     TherapyComplex p = event.getRowValue();
-                    int i = tableComplex.getItems().indexOf(event.getRowValue());
-                    tableComplex.getItems().set(i, null);
-                    tableComplex.getItems().set(i, p);
-                    tableComplex.getSelectionModel().select(i);
+                    int i = table.getItems().indexOf(event.getRowValue());
+                    table.getItems().set(i, null);
+                    table.getItems().set(i, p);
+                    table.getSelectionModel().select(i);
                     p = null;
                     return;
                 }
@@ -107,10 +108,10 @@ public class ComplexTable {
                 try {
                     getModel().updateTherapyComplex(event.getRowValue());
                     TherapyComplex p = event.getRowValue();
-                    int i = tableComplex.getItems().indexOf(event.getRowValue());
-                    tableComplex.getItems().set(i, null);
-                    tableComplex.getItems().set(i, p);
-                    tableComplex.getSelectionModel().select(i);
+                    int i = table.getItems().indexOf(event.getRowValue());
+                    table.getItems().set(i, null);
+                    table.getItems().set(i, p);
+                    table.getSelectionModel().select(i);
                     p = null;
 
                 } catch (Exception e) {
@@ -134,9 +135,9 @@ public class ComplexTable {
                 if (s.length() == 0) {
                     event.getRowValue().setDescription(event.getOldValue());
                     TherapyComplex p = event.getRowValue();
-                    int i = tableComplex.getItems().indexOf(event.getRowValue());
-                    tableComplex.getItems().set(i, null);
-                    tableComplex.getItems().set(i, p);
+                    int i = table.getItems().indexOf(event.getRowValue());
+                    table.getItems().set(i, null);
+                    table.getItems().set(i, p);
                     p = null;
                     return;
                 }
@@ -144,9 +145,9 @@ public class ComplexTable {
                 try {
                     getModel().updateTherapyComplex(event.getRowValue());
                     TherapyComplex p = event.getRowValue();
-                    int i = tableComplex.getItems().indexOf(event.getRowValue());
-                    tableComplex.getItems().set(i, null);
-                    tableComplex.getItems().set(i, p);
+                    int i = table.getItems().indexOf(event.getRowValue());
+                    table.getItems().set(i, null);
+                    table.getItems().set(i, p);
                     p = null;
 
                 } catch (Exception e) {
@@ -268,17 +269,17 @@ public class ComplexTable {
         numComplexCol.setStyle( "-fx-alignment: CENTER;");
         timeColTC.setStyle( "-fx-alignment: CENTER;");
         nameColTC.setStyle( "-fx-alignment: CENTER-LEFT;");
-        this.tableComplex.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        tableComplex.getColumns().addAll(numComplexCol, nameColTC, descColTC, timeColTC, fileComplexCol);
-        tableComplex.placeholderProperty().setValue(new Label(res.getString("app.table.complex_placeholder")));
-        tableComplex.setEditable(true);
+        this.table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        table.getColumns().addAll(numComplexCol, nameColTC, descColTC, timeColTC, fileComplexCol);
+        table.placeholderProperty().setValue(new Label(res.getString("app.table.complex_placeholder")));
+        table.setEditable(true);
 
 
-        numComplexCol.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.1));
-        nameColTC.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.325));
-        descColTC.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.325));
-        timeColTC.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.1));
-        fileComplexCol.prefWidthProperty().bind(tableComplex.widthProperty().multiply(0.15));
+        numComplexCol.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
+        nameColTC.prefWidthProperty().bind(table.widthProperty().multiply(0.325));
+        descColTC.prefWidthProperty().bind(table.widthProperty().multiply(0.325));
+        timeColTC.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
+        fileComplexCol.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
 
         numComplexCol.setSortable(false);
         nameColTC.setSortable(false);
@@ -344,7 +345,7 @@ public class ComplexTable {
         });
         mic9.setOnAction(event -> copyInTables.run());
         mic10.setOnAction(event -> pasteInTables.run());
-        mic4.setOnAction(event -> complexesToBiofon.accept(tableComplex.getSelectionModel().getSelectedItems()));
+        mic4.setOnAction(event -> complexesToBiofon.accept(table.getSelectionModel().getSelectedItems()));
         this.complexesMenu.getItems().addAll(
                 mic11,
                 mic9,
@@ -358,7 +359,7 @@ public class ComplexTable {
                 mic4,
                 mic1,
                 mic13);
-        tableComplex.setContextMenu(complexesMenu);
+        table.setContextMenu(complexesMenu);
         complexesMenu.setOnShowing((event1) -> {
             mic1.setDisable(false);
             mic2.setDisable(true);
@@ -369,7 +370,7 @@ public class ComplexTable {
             mic9.setDisable(false);
             mic10.setDisable(true);
             Clipboard clipboard =Clipboard.getSystemClipboard();
-            if(this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
+            if(this.table.getSelectionModel().getSelectedItems().isEmpty()) {
 
                 mic1.setDisable(true);
                 mic2.setDisable(true);
@@ -394,10 +395,10 @@ public class ComplexTable {
 
 
                     if (clipboard.hasContent(COMPLEX_COPY_ITEM)) {
-                        if(tableComplex.getSelectionModel().getSelectedIndices().size()==1) mic10.setDisable(false);
+                        if(table.getSelectionModel().getSelectedIndices().size()==1) mic10.setDisable(false);
                         else mic10.setDisable(true);
                     }
-                    else  if(tableComplex.getSelectionModel().getSelectedIndices().size()==1) {
+                    else  if(table.getSelectionModel().getSelectedIndices().size()==1) {
                         mic10.setDisable(true);
                         Integer[] ind = (Integer[]) clipboard.getContent(COMPLEX_CUT_ITEM_INDEX);
                         if (ind != null) {
@@ -406,7 +407,7 @@ public class ComplexTable {
                                 if(idProfile==null)mic10.setDisable(true);
                                 else if(idProfile.longValue()== ProfileTable.getInstance().getSelectedItem().getId().longValue()){
                                     //вставка в том же профиле
-                                    int dropIndex = tableComplex.getSelectionModel().getSelectedIndex();
+                                    int dropIndex = table.getSelectionModel().getSelectedIndex();
                                     if(isEnablePaste(dropIndex,ind))mic10.setDisable(false);
 
                                 }else   mic10.setDisable(false);//вставка в другом профиле, можно в любое место
@@ -422,7 +423,7 @@ public class ComplexTable {
 
                 mic12.setDisable(false);
 
-                Iterator tag = this.tableComplex.getSelectionModel().getSelectedItems().iterator();
+                Iterator tag = this.table.getSelectionModel().getSelectedItems().iterator();
 
                 while(tag.hasNext()) {
                     TherapyComplex therapyComplex = (TherapyComplex)tag.next();
@@ -449,12 +450,15 @@ public class ComplexTable {
 
 
     public TherapyComplex getSelectedItem(){
-        return tableComplex.getSelectionModel().getSelectedItem();
+        return table.getSelectionModel().getSelectedItem();
     }
     public List<TherapyComplex> getSelectedItems(){
-        return tableComplex.getSelectionModel().getSelectedItems();
+        return table.getSelectionModel().getSelectedItems();
     }
     public List<Integer> getSelectedIndexes(){
-        return tableComplex.getSelectionModel().getSelectedIndices();
+        return table.getSelectionModel().getSelectedIndices();
+    }
+    public ObservableList<TherapyComplex> getAllItems(){
+        return table.getItems();
     }
 }

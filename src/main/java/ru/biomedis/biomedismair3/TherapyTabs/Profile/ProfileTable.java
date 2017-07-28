@@ -3,6 +3,7 @@ package ru.biomedis.biomedismair3.TherapyTabs.Profile;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -237,4 +238,8 @@ public class ProfileTable {
     public List<Integer> getSelectedIndexes(){
         return table.getSelectionModel().getSelectedIndices();
     }
+    public ObservableList<Profile> getAllItems(){
+        return table.getItems();
+    }
+
 }
