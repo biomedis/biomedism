@@ -566,7 +566,7 @@ public class AppController  extends BaseController {
 
                 tableComplex.getItems().add(th);
                 tableComplex.getSelectionModel().clearSelection();
-                therapyTabPane.getSelectionModel().select(2);//выберем таб с программами
+                therapyTabPane.getSelectionModel().select(1);//выберем таб с комплексами
                 tableComplex.getSelectionModel().select(tableComplex.getItems().size() - 1);
                 updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
 
