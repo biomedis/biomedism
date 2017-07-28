@@ -242,4 +242,11 @@ public class ProfileTable {
         return table.getItems();
     }
 
+    /**
+     * Редактируются ли ячейки в таблице сейчас
+     * @return
+     */
+    public boolean isTextEdited(){
+        return  table.getEditingCell()==null?false:true;
+    }
 }

@@ -343,7 +343,7 @@ public class ComplexTable {
         }
     }
 
-    public void editNameAction(TableColumn.CellEditEvent<TherapyComplex, String> event){
+    private void editNameAction(TableColumn.CellEditEvent<TherapyComplex, String> event){
         if (!event.getNewValue().equals(event.getOldValue())) {
 
             String s = event.getNewValue();
@@ -451,5 +451,13 @@ public class ComplexTable {
     }
     public ObservableList<TherapyComplex> getAllItems(){
         return table.getItems();
+    }
+
+    /**
+     * Редактируются ли ячейки в таблице сейчас
+     * @return
+     */
+    public boolean isTextEdited(){
+        return  table.getEditingCell()==null?false:true;
     }
 }

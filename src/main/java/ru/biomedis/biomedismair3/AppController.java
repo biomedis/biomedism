@@ -2129,7 +2129,7 @@ public class AppController  extends BaseController {
             if(event.getCode()== KeyCode.DELETE) onRemoveProfile();
             else
             if(event.getCode()==KeyCode.RIGHT && !tab2.isDisable()){
-
+                  if(ProfileTable.getInstance().isTextEdited()) return;
                 therapyTabPane.getSelectionModel().select(1);
                 tableComplex.requestFocus();
                 if(tableComplex.getItems().size()!=0){
@@ -2145,10 +2145,12 @@ public class AppController  extends BaseController {
             }else
 
             if(e.getCode() == KeyCode.A && e.isControlDown()) {
+                if(ComplexTable.getInstance().isTextEdited()) return;
                 this.tableComplex.getSelectionModel().selectAll();
             }else
 
             if(e.getCode()==KeyCode.RIGHT  && !tab3.isDisable()) {
+                if(ComplexTable.getInstance().isTextEdited()) return;
                 therapyTabPane.getSelectionModel().select(2);
                 tableProgram.requestFocus();
                 if(tableProgram.getItems().size()!=0){
@@ -2157,6 +2159,7 @@ public class AppController  extends BaseController {
                 }
             }else
             if(e.getCode()==KeyCode.LEFT  && !tab1.isDisable()) {
+                if(ComplexTable.getInstance().isTextEdited()) return;
                 therapyTabPane.getSelectionModel().select(0);
                 tableProfile.requestFocus();
                 if(tableProfile.getItems().size()!=0){
