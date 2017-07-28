@@ -88,75 +88,13 @@ public class ComplexTable {
         TableColumn<TherapyComplex,String> nameColTC=new TableColumn<>(res.getString("app.table.name_complex"));
         nameColTC.cellValueFactoryProperty().setValue(new PropertyValueFactory<TherapyComplex, String>("name"));
         nameColTC.setCellFactory(TextFieldTableCell.forTableColumn());
-        nameColTC.setOnEditCommit(event ->
-        {
-
-            if (!event.getNewValue().equals(event.getOldValue())) {
-
-                String s = event.getNewValue();
-                if (s.length() == 0) {
-                    event.getRowValue().setName(event.getOldValue());
-                    TherapyComplex p = event.getRowValue();
-                    int i = table.getItems().indexOf(event.getRowValue());
-                    table.getItems().set(i, null);
-                    table.getItems().set(i, p);
-                    table.getSelectionModel().select(i);
-                    p = null;
-                    return;
-                }
-                event.getRowValue().setName(s);
-                try {
-                    getModel().updateTherapyComplex(event.getRowValue());
-                    TherapyComplex p = event.getRowValue();
-                    int i = table.getItems().indexOf(event.getRowValue());
-                    table.getItems().set(i, null);
-                    table.getItems().set(i, p);
-                    table.getSelectionModel().select(i);
-                    p = null;
-
-                } catch (Exception e) {
-                    logger.error("",e);
-                }
-
-
-            }
-        });
+        nameColTC.setOnEditCommit(this::editNameAction);
 
         //описание
         TableColumn<TherapyComplex,String> descColTC=new TableColumn<>(res.getString("app.table.complex_descr"));
         descColTC.cellValueFactoryProperty().setValue(new PropertyValueFactory<TherapyComplex, String>("description"));
         descColTC.setCellFactory(TextAreaTableCell.forTableColumn());
-        descColTC.setOnEditCommit(event ->
-        {
-
-            if (!event.getNewValue().equals(event.getOldValue())) {
-
-                String s = event.getNewValue();
-                if (s.length() == 0) {
-                    event.getRowValue().setDescription(event.getOldValue());
-                    TherapyComplex p = event.getRowValue();
-                    int i = table.getItems().indexOf(event.getRowValue());
-                    table.getItems().set(i, null);
-                    table.getItems().set(i, p);
-                    p = null;
-                    return;
-                }
-                event.getRowValue().setDescription(s);
-                try {
-                    getModel().updateTherapyComplex(event.getRowValue());
-                    TherapyComplex p = event.getRowValue();
-                    int i = table.getItems().indexOf(event.getRowValue());
-                    table.getItems().set(i, null);
-                    table.getItems().set(i, p);
-                    p = null;
-
-                } catch (Exception e) {
-                    logger.error("",e);
-                }
-
-
-            }
-        });
+        descColTC.setOnEditCommit(this::editDescrAction);
 
         //общая длительность, зависит от количества програм их частот и мультичастотного режима, также времени на частоту
         TableColumn<TherapyComplex,String> timeColTC=new TableColumn<>(res.getString("app.table.delay"));
@@ -188,82 +126,7 @@ public class ComplexTable {
             property.bind(param.getValue().changedProperty());
             return property;
         });
-        fileComplexCol.setCellFactory(col ->
-        {
-            TableCell<TherapyComplex, Boolean> cell = new TableCell<TherapyComplex, Boolean>() {
-                @Override
-                protected void updateItem(Boolean item, boolean empty) {
-
-                    super.updateItem(item, empty);
-                    this.setText(null);
-                    this.setGraphic(null);
-
-                    HBox hbox=null;
-                    ImageView iv=null;
-
-                    if( this.getUserData()!=null)
-                    {
-                        hbox=(HBox)this.getUserData();
-                        if(hbox!=null){
-                            iv=(ImageView)hbox.getChildren().get(0);
-
-                        }else {
-                            iv=new ImageView();
-                            hbox=new HBox();
-                            hbox.setSpacing(3);
-                            hbox.getChildren().addAll(iv);
-                        }
-                    }else {
-                        iv=new ImageView(imageCancel);
-
-                        hbox=new HBox();
-                        hbox.setSpacing(3);
-                        hbox.getChildren().addAll(iv);
-                        this.setUserData(hbox);
-                    }
-
-
-                    if (!empty) {
-                        if (this.getTableRow().getItem() == null) {
-                            setText("");
-                            return;
-                        }
-                        if (item)  iv.setImage(imageCancel);
-                        else {
-                            TherapyComplex thisComplex = (TherapyComplex) getTableRow().getItem();
-                            if(thisComplex==null) return;
-
-                            if(getModel().countTherapyPrograms(thisComplex)==0)iv.setImage(imageCancel);
-                            else if(getModel().hasNeedGenerateProgramInComplex(thisComplex))  iv.setImage(imageCancel);
-                            else  {
-                                long sum=0;
-                                File f;
-                                for (Long id : getModel().getTherapyComplexFiles(thisComplex)) {
-                                    f=new File(getApp().getDataDir(),id+".dat");
-                                    if(f.exists())sum+=f.length();
-                                }
-                                for (String v : getModel().mp3ProgramPathsInComplex(thisComplex)) {
-
-                                    f = new File(v);
-                                    if (f.exists()) sum += f.length();
-                                }
-
-
-                                if(sum>0) setText(Math.ceil((double)sum / 1048576.0) + " Mb");
-                                iv.setImage(imageDone);
-                            }
-
-                        }
-
-
-
-                        setGraphic(hbox);
-                    }
-                }
-            };
-
-            return cell;
-        });
+        fileComplexCol.setCellFactory(col -> new FileCell());
 
 
         numComplexCol.setStyle( "-fx-alignment: CENTER;");
@@ -289,6 +152,8 @@ public class ComplexTable {
 
         fileComplexCol.setEditable(true);
     }
+
+
 
 
     public void initComplexesContextMenu(Path devicePath,
@@ -448,6 +313,132 @@ public class ComplexTable {
         return App.getStaticModel();
     }
 
+    private void editDescrAction(TableColumn.CellEditEvent<TherapyComplex, String> event) {
+        if (!event.getNewValue().equals(event.getOldValue())) {
+
+            String s = event.getNewValue();
+            if (s.length() == 0) {
+                event.getRowValue().setDescription(event.getOldValue());
+                TherapyComplex p = event.getRowValue();
+                int i = table.getItems().indexOf(event.getRowValue());
+                table.getItems().set(i, null);
+                table.getItems().set(i, p);
+                p = null;
+                return;
+            }
+            event.getRowValue().setDescription(s);
+            try {
+                getModel().updateTherapyComplex(event.getRowValue());
+                TherapyComplex p = event.getRowValue();
+                int i = table.getItems().indexOf(event.getRowValue());
+                table.getItems().set(i, null);
+                table.getItems().set(i, p);
+                p = null;
+
+            } catch (Exception e) {
+                logger.error("",e);
+            }
+
+
+        }
+    }
+
+    public void editNameAction(TableColumn.CellEditEvent<TherapyComplex, String> event){
+        if (!event.getNewValue().equals(event.getOldValue())) {
+
+            String s = event.getNewValue();
+            if (s.length() == 0) {
+                event.getRowValue().setName(event.getOldValue());
+                TherapyComplex p = event.getRowValue();
+                int i = table.getItems().indexOf(event.getRowValue());
+                table.getItems().set(i, null);
+                table.getItems().set(i, p);
+                table.getSelectionModel().select(i);
+                p = null;
+                return;
+            }
+            event.getRowValue().setName(s);
+            try {
+                ComplexTable.this.getModel().updateTherapyComplex(event.getRowValue());
+                TherapyComplex p = event.getRowValue();
+                int i = table.getItems().indexOf(event.getRowValue());
+                table.getItems().set(i, null);
+                table.getItems().set(i, p);
+                table.getSelectionModel().select(i);
+                p = null;
+
+            } catch (Exception e) {
+                logger.error("", e);
+            }
+
+
+        }
+    }
+    private  class FileCell extends TableCell<TherapyComplex, Boolean>{
+        @Override
+        protected void updateItem(Boolean item, boolean empty) {
+
+            super.updateItem(item, empty);
+            this.setText(null);
+            this.setGraphic(null);
+
+            HBox hbox=null;
+            ImageView iv=null;
+
+            if( this.getUserData()!=null)
+            {
+                hbox=(HBox)this.getUserData();
+                if(hbox!=null){
+                    iv=(ImageView)hbox.getChildren().get(0);
+
+                }else {
+                    iv=new ImageView();
+                    hbox=new HBox();
+                    hbox.setSpacing(3);
+                    hbox.getChildren().addAll(iv);
+                }
+            }else {
+                iv=new ImageView(imageCancel);
+
+                hbox=new HBox();
+                hbox.setSpacing(3);
+                hbox.getChildren().addAll(iv);
+                this.setUserData(hbox);
+            }
+
+
+            if (!empty) {
+                if (this.getTableRow().getItem() == null) {
+                    setText("");
+                    return;
+                }
+                if (item)  iv.setImage(imageCancel);
+                else {
+                    TherapyComplex thisComplex = (TherapyComplex) getTableRow().getItem();
+                    if(thisComplex==null) return;
+
+                    if(getModel().countTherapyPrograms(thisComplex)==0)iv.setImage(imageCancel);
+                    else if(getModel().hasNeedGenerateProgramInComplex(thisComplex))  iv.setImage(imageCancel);
+                    else  {
+                        long sum=0;
+                        File f;
+                        for (Long id : getModel().getTherapyComplexFiles(thisComplex)) {
+                            f=new File(getApp().getDataDir(),id+".dat");
+                            if(f.exists())sum+=f.length();
+                        }
+                        for (String v : getModel().mp3ProgramPathsInComplex(thisComplex)) {
+
+                            f = new File(v);
+                            if (f.exists()) sum += f.length();
+                        }
+                        if(sum>0) setText(Math.ceil((double)sum / 1048576.0) + " Mb");
+                        iv.setImage(imageDone);
+                    }
+                }
+                setGraphic(hbox);
+            }
+        }
+    }
 
     public TherapyComplex getSelectedItem(){
         return table.getSelectionModel().getSelectedItem();
