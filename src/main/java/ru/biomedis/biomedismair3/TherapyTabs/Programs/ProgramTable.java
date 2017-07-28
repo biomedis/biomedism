@@ -373,7 +373,7 @@ public class ProgramTable {
                                             ((TherapyProgram) this.getTableRow().getItem()).setChanged(true);
                                             try {
                                                 getModel().updateTherapyProgram(((TherapyProgram) this.getTableRow().getItem()));
-                                                needUpdateListener.update();
+                                                needUpdateListener.update(false);
                                             } catch (Exception e) {
                                                 logger.error("",e);
                                             }
@@ -475,7 +475,7 @@ public class ProgramTable {
     }
 
     public interface NeedUpdateComplexTime{
-         void update();
+         void update(boolean needUpdateProfileTime);
     }
 
 
@@ -483,8 +483,6 @@ public class ProgramTable {
                                               Runnable editMP3ProgramPath,
                                               Runnable cutInTables,
                                               Runnable copyInTables,
-                                              Runnable multyFreqProgramSwitchOn,
-                                              Runnable multyFreqProgramSwitchOff,
                                               Runnable pasteInTables,
                                               Runnable deleteInTables,
                                               Supplier<Boolean> therapyProgramsCopied,
@@ -571,8 +569,8 @@ public class ProgramTable {
         mi7.setOnAction(e->{
             copyInTables.run();
         });
-        mi8.setOnAction(e-> multyFreqProgramSwitchOn.run());
-        mi9.setOnAction(e->multyFreqProgramSwitchOff.run());
+        mi8.setOnAction(e-> multyFreqProgramSwitchOn());
+        mi9.setOnAction(e->multyFreqProgramSwitchOff());
         mi2.setOnAction(e -> pasteInTables.run());
         mi16.setOnAction(e->deleteInTables.run());
         programMenu.getItems().addAll(mi1,
@@ -685,5 +683,60 @@ public class ProgramTable {
         });
     }
 
+
+    private void multyFreqProgramSwitchOff() {
+        List<TherapyProgram> selectedItems = getAllItems().stream().collect(Collectors.toList());
+        if(selectedItems.size()==0) return;
+        try {
+
+            for (TherapyProgram selectedItem : selectedItems) {
+                if(selectedItem.isMultyFreq()){
+                    selectedItem.setChanged(true);
+                    selectedItem.setMultyFreq(false);
+                    getModel().updateTherapyProgram(selectedItem);
+                    int ind=table.getItems().indexOf(selectedItem);
+                    table.getItems().set(ind,null);
+                    table.getItems().set(ind,selectedItem);
+                    // tableProgram.getSelectionModel().select(ind);
+                }
+
+            }
+            needUpdateListener.update(true);
+            //updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(),true);
+            //updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
+            table.getSelectionModel().clearSelection();
+
+        } catch (Exception e) {
+            logger.error("Ошибка обновления MultyFreq в терапевтической программе",e);
+        }
+    }
+
+    private void multyFreqProgramSwitchOn() {
+        List<TherapyProgram> selectedItems = getAllItems().stream().collect(Collectors.toList());
+        if(selectedItems.size()==0) return;
+        try {
+
+            for (TherapyProgram selectedItem : selectedItems) {
+                if(!selectedItem.isMultyFreq()){
+                    selectedItem.setChanged(true);
+                    selectedItem.setMultyFreq(true);
+                    getModel().updateTherapyProgram(selectedItem);
+                    int ind=table.getItems().indexOf(selectedItem);
+                    table.getItems().set(ind,null);
+                    table.getItems().set(ind,selectedItem);
+                    table.getSelectionModel().select(ind);
+                }
+
+
+            }
+            needUpdateListener.update(true);
+            //updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(),true);
+            //updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
+            table.getSelectionModel().clearSelection();
+        } catch (Exception e) {
+            logger.error("Ошибка обновления MultyFreq в терапевтической программе",e);
+        }
+
+    }
 
 }

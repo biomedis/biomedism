@@ -1894,8 +1894,6 @@ public class AppController  extends BaseController {
                 this::editMP3ProgramPath,
                 this::cutInTables,
                 this::copyInTables,
-                this::multyFreqProgramSwitchOn,
-                this::multyFreqProgramSwitchOff,
                 this::pasteInTables,
                 this::deleteInTables,
                 ()->therapyProgramsCopied,
@@ -2183,8 +2181,9 @@ public class AppController  extends BaseController {
     }
 
     private ProgramTable initProgramsTable() {
-        return ProgramTable.init(tableProgram,res,imageCancel,imageDone,imageSeq,imageParallel,() -> {
-            updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(),true);
+        return ProgramTable.init(tableProgram,res,imageCancel,imageDone,imageSeq,imageParallel,(needUpdateProfileTime) -> {
+            updateComplexTime(ComplexTable.getInstance().getSelectedItem(),true);
+            if(needUpdateProfileTime)updateProfileTime(ProfileTable.getInstance().getSelectedItem());
         });
     }
 
@@ -2435,58 +2434,7 @@ public class AppController  extends BaseController {
 
     }
 
-    private void multyFreqProgramSwitchOff() {
-        List<TherapyProgram> selectedItems = tableProgram.getSelectionModel().getSelectedItems().stream().collect(Collectors.toList());
-        if(selectedItems.size()==0) return;
-        try {
 
-            for (TherapyProgram selectedItem : selectedItems) {
-                if(selectedItem.isMultyFreq()){
-                    selectedItem.setChanged(true);
-                    selectedItem.setMultyFreq(false);
-                    getModel().updateTherapyProgram(selectedItem);
-                    int ind=tableProgram.getItems().indexOf(selectedItem);
-                    tableProgram.getItems().set(ind,null);
-                    tableProgram.getItems().set(ind,selectedItem);
-                   // tableProgram.getSelectionModel().select(ind);
-                }
-
-            }
-            updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(),true);
-            updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
-            tableProgram.getSelectionModel().clearSelection();
-
-        } catch (Exception e) {
-            logger.error("Ошибка обновления MultyFreq в терапевтической программе",e);
-        }
-    }
-
-    private void multyFreqProgramSwitchOn() {
-        List<TherapyProgram> selectedItems = tableProgram.getSelectionModel().getSelectedItems().stream().collect(Collectors.toList());
-        if(selectedItems.size()==0) return;
-        try {
-
-        for (TherapyProgram selectedItem : selectedItems) {
-            if(!selectedItem.isMultyFreq()){
-                selectedItem.setChanged(true);
-                selectedItem.setMultyFreq(true);
-                getModel().updateTherapyProgram(selectedItem);
-                int ind=tableProgram.getItems().indexOf(selectedItem);
-                tableProgram.getItems().set(ind,null);
-                tableProgram.getItems().set(ind,selectedItem);
-                tableProgram.getSelectionModel().select(ind);
-            }
-
-
-        }
-            updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(),true);
-            //updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
-            tableProgram.getSelectionModel().clearSelection();
-        } catch (Exception e) {
-            logger.error("Ошибка обновления MultyFreq в терапевтической программе",e);
-        }
-
-    }
 
     private void pasteTherapyComplexes() {
         if(tableComplex.getSelectionModel().getSelectedItems().size()>1){
