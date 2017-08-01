@@ -313,7 +313,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
         int currentUpdateFile=10;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=0;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentMinorVersion=1;//версия исправлений в пределах мажорной версии currentUpdateFile
         //требуется размещение в папке с dist.jar  файла version.txt с текущей версией типа 4.9.0!!! Этот файл в обновление нужно включать
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -380,6 +380,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(() -> update9(updateOption))
                                  .thenRun(()->updateIn9(updateOption,updateFixVersion))
                                  .thenRun(() -> update10(updateOption))
+                                 .thenRun(()->updateIn10(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -395,6 +396,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                            .thenRun(() -> update9(updateOption))
                                            .thenRun(()->updateIn9(updateOption,updateFixVersion))
                                  .thenRun(() -> update10(updateOption))
+                                 .thenRun(()->updateIn10(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -409,6 +411,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                            .thenRun(() -> update9(updateOption))
                                  .thenRun(()->updateIn9(updateOption,updateFixVersion))
                                  .thenRun(() -> update10(updateOption))
+                                 .thenRun(()->updateIn10(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -422,6 +425,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                            .thenRun(() -> update9(updateOption))
                                  .thenRun(()->updateIn9(updateOption,updateFixVersion))
                                  .thenRun(() -> update10(updateOption))
+                                 .thenRun(()->updateIn10(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -435,6 +439,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                            .thenRun(() -> update9(updateOption))
                                  .thenRun(()->updateIn9(updateOption,updateFixVersion))
                                  .thenRun(() -> update10(updateOption))
+                                 .thenRun(()->updateIn10(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -447,6 +452,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                            .thenRun(() -> update9(updateOption))
                                  .thenRun(()->updateIn9(updateOption,updateFixVersion))
                                  .thenRun(() -> update10(updateOption))
+                                 .thenRun(()->updateIn10(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -458,6 +464,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                         .thenRun(() ->  update9(updateOption))
                                  .thenRun(()->updateIn9(updateOption,updateFixVersion))
                                  .thenRun(() -> update10(updateOption))
+                                 .thenRun(()->updateIn10(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -469,14 +476,24 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                 CompletableFuture.runAsync(() -> changeDDL())
                                  .thenRun(() -> updateIn9(updateOption,updateFixVersion))
                                  .thenRun(() -> update10(updateOption))
+                                 .thenRun(()->updateIn10(updateOption,updateFixVersion))
                                  .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                                  .exceptionally(e->{
                                      showUpdateErrorAndExit(e.getMessage());
                                      return null;
                                  });
 
-                //здесь потом можно добавить метод 10 апдейта
-              System.out.println("Update >9.0");
+            }else if(getUpdateVersion()==10){
+                CompletableFuture.runAsync(() -> changeDDL())
+                                 .thenRun(()->updateIn10(updateOption,updateFixVersion))
+                                 .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
+                                 .exceptionally(e->{
+                                     showUpdateErrorAndExit(e.getMessage());
+                                     return null;
+                                 });
+
+
+                System.out.println("Update >10.0");
 
             }
             else {
@@ -704,8 +721,17 @@ https://gist.github.com/DemkaAge/8999236
             updateIn9_3( updateOption);
         }else if(updateFixVersion == 2) updateIn9_3( updateOption);
     }
+    private void updateIn10(ProgramOptions updateOption, int updateFixVersion) {
+        //после обновлений минорных не устанавливается число в базу, тк оно внесется по ниже автоматически
+        if(updateFixVersion == 0){
+            updateIn10_1(updateOption);
 
+        }
+    }
 
+    private void updateIn10_1(ProgramOptions updateOption) {
+        System.out.println("Update_10_1");
+    }
 
     private void updateIn9_1(ProgramOptions updateOption) {
         System.out.println("Update_9_1");
