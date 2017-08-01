@@ -1382,12 +1382,21 @@ public class ModelDataApp {
      * получает строку локализованную по классу агрегатору или строку для языка по умолчанию
      * @param lStr
      * @param lang
-     * @return строка на языке по умолчанию если нет искомой
+     * @return строка на языке по умолчанию если нет искомой или если нет его, то пользовательская
      */
     public String getString2(Strings lStr,Language lang)
     {
         List<LocalizedString> findByStrings = localizedStringDAO.findByStrings(lStr, lang);
-        if(findByStrings.isEmpty()) return getString(lStr,getDefaultLanguage());
+        if(findByStrings.isEmpty()) {
+            findByStrings = localizedStringDAO.findByStrings(lStr, getDefaultLanguage());
+            if(findByStrings.isEmpty()){
+                findByStrings = localizedStringDAO.findByStrings(lStr, getUserLanguage());
+                if(findByStrings.isEmpty()) return "";
+                else return getString(lStr,getUserLanguage());
+            }else return getString(lStr,getDefaultLanguage());
+
+        }
+
         return findByStrings.get(0).getContent();
     }
      /**

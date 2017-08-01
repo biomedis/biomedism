@@ -237,7 +237,7 @@ public class FilesProfileHelper
             writer.println(idComplex + "");
             writer.println(timeForFreq);
             writer.println("true");//оставлено для совместимости
-            writer.println(nameProgram);
+            writer.println(nameProgram==null?"Unknown name":nameProgram);
             writer.println(freqs+"@");
             writer.println(mp3?"true":"false");
             writer.println(bundlesLength+"");

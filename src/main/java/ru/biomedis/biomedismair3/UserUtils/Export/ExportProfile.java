@@ -47,10 +47,10 @@ public class ExportProfile {
         if(profile==null) return false;
 
 
-        String prfl = getProfile(profile, md, 0);
+
 
         try {
-
+            String prfl = getProfile(profile, md, 0);
            // FileWriter fw=new FileWriter(file);
 
             OutputStreamWriter fw = new OutputStreamWriter(new FileOutputStream(file), "UTF8");
@@ -96,8 +96,16 @@ public class ExportProfile {
         StringBuilder strb=new StringBuilder();
 
         list.stream().filter(p->!p.isMp3()).forEach(program -> {
+            String name = program.getName();
+            if(program.getName()==null){
+                if(program.getOname()==null) name = "Unknown name";
+                else name =program.getOname();
+            }
+            String descr="";
+            if(program.getDescription()!=null)descr=program.getDescription();
+
             strb.append(noops[level]);
-            strb.append("<Program ").append("name=\"").append(TextUtil.escapeXML(program.getName())).append("\" description=\"").append(TextUtil.escapeXML(program.getDescription())).
+            strb.append("<Program ").append("name=\"").append(TextUtil.escapeXML(name)).append("\" description=\"").append(TextUtil.escapeXML(descr)).
                     append("\" ").append("frequencies=\"").append(program.getFrequencies().replace(",",".")).append("\" ")
                     .append("multy=\"").append(program.isMultyFreq()).append("\" ")
                     .append("srcuuid=\"").append(program.getSrcUUID()).append("\" ")
@@ -114,11 +122,20 @@ public class ExportProfile {
 
         strb.append(noops[level]);
         int lvl=level+1;
+
+        String name = complex.getName();
+        if(complex.getName()==null){
+            if(complex.getOname()==null) name = "Unknown name";
+            else name =complex.getOname();
+        }
+        String descr="";
+        if(complex.getDescription()!=null)descr=complex.getDescription();
+
         strb.append("<Complex ")
             .append("name=\"")
-            .append(TextUtil.escapeXML(complex.getName()))
+            .append(TextUtil.escapeXML(name))
             .append("\" description=\"")
-            .append(TextUtil.escapeXML(complex.getDescription())).
+            .append(TextUtil.escapeXML(descr)).
                     append("\"")
             .append(" mullty=\"")
             .append(true).append("\"")
