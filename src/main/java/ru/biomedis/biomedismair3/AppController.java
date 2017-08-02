@@ -1859,7 +1859,7 @@ public class AppController  extends BaseController {
         /*** Комплексы  ****/
          complexTable = initComplexesTable();
         initGenerateComplexesButton();
-        complexTable.initComplexesContextMenu(devicePath,
+        complexTable.initComplexesContextMenu(() -> devicePath!=null,
                 this::onPrintComplex,
                 this::cutInTables,
                 this::deleteInTables,

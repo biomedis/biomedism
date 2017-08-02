@@ -22,7 +22,6 @@ import ru.biomedis.biomedismair3.entity.TherapyComplex;
 import ru.biomedis.biomedismair3.utils.Date.DateUtil;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -156,7 +155,7 @@ public class ComplexTable {
 
 
 
-    public void initComplexesContextMenu(Path devicePath,
+    public void initComplexesContextMenu(Supplier<Boolean> mIsConnected,
                                           Runnable onPrintComplex,
                                           Runnable cutInTables,
                                           Runnable deleteInTables,
@@ -304,7 +303,7 @@ public class ComplexTable {
                mic1.setDisable(toUserBaseMenuItemPredicate.get());
 
 
-                if(devicePath!=null && !mic5.isDisable() )   mic5.setDisable(false);
+                if(mIsConnected.get() && !mic5.isDisable())   mic5.setDisable(false);
                 else  mic5.setDisable(true);
             }
         });

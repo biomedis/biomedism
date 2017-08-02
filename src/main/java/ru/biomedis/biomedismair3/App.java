@@ -725,12 +725,17 @@ https://gist.github.com/DemkaAge/8999236
         //после обновлений минорных не устанавливается число в базу, тк оно внесется по ниже автоматически
         if(updateFixVersion == 0){
             updateIn10_1(updateOption);
-
+            updateIn10_2(updateOption);
+        }  else if(updateFixVersion == 1) {
+            updateIn10_2(updateOption);
         }
     }
 
     private void updateIn10_1(ProgramOptions updateOption) {
         System.out.println("Update_10_1");
+    }
+    private void updateIn10_2(ProgramOptions updateOption) {
+        System.out.println("Update_10_2");
     }
 
     private void updateIn9_1(ProgramOptions updateOption) {
