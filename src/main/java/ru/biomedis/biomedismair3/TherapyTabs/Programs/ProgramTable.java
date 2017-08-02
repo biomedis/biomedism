@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
@@ -24,7 +25,10 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
 import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import ru.biomedis.biomedismair3.App;
+import ru.biomedis.biomedismair3.BaseController;
+import ru.biomedis.biomedismair3.Log;
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.TherapyTabs.Complex.ComplexTable;
 import ru.biomedis.biomedismair3.TherapyTabs.TablesCommon;
@@ -58,6 +62,7 @@ public class ProgramTable {
     public static final DataFormat PROGRAM_CUT_ITEM_COMPLEX =new DataFormat("biomedis/cut_programitem_complex");
     public static final DataFormat PROGRAM_COPY_ITEM=new DataFormat("biomedis/copy_programitem");
     private ContextMenu programMenu =new ContextMenu();
+    private Menu translateMenu = new Menu();
 
     public static ProgramTable init(TableView<TherapyProgram> tableProgram, ResourceBundle res, Image imageCancel, Image imageDone, Image imageSeq, Image imageParallel,NeedUpdateComplexTime needUpdateListener){
 
@@ -87,9 +92,75 @@ public class ProgramTable {
         this.imageSeq = imageSeq;
         this.imageParallel = imageParallel;
         this.needUpdateListener = needUpdateListener;
+
+
+    }
+
+
+    private void initTranslateMenu() {
+        translateMenu.setText(res.getString("app.menu.translate_to"));
+        MenuItem firstItem = new MenuItem(getModel().getProgramLanguage().getName());
+        firstItem.setUserData(getModel().getProgramLanguage().getId());
+        firstItem.setOnAction(ProgramTable.getInstance()::translateAction);
+        translateMenu.getItems().add(firstItem);
+
+        getModel().findAvaliableLangs().stream()
+                        .filter(l -> !l.getAbbr().equals(getModel().getProgramLanguage().getAbbr()))
+                        .map(l->{
+                            MenuItem mItem = new MenuItem(l.getName());
+                            mItem.setUserData(l.getId());
+                            mItem.setOnAction(ProgramTable.getInstance()::translateAction);
+                            return mItem;
+                        }).forEach(menuItem -> translateMenu.getItems().add(menuItem));
+
+
+    }
+
+    private void translateAction(ActionEvent e){
+        MenuItem mi =((MenuItem)e.getSource());
+        Long langId = (Long)mi.getUserData();
+        if(langId==null) {
+            Log.logger.error("в элементе меню отсутствует ID языка для перевода");
+            return;
+        }
+        try {
+
+            for (TherapyProgram program : getSelectedItems()) {
+                getModel().translate(program, getModel().getLanguage(langId));
+                refreshItem(program);
+            }
+
+        }catch (Exception ex){
+            BaseController.showExceptionDialog("Перевод","Ошибка перевода","",ex,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+        }
+
+    }
+
+    /**
+     * Обновляет элементы таблицы
+     * @param programs список элементов, не из базы, а из самой таблицы!!
+     */
+    public void refreshItems(List<TherapyProgram> programs){
+        programs.forEach(p->refreshItem(p));
+    }
+
+    /**
+     * Обновляет элемент таблицы
+     * @param item элемент из таблицы, не из базы!
+     */
+    public void refreshItem(TherapyProgram item){
+        int i = getAllItems().indexOf(item);
+        if(i < 0){
+            Log.logger.warn("refreshItem - объект отсутствуетс в таблице");
+            return;
+        }
+        getAllItems().set(i,null);
+        getAllItems().set(i,item);
     }
 
     private void initTable(){
+        initTranslateMenu();
+
         table.setFixedCellSize(Region.USE_COMPUTED_SIZE);
         //номер по порядку
         TableColumn<TherapyProgram,Number> numProgCol =new TableColumn<>("№");
@@ -511,6 +582,8 @@ public class ProgramTable {
         MenuItem mi15=new SeparatorMenuItem();
         MenuItem mi17=new MenuItem(res.getString("app.copy_freq_and_name"));
 
+
+
         mi11.setOnAction(e->{
             TherapyProgram selectedItem = getSelectedItem();
             if(selectedItem==null) return;
@@ -588,7 +661,8 @@ public class ProgramTable {
                 mi14,
                 mi10,
                 mi4,
-                mi6);
+                mi6,
+                translateMenu);
 
         table.setContextMenu(programMenu);
         programMenu.setOnShowing((event1) -> {
@@ -607,10 +681,12 @@ public class ProgramTable {
                 mi13.setDisable(true);
                 mi14.setDisable(true);
                 mi16.setDisable(true);
+                translateMenu.setDisable(true);
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 if(clipboard.hasContent(PROGRAM_COPY_ITEM))if(therapyProgramsCopied.get())   mi2.setDisable(false);
                 if(clipboard.hasContent(PROGRAM_CUT_ITEM_ID))   mi2.setDisable(false);
             } else {
+                translateMenu.setDisable(false);
                 mi16.setDisable(false);
                 if(getSelectedIndexes().size()==1){
                     mi11.setDisable(false);

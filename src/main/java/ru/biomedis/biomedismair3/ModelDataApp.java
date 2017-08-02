@@ -40,6 +40,7 @@ public class ModelDataApp {
     private Language userLanguage;
     private  Language defaultLanguage;
     private final Map<String,Language> languageMap=new HashMap<>();
+    private final Map<Long,Language> languageMapID=new HashMap<>();
     private final  Map<String,ProgramOptions> optionsMap=new HashMap<>();
 
     private final Map<String,INamedComparator> comparators=new HashMap<>();//компараторы для языков
@@ -121,7 +122,10 @@ public class ModelDataApp {
             findAllLanguage.add(createLanguage("nl", "голландский"));
             findAllLanguage.add(createLanguage("ja", "японский"));
 
-        for(Language lang:findAllLanguage)languageMap.put(lang.getAbbr(), lang);
+        for(Language lang:findAllLanguage){
+            languageMap.put(lang.getAbbr(), lang);
+            languageMapID.put(lang.getId(), lang);
+        }
         
         defaultLanguage=languageMap.get("en");
         userLanguage=languageMap.get("user");
@@ -281,6 +285,10 @@ public class ModelDataApp {
 
     public Language getLanguage(String abbr) throws Exception {
         if(languageMap.containsKey(abbr)) return languageMap.get(abbr);
+        else throw new Exception("Нет такого языка");
+    }
+    public Language getLanguage(long id) throws Exception {
+        if(languageMapID.containsKey(id)) return languageMapID.get(id);
         else throw new Exception("Нет такого языка");
     }
 
@@ -1453,7 +1461,83 @@ public class ModelDataApp {
 
      
       /******************************************/
-     
+
+    /**
+     * Переведет на заданный язык. Результат будет в name и description(если было на языке юзера, то так и останется)
+     * В oname будет на языке программы или если нет на языке по умолчанию или если нет на языке юзера или просто пустая строка
+     * @param tp
+     * @param toLang
+     * @return вернет измененный объект
+     */
+      public TherapyProgram translate(TherapyProgram tp, Language toLang) throws Exception {
+          if(tp.getSrcUUID().isEmpty()) return tp;
+
+          String name = tp.getName();
+          String description = tp.getDescription();
+          String oname = tp.getOname();
+
+          Program srcProgram = getProgram(tp.getSrcUUID());
+          if(srcProgram==null) return tp;
+
+          String newName = getString2(srcProgram.getName(),toLang);
+          String newDesc = getString2(srcProgram.getDescription(),toLang);
+          String newOName = getString2(srcProgram.getName(),getProgramLanguage());
+
+          if(newName.equals(newOName))tp.setOname("");
+          else tp.setOname(newOName);
+          if(!newName.isEmpty())tp.setName(newName);
+          tp.setDescription(newDesc);
+
+          try {
+              updateTherapyProgram(tp);
+          } catch (Exception e) {
+              tp.setName(name);
+              tp.setDescription(description);
+              tp.setOname(oname);
+              throw e;
+          }
+
+          return tp;
+      }
+
+    /**
+     * Переведет на заданный язык. Результат будет в name и description(если было на языке юзера, то так и останется)
+     * В oname будет на языке программы или если нет на языке по умолчанию или если нет на языке юзера или просто пустая строка
+     * @param tc
+     * @param toLang
+     * @return вернет измененный объект
+     */
+    public TherapyComplex translate(TherapyComplex tc, Language toLang) throws Exception {
+        if(tc.getSrcUUID().isEmpty()) return tc;
+
+        String name = tc.getName();
+        String description = tc.getDescription();
+        String oname = tc.getOname();
+
+        Complex srComplex = getComplex(tc.getSrcUUID());
+        if(srComplex==null) return tc;
+
+        String newName = getString2(srComplex.getName(),toLang);
+        String newDesc = getString2(srComplex.getDescription(),toLang);
+        String newOName = getString2(srComplex.getName(),getProgramLanguage());
+
+        if(newName.equals(newOName))tc.setOname("");
+        else tc.setOname(newOName);
+        if(!newName.isEmpty())tc.setName(newName);
+        tc.setDescription(newDesc);
+
+        try {
+            updateTherapyComplex(tc);
+        } catch (Exception e) {
+            tc.setName(name);
+            tc.setDescription(description);
+            tc.setOname(oname);
+            throw e;
+        }
+
+        return tc;
+    }
+
      /************ Языки ***/
      public Language createLanguage(String abbr,String name,boolean avaliable)
      {
