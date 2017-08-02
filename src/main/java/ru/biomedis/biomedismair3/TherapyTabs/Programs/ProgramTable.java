@@ -127,8 +127,11 @@ public class ProgramTable {
 
             for (TherapyProgram program : getSelectedItems()) {
                 getModel().translate(program, getModel().getLanguage(langId));
-                refreshItem(program);
+
             }
+
+            refreshItems(getSelectedItems());
+            table.getSelectionModel().clearSelection();
 
         }catch (Exception ex){
             BaseController.showExceptionDialog("Перевод","Ошибка перевода","",ex,getApp().getMainWindow(), Modality.WINDOW_MODAL);
@@ -138,9 +141,10 @@ public class ProgramTable {
 
     /**
      * Обновляет элементы таблицы
-     * @param programs список элементов, не из базы, а из самой таблицы!!
+     * @param pList список элементов, не из базы, а из самой таблицы!!
      */
-    public void refreshItems(List<TherapyProgram> programs){
+    public void refreshItems(ObservableList<TherapyProgram> pList){
+        List<TherapyProgram> programs  = pList.stream().collect(Collectors.toList());
         programs.forEach(p->refreshItem(p));
     }
 
@@ -534,10 +538,10 @@ public class ProgramTable {
     public TherapyProgram getSelectedItem(){
         return table.getSelectionModel().getSelectedItem();
     }
-    public List<TherapyProgram> getSelectedItems(){
+    public ObservableList<TherapyProgram> getSelectedItems(){
         return table.getSelectionModel().getSelectedItems();
     }
-    public List<Integer> getSelectedIndexes(){
+    public ObservableList<Integer> getSelectedIndexes(){
         return table.getSelectionModel().getSelectedIndices();
     }
 
