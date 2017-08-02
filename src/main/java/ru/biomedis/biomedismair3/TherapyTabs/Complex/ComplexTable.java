@@ -4,10 +4,10 @@ import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.Clipboard;
@@ -39,6 +39,12 @@ public class ComplexTable {
     private TableView<TherapyComplex> table;
     private static ComplexTable instance;
     private SimpleStringProperty textComplexTime=new SimpleStringProperty();//хранит время комплекса в строковом представлении и через # id комплекса. Используется в выводе в табе комплекса времени и его обновления
+
+    private static ObservableValue<Boolean> fileCellValueFactory(TableColumn.CellDataFeatures<TherapyComplex, Boolean> param) {
+        SimpleBooleanProperty property = new SimpleBooleanProperty();
+        property.bind(param.getValue().changedProperty());
+        return property;
+    }
 
     public SimpleStringProperty textComplexTimeProperty() {
         return textComplexTime;
@@ -86,7 +92,8 @@ public class ComplexTable {
         //имя
         TableColumn<TherapyComplex,String> nameColTC=new TableColumn<>(res.getString("app.table.name_complex"));
         nameColTC.cellValueFactoryProperty().setValue(new PropertyValueFactory<TherapyComplex, String>("name"));
-        nameColTC.setCellFactory(TextFieldTableCell.forTableColumn());
+        //nameColTC.setCellFactory(TextFieldTableCell.forTableColumn());
+        nameColTC.setCellFactory(param -> new NameComplexTableCell());
         nameColTC.setOnEditCommit(this::editNameAction);
 
         //описание
@@ -101,30 +108,11 @@ public class ComplexTable {
         //пересчет индуцируется при изменении свойства time
 
 
-        timeColTC.setCellValueFactory(param -> {
-            SimpleStringProperty property = new SimpleStringProperty();
-            property.bind(new StringBinding() {
-                {
-                    super.bind(param.getValue().timeProperty());
-                }
-
-                @Override
-                protected String computeValue() {
-                    String s = DateUtil.convertSecondsToHMmSs(getModel().getTimeTherapyComplex(param.getValue()));
-                    textComplexTime.setValue(s+"#"+param.getValue().getId().longValue());
-                    return s;
-                }
-            });
-            return property;
-        });
+        timeColTC.setCellValueFactory(this::timeCellValueFactory);
 
 
         TableColumn<TherapyComplex,Boolean>fileComplexCol=new TableColumn<>(res.getString("app.table.file"));
-        fileComplexCol.cellValueFactoryProperty().setValue(param -> {
-            SimpleBooleanProperty property = new SimpleBooleanProperty();
-            property.bind(param.getValue().changedProperty());
-            return property;
-        });
+        fileComplexCol.cellValueFactoryProperty().setValue(ComplexTable::fileCellValueFactory);
         fileComplexCol.setCellFactory(col -> new FileCell());
 
 
@@ -373,6 +361,24 @@ public class ComplexTable {
 
         }
     }
+
+    private ObservableValue<String> timeCellValueFactory(TableColumn.CellDataFeatures<TherapyComplex, String> param) {
+        SimpleStringProperty property = new SimpleStringProperty();
+        property.bind(new StringBinding() {
+            {
+                super.bind(param.getValue().timeProperty());
+            }
+
+            @Override
+            protected String computeValue() {
+                String s = DateUtil.convertSecondsToHMmSs(getModel().getTimeTherapyComplex(param.getValue()));
+                textComplexTime.setValue(s + "#" + param.getValue().getId().longValue());
+                return s;
+            }
+        });
+        return property;
+    }
+
     private  class FileCell extends TableCell<TherapyComplex, Boolean>{
         @Override
         protected void updateItem(Boolean item, boolean empty) {
@@ -442,10 +448,10 @@ public class ComplexTable {
     public TherapyComplex getSelectedItem(){
         return table.getSelectionModel().getSelectedItem();
     }
-    public List<TherapyComplex> getSelectedItems(){
+    public ObservableList<TherapyComplex> getSelectedItems(){
         return table.getSelectionModel().getSelectedItems();
     }
-    public List<Integer> getSelectedIndexes(){
+    public ObservableList<Integer> getSelectedIndexes(){
         return table.getSelectionModel().getSelectedIndices();
     }
     public ObservableList<TherapyComplex> getAllItems(){
