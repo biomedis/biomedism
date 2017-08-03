@@ -3,7 +3,7 @@ package ru.biomedis.biomedismair3.TherapyTabs.Complex;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableCell;
-import javafx.scene.layout.HBox;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -13,52 +13,88 @@ import ru.biomedis.biomedismair3.entity.TherapyComplex;
 
 public class NameComplexTableCell extends TableCell<TherapyComplex,String>{
     private VBox vbox = new VBox(3);
-    private HBox tHbox = new HBox();
-    private HBox bHbox = new HBox();
+    private Label topText = new Label();
+    private Label bottomText = new Label();
     private Font boldFont = Font.font(null, FontWeight.BOLD, 12);
     private Font italicFont = Font.font(null, FontPosture.ITALIC, 12);
+
+    private TextField textField;
+
+    public NameComplexTableCell() {
+        vbox = new VBox();
+        vbox.setMaxWidth(Double.MAX_VALUE);
+        vbox.setAlignment(Pos.CENTER_LEFT);
+
+        bottomText.setFont(italicFont);
+        bottomText.setTextFill(Color.DARKSLATEGRAY);
+
+        vbox.getChildren().addAll(topText,bottomText);
+        setGraphic(vbox);
+
+    }
+
     @Override
     protected void updateItem(String item, boolean empty) {
         super.updateItem(item, empty);
-
-        if (vbox == null) {
-            vbox = new VBox();
-            vbox.setMaxWidth(Double.MAX_VALUE);
-            vbox.setAlignment(Pos.CENTER_LEFT);
-
-            tHbox = new HBox();
-            tHbox.setMaxWidth(Double.MAX_VALUE);
-            bHbox.setAlignment(Pos.CENTER_LEFT);
-
-            bHbox = new HBox();
-            bHbox.setMaxWidth(Double.MAX_VALUE);
-            bHbox.setAlignment(Pos.CENTER_LEFT);
-        }
         this.setText(null);
-        this.setGraphic(null);
+
         if (!empty) {
             TherapyComplex thisComplex = (TherapyComplex) getTableRow().getItem();
             if (thisComplex == null) return;
-            vbox.getChildren().clear();
-            tHbox.getChildren().clear();
-            bHbox.getChildren().clear();
 
-            // setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-            vbox.getChildren().add(tHbox);
+                if(!thisComplex.getOname().isEmpty())  {
+                    bottomText.setText(thisComplex.getOname());
+                    if(!vbox.getChildren().contains(bottomText))vbox.getChildren().add(bottomText);
 
-                Label lbl;
-                if(!thisComplex.getOname().isEmpty()){
-                    vbox.getChildren().add(bHbox);
-                    lbl = new Label(thisComplex.getOname());
-                    lbl.setFont(italicFont);
-                    lbl.setTextFill(Color.DARKSLATEGRAY);
-                    bHbox.getChildren().add(lbl);
                 }
-                lbl = new Label(thisComplex.getName());
-                tHbox.getChildren().add(lbl);
+                else  vbox.getChildren().remove(bottomText);
 
-
-            setGraphic(vbox);
+                topText.setText(thisComplex.getName());
         }
     }
+
+
+    @Override
+    public void startEdit() {
+        if (! isEditable() || ! getTableView().isEditable() || ! getTableColumn().isEditable()) return;
+        super.startEdit();
+        System.out.println("startEdit");
+    }
+
+    @Override
+    public void commitEdit(String newValue) {
+        super.commitEdit(newValue);
+        System.out.println("commitEdit");
+    }
+
+    @Override
+    public void cancelEdit() {
+        super.cancelEdit();
+        System.out.println("cancelEdit");
+    }
+/*
+    private <T> TextField createTextField(final Cell<T> cell, final StringConverter<T> converter) {
+        final TextField textField = new TextField(getItemText(cell, converter));
+
+        // Use onAction here rather than onKeyReleased (with check for Enter),
+        // as otherwise we encounter RT-34685
+        textField.setOnAction(event -> {
+            if (converter == null) {
+                throw new IllegalStateException(
+                        "Attempting to convert text input into Object, but provided "
+                                + "StringConverter is null. Be sure to set a StringConverter "
+                                + "in your cell factory.");
+            }
+            cell.commitEdit(converter.fromString(textField.getText()));
+            event.consume();
+        });
+        textField.setOnKeyReleased(t -> {
+            if (t.getCode() == KeyCode.ESCAPE) {
+                cell.cancelEdit();
+                t.consume();
+            }
+        });
+        return textField;
+    }
+    */
 }
