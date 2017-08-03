@@ -313,7 +313,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
         int currentUpdateFile=10;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=2;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentMinorVersion=3;//версия исправлений в пределах мажорной версии currentUpdateFile
         //требуется размещение в папке с dist.jar  файла version.txt с текущей версией типа 4.9.0!!! Этот файл в обновление нужно включать
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -726,8 +726,13 @@ https://gist.github.com/DemkaAge/8999236
         if(updateFixVersion == 0){
             updateIn10_1(updateOption);
             updateIn10_2(updateOption);
+            updateIn10_3(updateOption);
         }  else if(updateFixVersion == 1) {
             updateIn10_2(updateOption);
+            updateIn10_3(updateOption);
+        }else if(updateFixVersion == 2) {
+
+            updateIn10_3(updateOption);
         }
     }
 
@@ -736,6 +741,9 @@ https://gist.github.com/DemkaAge/8999236
     }
     private void updateIn10_2(ProgramOptions updateOption) {
         System.out.println("Update_10_2");
+    }
+    private void updateIn10_3(ProgramOptions updateOption) {
+        System.out.println("Update_10_3");
     }
 
     private void updateIn9_1(ProgramOptions updateOption) {
