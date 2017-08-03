@@ -410,7 +410,8 @@ public class ProgramTable {
                 if(clipboard.hasContent(PROGRAM_COPY_ITEM))if(therapyProgramsCopied.get())   mi2.setDisable(false);
                 if(clipboard.hasContent(PROGRAM_CUT_ITEM_ID))   mi2.setDisable(false);
             } else {
-                translateMenu.setDisable(false);
+                if(isCanTranslate(getSelectedItems()))translateMenu.setDisable(false);
+                else translateMenu.setDisable(true);
                 mi16.setDisable(false);
                 if(getSelectedIndexes().size()==1){
                     mi11.setDisable(false);
@@ -481,6 +482,14 @@ public class ProgramTable {
                 }
             }
         });
+    }
+
+    private boolean isCanTranslate(ObservableList<TherapyProgram> items) {
+        return items.stream().filter(p -> !p.getSrcUUID().isEmpty())
+                    .map(p->getModel().getProgram(p.getSrcUUID()))
+                    .filter(p->p!=null)
+                    .count() >0;
+
     }
 
 

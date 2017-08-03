@@ -1508,14 +1508,26 @@ public class ModelDataApp {
      * @return вернет измененный объект
      */
     public TherapyComplex translate(TherapyComplex tc, Language toLang) throws Exception {
-        if(tc.getSrcUUID().isEmpty()) return tc;
+        if(tc.getSrcUUID().isEmpty()) {
+            //комплекс может содержать программы, которые можно перевести
+            for (TherapyProgram tp : findTherapyPrograms(tc)) {
+                translate(tp,toLang);
+            }
+            return tc;
+        }
 
         String name = tc.getName();
         String description = tc.getDescription();
         String oname = tc.getOname();
 
         Complex srComplex = getComplex(tc.getSrcUUID());
-        if(srComplex==null) return tc;
+        if(srComplex==null) {
+            //комплекс может содержать программы, которые можно перевести
+            for (TherapyProgram tp : findTherapyPrograms(tc)) {
+                translate(tp,toLang);
+            }
+            return tc;
+        }
 
         String newName = getString2(srComplex.getName(),toLang);
         String newDesc = getString2(srComplex.getDescription(),toLang);
@@ -1538,6 +1550,11 @@ public class ModelDataApp {
             tc.setOname(oname);
             throw e;
         }
+
+        for (TherapyProgram tp : findTherapyPrograms(tc)) {
+            translate(tp,toLang);
+        }
+
 
         return tc;
     }

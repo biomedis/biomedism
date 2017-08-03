@@ -179,9 +179,7 @@ public class ComplexTable {
         try {
 
             for (TherapyComplex complex : getSelectedItems()) {
-                if(complex.getSrcUUID().isEmpty()) continue;//если комплекс был создан до 4.10 или вручную
                 getModel().translate(complex, getModel().getLanguage(langId));
-
             }
 
             refreshItems(getSelectedItems());
@@ -376,7 +374,27 @@ public class ComplexTable {
     }
 
     private boolean isCanTranslate(ObservableList<TherapyComplex> selectedItems) {
-        return selectedItems.stream().filter(c -> !c.getSrcUUID().isEmpty()).count() >0;
+       boolean f = selectedItems.stream()
+                     .filter(c -> !c.getSrcUUID().isEmpty())
+                      .map(c->getModel().getComplex(c.getSrcUUID()))
+                      .filter(c->c!=null)
+                     .count() >0;
+       if(f) return true;//если предполагается что можно переводить комплекс, то разрешим это сделать.
+
+        //если комплексы не разрешено переводить, то стоит углубиться в их программы
+        //ресурсоемко!!! Если будут жаловаться на задержки убрать, заменить на закоментированный блок
+        return selectedItems.stream()
+                            .flatMap(complex->getModel().findTherapyPrograms(complex).stream())
+                           .filter(program -> !program.getSrcUUID().isEmpty())
+                           .map(program->getModel().getProgram(program.getSrcUUID()))
+                           .filter(p->p!=null)
+                           .count() >0;
+/*
+        return selectedItems.stream()
+                            .flatMap(complex->getModel().findTherapyPrograms(complex).stream())
+                            .filter(c -> !c.getSrcUUID().isEmpty())
+                            .count() >0;
+*/
     }
 
     private ModelDataApp getModel() {
