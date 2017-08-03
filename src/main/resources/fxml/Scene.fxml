@@ -326,15 +326,6 @@
                                                 <Insets left="5.0" top="8.0" />
                                              </padding>
                                           </HBox>
-                                          <HBox fx:id="onameBoxComplex" spacing="6.0">
-                                             <children>
-                                                <Label text="%app.ui.name_on_ins_lang" />
-                                                <Label fx:id="onameComplex" text="" />
-                                             </children>
-                                             <padding>
-                                                <Insets left="8.0" />
-                                             </padding>
-                                          </HBox>
                                           <TableView fx:id="tableComplex" maxHeight="1.7976931348623157E308" minHeight="50.0" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
                                        </children>
                                     </VBox>

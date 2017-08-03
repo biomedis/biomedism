@@ -165,11 +165,10 @@ public class AppController  extends BaseController {
     @FXML private Button btnCancelBundles;
 
 
-    @FXML private HBox onameBoxProgram;
-    @FXML private HBox onameBoxComplex;
 
 
-    @FXML private Label onameComplex;
+
+
     @FXML private Menu updateBaseMenu;
     @FXML private Button searchReturn;
     @FXML private MenuItem installUpdatesMItm;
@@ -336,7 +335,7 @@ public class AppController  extends BaseController {
 
         btnGenerate.setDisable(true);
 
-        initOriginalLangComplexNameView();
+
         //настройка подписей в табах
         initTabs();
 
@@ -1210,18 +1209,7 @@ public class AppController  extends BaseController {
 
     }
 
-    private void initOriginalLangComplexNameView() {
-        onameComplex.textProperty().bind(new StringBinding() {
-            {
-                bind(tableComplex.getSelectionModel().selectedItemProperty());
-            }
-            @Override
-            protected String computeValue() {
-               if (tableComplex.getSelectionModel().getSelectedItem()==null) return "";
-                return tableComplex.getSelectionModel().getSelectedItem().getOname();
-            }
-        });
-    }
+
 
     private void initNamesTables() {
         baseProfileTabName=res.getString("app.ui.tab1");
