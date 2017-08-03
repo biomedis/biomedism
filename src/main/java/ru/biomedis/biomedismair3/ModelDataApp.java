@@ -2862,7 +2862,13 @@ public class ModelDataApp {
         Query query=emf.createEntityManager().createQuery("Select p From Program p WHERE p.uuid=:uuid");
         query.setParameter("uuid", uuid);
         query.setMaxResults(1);
-        return (Program)query.getSingleResult();
+        Program res=null;
+        try{
+            res=  (Program)query.getSingleResult();
+        }catch (NoResultException ex){
+
+        }
+        return res;
 
     }
     public Section getSection(String uuid){
@@ -2870,16 +2876,26 @@ public class ModelDataApp {
         Query query=emf.createEntityManager().createQuery("Select p From Section p WHERE p.uuid=:uuid");
         query.setParameter("uuid", uuid);
         query.setMaxResults(1);
-        return (Section)query.getSingleResult();
+        Section res=null;
+        try{
+        res=  (Section)query.getSingleResult();
+        }catch (NoResultException ex){
 
+        }
+        return res;
     }
     public Complex getComplex(String uuid){
 
         Query query=emf.createEntityManager().createQuery("Select p From Complex p WHERE p.uuid=:uuid");
         query.setParameter("uuid", uuid);
         query.setMaxResults(1);
-        return (Complex)query.getSingleResult();
+        Complex res=null;
+         try{
+             res = (Complex)query.getSingleResult();
+         }catch (NoResultException ex){
 
+         }
+        return res;
     }
 
     /**

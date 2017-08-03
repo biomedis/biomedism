@@ -126,6 +126,7 @@ public class ProgramTable {
             table.getSelectionModel().clearSelection();
 
         }catch (Exception ex){
+            Log.logger.error("",ex);
             BaseController.showExceptionDialog("Перевод","Ошибка перевода","",ex,getApp().getMainWindow(), Modality.WINDOW_MODAL);
         }
 
