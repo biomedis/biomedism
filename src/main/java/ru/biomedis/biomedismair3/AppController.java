@@ -598,7 +598,7 @@ public class AppController  extends BaseController {
             descr=p.getDescriptionString();
         }else {
             //вставим имя на языке вставки. oname - на языке который программа
-            oname=p.getNameString();
+           if(p.isOwnerSystem()) oname=p.getNameString();
             try {
                 name = getModel().getString2(p.getName(),getModel().getLanguage(il));
                 descr=getModel().getString2(p.getDescription(),getModel().getLanguage(il));

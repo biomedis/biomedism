@@ -1835,7 +1835,7 @@ public class ModelDataApp {
 
         }else {
             //вставим имя на языке вставки.
-            oname=complex.getNameString();
+            if(complex.isOwnerSystem())oname=complex.getNameString();
             name = getString2(complex.getName(),getLanguage(il));
             descr=getString2(complex.getDescription(),getLanguage(il));
 
