@@ -1501,7 +1501,7 @@ public class ModelDataApp {
       }
 
     /**
-     * Переведет на заданный язык. Результат будет в name и description(если было на языке юзера, то так и останется)
+     * Переведет на заданный язык - комплекс и все его программы!! Результат будет в name и description(если было на языке юзера, то так и останется)
      * В oname будет на языке программы или если нет на языке по умолчанию или если нет на языке юзера или просто пустая строка
      * @param tc
      * @param toLang
@@ -1528,6 +1528,10 @@ public class ModelDataApp {
 
         try {
             updateTherapyComplex(tc);
+            for (TherapyProgram tp : findTherapyPrograms(tc)) {
+                translate(tp,toLang);
+            }
+
         } catch (Exception e) {
             tc.setName(name);
             tc.setDescription(description);
@@ -1538,7 +1542,12 @@ public class ModelDataApp {
         return tc;
     }
 
-     /************ Языки ***/
+    public void translate(Profile profile, Language toLang) throws Exception{
+        for (TherapyComplex complex : findTherapyComplexes(profile)) {
+            translate(complex,toLang);
+        }
+    }
+    /************ Языки ***/
      public Language createLanguage(String abbr,String name,boolean avaliable)
      {
 

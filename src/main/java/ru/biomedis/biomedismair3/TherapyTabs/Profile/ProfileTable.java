@@ -4,13 +4,17 @@ import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCombination;
+import javafx.stage.Modality;
 import ru.biomedis.biomedismair3.App;
+import ru.biomedis.biomedismair3.BaseController;
+import ru.biomedis.biomedismair3.Log;
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.utils.Date.DateUtil;
@@ -31,6 +35,7 @@ public class ProfileTable {
 
     public static  final DataFormat PROFILE_CUT_ITEM_INDEX =new DataFormat("biomedis/cut_profile_item_index");
     public static  DataFormat PROFILE_CUT_ITEM_ID=new DataFormat("biomedis/cut_profile_item_id");
+    private Menu translateMenu = new Menu();
 
     public static ProfileTable init(TableView<Profile> tableProfile, ResourceBundle res){
 
@@ -55,7 +60,79 @@ public class ProfileTable {
 
     }
 
+
+    private void initTranslateMenu() {
+        translateMenu.setText(res.getString("app.menu.translate_to"));
+        MenuItem firstItem = new MenuItem(getModel().getProgramLanguage().getName());
+        firstItem.setUserData(getModel().getProgramLanguage().getId());
+        firstItem.setOnAction(ProfileTable.getInstance()::translateAction);
+        translateMenu.getItems().add(firstItem);
+
+        getModel().findAvaliableLangs().stream()
+                  .filter(l -> !l.getAbbr().equals(getModel().getProgramLanguage().getAbbr()))
+                  .map(l->{
+                      MenuItem mItem = new MenuItem(l.getName());
+                      mItem.setUserData(l.getId());
+                      mItem.setOnAction(ProfileTable.getInstance()::translateAction);
+                      return mItem;
+                  }).forEach(menuItem -> translateMenu.getItems().add(menuItem));
+
+
+    }
+
+    private void translateAction(ActionEvent e){
+        MenuItem mi =((MenuItem)e.getSource());
+        Long langId = (Long)mi.getUserData();
+        if(langId==null) {
+            Log.logger.error("в элементе меню отсутствует ID языка для перевода");
+            return;
+        }
+        try {
+
+
+                Profile profile = getSelectedItem();
+                if(profile==null) return;
+                int index = getAllItems().indexOf(profile);
+                getModel().translate(profile, getModel().getLanguage(langId));
+
+
+
+            refreshItem(getSelectedItem());
+            table.getSelectionModel().clearSelection();
+            table.getSelectionModel().select(index);
+            table.getFocusModel().focus(index);
+
+        }catch (Exception ex){
+            BaseController.showExceptionDialog("Перевод","Ошибка перевода","",ex,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+        }
+
+    }
+
+    /**
+     * Обновляет элементы таблицы
+     * @param pList список элементов, не из базы, а из самой таблицы!!
+     */
+    public void refreshItems(ObservableList<Profile> pList){
+        List<Profile> profiles  = pList.stream().collect(Collectors.toList());
+        profiles.forEach(c->refreshItem(c));
+    }
+
+    /**
+     * Обновляет элемент таблицы
+     * @param item элемент из таблицы, не из базы!
+     */
+    public void refreshItem(Profile item){
+        int i = getAllItems().indexOf(item);
+        if(i < 0){
+            Log.logger.warn("refreshItem - объект отсутствуетс в таблице");
+            return;
+        }
+        getAllItems().set(i,null);
+        getAllItems().set(i,item);
+    }
+
     private void initTable(){
+        initTranslateMenu();
         //номер по порядку
         TableColumn<Profile,Number> numProfileCol =new TableColumn<>("№");
         numProfileCol.setCellValueFactory(param -> new SimpleIntegerProperty(param.getTableView().getItems().indexOf(param.getValue())+1));
@@ -192,7 +269,7 @@ public class ProfileTable {
         //mip1.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
         mip2.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
         mip4.setAccelerator(KeyCombination.keyCombination("Delete"));
-        profileMenu.getItems().addAll(mip3,mip2,mip4,mip6,mip5);
+        profileMenu.getItems().addAll(mip3,mip2,mip4,mip6,mip5,translateMenu);
         mip3.setOnAction(e->cutInTables.run());
         mip2.setOnAction(e->pasteInTables.run());
         mip4.setOnAction(e->deleteInTables.run());
@@ -232,12 +309,14 @@ public class ProfileTable {
     public Profile getSelectedItem(){
         return table.getSelectionModel().getSelectedItem();
     }
-    public List<Profile> getSelectedItems(){
+   /*
+   public ObservableList<Profile> getSelectedItems(){
         return table.getSelectionModel().getSelectedItems();
     }
-    public List<Integer> getSelectedIndexes(){
+    public ObservableList<Integer> getSelectedIndexes(){
         return table.getSelectionModel().getSelectedIndices();
     }
+    */
     public ObservableList<Profile> getAllItems(){
         return table.getItems();
     }

@@ -6,6 +6,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
@@ -14,8 +15,11 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
+import javafx.stage.Modality;
 import ru.biomedis.biomedismair3.App;
+import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.CellFactories.TextAreaTableCell;
+import ru.biomedis.biomedismair3.Log;
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileTable;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
@@ -27,6 +31,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static ru.biomedis.biomedismair3.BaseController.getApp;
 import static ru.biomedis.biomedismair3.Log.logger;
@@ -40,11 +45,7 @@ public class ComplexTable {
     private static ComplexTable instance;
     private SimpleStringProperty textComplexTime=new SimpleStringProperty();//хранит время комплекса в строковом представлении и через # id комплекса. Используется в выводе в табе комплекса времени и его обновления
 
-    private static ObservableValue<Boolean> fileCellValueFactory(TableColumn.CellDataFeatures<TherapyComplex, Boolean> param) {
-        SimpleBooleanProperty property = new SimpleBooleanProperty();
-        property.bind(param.getValue().changedProperty());
-        return property;
-    }
+
 
     public SimpleStringProperty textComplexTimeProperty() {
         return textComplexTime;
@@ -56,6 +57,7 @@ public class ComplexTable {
     public static final DataFormat COMPLEX_COPY_ITEM=new DataFormat("biomedis/copy_complexitem");
 
     private ContextMenu  complexesMenu=new ContextMenu();
+    private Menu translateMenu = new Menu();
 
     public static ComplexTable init(TableView<TherapyComplex> tableComplex, ResourceBundle res, Image imageCancel, Image imageDone){
 
@@ -83,7 +85,14 @@ public class ComplexTable {
         this.imageDone = imageDone;
     }
 
+    private static ObservableValue<Boolean> fileCellValueFactory(TableColumn.CellDataFeatures<TherapyComplex, Boolean> param) {
+        SimpleBooleanProperty property = new SimpleBooleanProperty();
+        property.bind(param.getValue().changedProperty());
+        return property;
+    }
+
     private void initTable(){
+        initTranslateMenu();
         //номер по порядку
         TableColumn<TherapyComplex,Number> numComplexCol =new TableColumn<>("№");
         numComplexCol.setCellValueFactory(param -> new SimpleIntegerProperty(param.getTableView().getItems().indexOf(param.getValue()) + 1));
@@ -141,7 +150,71 @@ public class ComplexTable {
     }
 
 
+    private void initTranslateMenu() {
+        translateMenu.setText(res.getString("app.menu.translate_to"));
+        MenuItem firstItem = new MenuItem(getModel().getProgramLanguage().getName());
+        firstItem.setUserData(getModel().getProgramLanguage().getId());
+        firstItem.setOnAction(ComplexTable.getInstance()::translateAction);
+        translateMenu.getItems().add(firstItem);
 
+        getModel().findAvaliableLangs().stream()
+                  .filter(l -> !l.getAbbr().equals(getModel().getProgramLanguage().getAbbr()))
+                  .map(l->{
+                      MenuItem mItem = new MenuItem(l.getName());
+                      mItem.setUserData(l.getId());
+                      mItem.setOnAction(ComplexTable.getInstance()::translateAction);
+                      return mItem;
+                  }).forEach(menuItem -> translateMenu.getItems().add(menuItem));
+
+
+    }
+
+    private void translateAction(ActionEvent e){
+        MenuItem mi =((MenuItem)e.getSource());
+        Long langId = (Long)mi.getUserData();
+        if(langId==null) {
+            Log.logger.error("в элементе меню отсутствует ID языка для перевода");
+            return;
+        }
+        try {
+
+            for (TherapyComplex complex : getSelectedItems()) {
+                if(complex.getSrcUUID().isEmpty()) continue;//если комплекс был создан до 4.10 или вручную
+                getModel().translate(complex, getModel().getLanguage(langId));
+
+            }
+
+            refreshItems(getSelectedItems());
+            table.getSelectionModel().clearSelection();
+
+        }catch (Exception ex){
+            BaseController.showExceptionDialog("Перевод","Ошибка перевода","",ex,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+        }
+
+    }
+
+    /**
+     * Обновляет элементы таблицы
+     * @param pList список элементов, не из базы, а из самой таблицы!!
+     */
+    public void refreshItems(ObservableList<TherapyComplex> pList){
+        List<TherapyComplex> complexes  = pList.stream().collect(Collectors.toList());
+        complexes.forEach(c->refreshItem(c));
+    }
+
+    /**
+     * Обновляет элемент таблицы
+     * @param item элемент из таблицы, не из базы!
+     */
+    public void refreshItem(TherapyComplex item){
+        int i = getAllItems().indexOf(item);
+        if(i < 0){
+            Log.logger.warn("refreshItem - объект отсутствуетс в таблице");
+            return;
+        }
+        getAllItems().set(i,null);
+        getAllItems().set(i,item);
+    }
 
     public void initComplexesContextMenu(Supplier<Boolean> mIsConnected,
                                           Runnable onPrintComplex,
@@ -210,7 +283,8 @@ public class ComplexTable {
                 mic7,
                 mic4,
                 mic1,
-                mic13);
+                mic13,
+                translateMenu);
         table.setContextMenu(complexesMenu);
         complexesMenu.setOnShowing((event1) -> {
             mic1.setDisable(false);
@@ -221,8 +295,9 @@ public class ComplexTable {
             mic13.setDisable(false);
             mic9.setDisable(false);
             mic10.setDisable(true);
+            translateMenu.setDisable(true);
             Clipboard clipboard =Clipboard.getSystemClipboard();
-            if(this.table.getSelectionModel().getSelectedItems().isEmpty()) {
+            if(getSelectedItems().isEmpty()) {
 
                 mic1.setDisable(true);
                 mic2.setDisable(true);
@@ -241,6 +316,8 @@ public class ComplexTable {
                 mic9.setDisable(false);
                 mic11.setDisable(false);
 
+                if(isCanTranslate(getSelectedItems()))  translateMenu.setDisable(false);
+                else translateMenu.setDisable(true);
 
 
                 if(clipboard.hasContent(COMPLEX_COPY_ITEM) || clipboard.hasContent(this.COMPLEX_CUT_ITEM_ID)) {
@@ -296,6 +373,11 @@ public class ComplexTable {
             }
         });
     }
+
+    private boolean isCanTranslate(ObservableList<TherapyComplex> selectedItems) {
+        return selectedItems.stream().filter(c -> !c.getSrcUUID().isEmpty()).count() >0;
+    }
+
     private ModelDataApp getModel() {
         return App.getStaticModel();
     }
