@@ -1,4 +1,4 @@
-package ru.biomedis.biomedismair3;
+package ru.biomedis.biomedismair3.Layouts.BiofonTab;
 
 import javafx.application.Platform;
 import javafx.beans.Observable;
@@ -20,11 +20,15 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
+import ru.biomedis.biomedismair3.App;
+import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.Biofon.Biofon;
 import ru.biomedis.biomedismair3.Biofon.BiofonBinaryFile;
 import ru.biomedis.biomedismair3.Biofon.BiofonComplex;
 import ru.biomedis.biomedismair3.Biofon.BiofonProgram;
 import ru.biomedis.biomedismair3.Dialogs.NameDescroptionDialogController;
+import ru.biomedis.biomedismair3.Log;
+import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
 import ru.biomedis.biomedismair3.entity.TherapyProgram;
@@ -234,6 +238,10 @@ public class BiofonUIUtil {
             }
 
         }
+    }
+
+    public TherapyComplex getSelectedComplex(){
+        return  biofonCompexesList.getSelectionModel().getSelectedItem();
     }
 
     public void init3ComplexesButtons(Button bDeviceComplexBtn1,Button bDeviceComplexBtn2,Button bDeviceComplexBtn3){
