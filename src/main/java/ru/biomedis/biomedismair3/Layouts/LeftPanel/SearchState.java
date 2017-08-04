@@ -1,4 +1,4 @@
-package ru.biomedis.biomedismair3;
+package ru.biomedis.biomedismair3.Layouts.LeftPanel;
 
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanWrapper;

@@ -1,4 +1,4 @@
-package ru.biomedis.biomedismair3;
+package ru.biomedis.biomedismair3.Layouts.LeftPanel;
 
 import javafx.scene.control.TreeCell;
 import ru.biomedis.biomedismair3.entity.INamed;

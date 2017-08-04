@@ -13,7 +13,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventType;
 import javafx.fxml.FXML;
@@ -32,12 +31,13 @@ import javafx.stage.*;
 import javafx.util.Duration;
 import org.anantacreative.updater.Update.UpdateException;
 import org.anantacreative.updater.Update.UpdateTask;
-import ru.biomedis.biomedismair3.Converters.SectionConverter;
 import ru.biomedis.biomedismair3.DBImport.NewDBImport;
 import ru.biomedis.biomedismair3.Dialogs.NameDescroptionDialogController;
-import ru.biomedis.biomedismair3.Dialogs.ProgramDialogController;
 import ru.biomedis.biomedismair3.Dialogs.SearchProfile;
 import ru.biomedis.biomedismair3.Dialogs.TextInputValidationController;
+import ru.biomedis.biomedismair3.Layouts.LeftPanel.LeftPanelAPI;
+import ru.biomedis.biomedismair3.Layouts.LeftPanel.NamedTreeItem;
+import ru.biomedis.biomedismair3.Layouts.LeftPanel.TreeActionListener;
 import ru.biomedis.biomedismair3.TherapyTabs.Complex.ComplexTable;
 import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileTable;
 import ru.biomedis.biomedismair3.TherapyTabs.Programs.ProgramTable;
@@ -79,17 +79,11 @@ public class AppController  extends BaseController {
     
     private static int MAX_BUNDLES=7;
     @FXML private ImageView deviceIcon;//иконка устройства
-    @FXML private ComboBox<Section> baseCombo;//первый уровень разделов( типа выбор базы)
-    @FXML private ComboBox<Section> sectionCombo;//второй уровень разделов
+
     @FXML private Button btnUploadm;//закачать на прибор
-    @FXML private TreeView<INamed> sectionTree;//дерево разделов
-    @FXML private HBox userActionPane;//панель пользовательских действий
+
     @FXML private ProgressBar diskSpaceBar;//прогресс бар занятого места на диске прибора
-    @FXML private Button createUserBtn;//создание в пользовательской базе
-    @FXML private Button editUserBtn;//редакт. в пользовательской базе
-    @FXML private Button delUserBtn;//удал. в пользовательской базе
-    @FXML private TextArea programInfo;
-    @FXML private TextArea programDescription;
+
 
     @FXML private VBox progress1Pane;
     @FXML private VBox progress2Pane;
@@ -127,8 +121,7 @@ public class AppController  extends BaseController {
     @FXML private MenuItem menuDelGeneratedFiles;
 
 
-    @FXML private TextField searchPatternField;
-    @FXML private Button searchBtn;
+
 
    @FXML private SplitPane splitOuter;
 
@@ -150,9 +143,6 @@ public class AppController  extends BaseController {
     private Tab tab3;
 
     @FXML
-    private Tab tab4;
-
-    @FXML
     private Tab tab5;
 
 
@@ -166,26 +156,22 @@ public class AppController  extends BaseController {
 
 
 
-
+    @FXML private AnchorPane leftLayout;
 
 
     @FXML private Menu updateBaseMenu;
-    @FXML private Button searchReturn;
-    @FXML private MenuItem installUpdatesMItm;
-    @FXML private MenuItem  checkForUpdatesMItm;
+
     private @FXML MenuItem clearTrinityItem;
+
+    @FXML private  Menu menuImport;
+
     private TableViewSkin<?> tableSkin;
     private VirtualFlow<?> virtualFlow;
 
-    private ContextMenu deleteMenu=new ContextMenu();
     private Path devicePath=null;//путь ку устройству или NULL если что-то не так
     private String fsDeviceName="";
 
-    private ContextMenu searchMenu=new ContextMenu();
-    private SearchState searchState=new SearchState();
-
     private ContextMenu uploadMenu=new ContextMenu();
-
 
     private SimpleBooleanProperty connectedDevice =new SimpleBooleanProperty(false);//подключено ли устройство
 
@@ -202,16 +188,14 @@ public class AppController  extends BaseController {
 
 
 
-    //экстрактор для событий обновления комбобокса
-    //private Callback<Section ,Observable [] > extractor = param -> new Observable[]{param.nameStringProperty(),param.desriptionStringProperty()};
-    private List<Section> sectionsBase=new ArrayList<>();//основные разделы
+
 
     private  ResourceBundle res;
     private Tooltip diskSpaceTooltip=new Tooltip();
     private Tooltip searchTooltip=new Tooltip();
 
 
-    private NamedTreeItem rootItem=new NamedTreeItem();//корень дерева разделов(всегда есть, мы в нем мменяем только дочерние элементы)
+
     private boolean stopGCthread=false;
 
     private final DataFormat PROGRAM_DRAG_ITEM=new DataFormat("biomedis/programitem");
@@ -222,112 +206,24 @@ public class AppController  extends BaseController {
     private List<TherapyComplex> therapyComplexesClipboard=new ArrayList<>();
     private boolean therapyProgramsCopied=false;
 
-    public boolean getConnectedDevice() {
-        return connectedDevice.get();
-    }
-
-    public SimpleBooleanProperty connectedDeviceProperty() {
-        return connectedDevice;
-    }
-
-    public void setConnectedDevice(boolean connectedDevice) {
-        this.connectedDevice.set(connectedDevice);
-    }
-
     //сборщик мусора. Собирает мусор периодически, тк мы много объектов создаем при построении дерева
     //нужно его отключать вкогда плодим файлы!!!!!
     private Thread gcThreadRunner;
 
-    synchronized   public boolean isStopGCthread() {
-        return stopGCthread;
-    }
-
-    synchronized  public void setStopGCthread() {
-        this.stopGCthread = true;
-    }
-
-
-
-
-
     private SimpleBooleanProperty checkUppload=new SimpleBooleanProperty(false);
-    /**
-     * Изменяет состояние кнопки загрузки в прибор. Стоит проверить при изменении состояния устройства и изменеии состояния кнопки загрузки
-     */
-        private void checkUpploadBtn()
-        {
-                //свойство заставит сработать проверку доступности кнопки btnUpload.disableProperty().bind(new BooleanBinding()
-            checkUppload.set(!checkUppload.get());
 
-        }
-
-
-    public void onSearchReturn(){
-        clearSearch(true,true);
-
-    }
-
-    /**
-     *  возврат к состоянию дерева как до поиска, возврат состояния других элементов
-     * @param restoreState восстановить старое дерево до поиска?
-     */
-    private void clearSearch(boolean restoreState,boolean resetSearchField)
-    {
-        if(searchState.isSearch())
-        {
-           //произведем подчистку, иначе
-            if(restoreState)
-            {
-                //восстановление дерева как до поиска
-
-                fillTree(sectionCombo.getValue());
-
-
-            }
-        }
-        if(resetSearchField)searchPatternField.setText("");
-        //вернем в открытое состояние если у нас выбрана родительская база
-        String tag = baseCombo.getSelectionModel().getSelectedItem().getTag();
-        if (tag != null ? tag.equals("USER") : false) userActionPane.setDisable(false);
-        else userActionPane.setDisable(true);
-
-        searchState.clear();
-    }
-
-    /**
-     * Балансирует положение разделителей сплитера для удобства
-     */
-    private void balanceSpitterDividers()
-    {
-
-       // double summ=   splitOuter.getItems().stream().mapToDouble(node ->(node instanceof Parent )? ((Parent)node).minWidth(-1):  node.getBoundsInParent().getWidth()).sum();
-      /*  double summ =
-                ((splitOuter.getItems().get(0) instanceof Parent )? ((Parent)splitOuter.getItems().get(0)).minWidth(-1):  splitOuter.getItems().get(0).getBoundsInParent().getWidth())+ ((splitOuter.getItems().get(1) instanceof Parent )? ((Parent)splitOuter.getItems().get(1)).minWidth(-1):  splitOuter.getItems().get(1).getBoundsInParent().getWidth());
-
-        summ+=15;
-        double w=  splitOuter.getWidth();
-        SplitPane.Divider divider1 = splitOuter.getDividers().get(0);
-       if(divider1.getPosition()<=summ/w) divider1.setPosition(summ / w);
-        */
-        SplitPane.Divider divider1 = splitOuter.getDividers().get(0);
-         divider1.setPosition(0.25);
-
-
-
-
-    }
     private String baseComplexTabName;
     private String baseProgramTabName;
     private String baseProfileTabName;
 
-
+private LeftPanelAPI leftAPI;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
         res=rb;
         initNamesTables();
-        initSearchUI();
+
 
         dataPathMenuItem.setVisible(OSValidator.isWindows());//видимость пункта меню для введения пути к папки данных, только на винде!
         clearTrinityItem.disableProperty().bind(m2Connected.not());
@@ -363,13 +259,13 @@ public class AppController  extends BaseController {
         progress3Pane.setVisible(false);
 
 
-        userActionPane.setDisable(true);
+
         diskSpaceBar.setVisible(false);
         diskSpaceBar.setTooltip(diskSpaceTooltip);
         hackTooltipStartTiming(diskSpaceTooltip, 250, 15000);
 
 
-        initDeleteFromUserBaseMenu(rb);
+
 
         initDoneCancelImages();
         initSeqParallelImages();
@@ -384,16 +280,13 @@ public class AppController  extends BaseController {
         initDeviceMDetection(rb);
 
 
-        programInfo.setEditable(false);
-        programInfo.setWrapText(true);
-        programDescription.setEditable(false);
-        programDescription.setWrapText(true);
-
-
-        initBaseCombo();
-        initSectionCombo();
-        //настроим дерево разделов
-        initSectionTree();
+        try {
+            leftAPI = initLeftPanel();
+        } catch (Exception e) {
+            showExceptionDialog("Ошибка инициализации Левой панели","","",e,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+            throw new RuntimeException(e);
+        }
+        initSectionTreeActionListener();
 
         initTables();
         initProgramSearch();
@@ -407,7 +300,79 @@ public class AppController  extends BaseController {
         /** кнопки  таблиц **/
         initTablesButtonVisibilityPolicy();
 
-        initMenuItemImportComplexToBase();
+        initMenuImport();
+    }
+
+    private void initSectionTreeActionListener() {
+        leftAPI.setTreeActionListener(new TreeActionListener() {
+            @Override
+            public void programItemDoubleClicked(TreeItem<INamed> selectedItem) {
+                int tabSelectedIndex = therapyTabPane.getSelectionModel().getSelectedIndex();
+                doubleClickOnSectionTreeProgramItemAction(selectedItem,tabSelectedIndex);
+            }
+
+            @Override
+            public void complexItemDoubleClicked(TreeItem<INamed> selectedItem) {
+                int tabSelectedIndex = therapyTabPane.getSelectionModel().getSelectedIndex();
+                doubleClickOnSectionTreeComplexItemAction(selectedItem,tabSelectedIndex);
+            }
+        });
+    }
+
+
+    synchronized   public boolean isStopGCthread() {
+        return stopGCthread;
+    }
+
+    synchronized  public void setStopGCthread() {
+        this.stopGCthread = true;
+    }
+    public boolean getConnectedDevice() {
+        return connectedDevice.get();
+    }
+
+    public SimpleBooleanProperty connectedDeviceProperty() {
+        return connectedDevice;
+    }
+
+    public void setConnectedDevice(boolean connectedDevice) {
+        this.connectedDevice.set(connectedDevice);
+    }
+    /**
+     * Изменяет состояние кнопки загрузки в прибор. Стоит проверить при изменении состояния устройства и изменеии состояния кнопки загрузки
+     */
+    private void checkUpploadBtn()
+    {
+        //свойство заставит сработать проверку доступности кнопки btnUpload.disableProperty().bind(new BooleanBinding()
+        checkUppload.set(!checkUppload.get());
+
+    }
+
+    /**
+     * Балансирует положение разделителей сплитера для удобства
+     */
+    private void balanceSpitterDividers()
+    {
+
+        // double summ=   splitOuter.getItems().stream().mapToDouble(node ->(node instanceof Parent )? ((Parent)node).minWidth(-1):  node.getBoundsInParent().getWidth()).sum();
+      /*  double summ =
+                ((splitOuter.getItems().get(0) instanceof Parent )? ((Parent)splitOuter.getItems().get(0)).minWidth(-1):  splitOuter.getItems().get(0).getBoundsInParent().getWidth())+ ((splitOuter.getItems().get(1) instanceof Parent )? ((Parent)splitOuter.getItems().get(1)).minWidth(-1):  splitOuter.getItems().get(1).getBoundsInParent().getWidth());
+
+        summ+=15;
+        double w=  splitOuter.getWidth();
+        SplitPane.Divider divider1 = splitOuter.getDividers().get(0);
+       if(divider1.getPosition()<=summ/w) divider1.setPosition(summ / w);
+        */
+        SplitPane.Divider divider1 = splitOuter.getDividers().get(0);
+        divider1.setPosition(0.25);
+
+
+
+
+    }
+
+    private LeftPanelAPI initLeftPanel() throws Exception {
+            return  (LeftPanelAPI) replaceContent("/fxml/LeftPanel.fxml",leftLayout);
     }
 
     private void initTrinityReadingMenuItemDisabledPolicy() {
@@ -468,346 +433,16 @@ public class AppController  extends BaseController {
         bundlesPan.visibleProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNotNull());
     }
 
-    private void initMenuItemImportComplexToBase() {
-        menuImportComplexToBase.disableProperty().bind(new BooleanBinding() {
 
-            {
-                super.bind(sectionTree.getSelectionModel().selectedIndexProperty());
-            }
-            @Override
-            protected boolean computeValue()
-            {
-
-
-                if (baseCombo.getSelectionModel().getSelectedItem().getTag() != null ? baseCombo.getSelectionModel().getSelectedItem().getTag().equals("USER") : false) {
-
-                    if (sectionTree.getSelectionModel().getSelectedItem() == null) return true;
-                    if (sectionTree.getSelectionModel().getSelectedItem().getValue() instanceof Complex) return false;
-                    else if (sectionTree.getSelectionModel().getSelectedItem().getValue() instanceof Section)
-                        return false;
-                    else return true;
-                }else  return true;
-            }
+    private void initMenuImport() {
+        menuImport.setOnShowing(event -> {
+            menuImportComplexToBase.setDisable(!(leftAPI.isInUserBaseComplexSelected() || leftAPI.isInUserBaseSectionSelected()));
         });
     }
 
-    private void initSectionTree() {
-        sectionTree.setShowRoot(false);
-        sectionTree.setRoot(rootItem);
-        rootItem.setExpanded(true);
-
-        sectionTree.setCellFactory(param -> new SectionTreeCell());
-        sectionTree.setOnMouseClicked(this::sectionTreeClickAction);
-    }
-
-    private void sectionTreeClickAction(MouseEvent event) {
-        //по одиночному клику
-
-        TreeItem<INamed> selectedItem = sectionTree.getSelectionModel().getSelectedItem();
-        if (selectedItem == null) return;
-
-        singleClickOnSectionTreeAction(selectedItem);
-        if (event.getClickCount() == 2)doubleClickOnSectionTreeAction(selectedItem);
-    }
-
-    private void singleClickOnSectionTreeAction(TreeItem<INamed> selectedItem) {
-        if (selectedItem.getValue() instanceof Program)
-        {
-            singleClickOnSectionTreeProgramItemAction(selectedItem);
-        } else  if (selectedItem.getValue() instanceof Section)
-        {
-            singleClickOnSectionTreeSectionItemAction(selectedItem);
-        } else  if (selectedItem.getValue() instanceof Complex)
-        {
-            singleClickOnSectionTreeComplexItemAction(selectedItem);
-        }
-    }
-
-    private void doubleClickOnSectionTreeAction(TreeItem<INamed> selectedItem) {
-        int tabSelectedIndex = therapyTabPane.getSelectionModel().getSelectedIndex();
-        //перенос программы в текущий комплекс  в такблицу справа.
-        if (selectedItem.getValue() instanceof Program)
-        {
-            doubleClickOnSectionTreeProgramItemAction(selectedItem, tabSelectedIndex);
-        } else if (selectedItem.getValue() instanceof Complex) {
-            doubleClickOnSectionTreeComplexItemAction(selectedItem, tabSelectedIndex);
-        }
-    }
-
-    private void doubleClickOnSectionTreeComplexItemAction(TreeItem<INamed> selectedItem, int tabSelectedIndex) {
-        //если выбран биофон вкладка
-        if(tabSelectedIndex==3){
-            //добавляется комплекс в биофон
-            Complex c = (Complex) selectedItem.getValue();
-            try {
-                TherapyComplex th = getModel().createTherapyComplex(getApp().getBiofonProfile(), c, c.getTimeForFreq()==0?180:c.getTimeForFreq(),3,getInsertComplexLang());
-
-                addComplexToBiofonTab(th);
-
-            } catch (Exception e) {
-                logger.error("",e);
-                showExceptionDialog("Ошибка создания терапевтического комплекса ", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-
-            }
-
-
-        }else
-        if (tableProfile.getSelectionModel().getSelectedItem() != null)//добавление комплекса в профиль
-        {
-
-            Complex c = (Complex) selectedItem.getValue();
-
-            try {
-                TherapyComplex th = getModel().createTherapyComplex(tableProfile.getSelectionModel().getSelectedItem(), c, c.getTimeForFreq()==0?180:c.getTimeForFreq(),3,getInsertComplexLang());
-
-                //therapyComplexItems.clear();
-                //therapyComplexItems содержит отслеживаемый список, элементы которого добавляются в таблицу. Его не нужно очищать
-
-                tableComplex.getItems().add(th);
-                tableComplex.getSelectionModel().clearSelection();
-                therapyTabPane.getSelectionModel().select(1);//выберем таб с комплексами
-                tableComplex.getSelectionModel().select(tableComplex.getItems().size() - 1);
-                updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
-
-                    //если есть программы  к перенесенном комплексе то можно разрешить генерацию
-                if(getModel().countTherapyPrograms(th)>0) btnGenerate.setDisable(false);
-                else btnGenerate.setDisable(true);
-                th = null;
-            } catch (Exception e) {
-                logger.error("",e);
-                showExceptionDialog("Ошибка создания терапевтического комплекса ", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-            }
-            c = null;
-
-        }
-    }
-
-    private void doubleClickOnSectionTreeProgramItemAction(TreeItem<INamed> selectedItem, int tabSelectedIndex) {
-        //проверим язык програмы и язык вставки
-        Program p = (Program) selectedItem.getValue();
-        String il=getInsertComplexLang();
-        String lp=getModel().getProgramLanguage().getAbbr();
-
-        String name="";
-        String oname="";
-        String descr="";
-
-        if(il.equals(lp))
-        {
-            name=p.getNameString();
-            descr=p.getDescriptionString();
-        }else {
-            //вставим имя на языке вставки. oname - на языке который программа
-           if(p.isOwnerSystem()) oname=p.getNameString();
-            try {
-                name = getModel().getString2(p.getName(),getModel().getLanguage(il));
-                descr=getModel().getString2(p.getDescription(),getModel().getLanguage(il));
-            } catch (Exception e) {
-                logger.error("",e);
-                showExceptionDialog("Ошибка создания терапевтической программы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-
-            }
-
-        }
-
-
-        if(tabSelectedIndex==3){
-            TherapyComplex selectedTCBiofon = biofonCompexesList.getSelectionModel().getSelectedItem();
-            if(selectedTCBiofon==null) return;
-            try {
-                TherapyProgram therapyProgram = getModel().createTherapyProgram(p.getUuid(),selectedTCBiofon, name, descr, p.getFrequencies(),oname);
-                addProgramToBiofonTab(selectedTCBiofon,therapyProgram);
-            } catch (Exception e) {
-                logger.error("",e);
-                showExceptionDialog("Ошибка создания терапевтической программы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-
-            }
 
 
 
-        }else
-        if (tableComplex.getSelectionModel().getSelectedItem() != null) {
-            //если выбран комплекс в таблице комплексов
-
-            try {
-
-
-                TherapyProgram therapyProgram = getModel().createTherapyProgram(p.getUuid(),tableComplex.getSelectionModel().getSelectedItem(), name, descr, p.getFrequencies(),oname);
-                tableProgram.getItems().add(therapyProgram);
-                updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(), false);
-                therapyTabPane.getSelectionModel().select(2);//выберем таб с программами
-
-
-                Platform.runLater(() -> {
-                    updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(),true);
-                    tableProgram.getSelectionModel().clearSelection();
-                    tableProgram.requestFocus();
-                    tableProgram.getSelectionModel().select(tableProgram.getItems().size() - 1);
-                    tableProgram.getFocusModel().focus(tableProgram.getItems().size() - 1);
-                    tableProgram.scrollTo(tableProgram.getItems().size() - 1);
-                });
-
-                btnGenerate.setDisable(false);
-                therapyProgram = null;
-            } catch (Exception e) {
-
-                logger.error("",e);
-                showExceptionDialog("Ошибка создания терапевтической программы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-            }
-            p = null;
-
-        }
-    }
-
-
-
-    private void singleClickOnSectionTreeComplexItemAction(TreeItem<INamed> selectedItem) {
-        String pathtext="";
-
-        if(((Complex) selectedItem.getValue()).getSection()!=null)
-        {
-            Section tS=  ((Complex) selectedItem.getValue()).getSection();
-            getModel().initStringsSection(tS);
-            pathtext=tS.getNameString();
-            if(tS.getParent()!=null)
-            {
-                Section tS1= tS.getParent();
-                getModel().initStringsSection(tS1);
-                pathtext=tS1.getNameString()+" -> "+pathtext;
-            }
-        }
-        if(!pathtext.isEmpty()) pathtext+=" -> "+selectedItem.getValue().getNameString(); else pathtext=selectedItem.getValue().getNameString();
-        programDescription.setText(pathtext+"\n"+((IDescriptioned) selectedItem.getValue()).getDescriptionString());
-        programInfo.setText("");
-        createUserBtn.setDisable(false);
-    }
-
-    private void singleClickOnSectionTreeSectionItemAction(TreeItem<INamed> selectedItem) {
-        String pathtext="";
-        if(((Section) selectedItem.getValue()).getParent()!=null)
-        {
-            Section tS=  ((Section) selectedItem.getValue()).getParent();
-            getModel().initStringsSection(tS);
-            pathtext=tS.getNameString();
-
-            if(tS.getParent()!=null)
-            {
-                Section tS1= tS.getParent();
-                getModel().initStringsSection(tS1);
-                pathtext=tS1.getNameString()+" -> "+pathtext;
-            }
-        }
-        if(!pathtext.isEmpty()) pathtext+=" -> "+selectedItem.getValue().getNameString(); else pathtext=selectedItem.getValue().getNameString();
-        programDescription.setText(pathtext+"\n"+((IDescriptioned) selectedItem.getValue()).getDescriptionString());
-        programInfo.setText("");
-        createUserBtn.setDisable(false);
-    }
-
-    private void singleClickOnSectionTreeProgramItemAction(TreeItem<INamed> selectedItem) {
-        String pathtext="";
-        if(((Program) selectedItem.getValue()).getComplex()!=null)
-        {
-            Complex tC=  ((Program) selectedItem.getValue()).getComplex();
-            getModel().initStringsComplex(tC);
-            pathtext=tC.getNameString();
-
-            if(tC.getSection()!=null)
-            {
-                Section tS= tC.getSection();
-                getModel().initStringsSection(tS);
-                pathtext=tS.getNameString()+" -> "+pathtext;
-            }
-        }else if(((Program) selectedItem.getValue()).getSection()!=null)
-        {
-            Section tS=  ((Program) selectedItem.getValue()).getSection();
-            getModel().initStringsSection(tS);
-            pathtext=tS.getNameString();
-
-            if(tS.getParent()!=null)
-            {
-                Section tS1= tS.getParent();
-                getModel().initStringsSection(tS1);
-                pathtext=tS1.getNameString()+" -> "+pathtext;
-            }
-        }
-
-        if(!pathtext.isEmpty()) pathtext+=" -> "+selectedItem.getValue().getNameString(); else pathtext=selectedItem.getValue().getNameString();
-        programDescription.setText(pathtext+"\n"+((Program) selectedItem.getValue()).getDescriptionString());
-        programInfo.setText(((Program) selectedItem.getValue()).getFrequencies().replace(";", ";  "));
-        createUserBtn.setDisable(true);
-    }
-
-    private void initBaseCombo() {
-        List<Section> allRootSection;// разделы старая и новая база
-        allRootSection = getModel().findAllRootSection();// разделы разных баз(старая и новая)
-        getModel().initStringsSection(allRootSection);
-        baseCombo.setConverter(new SectionConverter(getModel().getProgramLanguage().getAbbr()));
-        baseCombo.getItems().addAll(allRootSection);
-        baseCombo.setVisibleRowCount(5);
-
-        //  sectionCombo.setPlaceholder(new Label(rb.getString("ui.main.empty_list")));
-        //выбор базы
-        baseCombo.setOnAction(event ->
-        {
-            programDescription.setText("");
-            programInfo.setText("");
-            clearSearch(false,false);//очистка состояния поиска
-            sectionTree.setShowRoot(false);
-            //переключение панели кнопок действий для пользовательского раздела
-            String tag = baseCombo.getSelectionModel().getSelectedItem().getTag();
-            if (tag != null ? tag.equals("USER") : false) userActionPane.setDisable(false);
-            else userActionPane.setDisable(true);
-
-            fillSectionsSelectedBase();
-
-            //если список подразделов пуст, то попробуем заполнить дерево из корня, те из выбранной базы. Для тринити сейчас так
-            if(sectionsBase.size()<=1 && !tag.equals("USER")){
-                clearSearch(false,false);//очистка состояния поиска
-                Section selectedItem = baseCombo.getSelectionModel().getSelectedItem();
-                programDescription.setText("");
-                programInfo.setText("");
-                fillTree(selectedItem);//очистит и заполнит дерево, родительский раздел передается как параметр
-            }
-
-
-        });
-
-        //откроем первую базу
-        baseCombo.getSelectionModel().select(0);
-        baseCombo.fireEvent(new ActionEvent());//создадим эвент для baseCombo.setOnAction и заполним комбобок тем самым
-    }
-
-    private void initSectionCombo() {
-        sectionCombo.setConverter(new SectionConverter(getModel().getProgramLanguage().getAbbr()));//конвертер секции в строку
-        sectionCombo.setVisibleRowCount(10);
-
-        //выбор рездела. Заполнение дерева после выбора раздела
-        sectionCombo.setOnAction(event ->
-        {
-            clearSearch(false,false);//очистка состояния поиска
-            INamed value = rootItem.getValue();
-            Section selectedItem = sectionCombo.getSelectionModel().getSelectedItem();
-            programDescription.setText("");
-            programInfo.setText("");
-            fillTree(sectionCombo.getSelectionModel().getSelectedItem());//очистит и заполнит дерево, родительский раздел передается как параметр
-        });
-
-        sectionCombo.getSelectionModel().select(1);
-        sectionCombo.getOnAction().handle(new ActionEvent());
-    }
-
-    private void fillSectionsSelectedBase() {
-        sectionsBase.clear();
-        sectionsBase.add(new Section());//пустой элемент вставим для выбора он с ID =0
-        sectionsBase.addAll(getModel().findAllSectionByParent(baseCombo.getSelectionModel().getSelectedItem()));
-        getModel().initStringsSection(sectionsBase);
-        //очистка и заполение комбобокса разделов 2 уровня согласно выбранному 1 разделу
-        sectionCombo.getItems().clear();
-        sectionCombo.getItems().addAll(sectionsBase);
-        rootItem.setValue(null);
-        if(baseCombo.getSelectionModel().getSelectedIndex()<=1)sectionCombo.getSelectionModel().select(1);
-        else sectionCombo.getSelectionModel().select(0);//автоматически очистит дерево, тк сработает sectionCombo.setOnAction(event....
-    }
 
     private void initGCRunner() {
         gcThreadRunner =new Thread(() ->
@@ -829,50 +464,7 @@ public class AppController  extends BaseController {
         gcThreadRunner.start();
     }
 
-    private void initDeleteFromUserBaseMenu(ResourceBundle rb) {
-        MenuItem mi1=new MenuItem(rb.getString("app.delete"));
-        MenuItem mi2=new MenuItem(rb.getString("app.clear"));
 
-        mi1.setOnAction(event2 -> onDeleteItm());
-        mi2.setOnAction(event2 -> onClearItm());
-
-        deleteMenu.getItems().addAll(mi1, mi2);
-
-        delUserBtn.setOnAction(event3 ->
-        {
-
-            if (sectionTree.getSelectionModel().getSelectedItem() == null )
-            {
-                if(sectionCombo.getSelectionModel().getSelectedItem().getId()==0)return;
-                else
-                {
-                    //это для выбранного меню разделов в комбо для секций
-                    mi1.setDisable(false);
-                    mi2.setDisable(true);
-
-                    deleteMenu.show(delUserBtn, Side.BOTTOM, 0, 0);
-                    return;
-
-                }
-            }
-            mi1.setDisable(false);
-            mi2.setDisable(false);
-
-
-            if (sectionTree.getSelectionModel().getSelectedItem().getValue() instanceof Section)
-            {
-                //можно удалять разделы если в них все пустые разделы, но есть програмы и комплексы
-                long count = sectionTree.getSelectionModel().getSelectedItem().getChildren().stream().filter(itm -> (itm.getValue() instanceof Section && !itm.getChildren().isEmpty())).count();
-                if(count!=0)  mi1.setDisable(true);
-
-               // if (!sectionTree.getSelectionModel().getSelectedItem().getChildren().isEmpty())
-            } else if (sectionTree.getSelectionModel().getSelectedItem().getValue() instanceof Program)
-                mi2.setDisable(true);
-
-
-            deleteMenu.show(delUserBtn, Side.BOTTOM, 0, 0);
-        });
-    }
 
     private void initDeviceMDetection(ResourceBundle rb) {
         DropShadow borderGlow;
@@ -1009,57 +601,7 @@ public class AppController  extends BaseController {
         imageCancel=new Image(location.toExternalForm());
     }
 
-    private void initSearchUI() {
-        searchReturn.setDisable(true);
-        searchReturn.disableProperty().bind(searchState.searchedProperty().not());
-        initSearchContextMenu();
-    }
 
-    private void initSearchContextMenu() {
-        MenuItem smi1=new MenuItem(res.getString("app.text.search_in_dep"));
-        MenuItem smi2=new MenuItem(res.getString("app.text.search_in_cbase"));
-        MenuItem smi3=new MenuItem(res.getString("app.text.search_in_allbase"));
-        SeparatorMenuItem spmi=new SeparatorMenuItem();
-        MenuItem smi4=new MenuItem(res.getString("app.back"));
-
-        smi1.setOnAction(event2 ->  fillTreeFind(new FindFilter(SearchActionType.IN_SELECTED_DEP,searchPatternField.getText())));
-        smi2.setOnAction(event2 ->  fillTreeFind(new FindFilter(SearchActionType.IN_SELECTED_BASE, searchPatternField.getText())));
-        smi3.setOnAction(event2 ->  fillTreeFind(new FindFilter(SearchActionType.IN_ALL_BASE,searchPatternField.getText())));
-        smi4.setOnAction(event2 ->    clearSearch(true,true));
-
-
-        searchMenu.getItems().addAll(smi3, smi2, smi1, spmi, smi4);
-        searchBtn.setOnAction(event1 ->
-        {
-            //покажем пункты меню в зависимости от выбранных элементов базы и режима поиска!
-            if (!searchState.isSearch()) smi4.setDisable(true);
-            else smi4.setDisable(false);
-
-            if (sectionCombo.getValue().getId().longValue() == 0) smi1.setDisable(true);
-            else smi1.setDisable(false);
-
-
-            //используем searchState объект
-            if(!searchMenu.isShowing())searchMenu.show(searchBtn, Side.BOTTOM, 0, 0);
-            else searchMenu.hide();
-        });
-
-        //нажатие на ввод вызовет поиск по всей базе
-        searchPatternField.setOnAction(event1 ->
-        {
-            fillTreeFind(new FindFilter(SearchActionType.IN_ALL_BASE, searchPatternField.getText()));
-            /*
-              //нажатие на ввод вызовет поиск по выбранному разделу или базе
-            if (sectionCombo.getValue().getId().longValue() == 0) fillTreeFind(new FindFilter(SearchActionType.IN_SELECTED_BASE, searchPatternField.getText()));
-            else fillTreeFind(new FindFilter(SearchActionType.IN_SELECTED_DEP, searchPatternField.getText()));
-            */
-        });
-/*
-        searchTooltip.setText("Происк производится по нажатию кнопки 'Найти'\nили по нажатию кнопки 'Enter' на клавиатуре\n( произойдет поиск в выбранном разделе или базе если раздел не выбран).");
-        searchPatternField.setTooltip(searchTooltip);
-        hackTooltipStartTiming(searchTooltip, 250, 15000);
-*/
-    }
 
     private void baseInitBundlesSpinner() {
         bundlesPan.setVisible(false);
@@ -1860,10 +1402,10 @@ public class AppController  extends BaseController {
                 this::complexesToBiofon,
                 ()->{
                     boolean res=true;
-                    if(sectionTree.getSelectionModel().getSelectedItem() != null) {
-                        if(((TreeItem)sectionTree.getSelectionModel().getSelectedItem()).getValue() instanceof Section) {
-                            String tag1 = ((Section)baseCombo.getSelectionModel().getSelectedItem()).getTag();
-                            if(tag1 != null && tag1.equals("USER")) res = false;
+                    if(leftAPI.selectedSectionTree() != null) {
+                        INamed value = leftAPI.selectedSectionTreeItem();
+                        if(value instanceof Section) {
+                            return ((Section) value).isOwnerSystem();
                         }
                     }
                     return res;
@@ -1887,11 +1429,14 @@ public class AppController  extends BaseController {
                 ()->therapyProgramsCopied,
                 ()-> {
                     boolean res = true;
-                    if (sectionTree.getSelectionModel().getSelectedItem() != null) {
-                        INamed value = sectionTree.getSelectionModel().getSelectedItem().getValue();
-                        if (value instanceof Section || value instanceof Complex) {
-                            String tag = ((Section) baseCombo.getSelectionModel().getSelectedItem()).getTag();
-                            if (tag != null && tag.equals("USER")) return false;
+                    if (leftAPI.selectedSectionTree() != null) {
+                        INamed value = leftAPI.selectedSectionTreeItem();
+                        if (value instanceof Section ) {
+                            return ((Section) value).isOwnerSystem();
+
+                        }else  if (value instanceof Complex) {
+                            return ((Complex) value).isOwnerSystem();
+
                         }
                     }
                     return res;
@@ -2941,7 +2486,7 @@ public class AppController  extends BaseController {
     {
 
         ObservableList<TherapyProgram> selectedItems = tableProgram.getSelectionModel().getSelectedItems();
-        NamedTreeItem treeItem = (NamedTreeItem) sectionTree.getSelectionModel().getSelectedItem();
+        NamedTreeItem treeItem = leftAPI.selectedSectionTree();
         if(selectedItems.isEmpty()|| treeItem==null) return;
 
         List<TherapyProgram> src=selectedItems.stream().filter(i->!i.isMp3()).collect(Collectors.toList());
@@ -2997,7 +2542,7 @@ public class AppController  extends BaseController {
     private void copyTherapyComplexToBase()
     {
         ObservableList<TherapyComplex> therapyComplexes = this.tableComplex.getSelectionModel().getSelectedItems();
-        NamedTreeItem treeItem = (NamedTreeItem)this.sectionTree.getSelectionModel().getSelectedItem();
+        NamedTreeItem treeItem = leftAPI.selectedSectionTree();
         if(!therapyComplexes.isEmpty() && treeItem != null) {
             Complex complex = null;
 
@@ -3186,316 +2731,10 @@ public class AppController  extends BaseController {
 
 
 
-    /**
-     * Заполнит дерево разделов
-     * @param containerNode  Section  тот который хранит дерево элементов в базе. те начало отсчета выборки
-     *
-     */
-    private void fillTree(Section containerNode)
-    {
 
-        if (containerNode==null || rootItem==null) {  /*System.out.println("FILL -containerNode==null || rootItem==null");*/return;}
 
-        clearTree();
-//если выбрали пустой элемент списка(фейковый) то не станем заполнять ничего
-        if(containerNode.getId()==0) {
-            sectionTree.setShowRoot(false);
-            editUserBtn.setDisable(true);
-            delUserBtn.setDisable(true);
-            return;
-        }
-        editUserBtn.setDisable(false);
-        delUserBtn.setDisable(false);
 
-        //TimeMesure tm=new TimeMesure("Инициализация списка ");
 
-       // tm.start();
-
-        rootItem.setValue(containerNode);
-
-        //загрузим разделы(все вложенные элементы будут грузиться автоматически, благодаря NamedTreeItem, который сам подгрузит доччерние элементы)
-        List<Section> allSectionByParent = getModel().findAllSectionByParent(containerNode);
-        getApp().getModel().initStringsSection(allSectionByParent);
-
-        String lang=getModel().getProgramLanguage().getAbbr();
-        if(!allSectionByParent.isEmpty())
-        {
-             lang = App.getStaticModel().getSmartLang(allSectionByParent.get(0).getName());
-        }
-
-
-
-        sectionTree.setShowRoot(true);
-        allSectionByParent.stream().sorted(App.getStaticModel().getComparator(lang)).forEach(section -> rootItem.getChildren().add(new NamedTreeItem(section)));
-//загрузим прогрмы и комплексы корня.
-        List<Complex> allComplexBySection = getModel().findAllComplexBySection(containerNode);
-        List<Program> allProgramBySection = getModel().findAllProgramBySection(containerNode);
-
-        if(!allComplexBySection.isEmpty())
-        {
-            getApp().getModel().initStringsComplex(allComplexBySection);//строки инициализируются тк у нас многоязыковое приложение. Тут инициализируются строки выбранной локали или в первую очередь пользовательские
-            lang = App.getStaticModel().getSmartLang(allComplexBySection.get(0).getName());
-
-            allComplexBySection.stream().sorted(App.getStaticModel().getComparator(lang)).forEach(complex -> rootItem.getChildren().add(new NamedTreeItem(complex)));
-        }
-
-        if(!allProgramBySection.isEmpty())
-        {
-            getApp().getModel().initStringsProgram(allProgramBySection);
-            lang = App.getStaticModel().getSmartLang(allProgramBySection.get(0).getName());
-            allProgramBySection.stream().sorted(App.getStaticModel().getComparator(lang)).forEach(program -> rootItem.getChildren().add(new NamedTreeItem(program)));
-        }
-
-        allSectionByParent.clear();allSectionByParent=null;
-        allComplexBySection.clear();allComplexBySection=null;
-        allProgramBySection.clear();allProgramBySection=null;
-
-      //  tm.stop();
-
-
-
-    }
-
-
-
-//очистка дерева( корень остается всегда)
-    private void clearTree()
-    {
-        rootItem.setValue(null);
-        rootItem.getChildren().forEach(this::removeRecursively);
-
-        rootItem.getChildren().clear();
-
-    }
-
-    enum SearchActionType {IN_SELECTED_DEP,IN_SELECTED_BASE,IN_ALL_BASE};
-    class FindFilter
-    {
-
-        String searchPattern;//строка которую ищем
-        SearchActionType actionType;
-
-
-        public FindFilter( SearchActionType actionType, String searchPattern) {
-            this.actionType = actionType;
-            this.searchPattern = searchPattern;
-        }
-
-        public SearchActionType getActionType() {
-            return actionType;
-        }
-
-
-
-
-
-
-
-        public String getSearchPattern() {
-            return searchPattern;
-        }
-
-
-    }
-
-
-
-    private void fillTreeFind(FindFilter ff)
-    {
-
-        if(ff.searchPattern.length()<=2) { showInfoDialog(res.getString("app.search"),res.getString("app.search_1"),"",getApp().getMainWindow(),Modality.WINDOW_MODAL);return;}
-        //необходимо сохранить раздел который открыт. Также заблокировать возможность удалять и добавлять и редактировать(стоит установить например старую базу по умолчанию) а может ничего менять не надо!!! Просто учесть режим поиска.
-        //любой выбор в списке разделов  или баз отключает режим поиска!
-        //нужно учесть состояние поиска чтобы во время него не искать где попало. Те после поиска мы можем продолжать искать исходя из старой ситуации.
-        //стоит сделать так чтобы нажатие на ввод искало по текцщему выбору , а меню его меняло бы.
-
-        //сохраним
-        // searchState.setRoot(baseCombo.getValue());
-        //searchState.setRoot2(sectionCombo.getValue().getId().longValue() == 0 ? null : sectionCombo.getValue());
-        searchState.setSearch(true);
-        searchState.setSearchText(ff.searchPattern);
-        userActionPane.setDisable(true);
-
-        List<Section> sections=null;
-        List<Complex>  complexes=null;
-        List<Program>  programs=null;
-        switch (ff.actionType)
-        {
-            case IN_ALL_BASE:
-
-                sections = getModel().searchSectionInAllBase(ff.searchPattern, getModel().getProgramLanguage());//поиск пользовательских данных в любом случае произойдет
-                 complexes= getModel().searchComplexInAllBase(ff.searchPattern, getModel().getProgramLanguage());//поиск пользовательских данных в любом случае произойдет
-                 programs= getModel().searchProgramInAllBase(ff.searchPattern, getModel().getProgramLanguage());//поиск пользовательских данных в любом случае произойдет
-                break;
-            case IN_SELECTED_BASE:
-                sections = findSectionIn(ff.searchPattern, baseCombo.getValue());//поиск пользовательских данных в любом случае произойдет
-                complexes = findComplexIn(ff.searchPattern, baseCombo.getValue());//поиск пользовательских данных в любом случае произойдет
-                programs = findProgramIn(ff.searchPattern, baseCombo.getValue());//поиск пользовательских данных в любом случае произойдет
-                break;
-            case IN_SELECTED_DEP:
-                sections = findSectionIn(ff.searchPattern,sectionCombo.getValue().getId().longValue() == 0 ? null : sectionCombo.getValue());//поиск пользовательских данных в любом случае произойдет
-                complexes = findComplexIn(ff.searchPattern, sectionCombo.getValue().getId().longValue() == 0 ? null : sectionCombo.getValue());//поиск пользовательских данных в любом случае произойдет
-                programs = findProgramIn(ff.searchPattern,sectionCombo.getValue().getId().longValue() == 0 ? null : sectionCombo.getValue());//поиск пользовательских данных в любом случае произойдет
-                break;
-
-        }
-        if(sections.isEmpty() && complexes.isEmpty() && programs.isEmpty()){
-            showInfoDialog(res.getString("app.search_res"),res.getString("app.search_res_1"),"",
-                    getApp().getMainWindow(),Modality.WINDOW_MODAL);
-
-            //clearSearch(false,false);
-
-            return;
-        }
-
-        clearTree();
-
-        //заполним дерево данными
-        Section section = new Section();
-        section.setNameString("Результаты поиска");
-        rootItem.setValue(section);
-
-        getApp().getModel().initStringsSection(sections);
-
-        sectionTree.setShowRoot(true);
-
-        if(!sections.isEmpty())
-        {
-            //отфильтруем первые 2 уровня базы, чтобы их не искать и заполним дерево разделами
-            sections.stream().filter(itm -> itm.getParent() != null && itm.getParent() != null ? itm.getParent().getParent() != null : false).forEach(itm -> rootItem.getChildren().add(new NamedTreeItem(itm)));
-
-        }
-
-        if(!complexes.isEmpty())
-        {
-            getApp().getModel().initStringsComplex(complexes);//строки инициализируются тк у нас многоязыковое приложение. Тут инициализируются строки выбранной локали или в первую очередь пользовательские
-            complexes.forEach(complex -> rootItem.getChildren().add(new NamedTreeItem(complex)));
-        }
-
-        if(!programs.isEmpty())
-        {
-            getApp().getModel().initStringsProgram(programs);
-            programs.forEach(program -> rootItem.getChildren().add(new NamedTreeItem(program)));
-        }
-
-        sections.clear();sections=null;
-        complexes.clear();complexes=null;
-        programs.clear();programs=null;
-
-    //возможно стоит отфильтровывать программы которые родительские найденным разделам?? + возможно стоит отображать для программ комплексы и их разделы? но они автоматом загрузят все содержимое!! мо в конструкторе NamedTreeItem отключать это??
-    }
-
-    List<Section> findSectionIn(String text,Section sec)
-    {
-        if(sec==null) return new ArrayList<>();
-
-        List<Section> sections =getModel().searchSectionInParent(text,getModel().getProgramLanguage(),sec);
-        getModel().findAllSectionByParent(sec).forEach(section -> sections.addAll(findSectionIn(text, section)));
-        return sections;
-    }
-
-    List<Complex> findComplexIn(String text,Section sec)
-    {
-        if(sec==null) return new ArrayList<>();
-
-        List<Complex> complexes = getModel().searchComplexInParent(text, getModel().getProgramLanguage(), sec);
-
-        getModel().findAllSectionByParent(sec).forEach(section -> complexes.addAll(findComplexIn(text, section)));
-        return complexes;
-    }
-    List<Program> findProgramIn(String text,Section sec)
-    {
-        if(sec==null) return new ArrayList<>();
-
-        List<Program> programms = getModel().searchProgramInParent(text, getModel().getProgramLanguage(), sec);
-        getModel().findAllSectionByParent(sec).forEach(section -> programms.addAll(findProgramIn(text, section)));
-        getModel().findAllComplexBySection(sec).forEach(complex ->  programms.addAll(getModel().searchProgramInComplex(text, getModel().getProgramLanguage(), complex)));
-        return programms;
-    }
-
-
-    /**
-     * Указынный элемент не удаляется, его если надо нужно удалить вручную из родительского контейнера, также не обнуляется его значение Value
-     * рекурсивная очистка ссылок дерева, удаляются все дочерние элементы, начиная от указанного элемента(очищаются дочерние и их Value, также указанный элемент)
-     * @param item
-     */
-    private void removeRecursively(TreeItem<INamed>  item) {
-
-        if (!item.getChildren().isEmpty())
-        {
-            item.getChildren().forEach(itm -> {
-                itm.setGraphic(null);//очистим ссылку на изображение
-                itm.setValue(null);//очистим ссылку на Entity иначе утечка памяти
-                removeRecursively(itm);
-            });
-            item.getChildren().clear();
-
-        }
-
-    }
-
-
-
-
-    /**
-     * Указынный элемент не удаляется, его если надо нужно удалить вручную из родительского контейнера, также не обнуляется его значение Value
-     * рекурсивная очистка ссылок дерева, удаляются все дочерние элементы, начиная от указанного элемента(очищаются дочерние и их Value, также указанный элемент)
-     * @param item
-     */
-    private void removeRecursively(TreeItem<INamed>  item, Predicate< TreeItem<INamed> > filter) {
-
-
-
-
-        if (!item.getChildren().isEmpty())
-        {
-            item.getChildren().stream().filter(filter).forEach(itm -> {
-                itm.setGraphic(null);//очистим ссылку на изображение
-                itm.setValue(null);//очистим ссылку на Entity иначе утечка памяти
-                removeRecursively(itm);
-            });
-
-            Iterator<TreeItem<INamed>> itr = item.getChildren().iterator();
-            while(itr.hasNext()) if(filter.test(itr.next())) itr.remove();
-            itr=null;
-
-
-
-        }
-
-    }
-    /**
-     * полное удаление элементов, включая тот что мы указали
-     * @param item
-     */
-    private void clearTree(TreeItem<INamed>  item)
-    {
-        if(item==null) return;
-
-        removeRecursively(item);
-        item.setGraphic(null);//очистим ссылку на изображение
-        item.setValue(null);//очистим ссылку на Entity иначе утечка памяти
-
-        if(item.getParent()!=null)item.getParent().getChildren().remove(item);
-
-    }
-
-    /**
-     * полное удаление элементов, включая тот что мы указали, предикат отфильтрует нужные дочерние
-     * @param item
-     * @param filter предикат, который отфильтрует элементы которые мы хотим удалить и очистить
-     */
-    private void clearTree(TreeItem<INamed>  item, Predicate<NamedTreeItem> filter)
-    {
-        if(item==null) return;
-
-        removeRecursively(item);
-        item.setGraphic(null);//очистим ссылку на изображение
-        item.setValue(null);//очистим ссылку на Entity иначе утечка памяти
-
-        if(item.getParent()!=null)item.getParent().getChildren().remove(item);
-
-    }
 /******************* Пункты меню *****************/
 
     /**
@@ -3587,725 +2826,8 @@ if(!getConnectedDevice())return;
 
 
 
-    private void createSection(Section selectedSection,TreeItem<INamed> selectedItem)throws Exception
-    {
-        Section parent = null;
-        if(selectedSection==null && selectedItem==null)parent = getModel().findAllSectionByTag("USER");
-        else  if(selectedSection!=null && selectedItem==null)parent=selectedSection;
-        else if(selectedSection!=null && selectedItem!=null)
-        {
-            if(selectedItem.getValue()==null)throw new Exception("selectedItem.getValue() == null");
-            if(!(selectedItem.getValue() instanceof Section)) return;
-            parent=(Section)selectedItem.getValue();
-        }else return;
 
 
-    //выведем диалог ввода данных
-        NameDescroptionDialogController.Data data =null;
-        try {
-            data = BaseController.openDialogUserData(getApp().getMainWindow(), "/fxml/SectionDialog.fxml", res.getString("app.title1"), false,
-                    StageStyle.DECORATED, 0, 0, 0, 0, new NameDescroptionDialogController.Data("",""));
-
-
-        } catch (IOException e) {
-            logger.error("",e);
-            data =null;
-        }
-
-        if(data ==null){BaseController.showErrorDialog("Ошибка создания раздела", "", "",  getApp().getMainWindow(),Modality.WINDOW_MODAL);return;}
-
-
-
-
-        //проверим полученные данные из диалога, создали ли имя
-        if( data.isNameChanged())
-        {
-
-
-            Section createdSection=null;
-            try {
-                createdSection= getModel().createSection(parent, data.getNewName(), data.getNewDescription(),false,getModel().getUserLanguage());
-
-                createdSection.setNameString(data.getNewName());
-                createdSection.setDescriptionString(data.getNewDescription());
-
-               if(parent.getTag()!=null ? parent.getTag().equals("USER"): false)
-               {
-                   //добавим в комбобокс
-                   sectionCombo.getItems().add(createdSection);
-                   sectionCombo.getSelectionModel().selectLast();
-               }
-                else if( selectedItem==null)
-               {
-                   rootItem.getChildren().add(new NamedTreeItem(createdSection));//вставим в корен дерева, если не выбран элемент в дереве
-                   sectionTree.getSelectionModel().select(rootItem.getChildren().get(rootItem.getChildren().size() - 1));//выделим добавленный пункт
-                }
-                  else {
-                   if(selectedItem.isLeaf())((NamedTreeItem)selectedItem).setLeafNode(false);//установим что он теперь не лист., автоматом подгрузятся дочернии, поэтому не надо вставлять их тут
-                  else  selectedItem.getChildren().add(new NamedTreeItem(createdSection));//добавим в дерево, если унас уже есть дочернии в ветке
-                   if(!selectedItem.isExpanded()) selectedItem.setExpanded(true);
-                   if(selectedItem!=null)sectionTree.getSelectionModel().select(selectedItem.getChildren().get(selectedItem.getChildren().size()-1));//выделим добавленный пункт
-               }
-
-
-
-            } catch (Exception e) {
-                data=null;
-                logger.error("",e);
-                BaseController.showExceptionDialog("Ошибка создания раздела", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-            }
-
-        }
-
-        data =null;//очистка ссылки
-
-
-    }
-
-
-    private void createComplex(  TreeItem<INamed> selectedItem) throws Exception
-    {
-        if(selectedItem==null) return;
-        if(selectedItem.getValue()==null)throw new Exception("selectedItem.getValue() == null");
-
-        if(selectedItem.getValue() instanceof Section)
-        {
-
-            //выведем диалог ввода данных
-            NameDescroptionDialogController.Data data =null;
-            try {
-                data = BaseController.openDialogUserData(getApp().getMainWindow(), "/fxml/SectionDialog.fxml", res.getString("app.title2"), false,
-                        StageStyle.DECORATED, 0, 0, 0, 0, new NameDescroptionDialogController.Data("",""));
-
-
-            } catch (IOException e) {
-                logger.error("",e);
-                data =null;
-            }
-
-            if(data ==null){BaseController.showErrorDialog("Ошибка создания комплекса", "", "",  getApp().getMainWindow(),Modality.WINDOW_MODAL);return;}
-
-            //создаем комплекс
-            if( data.isNameChanged() )
-            {
-                Complex complex=null;
-
-                try {
-                    complex= getModel().createComplex(data.getNewName(),data.getNewDescription(),(Section)selectedItem.getValue(),false,getModel().getUserLanguage());
-                    complex.setNameString(data.getNewName());
-                    complex.setDescriptionString(data.getNewDescription());
-
-                    if(selectedItem.isLeaf())((NamedTreeItem)selectedItem).setLeafNode(false);//установим что он теперь не лист., автоматом подгрузятся дочернии, поэтому не надо вставлять их тут
-                    else  selectedItem.getChildren().add(new NamedTreeItem(complex));//добавим в дерево, если унас уже есть дочернии в ветке
-                    if(!selectedItem.isExpanded()) selectedItem.setExpanded(true);
-                     sectionTree.getSelectionModel().select(selectedItem.getChildren().get(selectedItem.getChildren().size()-1));//выделим добавленный пункт
-
-
-                } catch (Exception e) {
-                    data=null;
-                    logger.error("",e);
-                    BaseController.showExceptionDialog("Ошибка создания комплекса", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);return;
-                }
-
-
-            }
-
-
-
-
-data=null;
-        }
-
-    }
-
-    private void createProgram(  TreeItem<INamed> selectedItem) throws Exception {
-
-        if(selectedItem==null) return;
-        if(selectedItem.getValue()==null)throw new Exception("selectedItem.getValue() == null");
-
-        if(selectedItem.getValue() instanceof Section || selectedItem.getValue() instanceof Complex )
-        {
-
-            //выведем диалог ввода данных
-            ProgramDialogController.Data data =null;
-            try {
-                data = BaseController.openDialogUserData(getApp().getMainWindow(), "/fxml/ProgramDialog.fxml", res.getString("app.title3"), false,
-                        StageStyle.DECORATED, 0, 0, 0, 0, new ProgramDialogController.Data("","",""));
-
-
-            } catch (IOException e) {
-                logger.error("",e);
-                data =null;
-            }
-
-            if(data ==null){BaseController.showErrorDialog("Ошибка создания програмы", "", "",  getApp().getMainWindow(),Modality.WINDOW_MODAL);return;}
-
-            //создаем комплекс
-            if(data.isNameChanged())
-            {
-                Program program=null;
-
-                try {
-                    if(selectedItem.getValue() instanceof Section) program= getModel().createProgram(data.getNewName(),data.getNewDescription(),data.getNewFreq(),(Section)selectedItem.getValue(),false,getModel().getUserLanguage());
-                            else program= getModel().createProgram(data.getNewName(),data.getNewDescription()
-                            ,data.getNewFreq(),(Complex)selectedItem.getValue(),false,getModel().getUserLanguage());
-
-
-                    program.setNameString(data.getNewName());
-                    program.setDescriptionString(data.getNewDescription());
-
-                    if(selectedItem.isLeaf())((NamedTreeItem)selectedItem).setLeafNode(false);//установим что он теперь не лист., автоматом подгрузятся дочернии, поэтому не надо вставлять их тут
-                    else  selectedItem.getChildren().add(new NamedTreeItem(program));//добавим в дерево, если унас уже есть дочернии в ветке
-                    if(!selectedItem.isExpanded()) selectedItem.setExpanded(true);
-
-
-
-                } catch (Exception e) {
-                    data=null;
-                    logger.error("",e);
-                    BaseController.showExceptionDialog("Ошибка создания комплекса", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);return;
-                }
-
-
-            }
-
-
-
-
-            data=null;
-        }
-
-    }
-
-    public void onCreateUserBtn()
-    {
-
-        TreeItem<INamed> selectedItem=null;
-        Section selectedSection =null;
-
-
-        //если у нас выбран пустой пункт, то мы должны иметь selectedItem ==null и selectedSection ==null иначе они должны иметь значения, но  selectedItem может быть null
-        selectedSection = sectionCombo.getSelectionModel().getSelectedItem();
-        if(selectedSection.getId()!=0) selectedItem = sectionTree.getSelectionModel().getSelectedItem();
-        else selectedSection =null;
-
-
-
-
-        if(!baseCombo.getSelectionModel().getSelectedItem().getTag().equals("USER")) return;//чтобы случайно активированная кнопка не позволила создать раздел, проверим какая бааза выбрана(корневой раздел Section)
-
-
-        try {
-
-
-      //создание корневого раздела если у нас юзерская база и не выбран ее раздел
-        if(selectedSection==null)createSection(null,null);
-        else //если выбран раздел, но не выбран подраздел в дереве разделов, создадим раздел уже в дереве
-        if(selectedSection!=null && selectedItem==null) createSection(selectedSection,null);
-
-
-
-        else if(selectedSection!=null && selectedItem!=null)
-        {
-            //создание подраздела в подразделе дерева или комплекса
-            if(selectedItem.getValue() instanceof Section)
-            {
-
-                //дадим пользователю выбор
-                String choice = BaseController.showChoiceDialog(res.getString("ui.msg.create_section_or_complex"), "", res.getString("ui.msg.section_or_ui_content"), Arrays.asList(res.getString("ui.section"), res.getString("ui.complex"),res.getString("ui.program")),res.getString("ui.section"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                if(choice==null) return;
-
-                if(choice.equals(res.getString("ui.section"))) createSection(selectedSection, selectedItem);//создание раздела
-                else if(choice.equals(res.getString("ui.complex"))) createComplex(selectedItem);//создание компелекса
-                else  createProgram(selectedItem);//создание программы в разделе
-            }
-            else   if(selectedItem.getValue() instanceof Complex) createProgram(selectedItem);
-
-
-        }
-        }catch (Exception e)
-        {
-            logger.error("",e);
-            BaseController.showExceptionDialog("Ошибка создания элемента", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);return;
-        }
-
-    }
-
-
-
-    public void onEditUserBtn()
-    {
-        NamedTreeItem selectedTreeItem = (NamedTreeItem)sectionTree.getSelectionModel().getSelectedItem();
-        Section selectedComboItem = sectionCombo.getSelectionModel().getSelectedItem();
-
-
-        if( selectedComboItem.getId()==0) return;//выбран пустой элемент в комбобоксе
-         else
-         //выбран элемент дерева
-        if(selectedTreeItem!=null)
-        {
-            if(selectedTreeItem.getValue() instanceof Section)
-            {
-                //выведем диалог ввода данных
-                NameDescroptionDialogController.Data data = new NameDescroptionDialogController.Data(selectedTreeItem.getValue().getNameString(),((Section)selectedTreeItem.getValue()).getDescriptionString());
-
-
-                try {
-                    data = BaseController.openDialogUserData(getApp().getMainWindow(), "/fxml/SectionDialog.fxml", res.getString("app.title4"), false,
-                            StageStyle.DECORATED, 0, 0, 0, 0, data);
-
-
-                } catch (IOException e) {
-                    logger.error("",e);
-                    data =null;
-                }
-
-                if(data ==null){ BaseController.showErrorDialog("Ошибка редакетирования раздела", " data==null", "",  getApp().getMainWindow(),Modality.WINDOW_MODAL);return;}
-
-
-                if(data.isChanged())
-                {
-
-                    try {
-
-                        selectedTreeItem.getValue().setNameString(data.getNewName());
-                        ((Section)selectedTreeItem.getValue()).setDescriptionString(data.getNewDescription());
-
-                        LocalizedString localStringName = getModel().getLocalString( ((Section) selectedTreeItem.getValue()).getName(), getModel().getUserLanguage());
-                        localStringName.setContent(data.getNewName());
-                        getModel().updateLocalString(localStringName);
-
-                        LocalizedString localStringDesc = getModel().getLocalString(((Section) selectedTreeItem.getValue()).getDescription(), getModel().getUserLanguage());
-                        localStringDesc.setContent(data.getNewDescription());
-                        getModel().updateLocalString(localStringDesc);
-
-                        if(selectedTreeItem.getParent()==null)//мы выбрали корень дерева. Изменим элемент и отображение в комбо и в дереве иначе только в дереве
-                        {
-                            int i = sectionCombo.getSelectionModel().getSelectedIndex();
-                            ObservableList<Section> items = sectionCombo.getItems();
-                            sectionCombo.setItems(null);
-                            sectionCombo.setItems(items);
-                            sectionCombo.getSelectionModel().select(i);
-                            items=null;
-
-                            INamed value = selectedTreeItem.getValue();
-                            selectedTreeItem.setValue(null);
-                            selectedTreeItem.setValue(value);
-                            value=null;
-
-                        }else
-                        {
-                            INamed value = selectedTreeItem.getValue();
-                            selectedTreeItem.setValue(null);
-                            selectedTreeItem.setValue(value);
-                            value=null;
-
-                        }
-
-                        programDescription.setText(data.getNewDescription());
-                        programInfo.setText("");
-                    data=null;
-                    } catch (Exception e) {
-                        data=null;
-                        logger.error("",e);
-                        BaseController.showExceptionDialog("Ошибка редакетирования раздела", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                        return;
-                    }
-
-
-
-                }
-
-
-            }else
-            if(selectedTreeItem.getValue() instanceof Complex)
-            {
-                //выведем диалог ввода данных
-                NameDescroptionDialogController.Data data = new NameDescroptionDialogController.Data(selectedTreeItem.getValue().getNameString(),((Complex)selectedTreeItem.getValue()).getDescriptionString());
-
-
-                try {
-                    data = BaseController.openDialogUserData(getApp().getMainWindow(), "/fxml/SectionDialog.fxml", res.getString("app.title5"), false,
-                            StageStyle.DECORATED, 0, 0, 0, 0, data);
-
-
-                } catch (IOException e) {
-                    logger.error("",e);
-                    data =null;
-                }
-
-                if(data ==null){ BaseController.showErrorDialog("Ошибка редакетирования комплекса", " data==null", "",  getApp().getMainWindow(),Modality.WINDOW_MODAL);return;}
-
-
-
-                if(data.isChanged())
-                {
-
-                    try {
-
-                        selectedTreeItem.getValue().setNameString(data.getNewName());
-                        ((Complex)selectedTreeItem.getValue()).setDescriptionString(data.getNewDescription());
-
-                        LocalizedString localStringName = getModel().getLocalString(((Complex) selectedTreeItem.getValue()).getName(), getModel().getUserLanguage());
-                        localStringName.setContent(data.getNewName());
-                        getModel().updateLocalString(localStringName);
-
-                        LocalizedString localStringDesc = getModel().getLocalString(((Complex) selectedTreeItem.getValue()).getDescription(), getModel().getUserLanguage());
-                        localStringDesc.setContent(data.getNewDescription());
-                        getModel().updateLocalString(localStringDesc);
-
-
-                        INamed value = selectedTreeItem.getValue();
-                        selectedTreeItem.setValue(null);
-                            selectedTreeItem.setValue(value);
-                        value=null;
-
-
-                        programDescription.setText(data.getNewDescription());
-                        programInfo.setText("");
-
-                            data=null;
-
-
-                    } catch (Exception e) {
-                        data=null;
-                        logger.error("",e);
-                        BaseController.showExceptionDialog("Ошибка редакетирования комплекса", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                        return;
-                    }
-
-
-
-                }
-
-
-            }else
-            if(selectedTreeItem.getValue() instanceof Program)
-            {
-
-                ProgramDialogController.Data data = new ProgramDialogController.Data(selectedTreeItem.getValue().getNameString(),((Program)selectedTreeItem.getValue()).getDescriptionString(),((Program)selectedTreeItem.getValue()).getFrequencies());
-
-
-                try {
-                    data = BaseController.openDialogUserData(getApp().getMainWindow(), "/fxml/ProgramDialog.fxml", res.getString("app.title6"), false,
-                            StageStyle.DECORATED, 0, 0, 0, 0, data);
-
-
-                } catch (IOException e) {
-                    logger.error("",e);
-                    data =null;
-                }
-
-                if(data ==null){ BaseController.showErrorDialog("Ошибка редакетирования програмы", " data==null", "",  getApp().getMainWindow(),Modality.WINDOW_MODAL);return;}
-
-
-
-                if(data.isChanged())
-                {
-
-                    try {
-
-                        selectedTreeItem.getValue().setNameString(data.getNewName());
-                        ((Program)selectedTreeItem.getValue()).setDescriptionString(data.getNewDescription());
-                        ((Program)selectedTreeItem.getValue()).setFrequencies(data.getNewFreq());
-
-                        LocalizedString localStringName = getModel().getLocalString( ((Program) selectedTreeItem.getValue()).getName(), getModel().getUserLanguage());
-                        localStringName.setContent(data.getNewName());
-                        getModel().updateLocalString(localStringName);
-
-                        LocalizedString localStringDesc = getModel().getLocalString(((Program) selectedTreeItem.getValue()).getDescription(), getModel().getUserLanguage());
-                        localStringDesc.setContent(data.getNewDescription());
-                        getModel().updateLocalString(localStringDesc);
-
-                        if(data.isFreqChanged())getModel().updateProgram((Program)selectedTreeItem.getValue());//если изменились частоты то сохраним прогрму иначе только строки
-
-
-                        INamed value = selectedTreeItem.getValue();
-                        selectedTreeItem.setValue(null);
-                        selectedTreeItem.setValue(value);
-                        value=null;
-
-
-                        programDescription.setText(data.getNewDescription());
-                        programInfo.setText(data.getNewFreq().replace(";",";  "));
-                        data=null;
-
-                    } catch (Exception e) {
-                        data=null;
-                        logger.error("",e);
-                        BaseController.showExceptionDialog("Ошибка редакетирования програмы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                        return;
-                    }
-
-
-
-                }
-
-
-
-
-
-
-            }
-        }else
-        {
-            //выбран раздел 2 уровня в комбобокс, но не в дереве
-
-            //выведем диалог ввода данных
-            NameDescroptionDialogController.Data data = new NameDescroptionDialogController.Data(selectedComboItem.getNameString(),selectedComboItem.getDescriptionString());
-
-
-            try {
-                data = BaseController.openDialogUserData(getApp().getMainWindow(), "/fxml/SectionDialog.fxml", res.getString("app.title7"), false,
-                        StageStyle.DECORATED, 0, 0, 0, 0, data);
-
-
-            } catch (IOException e) {
-                logger.error("",e);
-                data =null;
-            }
-
-            if(data ==null){BaseController.showErrorDialog("Ошибка редакетирования раздела", "", "",  getApp().getMainWindow(),Modality.WINDOW_MODAL);return;}
-
-
-            if(data.isChanged() && data.isNameChanged())
-            {
-                try {
-
-                    selectedComboItem.setNameString(data.getNewName());
-                    selectedComboItem.setDescriptionString(data.getNewDescription());
-
-                    LocalizedString localStringName = getModel().getLocalString(selectedComboItem.getName(), getModel().getUserLanguage());
-                    localStringName.setContent(data.getNewName());
-                    getModel().updateLocalString(localStringName);
-
-                    LocalizedString localStringDesc = getModel().getLocalString(selectedComboItem.getDescription(), getModel().getUserLanguage());
-                    localStringDesc.setContent(data.getNewDescription());
-                    getModel().updateLocalString(localStringDesc);
-
-
-                    int i = sectionCombo.getSelectionModel().getSelectedIndex();
-                    ObservableList<Section> items = sectionCombo.getItems();
-                    sectionCombo.setItems(null);
-                    sectionCombo.setItems(items);
-                    sectionCombo.getSelectionModel().select(i);
-                    items=null;
-                    INamed value = rootItem.getValue();
-                    rootItem.setValue(null);
-                    rootItem.setValue(value);
-                    value=null;
-
-
-
-
-data=null;
-                } catch (Exception e) {
-                    data=null;
-                    logger.error("",e);
-                    BaseController.showExceptionDialog("Ошибка редакетирования раздела", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                    return;
-                }
-
-
-            }
-
-        }
-
-
-    }
-
-    public void onDeleteItm()
-    {
-
-        TreeItem<INamed> itemSelected=sectionTree.getSelectionModel().getSelectedItem();
-        Section comboSelected=sectionCombo.getSelectionModel().getSelectedItem();
-
-        if (itemSelected == null )
-        {
-            if(comboSelected.getId()==0)return;
-            else
-            {
-                //это для выбранного меню разделов в комбо для секций. Если только оно выбрано
-
-                if(getModel().countSectionChildren(comboSelected)!=0)
-                {
-                  showInfoDialogNoHeader(res.getString("app.title8"),res.getString("app.title9"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                    return;
-                }
-
-                try {
-                    getModel().removeSection(comboSelected);
-                    sectionCombo.getItems().remove(comboSelected);
-                    sectionCombo.getSelectionModel().select(0);
-
-                } catch (Exception e) {
-                    logger.error("",e);
-                    showExceptionDialog("Ошибка удаления раздела", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                }
-
-
-                return;
-            }
-        }
-
-
-
-
-
-
-
-        if(itemSelected==null ? true :itemSelected.getValue()==null) return ;
-
-        if(itemSelected.getValue() instanceof Program)
-        {
-
-            Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.title10"), "", res.getString("app.title11"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-
-            if(buttonType.isPresent() ? buttonType.get()==okButtonType: false)
-            {
-                try {
-                    getModel().removeProgram((Program) itemSelected.getValue());
-                    clearTree(itemSelected);
-
-                } catch (Exception e) {
-                    logger.error("",e);
-                    showExceptionDialog("Ошибка удаления програмы","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                }
-
-            }
-
-
-        }else if(itemSelected.getValue() instanceof Complex)
-        {
-
-            Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.title12"), "", res.getString("app.title13"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-
-            if(buttonType.isPresent() ? buttonType.get()==okButtonType: false)
-            {
-                try {
-                    getModel().removeComplex((Complex) itemSelected.getValue());
-
-                    clearTree(itemSelected);
-
-
-                } catch (Exception e) {
-                    logger.error("",e);
-                    showExceptionDialog("Ошибка удаления комплекса","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                }
-
-            }
-
-
-        }else  if(itemSelected.getValue() instanceof Section)
-        {
-
-            //если есть непустые разделы то не станем удалять
-            long count = itemSelected.getChildren().stream().filter(itm -> (itm.getValue() instanceof Section && !itm.getChildren().isEmpty())).count();
-            if(count!=0) return;
-            // if(!itemSelected.getChildren().isEmpty()) return;
-
-            //здесь у нас пустой раздел. Мы можем его просто удалить
-
-            Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.title14"), "", res.getString("app.title15"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-
-            if(buttonType.isPresent() ? buttonType.get()==okButtonType: false)
-            {
-
-
-
-
-
-                try {
-
-                    //удалим пустые разделы и комплексы с программами
-                    for (TreeItem<INamed> item : itemSelected.getChildren()) {
-
-                        if(item.getValue() instanceof Program) getModel().removeProgram((Program)item.getValue());
-                        else if(item.getValue() instanceof Complex)  getModel().removeComplex((Complex)item.getValue());
-                        else if(item.getValue() instanceof Section && item.getChildren().isEmpty()) getModel().removeSection((Section)item.getValue());
-                    }
-
-
-                    getModel().removeSection((Section) itemSelected.getValue());
-                    if(itemSelected.getParent()==null)
-                    {
-                        //это корень. Удалим из комбо, активируем пустой элемент. дерево замо очистится
-                        sectionCombo.getItems().remove((Section) itemSelected.getValue());
-                        sectionCombo.getSelectionModel().select(0);
-
-                    }else  clearTree(itemSelected);//если удалили элемент дерева, то очистим нижлежайшие ветви
-
-
-
-
-                } catch (Exception e) {
-                    logger.error("",e);
-                    showExceptionDialog("Ошибка удаления раздела","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                }
-
-            }
-
-
-        }
-
-    }
-
-    public void onClearItm()
-    {
-        TreeItem<INamed> itemSelected=sectionTree.getSelectionModel().getSelectedItem();
-
-
-
-        if(itemSelected==null ? true :itemSelected.getValue()==null) return ;
-
-        if(itemSelected.getValue() instanceof Section)
-        {
-            Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.title16"), "", res.getString("app.title17"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-
-            if(buttonType.isPresent() ? buttonType.get()==okButtonType: false)
-            {
-                try {
-                    getModel().clearSection((Section) itemSelected.getValue());
-
-                    removeRecursively(itemSelected, item -> !(item.getValue() instanceof Section));//очистим все кроме разделов
-
-
-
-                } catch (Exception e) {
-                    logger.error("",e);
-                    showExceptionDialog("Ошибка удаления раздела","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                }
-
-            }
-
-        }else  if(itemSelected.getValue() instanceof Complex)
-        {
-            Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.title18"), "", res.getString("app.title19"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-
-            if(buttonType.isPresent() ? buttonType.get()==okButtonType: false)
-            {
-                try {
-
-                    for (TreeItem<INamed> item : itemSelected.getChildren())
-                    {
-                        getModel().removeProgram((Program) item.getValue());
-
-                    }
-                    removeRecursively(itemSelected);
-
-
-
-                } catch (Exception e) {
-                    logger.error("",e);
-                    showExceptionDialog("Ошибка очистки комплекса", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                }
-
-            }
-
-        }
-
-
-    }
 
 
 /************  Обработчики меню Файл **********/
@@ -4315,7 +2837,7 @@ data=null;
     {
         Section start=null;
 
-        List<Section> collect = baseCombo.getItems().stream().filter(section -> "USER".equals(section.getTag())).collect(Collectors.toList());
+        List<Section> collect = leftAPI.getBaseAllItems().stream().filter(section -> "USER".equals(section.getTag())).collect(Collectors.toList());
         Section userSection=null;
         if(collect.isEmpty()) return;
         userSection=collect.get(0);
@@ -4324,7 +2846,7 @@ data=null;
 
 
         //если у не выбран раздел пользовательский
-        if(!"USER".equals(baseCombo.getSelectionModel().getSelectedItem().getTag()) )
+        if(!"USER".equals(leftAPI.selectedBase().getTag()) )
         {
             Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.title20"), "", res.getString("app.title21"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
 
@@ -4335,25 +2857,22 @@ data=null;
             //выбрана пользовательская база.
 
             //не выбран раздел в комбобоксе
-            if(sectionCombo.getSelectionModel().getSelectedItem().getId()==0)
+            if(leftAPI.selectedRootSection().getId()==0)
             {
                 Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.title22"), "", res.getString("app.title23"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
 
                 if(buttonType.isPresent() ? buttonType.get()==okButtonType :false) start= userSection; else return;
 
-            }else if(sectionTree.getSelectionModel().getSelectedItem()==null)
+            }else if(leftAPI.selectedSectionTree()==null)
             {
                 //выбран раздел в комбобоксе но не выбран в дереве
-
-
-
-                start=sectionCombo.getSelectionModel().getSelectedItem();
+                start=leftAPI.selectedRootSection();
             }else
             {
                 //выбран элемент дерева и выбран раздел
 
                 //если выбран не раздел
-                if(!(sectionTree.getSelectionModel().getSelectedItem().getValue() instanceof Section))
+                if(!(leftAPI.selectedSectionTreeItem() instanceof Section))
                 {
 
                     showWarningDialog(res.getString("app.title24"),"",res.getString("app.title25"),getApp().getMainWindow(),Modality.WINDOW_MODAL );
@@ -4362,7 +2881,7 @@ data=null;
 
                 }
 
-                start=(Section)sectionTree.getSelectionModel().getSelectedItem().getValue();//выберем стартовым раздел
+                start=(Section)leftAPI.selectedSectionTreeItem();//выберем стартовым раздел
             }
 
 
@@ -4723,14 +3242,14 @@ String initname;
         Section start=null;
         String res="";
 
-        List<Section> collect = baseCombo.getItems().stream().filter(section -> "USER".equals(section.getTag())).collect(Collectors.toList());
+        List<Section> collect = leftAPI.getBaseAllItems().stream().filter(section -> "USER".equals(section.getTag())).collect(Collectors.toList());
         Section userSection=null;
         if(collect.isEmpty()) return;
         userSection=collect.get(0);
         collect=null;
 
 
-        if(!"USER".equals(baseCombo.getSelectionModel().getSelectedItem().getTag()) )
+        if(!"USER".equals(leftAPI.selectedBase().getTag()) )
         {
             //не выбран пользовательский раздел
              res =  showTextInputDialog(this.res.getString("app.title47"), "", this.res.getString("app.title48"),"", getApp().getMainWindow(), Modality.WINDOW_MODAL);
@@ -4741,7 +3260,7 @@ String initname;
 
         }else
         {
-            if(sectionCombo.getSelectionModel().getSelectedItem().getId()==0)
+            if(leftAPI.selectedRootSection().getId()==0)
             {
                 //не выбран пользовательский раздел
                  res =  showTextInputDialog(this.res.getString("app.title49"), "", this.res.getString("app.title50"),"", getApp().getMainWindow(), Modality.WINDOW_MODAL);
@@ -4749,14 +3268,14 @@ String initname;
                 if(res==null ? false: !res.isEmpty()) start=userSection;
                 else return;
 
-            }else if(sectionTree.getSelectionModel().getSelectedItem()==null)
+            }else if(leftAPI.selectedSectionTree()==null)
             {
                 //выбран раздел в комбобоксе но не выбран в дереве
 
 
                 res =  showTextInputDialog(this.res.getString("app.title51"), "", this.res.getString("app.title52"), "", getApp().getMainWindow(), Modality.WINDOW_MODAL);
 
-                if(res==null ? false: !res.isEmpty()) start=sectionCombo.getSelectionModel().getSelectedItem();
+                if(res==null ? false: !res.isEmpty()) start=leftAPI.selectedRootSection();
                 else return;
 
             }else
@@ -4764,7 +3283,7 @@ String initname;
                 //выбран элемент дерева и выбран раздел
 
                 //если выбран не раздел
-                if(!(sectionTree.getSelectionModel().getSelectedItem().getValue() instanceof Section))
+                if(!(leftAPI.selectedSectionTreeItem() instanceof Section))
                 {
 
                     showWarningDialog(this.res.getString("app.title49"),"",this.res.getString("app.title53"),getApp().getMainWindow(),Modality.WINDOW_MODAL );
@@ -4775,7 +3294,7 @@ String initname;
 
                 res =  showTextInputDialog(this.res.getString("app.title49"), "", this.res.getString("app.title54"), "", getApp().getMainWindow(), Modality.WINDOW_MODAL);
 
-                if(res==null ? false: !res.isEmpty())  start=(Section)sectionTree.getSelectionModel().getSelectedItem().getValue();//выберем стартовым раздел
+                if(res==null ? false: !res.isEmpty())  start=(Section)leftAPI.selectedRootSection();//выберем стартовым раздел
                 else return;
 
             }
@@ -4921,12 +3440,12 @@ final ResourceBundle rest=this.res;
                     if(startFinal.getParent()==null && "USER".equals(startFinal.getTag()))
                     {
 
-                        if("USER".equals(baseCombo.getSelectionModel().getSelectedItem().getTag()))
+                        if("USER".equals(leftAPI.selectedBase().getTag()))
                         {
                             //в момент выборы была открыта пользовательская база
                             //если у нас контейнер создан в корне пользовательской базы.
-                            sectionCombo.getItems().add(sect);
-                            sectionCombo.getSelectionModel().select(sectionCombo.getItems().indexOf(sect));
+                            leftAPI.getRootSectionAllItems().add(sect);
+                            leftAPI.selectRootSection(leftAPI.getRootSectionAllItems().indexOf(sect));
                         }
                         //если не в пользовательской базе то ничего не делаем
 
@@ -4934,18 +3453,17 @@ final ResourceBundle rest=this.res;
                     else {
 
                         //если внутри пользовательской базы то меняем, иначе ничего не делаем
-                        if ("USER".equals(baseCombo.getSelectionModel().getSelectedItem().getTag()))
+                        if ("USER".equals(leftAPI.selectedBase().getTag()))
                         {
                             //иначе контейнер создан в дереве
-                            if (sectionTree.getSelectionModel().getSelectedItem() == null && sectionCombo.getSelectionModel().getSelectedItem().getId() != 0) {
+                            if (leftAPI.selectedSectionTree() == null && leftAPI.selectedRootSection().getId() != 0) {
                                 //выбран раздел в комбо но не в дереве
+                                leftAPI.addTreeItemToTreeRoot(new NamedTreeItem(sect));
 
-                                rootItem.getChildren().add(new NamedTreeItem(sect));
-
-                            } else if (sectionTree.getSelectionModel().getSelectedItem() != null) {
+                            } else if (leftAPI.selectedSectionTree()!= null) {
                                 //выбран раздел в дереве
+                                leftAPI.addTreeItemToSelected(new NamedTreeItem(sect));
 
-                                sectionTree.getSelectionModel().getSelectedItem().getChildren().add(new NamedTreeItem(sect));
                             } else
                                 showErrorDialog(rest.getString("app.title60"), rest.getString("app.title61"), "", getApp().getMainWindow(), Modality.WINDOW_MODAL);
                          }
@@ -7568,89 +6086,7 @@ return  true;
     }
 
 
-    /**
-     * Вставка  комплекса в пользовательскую базу из папки
-     * @param dir
-     * @param treeItem выбранный элемент дерева - должен быть разделом или
-     *                 @param createComplex создать комплекс и вставить в него програмы или просто вставить в раздел
-     * @return
-     */
-    private boolean loadComplexToBase(File dir,NamedTreeItem treeItem,boolean createComplex)
-    {
-        Map<Long, ProgramFileData> programms= FilesProfileHelper.getProgrammsFromComplexDir(dir);
 
-        try {
-            if (programms!=null)
-            {
-
-
-                    String name = dir.getName();
-                    int ind = name.indexOf('-');
-                    if (ind != -1) name = name.substring(ind + 1);
-
-                    ind = name.indexOf('(');
-                    if (ind != -1) name = name.substring(0,ind);
-                    name= name.trim();
-
-                    if(programms.isEmpty())
-                    {
-                     return false;
-
-                    }else
-                    {
-
-                        if(createComplex)
-                        {
-                            Complex complex = getModel().createComplex(name, "", (Section) treeItem.getValue(), false, getModel().getUserLanguage());
-                            getModel().initStringsComplex(complex);
-
-                            for (Map.Entry<Long, ProgramFileData> entry : programms.entrySet()) {
-
-                                if(entry.getValue().isMp3())continue;//пропустим мп3
-                                getModel().createProgram(entry.getValue().getName(), "", entry.getValue().getFreqs(), complex, false, getModel().getUserLanguage());
-
-                            }
-
-
-                            if (treeItem.isLeaf())treeItem.setLeafNode(false);//установим что он теперь не лист., автоматом подгрузятся дочернии, поэтому не надо ставлять их тут
-                            else
-                                treeItem.getChildren().add(new NamedTreeItem(complex));//добавим в дерево, если унас уже есть дочернии в ветке
-                            if (!treeItem.isExpanded()) treeItem.setExpanded(true);
-                            if (treeItem != null)
-                                sectionTree.getSelectionModel().select(treeItem.getChildren().get(treeItem.getChildren().size() - 1));//выделим
-                        }else
-                        {
-
-
-                            Program p;
-                            for (Map.Entry<Long, ProgramFileData> entry : programms.entrySet())
-                            {
-                                if(entry.getValue().isMp3())continue;//пропустим мп3
-                                 p =  getModel().createProgram(entry.getValue().getName(), "", entry.getValue().getFreqs(),
-                                        (Section)treeItem.getValue(), false, getModel().getUserLanguage());
-
-                                if (!treeItem.isLeaf())  {getModel().initStringsProgram(p); treeItem.getChildren().add(new NamedTreeItem(p));}
-
-                            }
-                            boolean isleaf=treeItem.isLeaf();
-                            if (treeItem.isLeaf())treeItem.setLeafNode(false);
-                            if (!treeItem.isExpanded()) treeItem.setExpanded(true);
-                          //  if (treeItem != null && !isleaf) sectionTree.getSelectionModel().select(treeItem.getChildren().get(treeItem.getChildren().size() - 1));//выделим
-                        }
-                        // добавленный пункт
-                    }
-
-
-
-
-            }
-
-        }catch (Exception e){ logger.error("",e);return false;}
-
-        if(programms==null) return false;
-        else return true;
-
-    }
 
 
 
@@ -7760,7 +6196,7 @@ return  true;
 
 
 
-        NamedTreeItem treeSelected = (NamedTreeItem)sectionTree.getSelectionModel().getSelectedItem();
+        NamedTreeItem treeSelected = leftAPI.selectedSectionTree();
         if(treeSelected==null) return;
        if(!(treeSelected.getValue() instanceof Section)) return;
 
@@ -7774,7 +6210,7 @@ return  true;
             @Override
             protected Boolean call() throws Exception {
 
-                boolean r= loadComplexToBase(dir, treeSelected,createComplex2);
+                boolean r= leftAPI.loadComplexToBase(dir, treeSelected,createComplex2);
                 if(r==false)failed();
                 return r;
             }
@@ -8312,18 +6748,7 @@ return  true;
      }
  }
 
-    /**
-     * Абривиатура языка вставки комплекса
-     * @return Пустое значение, если неудачно
-     */
-   public  String getInsertComplexLang(){
-        try {
-            return  getModel().getOption("app.lang_insert_complex");
-        } catch (Exception e) {
-            logger.error("Ошибка получения языка вставки комплекса",e);
-        }
-       return "";
-   }
+
 
 
 /******* Обновления базы ****/
@@ -8463,21 +6888,11 @@ return  true;
 
 
 
-        List<Section> collect = baseCombo.getItems().stream().filter(section -> "USER".equals(section.getTag())).collect(Collectors.toList());
+        List<Section> collect = leftAPI.getBaseAllItems().stream().filter(section -> "USER".equals(section.getTag())).collect(Collectors.toList());
         Section userSection=null;
         if(collect.isEmpty()) return;
         userSection=collect.get(0);
         collect=null;
-
-
-
-
-
-
-
-
-
-
         //получим путь к файлу.
         File file=null;
 
@@ -8493,15 +6908,6 @@ return  true;
         file= fileChooser.showSaveDialog(getApp().getMainWindow());
 
         if(file==null)return;
-
-
-
-
-
-
-
-
-
 
         final Section sec=userSection;
         final File zipFile=file;
@@ -8583,11 +6989,6 @@ return  true;
 
         threadTask.start();
         Waiter.show();
-
-
-
-
-
     }
 
 
@@ -8600,7 +7001,7 @@ return  true;
     public void onRecoveryLoad(){
 
 
-        List<Section> collect = baseCombo.getItems().stream().filter(section -> "USER".equals(section.getTag())).collect(Collectors.toList());
+        List<Section> collect = leftAPI.getBaseAllItems().stream().filter(section -> "USER".equals(section.getTag())).collect(Collectors.toList());
         Section userSection=null;
         if(collect.isEmpty()) return;
         userSection=collect.get(0);
@@ -8658,7 +7059,7 @@ return  true;
                         //удалить из таблицы профилей профили, комплесы и програмы
                         tableProfile.getItems().clear();
                         //выбрать раздел 0 главный раздел
-                        baseCombo.getSelectionModel().select(0);
+                        leftAPI.selectBase(0);
                     });
 
                 }
@@ -8809,8 +7210,9 @@ return  true;
                     tableProfile.scrollTo(i);
                     tableProfile.getFocusModel().focus(i);
 
-                    baseCombo.getSelectionModel().select(0);
-                    baseCombo.getSelectionModel().select(sec);
+                    leftAPI.selectBase(0);
+                    leftAPI.selectBase(sec);
+
 
                 }
 
@@ -8843,13 +7245,6 @@ return  true;
 
         threadTask.start();
         Waiter.show();
-
-
-
-
-
-
-
     }
 
     /**
@@ -9158,6 +7553,136 @@ return  true;
             logger.error("",e);
         }
     }
+
+
+
+    private void doubleClickOnSectionTreeComplexItemAction(TreeItem<INamed> selectedItem, int tabSelectedIndex) {
+        //если выбран биофон вкладка
+        if(tabSelectedIndex==3){
+            //добавляется комплекс в биофон
+            Complex c = (Complex) selectedItem.getValue();
+            try {
+                TherapyComplex th = getModel().createTherapyComplex(getApp().getBiofonProfile(), c, c.getTimeForFreq()==0?180:c.getTimeForFreq(),3,getModel().getInsertComplexLang());
+
+                addComplexToBiofonTab(th);
+
+            } catch (Exception e) {
+                logger.error("",e);
+                showExceptionDialog("Ошибка создания терапевтического комплекса ", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+            }
+
+
+        }else
+        if (ProfileTable.getInstance().getSelectedItem() != null)//добавление комплекса в профиль
+        {
+
+            Complex c = (Complex) selectedItem.getValue();
+
+            try {
+                TherapyComplex th = getModel().createTherapyComplex(ProfileTable.getInstance().getSelectedItem(), c, c.getTimeForFreq()==0?180:c.getTimeForFreq(),3,getModel().getInsertComplexLang());
+
+                //therapyComplexItems.clear();
+                //therapyComplexItems содержит отслеживаемый список, элементы которого добавляются в таблицу. Его не нужно очищать
+
+                ComplexTable.getInstance().getAllItems().add(th);
+                ComplexTable.getInstance().clearSelection();
+                therapyTabPane.getSelectionModel().select(1);//выберем таб с комплексами
+                ComplexTable.getInstance().select(ComplexTable.getInstance().getAllItems().size() - 1);
+                updateProfileTime(ProfileTable.getInstance().getSelectedItem());
+
+                //если есть программы  к перенесенном комплексе то можно разрешить генерацию
+                if(getModel().countTherapyPrograms(th)>0) btnGenerate.setDisable(false);
+                else btnGenerate.setDisable(true);
+                th = null;
+            } catch (Exception e) {
+                logger.error("",e);
+                showExceptionDialog("Ошибка создания терапевтического комплекса ", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+            }
+            c = null;
+
+        }
+    }
+
+    private void doubleClickOnSectionTreeProgramItemAction(TreeItem<INamed> selectedItem, int tabSelectedIndex) {
+        //проверим язык програмы и язык вставки
+        Program p = (Program) selectedItem.getValue();
+        String il=getModel().getInsertComplexLang();
+        String lp=getModel().getProgramLanguage().getAbbr();
+
+        String name="";
+        String oname="";
+        String descr="";
+
+        if(il.equals(lp))
+        {
+            name=p.getNameString();
+            descr=p.getDescriptionString();
+        }else {
+            //вставим имя на языке вставки. oname - на языке который программа
+            if(p.isOwnerSystem()) oname=p.getNameString();
+            try {
+                name = getModel().getString2(p.getName(),getModel().getLanguage(il));
+                descr=getModel().getString2(p.getDescription(),getModel().getLanguage(il));
+            } catch (Exception e) {
+                logger.error("",e);
+                showExceptionDialog("Ошибка создания терапевтической программы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+            }
+
+        }
+
+
+        if(tabSelectedIndex==3){
+            TherapyComplex selectedTCBiofon = biofonCompexesList.getSelectionModel().getSelectedItem();
+            if(selectedTCBiofon==null) return;
+            try {
+                TherapyProgram therapyProgram = getModel().createTherapyProgram(p.getUuid(),selectedTCBiofon, name, descr, p.getFrequencies(),oname);
+                addProgramToBiofonTab(selectedTCBiofon,therapyProgram);
+            } catch (Exception e) {
+                logger.error("",e);
+                showExceptionDialog("Ошибка создания терапевтической программы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+            }
+
+
+
+        }else
+        if (ComplexTable.getInstance().getSelectedItem() != null) {
+            //если выбран комплекс в таблице комплексов
+
+            try {
+
+
+                TherapyProgram therapyProgram = getModel().createTherapyProgram(p.getUuid(),ComplexTable.getInstance().getSelectedItem(), name, descr, p.getFrequencies(),oname);
+                ProgramTable.getInstance().getAllItems().add(therapyProgram);
+                updateComplexTime(ComplexTable.getInstance().getSelectedItem(), false);
+                therapyTabPane.getSelectionModel().select(2);//выберем таб с программами
+
+
+                Platform.runLater(() -> {
+                    updateComplexTime(ComplexTable.getInstance().getSelectedItem(),true);
+                    ProgramTable.getInstance().clearSelection();
+                    ProgramTable.getInstance().requestFocus();
+                    ProgramTable.getInstance().select( ProgramTable.getInstance().getAllItems().size() - 1);
+                    ProgramTable.getInstance().setItemFocus(ProgramTable.getInstance().getAllItems().size() - 1);
+                    ProgramTable.getInstance().scrollTo(ProgramTable.getInstance().getAllItems().size() - 1);
+                });
+
+                btnGenerate.setDisable(false);
+                therapyProgram = null;
+            } catch (Exception e) {
+
+                logger.error("",e);
+                showExceptionDialog("Ошибка создания терапевтической программы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+            }
+            p = null;
+
+        }
+    }
+
+
+
     /***************************************************/
 
 

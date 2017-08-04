@@ -559,6 +559,22 @@ public class ComplexTable {
         return table.getItems();
     }
 
+    public void clearSelection(){
+        table.getSelectionModel().clearSelection();
+    }
+    public void select(int index){
+        table.getSelectionModel().select(index);
+    }
+    public void requestFocus(){
+        table.requestFocus();
+    }
+
+    public void setItemFocus(int index){
+        table.getFocusModel().focus(index);
+    }
+    public void scrollTo(int index){
+        table.scrollTo(index);
+    }
     /**
      * Редактируются ли ячейки в таблице сейчас
      * @return

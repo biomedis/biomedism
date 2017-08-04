@@ -15,6 +15,8 @@ import java.io.File;
 import java.text.Collator;
 import java.util.*;
 
+import static ru.biomedis.biomedismair3.Log.logger;
+
 
 /**
  *
@@ -411,7 +413,18 @@ public class ModelDataApp {
         }
 
     }
-
+    /**
+     * Абривиатура языка вставки комплекса
+     * @return Пустое значение, если неудачно
+     */
+    public  String getInsertComplexLang(){
+        try {
+            return  getOption("app.lang_insert_complex");
+        } catch (Exception e) {
+            logger.error("Ошибка получения языка вставки комплекса",e);
+        }
+        return "";
+    }
     /** ОПЦИИ **/
 
 

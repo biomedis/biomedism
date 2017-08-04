@@ -1,24 +1,18 @@
-package ru.biomedis.biomedismair3;
+package ru.biomedis.biomedismair3.Layouts.LeftPanel;
 
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import ru.biomedis.biomedismair3.App;
 import ru.biomedis.biomedismair3.entity.Complex;
 import ru.biomedis.biomedismair3.entity.INamed;
 import ru.biomedis.biomedismair3.entity.Program;
 import ru.biomedis.biomedismair3.entity.Section;
-import ru.biomedis.biomedismair3.utils.Other.TimeMesure;
 
-import javax.management.ObjectName;
 import java.net.URL;
-import java.nio.file.Files;
-import java.text.Collator;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * Created by Anama on 07.09.2015.
