@@ -41,7 +41,8 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ru.biomedis.biomedismair3.AppController.checkBundlesLength;
+
+import static ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileController.checkBundlesLength;
 import static ru.biomedis.biomedismair3.Log.logger;
 
 /**

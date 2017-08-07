@@ -1,6 +1,7 @@
 package ru.biomedis.biomedismair3.TherapyTabs.Profile;
 
 import javafx.beans.binding.StringBinding;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
@@ -310,6 +311,7 @@ public class ProfileTable {
     public Profile getSelectedItem(){
         return table.getSelectionModel().getSelectedItem();
     }
+    public Integer getSelectedIndex(){return table.getSelectionModel().getSelectedIndex();}
    /*
    public ObservableList<Profile> getSelectedItems(){
         return table.getSelectionModel().getSelectedItems();
@@ -328,6 +330,9 @@ public class ProfileTable {
     public void select(int index){
         table.getSelectionModel().select(index);
     }
+    public void select(Profile p){
+        table.getSelectionModel().select(p);
+    }
     public void requestFocus(){
         table.requestFocus();
     }
@@ -338,11 +343,18 @@ public class ProfileTable {
     public void scrollTo(int index){
         table.scrollTo(index);
     }
+    public void scrollTo(Profile p){
+        table.scrollTo(p);
+    }
     /**
      * Редактируются ли ячейки в таблице сейчас
      * @return
      */
     public boolean isTextEdited(){
         return  table.getEditingCell()==null?false:true;
+    }
+
+    public ReadOnlyObjectProperty<Profile> getSelectedItemProperty(){
+        return table.getSelectionModel().selectedItemProperty();
     }
 }

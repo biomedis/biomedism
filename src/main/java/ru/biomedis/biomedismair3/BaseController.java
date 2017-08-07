@@ -20,6 +20,7 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -311,6 +312,33 @@ public abstract class BaseController implements Initializable {
 
         return (Initializable) controller;
 
+
+    }
+
+    /**
+     * Метод который есть у каждого контроллера. Он уже инициализирован своим окном
+     *
+     * @param fxml
+     * @param content
+     * @param params
+     * @return
+     * @throws Exception
+     */
+    public Initializable addContentHBox(String fxml, HBox content, Object... params) throws Exception {
+
+
+        URL location = app.getClass().getResource(fxml);
+        FXMLLoader fxmlLoader = new FXMLLoader(location, app.strings);
+        fxmlLoader.setBuilderFactory(new JavaFXBuilderFactory());
+        Parent root = fxmlLoader.load();
+        BaseController controller = (BaseController) fxmlLoader.getController();
+        controller.setWindow(this.window);
+        controller.setParams(params);//до открытия окна в show можно устанавливать любые параметры
+        controller.onCompletedInitialise();
+
+        ObservableList<Node> children = content.getChildren();
+        children.add(root);
+        return (Initializable) controller;
 
     }
 

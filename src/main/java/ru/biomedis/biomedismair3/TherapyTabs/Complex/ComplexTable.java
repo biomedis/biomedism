@@ -549,6 +549,9 @@ public class ComplexTable {
     public TherapyComplex getSelectedItem(){
         return table.getSelectionModel().getSelectedItem();
     }
+    public int getSelectedIndex(){
+        return table.getSelectionModel().getSelectedIndex();
+    }
     public ObservableList<TherapyComplex> getSelectedItems(){
         return table.getSelectionModel().getSelectedItems();
     }
@@ -575,6 +578,8 @@ public class ComplexTable {
     public void scrollTo(int index){
         table.scrollTo(index);
     }
+
+    public TableColumn<TherapyComplex, ?>  getTimeColoumn(){ return table.getColumns().get(3);}
     /**
      * Редактируются ли ячейки в таблице сейчас
      * @return

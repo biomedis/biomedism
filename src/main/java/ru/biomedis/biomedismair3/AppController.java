@@ -3,7 +3,6 @@ package ru.biomedis.biomedismair3;
 import com.mpatric.mp3agic.Mp3File;
 import com.sun.javafx.scene.control.skin.TableViewSkin;
 import com.sun.javafx.scene.control.skin.VirtualFlow;
-import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -26,20 +25,19 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.*;
 import javafx.util.Duration;
 import org.anantacreative.updater.Update.UpdateException;
 import org.anantacreative.updater.Update.UpdateTask;
-import ru.biomedis.biomedismair3.DBImport.NewDBImport;
 import ru.biomedis.biomedismair3.Dialogs.NameDescroptionDialogController;
-import ru.biomedis.biomedismair3.Dialogs.SearchProfile;
-import ru.biomedis.biomedismair3.Dialogs.TextInputValidationController;
 import ru.biomedis.biomedismair3.Layouts.BiofonTab.BiofonTabController;
 import ru.biomedis.biomedismair3.Layouts.BiofonTab.BiofonUIUtil;
 import ru.biomedis.biomedismair3.Layouts.LeftPanel.LeftPanelAPI;
 import ru.biomedis.biomedismair3.Layouts.LeftPanel.NamedTreeItem;
 import ru.biomedis.biomedismair3.Layouts.LeftPanel.TreeActionListener;
+import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileAPI;
+import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileController;
+import ru.biomedis.biomedismair3.Layouts.ProgressPanel.ProgressAPI;
 import ru.biomedis.biomedismair3.TherapyTabs.Complex.ComplexTable;
 import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileTable;
 import ru.biomedis.biomedismair3.TherapyTabs.Programs.ProgramTable;
@@ -53,7 +51,8 @@ import ru.biomedis.biomedismair3.UserUtils.Import.ImportProfile;
 import ru.biomedis.biomedismair3.UserUtils.Import.ImportTherapyComplex;
 import ru.biomedis.biomedismair3.UserUtils.Import.ImportUserBase;
 import ru.biomedis.biomedismair3.entity.*;
-import ru.biomedis.biomedismair3.m2.*;
+import ru.biomedis.biomedismair3.m2.M2;
+import ru.biomedis.biomedismair3.m2.M2BinaryFile;
 import ru.biomedis.biomedismair3.utils.Audio.MP3Encoder;
 import ru.biomedis.biomedismair3.utils.Date.DateUtil;
 import ru.biomedis.biomedismair3.utils.Disk.DiskDetector;
@@ -66,7 +65,6 @@ import ru.biomedis.biomedismair3.utils.USB.USBHelper;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Path;
@@ -75,6 +73,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileController.checkBundlesLength;
 import static ru.biomedis.biomedismair3.Log.logger;
 
 public class AppController  extends BaseController {
@@ -82,25 +81,13 @@ public class AppController  extends BaseController {
     public static final int MAX_BUNDLES=7;
     @FXML private ImageView deviceIcon;//иконка устройства
 
-    @FXML private Button btnUploadm;//закачать на прибор
+
 
     @FXML private ProgressBar diskSpaceBar;//прогресс бар занятого места на диске прибора
 
-
-    @FXML private VBox progress1Pane;
-    @FXML private VBox progress2Pane;
-    @FXML private VBox  progress3Pane;
-    @FXML private Label  messageText;
-    @FXML private ProgressIndicator progressIndicator;
-    @FXML private Label progressIndicatorLabel;
-    @FXML private ProgressBar progressAction;
-    @FXML private Label textInfo;
-    @FXML private Label textActionInfo;
-
-    @FXML private TableView<Profile> tableProfile;
     @FXML private TableView<TherapyComplex> tableComplex;
     @FXML private TableView<TherapyProgram> tableProgram;
-    @FXML private Button btnDeleteProfile;
+
     @FXML private Button  generationComplexesBtn;
     @FXML private Button  btnCreateTherapy;
     @FXML private Button btnDeleteTherapy;
@@ -119,7 +106,7 @@ public class AppController  extends BaseController {
     @FXML private    MenuItem    menuExportTherapyComplex;
     @FXML private    MenuItem  menuImportTherapyComplex;
 
-    @FXML private Button btnGenerate;
+
     @FXML private MenuItem menuDelGeneratedFiles;
 
 
@@ -160,6 +147,7 @@ public class AppController  extends BaseController {
 
     @FXML private AnchorPane leftLayout;
     @FXML private AnchorPane biofonTabContent;
+    @FXML private AnchorPane profileLayout;
 
     @FXML private Menu updateBaseMenu;
 
@@ -167,13 +155,15 @@ public class AppController  extends BaseController {
 
     @FXML private  Menu menuImport;
 
+    @FXML private  HBox topPane;
+
     private TableViewSkin<?> tableSkin;
     private VirtualFlow<?> virtualFlow;
 
     private Path devicePath=null;//путь ку устройству или NULL если что-то не так
     private String fsDeviceName="";
 
-    private ContextMenu uploadMenu=new ContextMenu();
+
 
     private SimpleBooleanProperty connectedDevice =new SimpleBooleanProperty(false);//подключено ли устройство
 
@@ -203,7 +193,7 @@ public class AppController  extends BaseController {
     private final DataFormat PROGRAM_DRAG_ITEM=new DataFormat("biomedis/programitem");
 
 
-    private M2UI m2ui;
+    private static M2UI m2ui;
 
     private List<TherapyComplex> therapyComplexesClipboard=new ArrayList<>();
     private boolean therapyProgramsCopied=false;
@@ -212,7 +202,7 @@ public class AppController  extends BaseController {
     //нужно его отключать вкогда плодим файлы!!!!!
     private Thread gcThreadRunner;
 
-    private SimpleBooleanProperty checkUppload=new SimpleBooleanProperty(false);
+
 
     private String baseComplexTabName;
     private String baseProgramTabName;
@@ -220,6 +210,15 @@ public class AppController  extends BaseController {
 
     private LeftPanelAPI leftAPI;
     private BiofonUIUtil biofonUIUtil;
+    private ProfileAPI profileAPI;
+    private static ProgressAPI progressAPI;
+
+    public static ProgressAPI getProgressAPI() {
+        return progressAPI;
+    }
+    public static M2UI getM2UI() {
+        return m2ui;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -232,36 +231,12 @@ public class AppController  extends BaseController {
         clearTrinityItem.disableProperty().bind(m2Connected.not());
         updateBaseMenu.setVisible(getApp().isUpdateBaseMenuVisible());
 
-        btnGenerate.setDisable(true);
-
-
-        //настройка подписей в табах
-        initTabs();
-
-        /** Контекстное меню загрузки в прибор **/
-        initUploadMenuBtn();
         initVerticalDivider();
 
-        /** Конопки меню верхнего ***/
-        menuDelGeneratedFiles.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
 
-        printProfileMenu.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
-        printComplexMenu.disableProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNull());
-        menuImportComplex.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
-        menuExportProfile.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
-        menuExportTherapyComplex.disableProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNull());
-        menuImportTherapyComplex.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
-        /***************/
 
         baseInitSpinnerTimeForFreq();
         baseInitBundlesSpinner();
-
-
-        progress1Pane.setVisible(false);
-        progress2Pane.setVisible(false);
-        progress3Pane.setVisible(false);
-
-
 
         diskSpaceBar.setVisible(false);
         diskSpaceBar.setTooltip(diskSpaceTooltip);
@@ -282,18 +257,38 @@ public class AppController  extends BaseController {
 
         initDeviceMDetection(rb);
 
+        try{
+            progressAPI = (ProgressAPI) addContentHBox("/fxml/ProgressPane.fxml",topPane);
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Ошибка инициализации панели програесса ",e);
+        }
+
 
         try {
             leftAPI = initLeftPanel();
         } catch (Exception e) {
-            showExceptionDialog("Ошибка инициализации Левой панели","","",e,getApp().getMainWindow(), Modality.WINDOW_MODAL);
-            throw new RuntimeException(e);
+            e.printStackTrace();
+            throw new RuntimeException("Ошибка инициализации Левой панели",e);
         }
 
 
         initSectionTreeActionListener();
 
         initTables();
+
+        try {
+            profileAPI = initProfileTab();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            throw new RuntimeException("Ошибка инициализации панели профилей",e);
+        }
+        initProfileSelectedListener();
+
+
+
         initProgramSearch();
 
         biofonUIUtil = initBiofon();
@@ -308,10 +303,53 @@ public class AppController  extends BaseController {
         initTablesButtonVisibilityPolicy();
 
         initMenuImport();
+
+        //настройка подписей в табах
+        initTabs();
+
+        /** Конопки меню верхнего ***/
+        menuDelGeneratedFiles.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
+
+        printProfileMenu.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
+        printComplexMenu.disableProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNull());
+        menuImportComplex.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
+        menuExportProfile.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
+        menuExportTherapyComplex.disableProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNull());
+        menuImportTherapyComplex.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
+        /***************/
     }
 
 
+    private void initProfileSelectedListener() {
+        ProfileTable.getInstance().getSelectedItemProperty().addListener((observable, oldValue, newValue) ->
+        {
+            if (oldValue != newValue) {
+                //закроем кнопки спинера времени на частоту
+                hideTFSpinnerBTNPan();
+                hideBundlesSpinnerBTNPan();
 
+                ComplexTable.getInstance().getAllItems().clear();
+                //добавляем через therapyComplexItems иначе не будет работать event на изменение элементов массива и не будут работать галочки мультичастот
+
+                List<TherapyComplex> therapyComplexes = getModel().findTherapyComplexes(newValue);
+                try {
+                    checkBundlesLength(therapyComplexes);
+                } catch (Exception e) {
+                    Log.logger.error("",e);
+                    showExceptionDialog("Ошибка обновления комплексов","","",e,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                    return;
+                }
+                ComplexTable.getInstance().getAllItems().addAll(therapyComplexes);
+
+
+                if(newValue!=null){
+                    if(getModel().isNeedGenerateFilesInProfile(newValue)) profileAPI.enableGenerateBtn();
+                    else profileAPI.disableGenerateBtn();
+                }
+            }
+
+        });
+    }
     private BiofonUIUtil initBiofon(){
         BiofonUIUtil biofonUIUtil;
         try {
@@ -363,41 +401,31 @@ public class AppController  extends BaseController {
     public void setConnectedDevice(boolean connectedDevice) {
         this.connectedDevice.set(connectedDevice);
     }
-    /**
-     * Изменяет состояние кнопки загрузки в прибор. Стоит проверить при изменении состояния устройства и изменеии состояния кнопки загрузки
-     */
-    private void checkUpploadBtn()
-    {
-        //свойство заставит сработать проверку доступности кнопки btnUpload.disableProperty().bind(new BooleanBinding()
-        checkUppload.set(!checkUppload.get());
 
-    }
 
     /**
      * Балансирует положение разделителей сплитера для удобства
      */
     private void balanceSpitterDividers()
     {
-
-        // double summ=   splitOuter.getItems().stream().mapToDouble(node ->(node instanceof Parent )? ((Parent)node).minWidth(-1):  node.getBoundsInParent().getWidth()).sum();
-      /*  double summ =
-                ((splitOuter.getItems().get(0) instanceof Parent )? ((Parent)splitOuter.getItems().get(0)).minWidth(-1):  splitOuter.getItems().get(0).getBoundsInParent().getWidth())+ ((splitOuter.getItems().get(1) instanceof Parent )? ((Parent)splitOuter.getItems().get(1)).minWidth(-1):  splitOuter.getItems().get(1).getBoundsInParent().getWidth());
-
-        summ+=15;
-        double w=  splitOuter.getWidth();
-        SplitPane.Divider divider1 = splitOuter.getDividers().get(0);
-       if(divider1.getPosition()<=summ/w) divider1.setPosition(summ / w);
-        */
         SplitPane.Divider divider1 = splitOuter.getDividers().get(0);
         divider1.setPosition(0.25);
-
-
-
-
     }
 
     private LeftPanelAPI initLeftPanel() throws Exception {
             return  (LeftPanelAPI) replaceContent("/fxml/LeftPanel.fxml",leftLayout);
+    }
+
+    private ProfileAPI initProfileTab() throws Exception {
+        ProfileController pc = (ProfileController)replaceContent("/fxml/ProfileTab.fxml", profileLayout);
+        pc.setDevicePathMethod(()->devicePath);
+        pc.setTherapyTabPane(therapyTabPane);
+        pc.setPasteInTables(this::pasteInTables);
+        pc.setCutInTables(this::cutInTables);
+        pc.setDeleteInTable(this::deleteInTables);
+        pc.setDevicesProperties(m2Ready,connectedDevice,m2Connected);
+
+        return pc;
     }
 
     private BiofonTabController initBiofonTabContent() throws Exception {
@@ -419,8 +447,8 @@ public class AppController  extends BaseController {
     }
 
     private void initTablesButtonVisibilityPolicy() {
-        btnDeleteProfile.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
-        btnCreateTherapy.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
+
+        btnCreateTherapy.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
         btnDeleteTherapy.disableProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNull());
 
 
@@ -652,47 +680,7 @@ public class AppController  extends BaseController {
         btnCancelSpinner.setGraphic(new ImageView(new Image(cancelUrl.toExternalForm())));
     }
 
-    private void initUploadToDirDisabledPolicy(MenuItem btnUploadDir) {
-        btnUploadDir.disableProperty().bind(new BooleanBinding() {
-            {
-                super.bind(tableProfile.getSelectionModel().selectedItemProperty(),checkUppload, btnGenerate.disabledProperty());//подключение устройств или выключение вызывает проверку computeValue() также если появиться необходимость генерации или мы переключаем профиль(если вдруг выбор пустой стал)
-            }
 
-            @Override
-            protected boolean computeValue() {
-
-                boolean res=false;
-                if(btnGenerate.isDisable())  if(tableProfile.getSelectionModel().getSelectedItem()!=null)res = !getModel().isNeedGenerateFilesInProfile(tableProfile.getSelectionModel().getSelectedItem());
-
-
-                //если устройство подключено, выбран профиль и не активна кнопка генерации, то можно совершить загрузку в устройство
-                return !(res && tableProfile.getSelectionModel().getSelectedItem() != null);
-
-            }
-        });
-    }
-
-    private void initButtonUploadDisabledPolicy(MenuItem btnUpload) {
-        btnUpload.disableProperty().bind(new BooleanBinding() {
-            {
-                super.bind(tableProfile.getSelectionModel().selectedItemProperty(),connectedDeviceProperty(),checkUppload, btnGenerate.disabledProperty());//подключение устройств или выключение вызывает проверку computeValue() также если появиться необходимость генерации или мы переключаем профиль(если вдруг выбор пустой стал)
-            }
-
-            @Override
-            protected boolean computeValue() {
-
-                boolean res=false;
-             if(btnGenerate.isDisable())  if(tableProfile.getSelectionModel().getSelectedItem()!=null)res = !getModel().isNeedGenerateFilesInProfile(tableProfile.getSelectionModel().getSelectedItem());
-
-
-
-
-                    //если устройство подключено, выбран профиль и не активна кнопка генерации, то можно совершить загрузку в устройство
-                return !(res && tableProfile.getSelectionModel().getSelectedItem() != null && getConnectedDevice());
-
-            }
-        });
-    }
 
     private void initVerticalDivider() {
         Platform.runLater(() -> balanceSpitterDividers());
@@ -701,53 +689,27 @@ public class AppController  extends BaseController {
         splitOuter.widthProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> balanceSpitterDividers());
     }
 
-    private void initUploadMenuBtn() {
 
-        MenuItem btnUploadDir=new MenuItem(res.getString("app.upload_to_dir"));
-        btnUploadDir.setDisable(true);
-        btnUploadDir.setOnAction(event -> uploadInDir());
-        initUploadToDirDisabledPolicy(btnUploadDir);
-
-        MenuItem btnUploadM2=new MenuItem(res.getString("app.ui.record_on_trinity"));
-        btnUploadM2.setOnAction(event ->  uploadM2(tableProfile.getSelectionModel().getSelectedItem()));
-        btnUploadM2.disableProperty().bind(m2Ready.and(tableProfile.getSelectionModel().selectedItemProperty().isNotNull()).not());
-
-        MenuItem btnUpload=new MenuItem(res.getString("app.uppload"));
-        btnUpload.setDisable(true);
-        btnUpload.setOnAction(event -> onUploadProfile());
-        initButtonUploadDisabledPolicy(btnUpload);
-
-        uploadMenu.getItems().addAll(btnUploadDir,btnUpload, btnUploadM2);
-        btnUploadm.setOnAction(event4 ->
-        {
-            if(!uploadMenu.isShowing()) uploadMenu.show(btnUploadm, Side.BOTTOM, 0, 0);
-            else uploadMenu.hide();
-
-        });
-
-
-
-    }
 
     private void initTabs() {
         ObservableList<Tab> tabs = therapyTabPane.getTabs();
-        tabs.get(1).disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
+        tabs.get(1).disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
         tabs.get(2).disableProperty().bind(tableComplex.getSelectionModel().selectedItemProperty().isNull());
 
 
         //при переключении на вкладку профилей проверяем можно ли грузить файлы
-        tabs.get(0).setOnSelectionChanged(e -> {if(tabs.get(0).isSelected()) checkUpploadBtn();});
+        tabs.get(0).setOnSelectionChanged(e -> {if(tabs.get(0).isSelected()) profileAPI.checkUpploadBtn();});
 
         tabs.get(0).textProperty().bind(new StringBinding() {
             {
                 //указывается через , список свойств изменения которых приведут к срабатыванию этого
-                super.bind(tableProfile.getSelectionModel().selectedItemProperty());
+                super.bind(ProfileTable.getInstance().getSelectedItemProperty());
             }
             @Override
             protected String computeValue() {
-                if(tableProfile.getSelectionModel().getSelectedItem()!=null)
+                if(ProfileTable.getInstance().getSelectedItem()!=null)
                 {
-                   return  baseProfileTabName+" ("+tableProfile.getSelectionModel().getSelectedItem().getName()+")";
+                   return  baseProfileTabName+" ("+ProfileTable.getInstance().getSelectedItem().getName()+")";
                 }else return baseProfileTabName;
             }
         });
@@ -837,103 +799,7 @@ public class AppController  extends BaseController {
             }
         });
     }
-    private void uploadM2(Profile profile) {
 
-        //проверка установленных пачек частот и если есть отличные от 3, то нужно указать, на это
-        long  cnt=getModel().findAllTherapyComplexByProfile(profile).stream().filter(c->c.getBundlesLength()!=M2Complex.BUNDLES_LENGTH).count();
-        if(cnt!=0){
-            showWarningDialog(
-                    res.getString("app.ui.record_on_trinity"),
-                    res.getString("app.ui.attention"),
-                    res.getString("app.m2.message"),
-                    getApp().getMainWindow(),Modality.WINDOW_MODAL);
-        }
-
-        Platform.runLater(() ->   {
-            m2Connected.set(false);
-            m2Ready.setValue(false);
-        });
-
-        Task task = new Task() {
-            protected Boolean call() {
-                boolean res1=false;
-                M2BinaryFile m2BinaryFile=null;
-                try {
-                    System.out.println("Запись на прибор");
-
-                    m2BinaryFile = M2.uploadProfile(profile,true);
-
-                    try {
-                        Thread.sleep(1000);//таймаут дает время прибору подумать после записи
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                   // M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
-                    M2BinaryFile bf=m2BinaryFile;
-                    Platform.runLater(() ->m2ui.setContent(bf));
-
-
-                    res1=true;
-                } catch (M2Complex.MaxTimeByFreqBoundException e) {
-                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),
-                            res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
-                } catch (M2Complex.MaxPauseBoundException e) {
-                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
-                } catch (M2Program.ZeroValueFreqException e) {
-                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),res.getString("zerofreqval"),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
-                } catch (M2Program.MaxProgramIDValueBoundException e) {
-                    Platform.runLater(() ->  showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
-                } catch (M2Program.MinFrequenciesBoundException e) {
-                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),res.getString("mustbefreqs"),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
-                } catch (M2Complex.MaxCountProgramBoundException e) {
-                    Platform.runLater(() ->  showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),res.getString("moreprograms"),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
-                } catch (M2BinaryFile.MaxBytesBoundException e) {
-                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),res.getString("trinity.maxboundsize"),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
-                } catch (M2Complex.ZeroCountProgramBoundException e) {
-                    Platform.runLater(() -> showErrorDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),res.getString("app.ui.must_have_program"), getApp().getMainWindow(),Modality.WINDOW_MODAL));
-                } catch (LanguageDevice.NoLangDeviceSupported e) {
-                    Platform.runLater(() -> showErrorDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),res.getString("app.ui.lang_not_support"), getApp().getMainWindow(),Modality.WINDOW_MODAL));
-                } catch (M2.WriteToDeviceException e) {
-                    Platform.runLater(() -> showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
-                } /*catch (M2.ReadFromDeviceException e) {
-                    Platform.runLater(() -> {
-                        showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                    });
-                }*/catch (Exception e){
-                    Platform.runLater(() ->  showExceptionDialog( res.getString("app.ui.record_on_trinity"),res.getString("app.error"),e.getMessage(),e, getApp().getMainWindow(),Modality.WINDOW_MODAL));
-
-                }finally {
-                    Platform.runLater(() ->   {
-                        m2Connected.set(true);
-                        m2Ready.setValue(true);
-                    });
-                }
-                return res1;
-            }
-        };
-
-        task.setOnScheduled((event) -> {
-            Waiter.openLayer(getApp().getMainWindow(), true);
-        });
-        task.setOnFailed(ev -> {
-            Waiter.closeLayer();
-            Platform.runLater(() ->  showErrorDialog( res.getString("app.ui.record_on_trinity"),"" , res.getString("app.error"), getApp().getMainWindow(),Modality.WINDOW_MODAL));
-
-        });
-        task.setOnSucceeded(ev -> {
-            Waiter.closeLayer();
-            if(((Boolean)task.getValue()).booleanValue()) {
-                showInfoDialog(res.getString("app.ui.uploadM2"), "",res.getString("app.ui.upload_ok"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-            }
-
-        });
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
-
-
-
-    }
 
 
     /******* Биофон *****/
@@ -996,7 +862,7 @@ public class AppController  extends BaseController {
     }
     private List<MenuItem> tablesMenuHelper;
 
-    private ProfileTable profileTable;
+
     private ComplexTable complexTable;
     private ProgramTable programTable;
     private void initTables()
@@ -1005,9 +871,7 @@ public class AppController  extends BaseController {
 
 
         /*** Профили  ****/
-        profileTable = initProfileTable();
-        profileTable.initProfileContextMenu( this::onPrintProfile,  this::cutInTables,  this::pasteInTables, this::deleteInTables);
-        initProfileSelectedListener();
+
 
 
         /*** Комплексы  ****/
@@ -1094,19 +958,15 @@ public class AppController  extends BaseController {
                 List<TherapyComplex> items = new ArrayList<>(this.tableComplex.getSelectionModel().getSelectedItems());
 
                 try {
-
-
                     for(TherapyComplex item:items) {
-
-
                         item.setBundlesLength(Integer.parseInt(bundlesSpinner.getValue()));
                         item.setChanged(true);
-                        this.getModel().updateTherapyComplex(item);
-                        this.btnGenerate.setDisable(false);                   }
-
-                    this.updateComplexsTime(items, true);
+                        getModel().updateTherapyComplex(item);
+                        profileAPI.enableGenerateBtn();
+                    }
+                    updateComplexsTime(items, true);
                 } catch (Exception var8) {
-                    this.hideBundlesSpinnerBTNPan(this.tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
+                    hideBundlesSpinnerBTNPan(this.tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
                     Log.logger.error("", var8);
                     showExceptionDialog("Ошибка обновления времени в терапевтическом комплексе", "", "", var8, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                 } finally {
@@ -1154,16 +1014,12 @@ public class AppController  extends BaseController {
                 List<TherapyComplex> items = new ArrayList<>(this.tableComplex.getSelectionModel().getSelectedItems());
 
                 try {
-
-
                    for(TherapyComplex item:items) {
-
-
                         item.setTimeForFrequency((int)(this.timeToFreqSpinner.getValue()*60));
                         item.setChanged(true);
                         this.getModel().updateTherapyComplex(item);
-                        this.btnGenerate.setDisable(false);
-                    }
+                       profileAPI.enableGenerateBtn();
+                   }
 
                     this.updateComplexsTime(items, true);
                 } catch (Exception var8) {
@@ -1221,58 +1077,16 @@ public class AppController  extends BaseController {
         });
     }
 
-    private void initProfileSelectedListener() {
-        tableProfile.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
-        {
 
-
-            if (oldValue != newValue) {
-                //закроем кнопки спинера времени на частоту
-                hideTFSpinnerBTNPan();
-                hideBundlesSpinnerBTNPan();
-
-                tableComplex.getItems().clear();
-                //добавляем через therapyComplexItems иначе не будет работать event на изменение элементов массива и не будут работать галочки мультичастот
-
-                List<TherapyComplex> therapyComplexes = getModel().findTherapyComplexes(newValue);
-                try {
-                    checkBundlesLength(therapyComplexes);
-                } catch (Exception e) {
-                    Log.logger.error("",e);
-                   showExceptionDialog("Ошибка обновления комплексов","","",e,getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                   return;
-                }
-
-                tableComplex.getItems().addAll(therapyComplexes);
-
-
-                if(newValue!=null){
-
-                    btnGenerate.setDisable(!getModel().isNeedGenerateFilesInProfile(newValue));
-
-                }
-            }
-
-        });
-    }
 
     private void initSwitchTabByDoubleClick() {
-        tableProfile.setOnMouseClicked(event -> {
-            if(event.getClickCount()==2) {
-                event.consume();
-                //int selectedIndex = tableProfile.getSelectionModel().getSelectedIndex();
-               // tableProfile.getSelectionModel().clearSelection();
-                //tableProfile.getSelectionModel().select(selectedIndex);
-                if(tableProfile.getSelectionModel().getSelectedItem()!=null) therapyTabPane.getSelectionModel().select(1);
 
-            }
-        });
 
         tableComplex.setOnMouseClicked(event -> {
             if(event.getClickCount()==2) {
                 event.consume();
 
-                if(tableProfile.getSelectionModel().getSelectedItem()!=null)therapyTabPane.getSelectionModel().select(2);
+                if(ProfileTable.getInstance().getSelectedItem()!=null)therapyTabPane.getSelectionModel().select(2);
 
             }
         });
@@ -1281,20 +1095,7 @@ public class AppController  extends BaseController {
 
 
     private void initDeleteAndSwitchTableKeys() {
-        tableProfile.setOnKeyReleased(event ->
-        {
-            if(event.getCode()== KeyCode.DELETE) onRemoveProfile();
-            else
-            if(event.getCode()==KeyCode.RIGHT && !tab2.isDisable()){
-                  if(ProfileTable.getInstance().isTextEdited()) return;
-                therapyTabPane.getSelectionModel().select(1);
-                tableComplex.requestFocus();
-                if(tableComplex.getItems().size()!=0){
-                    tableComplex.getFocusModel().focus(tableComplex.getSelectionModel().getSelectedIndex());
 
-                }
-            }
-        });
 
         this.tableComplex.setOnKeyReleased((e) -> {
             if(e.getCode() == KeyCode.DELETE) {
@@ -1318,9 +1119,9 @@ public class AppController  extends BaseController {
             if(e.getCode()==KeyCode.LEFT  && !tab1.isDisable()) {
                 if(ComplexTable.getInstance().isTextEdited()) return;
                 therapyTabPane.getSelectionModel().select(0);
-                tableProfile.requestFocus();
-                if(tableProfile.getItems().size()!=0){
-                    tableProfile.getFocusModel().focus(tableProgram.getSelectionModel().getSelectedIndex());
+                ProfileTable.getInstance().requestFocus();
+                if(ProfileTable.getInstance().getAllItems().size()!=0){
+                    ProfileTable.getInstance().setItemFocus(tableProgram.getSelectionModel().getSelectedIndex());
 
             }
 
@@ -1343,7 +1144,7 @@ public class AppController  extends BaseController {
     private ProgramTable initProgramsTable() {
         return ProgramTable.init(tableProgram,res,imageCancel,imageDone,imageSeq,imageParallel,(needUpdateProfileTime) -> {
             updateComplexTime(ComplexTable.getInstance().getSelectedItem(),true);
-            if(needUpdateProfileTime)updateProfileTime(ProfileTable.getInstance().getSelectedItem());
+            if(needUpdateProfileTime)profileAPI.updateProfileTime(ProfileTable.getInstance().getSelectedItem());
         });
     }
 
@@ -1373,9 +1174,7 @@ public class AppController  extends BaseController {
 
 
 
-    private ProfileTable initProfileTable() {
-        return ProfileTable.init(tableProfile, res);
-    }
+
 
     private void initTabComplexNameListener() {
         complexTable.textComplexTimeProperty().addListener((observable, oldValue, newValue) -> {
@@ -1460,7 +1259,11 @@ public class AppController  extends BaseController {
         );
     }
 
+    private void onRemoveProfile()
+    {
+       profileAPI.removeProfile();
 
+    }
 
     private void deleteInTables() {
         if(isProgramsTabSelected()) onRemovePrograms();
@@ -1487,9 +1290,9 @@ public class AppController  extends BaseController {
     }
 
     private void pasteProfile() {
-        Profile profile = tableProfile.getSelectionModel().getSelectedItem();
+        Profile profile = ProfileTable.getInstance().getSelectedItem();
         if(profile==null) return;
-        int dropIndex=tableProfile.getSelectionModel().getSelectedIndex();
+        int dropIndex= ProfileTable.getInstance().getSelectedIndex();
 
         Clipboard clipboard= Clipboard.getSystemClipboard();
         if(!clipboard.hasContent(ProfileTable.PROFILE_CUT_ITEM_ID)) return;
@@ -1501,20 +1304,19 @@ public class AppController  extends BaseController {
             else {
                 if (dropIndex == ind) return;
                 else {
-                   Profile movedProfile = tableProfile.getItems().get(ind);
+                   Profile movedProfile = ProfileTable.getInstance().getAllItems().get(ind);
                    if(movedProfile==null) {
                        clipboard.clear();
                        return;
                    }
-                    tableProfile.getItems().remove(movedProfile);
-                    tableProfile.getItems().add(dropIndex,movedProfile);
+                    ProfileTable.getInstance().getAllItems().remove(movedProfile);
+                    ProfileTable.getInstance().getAllItems().add(dropIndex,movedProfile);
                     Profile tmp;
                     try {
-                    for (int i=0; i<tableProfile.getItems().size();i++){
-                        tmp = tableProfile.getItems().get(i);
+                    for (int i=0; i<ProfileTable.getInstance().getAllItems().size();i++){
+                        tmp = ProfileTable.getInstance().getAllItems().get(i);
                         tmp.setPosition(i);
                         getModel().updateProfile(tmp);
-
                     }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -1532,13 +1334,13 @@ public class AppController  extends BaseController {
 
 
     private void cutProfileToBuffer() {
-        Profile profile = tableProfile.getSelectionModel().getSelectedItem();
+        Profile profile = ProfileTable.getInstance().getSelectedItem();
         if(profile==null) return;
         Clipboard clipboard=Clipboard.getSystemClipboard();
         clipboard.clear();
         ClipboardContent content = new ClipboardContent();
         content.put(ProfileTable.PROFILE_CUT_ITEM_ID, profile.getId());
-        content.put(ProfileTable.PROFILE_CUT_ITEM_INDEX, tableProfile.getSelectionModel().getSelectedIndex());
+        content.put(ProfileTable.PROFILE_CUT_ITEM_INDEX, ProfileTable.getInstance().getSelectedIndex());
         clipboard.setContent(content);
     }
 
@@ -1584,7 +1386,7 @@ public class AppController  extends BaseController {
         content.clear();
 
         content.put(ComplexTable.COMPLEX_CUT_ITEM_INDEX, tableComplex.getSelectionModel().getSelectedIndices().toArray(new Integer[0]));
-        content.put(ComplexTable.COMPLEX_CUT_ITEM_PROFILE, tableProfile.getSelectionModel().getSelectedItem().getId());
+        content.put(ComplexTable.COMPLEX_CUT_ITEM_PROFILE, ProfileTable.getInstance().getSelectedItem().getId());
         content.put(ComplexTable.COMPLEX_CUT_ITEM_ID, tableComplex.getSelectionModel().getSelectedItems().stream()
                 .map(i->i.getId())
                 .collect(Collectors.toList())
@@ -1608,7 +1410,7 @@ public class AppController  extends BaseController {
     }
 
     private void pasteTherapyComplexesByCopy(){
-        Profile profile = tableProfile.getSelectionModel().getSelectedItem();
+        Profile profile = ProfileTable.getInstance().getSelectedItem();
         if(profile==null) return;
         if (tableComplex.getSelectionModel().getSelectedItems().size()>1) return;
         Clipboard clipboard = Clipboard.getSystemClipboard();
@@ -1639,7 +1441,7 @@ public class AppController  extends BaseController {
 
                 }
 
-                updateProfileTime(profile);
+                profileAPI.updateProfileTime(profile);
             } catch (Exception e1) {
                 logger.error(e1);
                 showExceptionDialog("Ошибка копирования комплексов","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
@@ -1675,7 +1477,7 @@ public class AppController  extends BaseController {
                 for (TherapyComplex tp : tpl) {
                     tableComplex.getSelectionModel().select(tp);
                 }
-                updateProfileTime(profile);
+                profileAPI.updateProfileTime(profile);
             } catch (Exception e1) {
                 logger.error(e1);
                 showExceptionDialog("Ошибка копирования комплексов","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
@@ -1700,7 +1502,7 @@ public class AppController  extends BaseController {
         if (!clipboard.hasContent(ComplexTable.COMPLEX_CUT_ITEM_ID)) return;
         if (!clipboard.hasContent(ComplexTable.COMPLEX_CUT_ITEM_INDEX)) return;
         try {
-            Profile selectedProfile=tableProfile.getSelectionModel().getSelectedItem();
+            Profile selectedProfile=ProfileTable.getInstance().getSelectedItem();
             Long idProfile = (Long) clipboard.getContent(ComplexTable.COMPLEX_CUT_ITEM_PROFILE);
             if(idProfile==null)return;
 
@@ -1750,7 +1552,7 @@ public class AppController  extends BaseController {
                     tp.setPosition((long)(i++));
                     getModel().updateTherapyComplex(tp);
                 }
-                updateProfileTime(selectedProfile);
+                profileAPI.updateProfileTime(selectedProfile);
 
                 therapyComplexes.clear();
 
@@ -1775,7 +1577,7 @@ public class AppController  extends BaseController {
 
                 Profile srcProfile=null;
                 if(movedTP.size()>0){
-                    Optional<Profile> first = tableProfile.getItems().stream().filter(p -> p.getId().longValue() == idProfile.longValue()).findFirst();
+                    Optional<Profile> first = ProfileTable.getInstance().getAllItems().stream().filter(p -> p.getId().longValue() == idProfile.longValue()).findFirst();
                     srcProfile=first.orElse(null);
                 }
                 //просто вставляем
@@ -1790,8 +1592,8 @@ public class AppController  extends BaseController {
                 }
 
                 if(movedTP.size()>0){
-                    updateProfileTime(selectedProfile);
-                    updateProfileTime( srcProfile);
+                   profileAPI.updateProfileTime(selectedProfile);
+                    profileAPI.updateProfileTime( srcProfile);
 
                 }
                 movedTP.clear();
@@ -1967,7 +1769,7 @@ public class AppController  extends BaseController {
                 }
 
             updateComplexTime(dropProgram.getTherapyComplex(),false);
-            updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
+            profileAPI.updateProfileTime(ProfileTable.getInstance().getSelectedItem());
             therapyPrograms.clear();
 
         }else {
@@ -2036,23 +1838,7 @@ public class AppController  extends BaseController {
         else pasteTherapyProgramsByCut();
     }
 
-    /**
-     * Проверяет максимальное значение пачек частот в комплексах, если превышено ставит максимальное
-     * @param complexList
-     * @throws Exception
-     */
-    public static void checkBundlesLength(List<TherapyComplex> complexList) throws Exception {
 
-        List<TherapyComplex> edited = complexList.stream().filter(c -> c.getBundlesLength() > MAX_BUNDLES).collect(Collectors.toList());
-
-        for (TherapyComplex tc : edited) {
-                tc.setBundlesLength(MAX_BUNDLES);
-                App.getStaticModel().updateTherapyComplex(tc);
-
-        }
-
-
-    }
 
 
 
@@ -2287,13 +2073,7 @@ public class AppController  extends BaseController {
     }
 
 
-    /**
-     * перерсчтет времени на профиль. Профиль инстанс из таблицы.
-     * @param p
-     */
-    private void updateProfileTime(Profile p) {
-        p.setTime(p.getTime() + 1);
-    }
+
 
     /**
      * Обновит время комплекса, профиля и программ если указанно reloadPrograms
@@ -2305,7 +2085,7 @@ public class AppController  extends BaseController {
         if(!reloadPrograms)
         {
             c.setTime(c.getTime()+1);
-            updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
+            profileAPI.updateProfileTime(ProfileTable.getInstance().getSelectedItem());
             return;
         }
 
@@ -2317,7 +2097,7 @@ public class AppController  extends BaseController {
         tableComplex.getItems().set(i, null);
         tableComplex.getItems().set(i, c);
         tableComplex.getSelectionModel().select(i);
-        updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
+        profileAPI.updateProfileTime(ProfileTable.getInstance().getSelectedItem());
 
 
     }
@@ -2326,7 +2106,7 @@ public class AppController  extends BaseController {
     private void updateComplexsTime(List<TherapyComplex> c, boolean reloadPrograms) {
         if(!reloadPrograms) {
             c.forEach(i ->i.setTime(i.getTime() + 1L));
-            this.updateProfileTime(this.tableProfile.getSelectionModel().getSelectedItem());
+            profileAPI.updateProfileTime(ProfileTable.getInstance().getSelectedItem());
             this.tableComplex.getSelectionModel().clearSelection();
         } else {
             Iterator<TherapyComplex> iterator = c.iterator();
@@ -2347,7 +2127,7 @@ public class AppController  extends BaseController {
             }
 
 
-            this.updateProfileTime(this.tableProfile.getSelectionModel().getSelectedItem());
+            profileAPI.updateProfileTime(ProfileTable.getInstance().getSelectedItem());
         }
     }
 
@@ -2399,8 +2179,8 @@ if(!retString.equals(option) && !retString.isEmpty())
         //очищение файлов lib для пересканирования
 if(!getConnectedDevice())return;
 
+        profileAPI.disableGenerateBtn();
 
-        btnGenerate.setDisable(true);
 
         Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.serv_1"), res.getString("app.serv_2"), res.getString("app.serv_3"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
 
@@ -2424,19 +2204,20 @@ if(!getConnectedDevice())return;
         };
 
 
-        task.setOnRunning(event1 -> setProgressIndicator(-1.0, res.getString("app.serv_4")));
+        task.setOnRunning(event1 -> getProgressAPI().setProgressIndicator(-1.0, res.getString("app.serv_4")));
         task.setOnSucceeded(event ->
         {
-            setProgressIndicator(1.0, res.getString("app.serv_5"));
+            getProgressAPI().setProgressIndicator(1.0, res.getString("app.serv_5"));
 
-            hideProgressIndicator(true);
-            btnGenerate.setDisable(false);
+            getProgressAPI().hideProgressIndicator(true);
+            profileAPI.enableGenerateBtn();
+
         });
 
         task.setOnFailed(event -> {
-            setProgressIndicator(res.getString("app.serv_6"));
-            hideProgressIndicator(true);
-            btnGenerate.setDisable(false);
+            getProgressAPI().setProgressIndicator(res.getString("app.serv_6"));
+            getProgressAPI().hideProgressIndicator(true);
+            profileAPI.enableGenerateBtn();
         });
 
         Thread threadTask=new Thread(task);
@@ -2539,7 +2320,7 @@ if(!getConnectedDevice())return;
             final File fileToSave=file;
 
 
-        setProgressIndicator(res.getString("app.title28"));
+        getProgressAPI().setProgressIndicator(res.getString("app.title28"));
         Task<Boolean> task =new Task<Boolean>() {
             @Override
             protected Boolean call() throws Exception
@@ -2553,17 +2334,17 @@ if(!getConnectedDevice())return;
         };
 
 
-        task.setOnRunning(event1 -> setProgressIndicator(-1.0, res.getString("app.title29")));
+        task.setOnRunning(event1 -> getProgressAPI().setProgressIndicator(-1.0, res.getString("app.title29")));
         task.setOnSucceeded(event ->
         {
-            if (task.getValue()) setProgressIndicator(1.0, res.getString("app.title30"));
-            else setProgressIndicator( res.getString("app.title31"));
-            hideProgressIndicator(true);
+            if (task.getValue()) getProgressAPI().setProgressIndicator(1.0, res.getString("app.title30"));
+            else getProgressAPI().setProgressIndicator( res.getString("app.title31"));
+            getProgressAPI().hideProgressIndicator(true);
         });
 
         task.setOnFailed(event -> {
-            setProgressIndicator(res.getString("app.title31"));
-            hideProgressIndicator(true);
+            getProgressAPI().setProgressIndicator(res.getString("app.title31"));
+            getProgressAPI().hideProgressIndicator(true);
         });
 
         Thread threadTask=new Thread(task);
@@ -2582,10 +2363,8 @@ if(!getConnectedDevice())return;
 
     public void onExportProfile()
     {
-
-        if(tableProfile.getSelectionModel().getSelectedItem()==null) return;
-
-        Profile selectedItem = tableProfile.getSelectionModel().getSelectedItem();
+        Profile selectedItem = ProfileTable.getInstance().getSelectedItem();
+        if(selectedItem == null) return;
 
         //получим путь к файлу.
         File file=null;
@@ -2608,7 +2387,7 @@ if(!getConnectedDevice())return;
 
 
 
-        setProgressIndicator(res.getString("app.title33"));
+        getProgressAPI().setProgressIndicator(res.getString("app.title33"));
         Task<Boolean> task =new Task<Boolean>() {
             @Override
             protected Boolean call() throws Exception
@@ -2622,17 +2401,17 @@ if(!getConnectedDevice())return;
         };
 
 
-        task.setOnRunning(event1 -> setProgressIndicator(-1.0, res.getString("app.title34")));
+        task.setOnRunning(event1 -> getProgressAPI().setProgressIndicator(-1.0, res.getString("app.title34")));
         task.setOnSucceeded(event ->
         {
-            if (task.getValue()) setProgressIndicator(1.0, res.getString("app.title35"));
-            else setProgressIndicator(res.getString("app.title36"));
-            hideProgressIndicator(true);
+            if (task.getValue()) getProgressAPI().setProgressIndicator(1.0, res.getString("app.title35"));
+            else getProgressAPI().setProgressIndicator(res.getString("app.title36"));
+            getProgressAPI().hideProgressIndicator(true);
         });
 
         task.setOnFailed(event -> {
-            setProgressIndicator(res.getString("app.title36"));
-            hideProgressIndicator(true);
+            getProgressAPI().setProgressIndicator(res.getString("app.title36"));
+            getProgressAPI().hideProgressIndicator(true);
         });
 
         Thread threadTask=new Thread(task);
@@ -2670,7 +2449,7 @@ if(!getConnectedDevice())return;
         File file=null;
 String initname;
 
-        if(selectedItems.size()>1)initname=tableProfile.getSelectionModel().getSelectedItem().getName();
+        if(selectedItems.size()>1)initname=ProfileTable.getInstance().getSelectedItem().getName();
         else initname=selectedItems.get(0).getName();
 
         FileChooser fileChooser =new FileChooser();
@@ -2685,7 +2464,7 @@ String initname;
         final File fileToSave=file;
 
 
-        setProgressIndicator(res.getString("app.title38"));
+        getProgressAPI().setProgressIndicator(res.getString("app.title38"));
         Task<Boolean> task =new Task<Boolean>() {
             @Override
             protected Boolean call() throws Exception
@@ -2699,17 +2478,17 @@ String initname;
         };
 
 
-        task.setOnRunning(event1 -> setProgressIndicator(-1.0, res.getString("app.title34")));
+        task.setOnRunning(event1 -> getProgressAPI().setProgressIndicator(-1.0, res.getString("app.title34")));
         task.setOnSucceeded(event ->
         {
-            if (task.getValue()) setProgressIndicator(1.0, res.getString("app.title35"));
-            else setProgressIndicator(res.getString("app.title39"));
-            hideProgressIndicator(true);
+            if (task.getValue()) getProgressAPI().setProgressIndicator(1.0, res.getString("app.title35"));
+            else getProgressAPI().setProgressIndicator(res.getString("app.title39"));
+            getProgressAPI().hideProgressIndicator(true);
         });
 
         task.setOnFailed(event -> {
-            setProgressIndicator(res.getString("app.title39"));
-            hideProgressIndicator(true);
+            getProgressAPI().setProgressIndicator(res.getString("app.title39"));
+            getProgressAPI().hideProgressIndicator(true);
         });
 
         Thread threadTask=new Thread(task);
@@ -2816,27 +2595,27 @@ String initname;
 
 
 
-        task.progressProperty().addListener((observable, oldValue, newValue) -> setProgressIndicator(newValue.doubleValue()));
-        task.setOnRunning(event1 -> setProgressIndicator(0.0, res.getString("app.title43")));
+        task.progressProperty().addListener((observable, oldValue, newValue) -> getProgressAPI().setProgressIndicator(newValue.doubleValue()));
+        task.setOnRunning(event1 -> getProgressAPI().setProgressIndicator(0.0, res.getString("app.title43")));
 
         task.setOnSucceeded(event ->
         {
 
             if (task.getValue())
             {
-                setProgressIndicator(1.0, res.getString("app.title44"));
+                getProgressAPI().setProgressIndicator(1.0, res.getString("app.title44"));
+                ProfileTable.getInstance().getAllItems().add(getModel().getLastProfile());
+                profileAPI.enableGenerateBtn();
 
-               tableProfile.getItems().add(getModel().getLastProfile());
-                btnGenerate.setDisable(false);
 
             }
-            else setProgressIndicator(res.getString("app.title45"));
-            hideProgressIndicator(true);
+            else getProgressAPI().setProgressIndicator(res.getString("app.title45"));
+            getProgressAPI().hideProgressIndicator(true);
         });
 
         task.setOnFailed(event -> {
-            setProgressIndicator(res.getString("app.title45"));
-            hideProgressIndicator(true);
+            getProgressAPI().setProgressIndicator(res.getString("app.title45"));
+            getProgressAPI().hideProgressIndicator(true);
 
 
 
@@ -2846,7 +2625,7 @@ String initname;
 
         Thread threadTask=new Thread(task);
         threadTask.setDaemon(true);
-        setProgressIndicator(0.01, res.getString("app.title46"));
+        getProgressAPI().setProgressIndicator(0.01, res.getString("app.title46"));
         threadTask.start();
 
 
@@ -3047,15 +2826,15 @@ final ResourceBundle rest=this.res;
 
 
      Section sect=container;
-        task.progressProperty().addListener((observable, oldValue, newValue) -> setProgressIndicator(newValue.doubleValue()));
-        task.setOnRunning(event1 -> setProgressIndicator(0.0, rest.getString("app.title43")));
+        task.progressProperty().addListener((observable, oldValue, newValue) -> getProgressAPI().setProgressIndicator(newValue.doubleValue()));
+        task.setOnRunning(event1 -> getProgressAPI().setProgressIndicator(0.0, rest.getString("app.title43")));
 
         task.setOnSucceeded(event ->
         {
 
             if (task.getValue())
             {
-                setProgressIndicator(1.0, rest.getString("app.title44"));
+                getProgressAPI().setProgressIndicator(1.0, rest.getString("app.title44"));
 
                 //хаполнить структуру дерева и комбо.
 
@@ -3094,13 +2873,13 @@ final ResourceBundle rest=this.res;
                     }
 
             }
-            else setProgressIndicator(rest.getString("app.title45"));
-            hideProgressIndicator(true);
+            else getProgressAPI().setProgressIndicator(rest.getString("app.title45"));
+            getProgressAPI().hideProgressIndicator(true);
         });
 
         task.setOnFailed(event -> {
-            setProgressIndicator(rest.getString("app.title45"));
-            hideProgressIndicator(true);
+            getProgressAPI().setProgressIndicator(rest.getString("app.title45"));
+            getProgressAPI().hideProgressIndicator(true);
 
             try {
                 getApp().getModel().removeSection(sect);
@@ -3114,7 +2893,7 @@ final ResourceBundle rest=this.res;
 
         Thread threadTask=new Thread(task);
         threadTask.setDaemon(true);
-        setProgressIndicator(0.01, rest.getString("app.title46"));
+        getProgressAPI().setProgressIndicator(0.01, rest.getString("app.title46"));
         threadTask.start();
 
 
@@ -3130,10 +2909,9 @@ final ResourceBundle rest=this.res;
 
     public void onImportTherapyComplex()
     {
-        Profile profile = tableProfile.getSelectionModel().getSelectedItem();
+        Profile profile = ProfileTable.getInstance().getSelectedItem();
         importTherapyComplex(profile,nums -> {
-
-            this.tableProfile.getSelectionModel().select(profile);
+            ProfileTable.getInstance().select(profile);
 
             List<TherapyComplex> lastTherapyComplexes = this.getModel().getLastTherapyComplexes(nums);
             if(!lastTherapyComplexes.isEmpty())
@@ -3142,8 +2920,8 @@ final ResourceBundle rest=this.res;
                 this.tableComplex.getItems().addAll(lastTherapyComplexes);
 
             }
+            profileAPI.enableGenerateBtn();
 
-            this.btnGenerate.setDisable(false);
         });
     }
 
@@ -3250,8 +3028,8 @@ final ResourceBundle rest=this.res;
 
 
 
-        task.progressProperty().addListener((observable, oldValue, newValue) -> setProgressIndicator(newValue.doubleValue()));
-        task.setOnRunning(event1 -> setProgressIndicator(0.0, rest.getString("app.title43")));
+        task.progressProperty().addListener((observable, oldValue, newValue) -> getProgressAPI().setProgressIndicator(newValue.doubleValue()));
+        task.setOnRunning(event1 -> getProgressAPI().setProgressIndicator(0.0, rest.getString("app.title43")));
 
         task.setOnSucceeded(event ->
         {
@@ -3260,18 +3038,18 @@ final ResourceBundle rest=this.res;
             {
 
 
-                this.setProgressIndicator(1.0D, rest.getString("app.title44"));
+                getProgressAPI().setProgressIndicator(1.0D, rest.getString("app.title44"));
 
                 afterAction.accept(task.getValue());
 
             }
-            else setProgressIndicator(rest.getString("app.title45"));
-            hideProgressIndicator(true);
+            else getProgressAPI().setProgressIndicator(rest.getString("app.title45"));
+            getProgressAPI().hideProgressIndicator(true);
         });
 
         task.setOnFailed(event -> {
-            setProgressIndicator(rest.getString("app.title45"));
-            hideProgressIndicator(true);
+            getProgressAPI().setProgressIndicator(rest.getString("app.title45"));
+            getProgressAPI(). hideProgressIndicator(true);
 
 
 
@@ -3281,7 +3059,7 @@ final ResourceBundle rest=this.res;
 
         Thread threadTask=new Thread(task);
         threadTask.setDaemon(true);
-        setProgressIndicator(0.01, rest.getString("app.title46"));
+        getProgressAPI().setProgressIndicator(0.01, rest.getString("app.title46"));
         threadTask.start();
 
 
@@ -3296,260 +3074,7 @@ final ResourceBundle rest=this.res;
     /************/
 
 
-    /**
-     * Отобразит строку информации
-     * @param message
-     */
-    public void setInfoMessage(String message)
-{
-    progress1Pane.setVisible(false);
-    progress2Pane.setVisible(false);
-    progress3Pane.setVisible(true);
 
-    messageText.setText(message);
-
-    FadeTransition fadeTransition;
-    fadeTransition = new FadeTransition(Duration.seconds(6), progress3Pane);
-    fadeTransition.setFromValue(1);
-    fadeTransition.setDelay(Duration.seconds(3));
-    fadeTransition.setToValue(0.01);
-    fadeTransition.setOnFinished(event -> {
-        progress3Pane.setVisible(false);
-        progress3Pane.setOpacity(1.0);
-        Platform.runLater(() -> fadeTransition.setOnFinished(null));
-    });
-    fadeTransition.play();
-
-}
-
-    /**
-     *
-     * @param value 0 - 1.0
-     * @param textAction ниже textInfo
-     * @param textInfo вверху
-     */
-  public void setProgressBar(double value,String textAction,String textInfo)
-  {
-      progress1Pane.setVisible(false);
-      progress2Pane.setVisible(true);
-      progress3Pane.setVisible(false);
-
-      if(value>1.0)value=1.0;
-      progressAction.setProgress(value);
-      textActionInfo.setText(textAction);
-      this.textInfo.setText(textInfo);
-
-      if(value==1.0)
-      {
-          progressIndicatorLabel.setText("");
-          Text doneText = (Text) progressIndicator.lookup(".percentage");
-          if(doneText!=null)doneText.setText(textAction);
-      }
-
-
-
-
-  }
-
-
-    public void hideProgressBar(boolean animation)
-    {
-        if(animation)
-        {
-
-            FadeTransition fadeTransition;
-            fadeTransition = new FadeTransition(Duration.seconds(4), progress2Pane);
-            fadeTransition.setFromValue(1);
-            fadeTransition.setDelay(Duration.seconds(3));
-            fadeTransition.setToValue(0.01);
-            fadeTransition.setOnFinished(event -> {
-                progress2Pane.setVisible(false);
-                progress2Pane.setOpacity(1.0);
-                Platform.runLater(() -> fadeTransition.setOnFinished(null) );
-            });
-            fadeTransition.play();
-
-        }else progress2Pane.setVisible(false);
-
-
-
-
-    }
-
-
-
-
-    /**
-     * Установит значение прогресса и текст, сделает все видимым
-     * @param value
-     * @param text
-     */
-    public void setProgressIndicator(double value,String text)
-    {
-
-        progress2Pane.setVisible(false);
-        progress3Pane.setVisible(false);
-        progress1Pane.setVisible(true);
-        if(value>1.0)value=1.0;
-        progressIndicator.setProgress(value);
-        progressIndicatorLabel.setText(text);
-        if(value==1.0)
-        {
-            progressIndicatorLabel.setText("");
-            Text doneText = (Text) progressIndicator.lookup(".percentage");
-            doneText.setText(text);
-        }
-
-    }
-    public void setProgressIndicator(double value)
-    {
-        System.out.println(value);
-
-        progress2Pane.setVisible(false);
-        progress3Pane.setVisible(false);
-        progress1Pane.setVisible(true);
-        if(value>1.0)value=1.0;
-
-      progressIndicator.setProgress(value);
-
-
-        if (value==1.0)
-        {
-            progressIndicatorLabel.setText("");
-            Text doneText = (Text) progressIndicator.lookup(".percentage");
-            doneText.setText(progressIndicatorLabel.getText());
-        }
-
-    }
-    /**
-     * Установит неопределенное значение прогресса и текст. Все сделает видимым
-     * @param text
-     */
-    public void setProgressIndicator(String text)
-    {
-        progressIndicator.setVisible(true);
-        progress2Pane.setVisible(false);
-        progress3Pane.setVisible(false);
-        progress1Pane.setVisible(true);
-        progressIndicator.setProgress(-0.5);
-        progressIndicatorLabel.setText(text);
-
-    }
-
-    /**
-     * Скрывает круговой индикатор прогресса
-     */
-    public void hideProgressIndicator(boolean animation)
-    {
-     if(animation)
-     {
-
-         FadeTransition fadeTransition;
-         fadeTransition = new FadeTransition(Duration.seconds(4), progress1Pane);
-         fadeTransition.setFromValue(1);
-         fadeTransition.setDelay(Duration.seconds(3));
-         fadeTransition.setToValue(0.01);
-         fadeTransition.setOnFinished(event -> {
-             progress1Pane.setVisible(false);
-             progress1Pane.setOpacity(1.0);
-             Platform.runLater(() -> fadeTransition.setOnFinished(null));
-         });
-         fadeTransition.play();
-
-     }else progress1Pane.setVisible(false);
-
-
-
-
-    }
-
-
-
-
-    public void onCreateProfile()
-    {
-        TextInputValidationController.Data td = new TextInputValidationController.Data("", s -> !BaseController.muchSpecials(s),true);
-        try {
-            openDialogUserData(getApp().getMainWindow(), "/fxml/TextInputValidationDialogCreate.fxml", res.getString("app.title63"), false, StageStyle.DECORATED, 0, 0, 0, 0, td);
-
-            if (td.isChanged())
-            {
-                Profile profile = getModel().createProfile(td.getNewVal());
-
-                tableProfile.getItems().add(profile);
-
-                int i = tableProfile.getItems().indexOf(profile);
-                tableProfile.requestFocus();
-                tableProfile.getSelectionModel().select(i);
-                tableProfile.scrollTo(i);
-                tableProfile.getFocusModel().focus(i);
-
-            }
-
-
-
-
-            td = null;
-        } catch (Exception e) {
-            td = null;
-            logger.error("",e);
-            showExceptionDialog("Ошибка  создания профиля", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-            return;
-        }
-
-
-
-    }
-
-    public void onRemoveProfile()
-    {
-        Profile selectedItem = tableProfile.getSelectionModel().getSelectedItem();
-
-        if(selectedItem==null) return;
-
-
-        Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.title64"), "", res.getString("app.title65"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-
-        if(buttonType.isPresent() ? buttonType.get()==okButtonType: false)
-        {
-            try {
-
-
-
-                List<Long> profileFiles = getModel().getProfileFiles(selectedItem);
-               File temp=null;
-                for (Long file : profileFiles)
-                {
-                 temp=new File(getApp().getDataDir(),file+".dat");
-                    if(temp.exists())temp.delete();
-                }
-
-                getModel().removeProfile(selectedItem);
-                tableProfile.getItems().remove(selectedItem);
-                selectedItem=null;
-
-
-            } catch (Exception e) {
-                selectedItem=null;
-                logger.error("",e);
-                showExceptionDialog("Ошибка удаления профиля","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
-            }
-
-        }
-
-    }
-    public void onLoadProfile()
-    {
-
-
-        NewDBImport im=new NewDBImport(getModel());
-
-        im.execute();
-        /*
-      if(tableComplex.getSelectionModel().getSelectedItem().isMulltyFreq())  System.out.println("трю");
-        else System.out.println("элку");
-*/
-    }
 
 
     public void onUpProgram()
@@ -3647,7 +3172,7 @@ final ResourceBundle rest=this.res;
     public void onCreateComplex()
     {
 
-        if(tableProfile.getSelectionModel().getSelectedItem()==null) return;
+        if(ProfileTable.getInstance().getSelectedItem()==null) return;
         //выведем диалог ввода данных
         NameDescroptionDialogController.Data data =null;
         try {
@@ -3670,7 +3195,7 @@ final ResourceBundle rest=this.res;
         {
 
             try {
-                TherapyComplex therapyComplex = getModel().createTherapyComplex("", tableProfile.getSelectionModel().getSelectedItem(), data.getNewName(), data.getNewDescription(), 300,3);
+                TherapyComplex therapyComplex = getModel().createTherapyComplex("", ProfileTable.getInstance().getSelectedItem(), data.getNewName(), data.getNewDescription(), 300,3);
 
                 tableComplex.getItems().add(therapyComplex);
 
@@ -3731,7 +3256,7 @@ final ResourceBundle rest=this.res;
                     selectedItems = null;
                     this.tableProgram.getItems().clear();
                     this.tableComplex.getSelectionModel().clearSelection();
-                    this.updateProfileTime((Profile)this.tableProfile.getSelectionModel().getSelectedItem());
+                    profileAPI.updateProfileTime((Profile)ProfileTable.getInstance().getSelectedItem());
                     this.tableComplex.getSelectionModel().clearSelection();
                 } catch (Exception var9) {
                     Log.logger.error("", var9);
@@ -3770,964 +3295,9 @@ public void onAbout()
     }
 
 
-
-    class RemoveProfileFiles
-    {
-        private UpdateHandler updateHandler;
-        private FailHandler failHandler;
-        private boolean cancell=false;
-
-        public  boolean isCancell() {
-            return cancell;
-        }
-
-        public synchronized void cancel() {
-            this.cancell=true;
-        }
-
-        private void callFail(String msg){if(failHandler!=null)failHandler.onFail(msg);}
-        private void callUpdate(int progress,int total){if(updateHandler!=null)updateHandler.onUpdate(progress,total);}
-
-
-        public FailHandler getFailHandler() {
-            return failHandler;
-        }
-
-        public void setFailHandler(FailHandler failHandler) {
-            this.failHandler = failHandler;
-        }
-
-        public UpdateHandler getUpdateHandler() {
-            return updateHandler;
-        }
-
-        public void setUpdateHandler(UpdateHandler updateHandler) {
-            this.updateHandler = updateHandler;
-        }
-
-
-        public boolean remove()
-        {
-            boolean ret=true;
-
-            cancell=false;
-
-                    File f = null;
-                    List<TherapyProgram> allTherapyProgram = getModel().getAllTherapyProgram(tableProfile.getSelectionModel().getSelectedItem()).
-                            stream().filter(therapyProgram -> !therapyProgram.isMp3()).collect(Collectors.toList());
-                    int total=allTherapyProgram.size();
-                    int progress=1;
-                    for (TherapyProgram itm : allTherapyProgram)
-                    {
-                        if(isCancell()){
-                            ret=false;
-                            break;
-                        }
-
-                        f = new File(getApp().getDataDir(), itm.getId() + ".dat");
-                        if (f.exists()) f.delete();
-                        itm.setChanged(true);
-                        try
-                        {
-                            getModel().updateTherapyProgram(itm);
-                        } catch (Exception e)
-                        {
-                            logger.error("",e);
-                            showExceptionDialog("Ошибка обновления данных терапевтических программ.", "Очистка произошла с ошибкой", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                            ret=false;
-                            callFail("Очистка произошла с ошибкой");
-                           break;
-                        }
-                        callUpdate(progress++,total);
-                    }
-
-
-
-
-            return ret;
-        }
-
-    }
-
-
     public void onRemoveProfileFiles()
     {
-        if (tableProfile.getSelectionModel().getSelectedItem() == null) return;
-
-        Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.title73"), res.getString("app.title74"), res.getString("app.title75"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-
-        if (buttonType.isPresent())
-        {
-            if (buttonType.get() == okButtonType)
-            {
-                RemoveProfileFiles rp=new RemoveProfileFiles();
-
-                Task<Boolean> task=new Task<Boolean>() {
-                    @Override
-                    protected Boolean call() throws Exception {
-
-                        rp.setUpdateHandler((progress, total) -> updateProgress(progress, total));
-                        rp.setFailHandler(failMessage -> failed());
-                        return rp.remove();
-
-                    }
-                };
-
-
-                CalcLayer.openLayer(() -> Platform.runLater(() ->
-                {
-                    //отмена генерации. Что успело нагенериться то успело
-                    //скрытие произойдет по окончании работы  ниже
-                    CalcLayer.setInfoLayer(res.getString("app.title76"));
-                    rp.cancel();
-
-                }), getApp().getMainWindow(),false);
-
-
-
-                task.setOnScheduled(event1 -> setProgressBar(0.0, res.getString("app.title77"), res.getString("app.title78")));
-
-                task.setOnFailed(event ->
-                                Platform.runLater(() ->
-                                {
-                                    CalcLayer.closeLayer();
-                                    setProgressBar(100.0, res.getString("app.title79"), res.getString("app.title78"));
-
-                                    if (tableProfile.getSelectionModel().getSelectedItem() != null)
-                                    {
-                                        Profile p = tableProfile.getSelectionModel().getSelectedItem();
-                                        int i = tableProfile.getItems().indexOf(tableProfile.getSelectionModel().getSelectedItem());
-                                        tableProfile.getItems().set(i, null);
-                                        tableProfile.getItems().set(i, p);
-                                        Platform.runLater(() -> tableProfile.getSelectionModel().select(i));
-                                        p = null;
-                                    }
-
-
-                                    hideProgressBar(true);
-
-                                    rp.setFailHandler(null);
-                                    rp.setUpdateHandler(null);
-
-
-
-
-
-                                })
-                );
-                task.setOnSucceeded(event ->
-                                Platform.runLater(() ->
-                                {
-
-                                    if (task.getValue())
-                                        setProgressBar(100.0, res.getString("app.title80"), res.getString("app.title78"));
-                                    else {
-                                        if (rp.isCancell()) setProgressBar(100.0,  res.getString("app.cancel"), res.getString("app.title78"));
-                                        else setProgressBar(0.0,  res.getString("app.error"), res.getString("app.title78"));
-                                    }
-
-
-                                    if (tableProfile.getSelectionModel().getSelectedItem() != null)
-                                    {
-                                        Profile p = tableProfile.getSelectionModel().getSelectedItem();
-                                        int i = tableProfile.getItems().indexOf(tableProfile.getSelectionModel().getSelectedItem());
-                                        tableProfile.getItems().set(i, null);
-                                        tableProfile.getItems().set(i, p);
-                                        Platform.runLater(() -> tableProfile.getSelectionModel().select(i));
-                                        p = null;
-                                    }
-
-
-                                    CalcLayer.closeLayer();
-                                    hideProgressBar(true);
-
-                                    rp.setFailHandler(null);
-                                    rp.setUpdateHandler(null);
-
-
-
-                                })
-                );
-
-                task.progressProperty().addListener((observable, oldValue, newValue) ->
-                {
-
-                    Platform.runLater(() -> setProgressBar(newValue.doubleValue(), res.getString("app.title81"), res.getString("app.title78")));
-
-                });
-                Thread thread=new Thread(task);
-                thread.setDaemon(true);
-                thread.start();
-
-
-               CalcLayer.showLayer();
-
-
-            }
-        }
-
-
-    }
-
-    public void  onGenerate()
-    {
-
-
-
-        if(m2Ready.get()){
-            showWarningDialog(res.getString("app.ui.attention"),"",res.getString("trinity.warn"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
-        }
-        if(tableProfile.getSelectionModel().getSelectedItem()==null){btnGenerate.setDisable(true);return;}
-        if(!getModel().isNeedGenerateFilesInProfile(tableProfile.getSelectionModel().getSelectedItem())) {btnGenerate.setDisable(true);return;}
-
-        try {
-
-            //в начале мы снимим пометки с комплексов и пометим все программы требующие изменений. Далее кодек будет уже брать программы и по мере кодирования
-            //снимать с них пометки. В конце просто обновиться список программ в таблице
-
-            for (TherapyProgram therapyProgram : getModel().findNeedGenerateList((tableProfile.getSelectionModel().getSelectedItem())) )
-            {
-                    if(therapyProgram.isMp3()) continue;
-
-                therapyProgram.setChanged(true);//установим для всех программ(особенно тех чей комплекс помечен изменением) статус изменения
-                getModel().updateTherapyProgram(therapyProgram);
-            }
-
-
-
-            //в том комплексе что выбран в в таблице программ пометим все как имзмененные. Чтобы не исчезла иконка
-            if( tableComplex.getSelectionModel().getSelectedItem()!=null)
-            {
-
-                tableProgram.getItems().forEach(itm->{
-                    if(tableComplex.getSelectionModel().getSelectedItem().isChanged())
-                    {
-                        if(!itm.isMp3())
-                        {
-                            itm.setChanged(true);
-                            itm.getTherapyComplex().setChanged(true);
-                        }
-                    }
-
-
-                });
-
-
-            }
-            //снимим пометки с комплексов об изменеии. Теперь важны лишь программы
-
-            //тк генерить можно только выбрав профиль, то все комплексы в таблице можно просматривать
-            for (TherapyComplex therapyComplex : tableComplex.getItems())
-            {
-                if(therapyComplex.isChanged())
-                {
-                    therapyComplex.setChanged(false);
-                    getModel().updateTherapyComplex(therapyComplex);
-                }
-
-            }
-
-
-
-
-
-
-            btnGenerate.setDisable(true);
-        } catch (Exception e) {
-            logger.error("",e);
-            showExceptionDialog(res.getString("app.title82"), "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-        }
-
-
-
-
-        try
-        {
-
-            MP3Encoder encoder=new MP3Encoder(tableProfile.getSelectionModel().getSelectedItem(), MP3Encoder.CODEC_TYPE.EXTERNAL_CODEC,44100);
-            Thread thread =new Thread(encoder);
-
-
-
-            CalcLayer.openLayer(() -> Platform.runLater(() ->
-            {
-                //отмена генерации. Что успело нагенериться то успело
-                //скрытие произойдет по окончании работы  ниже
-                CalcLayer.setInfoLayer(res.getString("app.title76"));
-                encoder.stopEncode();
-
-            }), getApp().getMainWindow(),false);
-
-
-
-
-
-
-            // обработка окончания кодирования каждой програмы. Может быть по отмене! isCanceled. Само окннчание по отмене мы специально не ловим. Просто убираем ненужное с экрана
-            encoder.setActionListener((id, isCanceled) -> {
-            //здесь изменим параметры в базе. Если была отмена, то не будем менять для этой програмы
-                if(!isCanceled)
-                {
-                    //просто перезапишим Changed поле. По окончаюю всей обработки,обновим таблицу програм, если она активна и все. Комплексы уже подправлены ранее
-                    TherapyProgram tp = getModel().getTherapyProgram(id);
-                    tp.setChanged(false);
-                    tp.setUuid(UUID.randomUUID().toString());//при загрузки файлов это читается из базы а не таблицы. можно не беспокоится об обновлении бинов таблицы
-
-                    try {
-                        getModel().updateTherapyProgram(tp);
-                    } catch (Exception e) {
-                        logger.error("",e);
-                    }
-                    tp=null;
-                }
-
-
-            });
-
-
-
-
-
-            encoder.setOnScheduled(event1 -> setProgressBar(0.0,res.getString("app.title83"),res.getString("app.title84")));
-
-            encoder.setOnFailed(event ->
-                Platform.runLater(() ->
-                {
-                    CalcLayer.closeLayer();
-                    setProgressBar(100.0, res.getString("app.error"), res.getString("app.title84"));
-                    hideProgressBar(true);
-
-                    encoder.removeActionListener();
-
-                    //обновим таблицу программ если у нас выбран комлекс
-                    if(tableComplex.getSelectionModel().getSelectedItem()!=null)
-                    {
-                        TherapyComplex p=tableComplex.getSelectionModel().getSelectedItem();
-                        int i = tableComplex.getItems().indexOf(tableComplex.getSelectionModel().getSelectedItem());
-                        tableComplex.getItems().set(i, null);
-                        tableComplex.getItems().set(i, p);
-                        tableComplex.getSelectionModel().select(i);
-                        p = null;
-                    }
-
-
-                })
-            );
-            encoder.setOnSucceeded(event ->
-                Platform.runLater(() ->
-                {
-                    if(encoder.isStop())
-                    {
-                        CalcLayer.closeLayer();
-                        setProgressBar(0.0, res.getString("app.cancel"), res.getString("app.title84"));
-                        hideProgressBar(true);
-                        encoder.removeActionListener();
-                        return;
-                    }//если была остановка от кнопки в диалоге
-
-                    if(encoder.getValue())setProgressBar(100.0, res.getString("app.title85"), res.getString("app.title84"));
-                    else  setProgressBar(100.0, res.getString("app.cancel"), res.getString("app.title84"));
-                    CalcLayer.closeLayer();
-                    hideProgressBar(true);
-                    //System.out.println("COMPLETE");
-                    encoder.removeActionListener();
-
-                    //обновим таблицу программ если у нас выбран комлекс
-                    if(tableComplex.getSelectionModel().getSelectedItem()!=null)
-                    {
-                        TherapyComplex p=tableComplex.getSelectionModel().getSelectedItem();
-                        int i = tableComplex.getItems().indexOf(tableComplex.getSelectionModel().getSelectedItem());
-                        tableComplex.getItems().set(i, null);
-                        tableComplex.getItems().set(i, p);
-                        tableComplex.getSelectionModel().select(i);
-                        p = null;
-                    }
-
-                })
-            );
-
-            encoder.progressProperty().addListener((observable, oldValue, newValue) ->
-            {
-                //System.out.println(newValue);
-                Platform.runLater(() -> setProgressBar(newValue.doubleValue(),encoder.getCurrentName() /*res.getString("app.title83")*/, res.getString("app.title84")));
-
-            });
-
-
-            thread.start();
-
-
-            CalcLayer.showLayer();
-
-
-        } catch (Exception e) {
-            logger.error("",e);
-            showExceptionDialog(res.getString("app.title86"), "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-        }
-
-
-
-        tableProfile.getSelectionModel().getSelectedItem().setProfileWeight(tableProfile.getSelectionModel().getSelectedItem().getProfileWeight()+1);//пересчет веса инициализируем
-        checkUpploadBtn();
-
-
-
-
-
-    }
-
-
-class ForceCopyProfile
-{
-    private UpdateHandler updateHandler;
-    private FailHandler failHandler;
-
-    private boolean cancel=false;
-
-    public synchronized void cancel()
-    {
-        cancel=true;
-
-    }
-
-    public boolean isCancel() {
-        return cancel;
-    }
-
-    private void callFail(String msg){if(failHandler!=null)failHandler.onFail(msg);}
-    private void callUpdate(int progress,int total){if(updateHandler!=null)updateHandler.onUpdate(progress,total);}
-
-
-    public FailHandler getFailHandler() {
-        return failHandler;
-    }
-
-    public void setFailHandler(FailHandler failHandler) {
-        this.failHandler = failHandler;
-    }
-
-    public UpdateHandler getUpdateHandler() {
-        return updateHandler;
-    }
-
-    public void setUpdateHandler(UpdateHandler updateHandler) {
-        this.updateHandler = updateHandler;
-    }
-
-    private boolean forceCopyProfile(File profile,boolean inDir) throws Exception
-    {
-        File prof =null;
-        cancel = false;
-        if (tableProfile.getSelectionModel().getSelectedItem() == null)
-        {
-            callFail("Не выбран профиль!");
-            return false;
-        }
-        int total = (int) getModel().countTherapyPrograms(tableProfile.getSelectionModel().getSelectedItem()) + 2;
-        int progress = 1;
-
-        if (!inDir)
-        {
-            //здесь стирание всего и запись нового
-
-            //на всякий проверим наличие lib файлов
-
-            File f2 = new File(devicePath.toFile(), "ASDKDD.LIB");
-        boolean flg = true;
-        if (!f2.exists()) flg = false;
-        else flg = true;
-
-        if (flg == false)
-        {
-            f2 = new File(devicePath.toFile(), "asdkdd.lib");
-            if (!f2.exists()) flg = false;
-            else flg = true;
-
-        }
-
-        if (flg == false)
-        {
-
-            Platform.runLater(() -> showWarningDialog(res.getString("app.title87"), res.getString("app.title88"), res.getString("app.title89"), getApp().getMainWindow(), Modality.WINDOW_MODAL));
-
-
-            callFail("Ошибка идентификации диска прибора.");
-            return false;
-
-        }
-
-
-        //теперь все сотрем нафиг
-        if (FilesProfileHelper.recursiveDelete(devicePath.toFile(), "asdkdd.lib"))
-        {
-            Platform.runLater(() -> showErrorDialog(res.getString("app.title87"), "", res.getString("app.title90"), getApp().getMainWindow(), Modality.WINDOW_MODAL));
-
-            callFail("Ошибка удаления файлов");
-            return false;
-
-        }
-
-            prof=profile;
-
-    }else
-        {
-            prof=new File(profile,"profile.txt");
-        }
-            callUpdate(progress++,total);
-
-
-        if(cancel)return false;
-
-        Map<Long,String> cMap=new LinkedHashMap<>();
-        Map<Long,Integer> cMap2=new LinkedHashMap<>();
-
-
-        TableColumn<TherapyComplex, ?> timeTableColumn = tableComplex.getColumns().get(3);//с учетом что время это 4 колонка!!!
-
-
-        //TODO:   ///  нельзя использовать в именах  \ / ? : * " > < |  +=[]:;«,./?'пробел'     Нужно это выфильтровывать
-        //генерируем список названий папкок для комплексов.
-        tableComplex.getItems().forEach(itm ->
-                {
-
-                    cMap.put(itm.getId(), TextUtil.replaceWinPathBadSymbols(itm.getName()) + " (" + DateUtil.replaceTime(timeTableColumn.getCellObservableValue(itm).getValue().toString(),res) + ")");
-                    cMap2.put(itm.getId(), itm.getTimeForFrequency());
-                }
-        );
-
-
-
-        //
-
-        if(cancel)return false;
-
-//запись файла профиля
-        try(PrintWriter writer = new PrintWriter(prof,"UTF-8")) {
-
-
-
-
-            writer.println(tableProfile.getSelectionModel().getSelectedItem().getId().toString());//id профиля
-           // writer.write("\n");
-
-            writer.println(tableProfile.getSelectionModel().getSelectedItem().getUuid());//uuid профиля. Чтобы не перепутать с профилем записанном на другой программе
-           // writer.write("\n");
-/*
-            for (Map.Entry<Long, String> entry : cMap.entrySet())
-            {
-                writer.write(entry.getKey()+"@"+entry.getValue()+"#");
-
-            }
-            writer.write("\n");
-*/
-            writer.print(tableProfile.getSelectionModel().getSelectedItem().getName());//название профиля
-        }catch (IOException e)
-        {
-            logger.error("",e);
-            Platform.runLater(() -> showExceptionDialog(res.getString("app.title87"), "", res.getString("app.title91"), e, getApp().getMainWindow(), Modality.WINDOW_MODAL));
-
-            callFail("Ошибка записи файлов профиля.");
-            return false;
-        }
-        catch (Exception e) {
-            logger.error("",e);
-            Platform.runLater(() -> showExceptionDialog(res.getString("app.title87"), "", res.getString("app.title92"), e, getApp().getMainWindow(), Modality.WINDOW_MODAL));
-
-            callFail("Ошибка записи файлов профиля.");
-            return false;
-        }
-        callUpdate(progress++,total);
-
-
-        File bDir=null;
-        if(inDir)bDir=profile;
-        else bDir=devicePath.toFile();
-
-        //запишем файлы и папки
-        int cnt=0;
-        File tempFile=null;
-        if(cancel)return false;
-        try
-        {
-            for (Map.Entry<Long, String> entry : cMap.entrySet())
-            {
-                if(cancel)return false;
-                // URI outputURI = new URI(("file:///"+devicePath. output.replaceAll(" ", "%20")));
-                //File outputFile = new File(outputURI);
-                tempFile= new File(bDir,(++cnt)+"-"+entry.getValue());//папка комплекса записываемого
-
-
-                //System.out.print("Создание папки комплекса: " + tempFile.getAbsolutePath() + "...");
-               // System.out.println("OK");
-
-                FilesProfileHelper.copyDir(tempFile);
-
-
-                int count2=0;
-                TherapyComplex therapyComplex=null;
-                for (TherapyProgram therapyProgram : getModel().findTherapyPrograms(entry.getKey()))
-                {
-                    if (cancel) return false;
-                    therapyComplex = getModel().findTherapyComplex(entry.getKey());
-
-                    if (!therapyProgram.isMp3())
-                    {
-                        //если программа не MP3
-                        String timeP = DateUtil.convertSecondsToHMmSs(therapyComplex.getTimeForFrequency());
-
-
-                    String nameFile = (++count2) + "-" + TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()) + " (" + DateUtil.replaceTime(timeP,res) + ")";
-
-                    // System.out.print("Создание программы: " + nameFile + ".bss...");
-
-                    FilesProfileHelper.copyBSS(new File(getApp().getDataDir(), therapyProgram.getId() + ".dat"),
-                            new File(tempFile, nameFile + ".bss"));
-                    //System.out.println("OK");
-                    // System.out.print("Создание текста программы: " + nameFile + ".txt...");
-                    FilesProfileHelper.copyTxt(therapyProgram.getFrequencies(), cMap2.get(entry.getKey()), therapyProgram.getId().longValue(),
-                            therapyProgram.getUuid(), entry.getKey(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()),
-                            false, new File(tempFile, nameFile + ".txt"), therapyProgram.isMultyFreq(),therapyProgram.getSrcUUID(),therapyComplex.getSrcUUID());
-                    // System.out.println("OK");
-                }else
-                    {
-                        //если программа MP3
-
-                        Mp3File mp3file = null;
-                        try {
-                            mp3file = new Mp3File(therapyProgram.getFrequencies());
-                        } catch (Exception e) {mp3file=null;}
-
-                        if(mp3file!=null)
-                        {
-                            //если файл существует
-                            String timeP =DateUtil.convertSecondsToHMmSs(mp3file.getLengthInSeconds());
-
-                            String nameFile = (++count2) + "-" + TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()) + " (" + DateUtil.replaceTime(timeP,res) + ")";
-
-                            FilesProfileHelper.copyBSS(new File(therapyProgram.getFrequencies()),new File(tempFile, nameFile + ".bss"));
-
-                            FilesProfileHelper.copyTxt(therapyProgram.getFrequencies(), cMap2.get(entry.getKey()), therapyProgram.getId().longValue(),
-                                    therapyProgram.getUuid(), entry.getKey(),therapyComplex.getBundlesLength(), TextUtil.replaceWinPathBadSymbols(therapyProgram.getName()),
-                                    true, new File(tempFile, nameFile + ".txt"), therapyProgram.isMultyFreq(),therapyProgram.getSrcUUID(),therapyComplex.getSrcUUID());
-
-
-
-
-                        }
-                    }
-
-
-                    callUpdate(progress++, total);
-
-                }
-
-                //System.out.println("COMPLETED");
-            }
-        }catch (IOException e)
-        {
-
-            logger.error("",e);
-            Platform.runLater(() -> showWarningDialog(res.getString("app.title87"), "", res.getString("app.title115"), getApp().getMainWindow(), Modality.WINDOW_MODAL));
-            callFail("Ошибка копирования файлов.");
-            return false;
-        }
-        catch (Exception e)
-        {
-            logger.error("",e);
-            Platform.runLater(() -> showExceptionDialog(res.getString("app.title87"), "", res.getString("app.title93"), e, getApp().getMainWindow(), Modality.WINDOW_MODAL));
-            callFail("Ошибка копирования файлов.");
-            return false;
-        }
-
-
-        return true;
-    }
-
-
-
-
-}
-     interface UpdateHandler
-    {
-        public void onUpdate(int progress,int total);
-
-    }
-    interface FailHandler
-    {
-        public void onFail(String failMessage);
-
-    }
-
-
-    /**
-     * Загрузка профиля в выбранную папку. Папка должна быть пустая
-     */
-    public void uploadInDir()
-    {
-        if(tableProfile.getSelectionModel().getSelectedItem()==null) return;
-
-        if(getModel().isNeedGenerateFilesInProfile(tableProfile.getSelectionModel().getSelectedItem()))
-        {
-            showWarningDialog(res.getString("app.title87"), "", res.getString("app.title97"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-            return;
-        }
-
-        //проверим нет ли мп3 с неверными путями
-        List<TherapyProgram> failedMp3=new ArrayList<>();
-        long count = getModel().mp3ProgramInProfile(tableProfile.getSelectionModel().getSelectedItem()).stream().filter(itm ->
-        {
-            File ff=new File(itm.getFrequencies());//в частотах прописан путь к файлу
-            if(!ff.exists()) { failedMp3.add(itm); return true;}
-            else return false;
-        }).count();
-
-        //напишим в окне список путей невверных
-        if(count>0) {
-            String failed = failedMp3.stream().map(tt -> tt.getFrequencies()).collect(Collectors.joining("\n"));
-            updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
-            showWarningDialog(res.getString("app.title87"),failed,res.getString("app.ui.mp3_not_avaliable"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
-
-            return;
-        }
-
-
-        DirectoryChooser dirChooser =new DirectoryChooser();
-        dirChooser.setTitle(res.getString("app.upload_to_dir"));
-        dirChooser.setInitialDirectory(new File(getModel().getLastSavedFilesPath(System.getProperty("user.home"))));
-
-        File dir= dirChooser.showDialog(getApp().getMainWindow());
-        if(dir==null)return;
-        if(!dir.exists()) {
-            showWarningDialog(res.getString("app.upload_to_dir"),  res.getString("app.ui.dir_not_exist"), "", getApp().getMainWindow(), Modality.WINDOW_MODAL);
-            return;}
-
-            getModel().setLastSavedFilesPath(dir.getParentFile());
-
-        int cnt = dir.list().length;
-        if(cnt!=0)
-        {
-            showWarningDialog(res.getString("app.upload_to_dir"),  res.getString("app.ui.dir_not_empty"), res.getString("app.ui_dir_not_empty2"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-            return;}
-
-        ForceCopyProfile fcp=new ForceCopyProfile();
-
-
-
-        Task<Boolean> task =new Task<Boolean>() {
-            @Override
-            protected Boolean call() throws Exception {
-                fcp.setUpdateHandler((progress, total) -> updateProgress(progress, total));
-                fcp.setFailHandler(failMessage -> failed());
-                boolean r=false;
-                try
-                {
-                    r=  fcp.forceCopyProfile(dir,true);
-                }catch (Exception e)
-                {
-                    logger.error("",e);
-                }
-                return r;
-
-            }
-        };
-
-
-
-        CalcLayer.openLayer(() -> Platform.runLater(() ->
-        {
-            //отмена генерации. Что успело нагенериться то успело
-            //скрытие произойдет по окончании работы  ниже
-            CalcLayer.setInfoLayer(res.getString("app.title76"));
-            fcp.cancel();
-
-        }), getApp().getMainWindow(),false);
-
-
-        task.progressProperty().addListener((observable, oldValue, newValue) -> setProgressBar(newValue.doubleValue(),res.getString("app.title101"),""));
-        task.setOnRunning(event1 -> setProgressBar(0.0, res.getString("app.title102"),""));
-
-        task.setOnSucceeded(event ->
-        {
-            CalcLayer.closeLayer();
-
-            if (task.getValue()) {
-                hideProgressBar(false);
-                setProgressIndicator(1.0, res.getString("app.title103"));
-
-            } else {
-
-                hideProgressBar(false);
-                if(fcp.isCancel()) setProgressIndicator(res.getString("app.title104"));
-                else setProgressIndicator(res.getString("app.title93"));
-            }
-            hideProgressIndicator(true);
-        });
-
-        task.setOnFailed(event -> {
-            CalcLayer.closeLayer();
-            hideProgressBar(false);
-            setProgressIndicator(res.getString("app.title93"));
-            hideProgressIndicator(true);
-
-
-        });
-
-
-        Thread threadTask=new Thread(task);
-        threadTask.setDaemon(true);
-        setProgressBar(0.01, res.getString("app.title102"), "");
-
-        threadTask.start();
-        CalcLayer.showLayer();
-
-
-
-
-
-
-    }
-    /**
-     * Загрузка профиля в папку или на устройство
-     *
-     */
-    public void onUploadProfile()
-    {
-        //проверим что действительно все файлы сгенерированны.
-        //проверим что прибор подключен
-
-        if(!getConnectedDevice()){
-            showWarningDialog(res.getString("app.title87"), "", res.getString("app.title96"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-            return;
-        }
-        if(tableProfile.getSelectionModel().getSelectedItem()==null) return;
-
-        if(getModel().isNeedGenerateFilesInProfile(tableProfile.getSelectionModel().getSelectedItem()))
-        {
-            showWarningDialog(res.getString("app.title87"), "", res.getString("app.title97"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-            return;
-        }
-
-        if(devicePath==null )
-        {
-            showErrorDialog(res.getString("app.title87"),"",res.getString("app.title98"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
-            return;
-        }
-
-        //проверим нет ли мп3 с неверными путями
-        List<TherapyProgram> failedMp3=new ArrayList<>();
-        long count = getModel().mp3ProgramInProfile(tableProfile.getSelectionModel().getSelectedItem()).stream().filter(itm ->
-        {
-            File ff=new File(itm.getFrequencies());//в частотах прописан путь к файлу
-            if(!ff.exists()) { failedMp3.add(itm); return true;}
-            else return false;
-        }).count();
-
-        //напишим в окне список путей невверных
-        if(count>0) {
-            String failed = failedMp3.stream().map(tt -> tt.getFrequencies()).collect(Collectors.joining("\n"));
-            updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
-            showWarningDialog(res.getString("app.title87"),failed,res.getString("app.ui.mp3_not_avaliable"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
-
-            return;
-        }
-
-        File f=new   File( devicePath.toFile(),"profile.txt");
-            Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.uppload_"), res.getString("app.title99"), res.getString("app.title100"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-
-            if(buttonType.isPresent())
-            {
-                if(buttonType.get()==okButtonType)
-                {
-                    //здесь стирание всего и запись нового
-                    ForceCopyProfile fcp=new ForceCopyProfile();
-
-
-
-                    Task<Boolean> task =new Task<Boolean>() {
-                        @Override
-                        protected Boolean call() throws Exception {
-                            fcp.setUpdateHandler((progress, total) -> updateProgress(progress, total));
-                            fcp.setFailHandler(failMessage -> failed());
-                            boolean r=false;
-                            try
-                            {
-                                r=  fcp.forceCopyProfile(f,false);
-                            }catch (Exception e)
-                            {
-                                logger.error("",e);
-                            }
-                            return r;
-
-                        }
-                    };
-
-
-
-                    CalcLayer.openLayer(() -> Platform.runLater(() ->
-                    {
-                        //отмена генерации. Что успело нагенериться то успело
-                        //скрытие произойдет по окончании работы  ниже
-                        CalcLayer.setInfoLayer(res.getString("app.title76"));
-                        fcp.cancel();
-
-                    }), getApp().getMainWindow(),false);
-
-
-                    task.progressProperty().addListener((observable, oldValue, newValue) -> setProgressBar(newValue.doubleValue(),res.getString("app.title101"),""));
-                    task.setOnRunning(event1 -> setProgressBar(0.0, res.getString("app.title102"),""));
-
-                    task.setOnSucceeded(event ->
-                    {
-                        CalcLayer.closeLayer();
-
-                        if (task.getValue()) {
-                            hideProgressBar(false);
-                            setProgressIndicator(1.0, res.getString("app.title103"));
-
-                        } else {
-
-                            hideProgressBar(false);
-                            if(fcp.isCancel()) setProgressIndicator(res.getString("app.title104"));
-                            else setProgressIndicator(res.getString("app.title93"));
-                        }
-                        hideProgressIndicator(true);
-                    });
-
-                    task.setOnFailed(event -> {
-                        CalcLayer.closeLayer();
-                        hideProgressBar(false);
-                        setProgressIndicator(res.getString("app.title93"));
-                        hideProgressIndicator(true);
-
-
-                    });
-
-
-                    Thread threadTask=new Thread(task);
-                    threadTask.setDaemon(true);
-                    setProgressBar(0.01, res.getString("app.title102"), "");
-
-                    threadTask.start();
-                    CalcLayer.showLayer();
-
-
-
-
-
-
-
-                }else return;
-
-            }else
-            {
-
-                showErrorDialog(res.getString("app.title87"),"","Ошибка выбора",getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                return;
-            }
-
-
-
-
+       profileAPI.removeProfileFiles();
 
     }
 
@@ -4756,9 +3326,9 @@ class ForceCopyProfile
 
             Platform.runLater(() -> {
 
-            tableProfile.getItems().add(profile);
-            tableProfile.getSelectionModel().select(profile);
-            tableProfile.scrollTo(profile);
+                ProfileTable.getInstance().getAllItems().add(profile);
+                ProfileTable.getInstance().select(profile);
+                ProfileTable.getInstance().scrollTo(profile);
             therapyTabPane.getSelectionModel().select(0);
 
             });
@@ -4777,465 +3347,6 @@ class ForceCopyProfile
 
     }
 
-
-  /* public void onUploadProfile()
-   {
-        //проверим что действительно все файлы сгенерированны.
-       //проверим что прибор подключен
-
-       if(!getConnectedDevice()){
-           showWarningDialog(res.getString("app.title87"), "", res.getString("app.title96"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-           return;
-       }
-      if(tableProfile.getSelectionModel().getSelectedItem()==null) return;
-
-       if(getModel().isNeedGenerateFilesInProfile(tableProfile.getSelectionModel().getSelectedItem()))
-       {
-           showWarningDialog(res.getString("app.title87"), "", res.getString("app.title97"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-           return;
-       }
-
-       if(devicePath==null )
-       {
-           showErrorDialog(res.getString("app.title87"),"",res.getString("app.title98"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
-           return;
-       }
-
-       //проверим нет ли мп3 с неверными путями
-       List<TherapyProgram> failedMp3=new ArrayList<>();
-       long count = getModel().mp3ProgramInProfile(tableProfile.getSelectionModel().getSelectedItem()).stream().filter(itm ->
-       {
-           File ff=new File(itm.getFrequencies());//в частотах прописан путь к файлу
-           if(!ff.exists()) { failedMp3.add(itm); return true;}
-               else return false;
-       }).count();
-
-            //напишим в окне список путей невверных
-       if(count>0) {
-           String failed = failedMp3.stream().map(tt -> tt.getFrequencies()).collect(Collectors.joining("\n"));
-           updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
-           showWarningDialog(res.getString("app.title87"),failed,res.getString("app.ui.mp3_not_avaliable"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
-
-           return;
-       }
-
-
-       //проверим наличие файла profile.txt
-
-         File f=new   File( devicePath.toFile(),"profile.txt");
-
-
-       if(!f.exists())
-       {
-           //загрузка на чистый прибор или профилем со страрой программы!!
-
-           Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.title87"), res.getString("app.title99"), res.getString("app.title100"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-
-           if(buttonType.isPresent())
-           {
-            if(buttonType.get()==okButtonType)
-            {
-            //здесь стирание всего и запись нового
-                ForceCopyProfile fcp=new ForceCopyProfile();
-
-
-
-                Task<Boolean> task =new Task<Boolean>() {
-                    @Override
-                    protected Boolean call() throws Exception {
-                        fcp.setUpdateHandler((progress, total) -> updateProgress(progress, total));
-                        fcp.setFailHandler(failMessage -> failed());
-                        boolean r=false;
-                        try
-                        {
-                          r=  fcp.forceCopyProfile(f,false);
-                        }catch (Exception e)
-                        {
-                            logger.error("",e);
-                        }
-                       return r;
-
-                    }
-                };
-
-
-
-                CalcLayer.openLayer(() -> Platform.runLater(() ->
-                    {
-                        //отмена генерации. Что успело нагенериться то успело
-                        //скрытие произойдет по окончании работы  ниже
-                        CalcLayer.setInfoLayer(res.getString("app.title76"));
-                        fcp.cancel();
-
-                    }), getApp().getMainWindow(),false);
-
-
-                task.progressProperty().addListener((observable, oldValue, newValue) -> setProgressBar(newValue.doubleValue(),res.getString("app.title101"),""));
-                task.setOnRunning(event1 -> setProgressBar(0.0, res.getString("app.title102"),""));
-
-                task.setOnSucceeded(event ->
-                {
-                    CalcLayer.closeLayer();
-
-                    if (task.getValue()) {
-                        hideProgressBar(false);
-                        setProgressIndicator(1.0, res.getString("app.title103"));
-
-                    } else {
-
-                        hideProgressBar(false);
-                        if(fcp.isCancel()) setProgressIndicator(res.getString("app.title104"));
-                        else setProgressIndicator(res.getString("app.title93"));
-                    }
-                    hideProgressIndicator(true);
-                });
-
-                task.setOnFailed(event -> {
-                    CalcLayer.closeLayer();
-                    hideProgressBar(false);
-                    setProgressIndicator(res.getString("app.title93"));
-                    hideProgressIndicator(true);
-
-
-                });
-
-
-                Thread threadTask=new Thread(task);
-                threadTask.setDaemon(true);
-                setProgressBar(0.01, res.getString("app.title102"), "");
-
-                threadTask.start();
-                CalcLayer.showLayer();
-
-
-
-
-
-
-
-            }else return;
-
-           }else
-           {
-
-               showErrorDialog(res.getString("app.title87"),"","Ошибка выбора",getApp().getMainWindow(),Modality.WINDOW_MODAL);
-               return;
-           }
-
-       }else
-       {
-
-
-
-           //профиль есть и определен файл. нужно его прочитать и понять какой у нас профиль!
-           List<String> profileParam = new ArrayList<String>();
-            try( Scanner in = new Scanner(f,"UTF-8"))
-            {
-                while (in.hasNextLine()){
-
-                    profileParam.add(in.nextLine());
-                    System.out.println(profileParam.get(profileParam.size()-1));
-                }
-
-            }
-            catch (IOException e)
-            {
-                logger.error("",e);
-                showExceptionDialog(res.getString("app.title105"), res.getString("app.title106"), res.getString("app.title107"), e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                return;
-            }
-            catch (Exception e)
-            {
-                logger.error("",e);
-                showExceptionDialog(res.getString("app.title105"), res.getString("app.title106"), res.getString("app.title107"), e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                return;
-            }
-
-           if(profileParam.size()!=3)
-           {
-               showErrorDialog(res.getString("app.title105"),res.getString("app.title106"), res.getString("app.title107"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
-               return;
-           }
-
-            long idProf=Long.parseLong(profileParam.get(0));
-           String uuidP=profileParam.get(1);
-
-
-           String nameP=profileParam.get(2);
-
-
-           Profile prof=tableProfile.getSelectionModel().getSelectedItem();
-
-           if(prof.getId().longValue()==idProf && prof.getUuid().equals(uuidP))
-           {
-               //у нас тот же профиль что мы пытаемся записать
-               Optional<ButtonType> buttonType = showConfirmationFileUpdateDialog(res.getString("app.title87"), res.getString("app.title108"), res.getString("app.title109"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-
-               if(buttonType.isPresent())
-               {
-                   if (buttonType.get() == forceUpdateBtnType)
-                   {
-                        //стирание профиля и запись заного
-                       ForceCopyProfile fcp=new ForceCopyProfile();
-
-
-
-                       Task<Boolean> task =new Task<Boolean>() {
-                           @Override
-                           protected Boolean call() throws Exception {
-                               fcp.setUpdateHandler((progress, total) -> updateProgress(progress,total));
-                               fcp.setFailHandler(failMessage -> failed());
-                               boolean r=false;
-                               try
-                               {
-                                  r= fcp.forceCopyProfile(f,false);
-                               }catch (Exception e)
-                               {
-                                   logger.error("",e);
-                               }
-                               return r;
-
-                           }
-                       };
-
-                       CalcLayer.openLayer(() -> Platform.runLater(() ->
-                       {
-                           //отмена генерации. Что успело нагенериться то успело
-                           //скрытие произойдет по окончании работы  ниже
-                           CalcLayer.setInfoLayer(res.getString("app.title76"));
-                           fcp.cancel();
-
-                       }), getApp().getMainWindow(),false);
-
-
-                       task.progressProperty().addListener((observable, oldValue, newValue) -> setProgressBar(newValue.doubleValue(), res.getString("app.title101"), ""));
-                       task.setOnRunning(event1 -> setProgressBar(0.0, res.getString("app.title102"), ""));
-
-                       task.setOnSucceeded(event ->
-                       {
-                          CalcLayer.closeLayer();
-                           if (task.getValue()) {
-                               hideProgressBar(false);
-                               setProgressIndicator(1.0, res.getString("app.title103"));
-
-                           } else {
-                               hideProgressBar(false);
-                               if (fcp.isCancel()) setProgressIndicator(res.getString("app.title104"));
-                               else setProgressIndicator(res.getString("app.title93"));
-                           }
-                           hideProgressIndicator(true);
-                       });
-
-                       task.setOnFailed(event -> {
-                           CalcLayer.closeLayer();
-                           hideProgressBar(false);
-                           setProgressIndicator(res.getString("app.title93"));
-                           hideProgressIndicator(true);
-
-
-                       });
-
-
-                       Thread threadTask=new Thread(task);
-                       threadTask.setDaemon(true);
-                       setProgressBar(0.01, res.getString("app.title102"), "");
-
-
-
-
-                       threadTask.start();
-                       CalcLayer.showLayer();
-
-
-
-                   }else if(buttonType.get() == updateBtnType)
-                   {
-
-    ////обновление
-
-
-                       ForceCopyProfile fcp=new ForceCopyProfile();
-
-                       Task<Boolean> task =new Task<Boolean>() {
-                           @Override
-                           protected Boolean call() throws Exception {
-                               fcp.setFailHandler(failMessage -> failed());
-
-                               boolean r=false;
-                               try
-                               {
-                                   r= fcp.updateFiles(f,prof,nameP);
-                               }catch (Exception e)
-                               {
-                                   logger.error("",e);
-                               }
-                               return r;
-
-
-                           }
-                       };
-
-
-
-
-                       task.setOnScheduled(event1 -> setProgressIndicator(-1.0, res.getString("app.title102")));
-                       task.setOnRunning(event1 -> setProgressIndicator(-1.0, res.getString("app.title101")));
-
-                       task.setOnSucceeded(event ->
-                       {
-                           CalcLayer.closeLayer();
-                           if (task.getValue())
-                           {
-                               setProgressIndicator(1.0, res.getString("app.title103"));
-
-                           }
-                           else {
-
-                               if(fcp.isCancel()) setProgressIndicator(res.getString("app.title104"));
-                               else setProgressIndicator(res.getString("app.title93"));
-                           }
-
-                           hideProgressIndicator(true);
-
-                       });
-
-                       task.setOnFailed(event -> {
-                           CalcLayer.closeLayer();
-                           setProgressIndicator(res.getString("app.title93"));
-                           hideProgressIndicator(true);
-
-
-
-                       });
-
-
-
-                       Thread threadTask=new Thread(task);
-                       threadTask.setDaemon(true);
-                       setProgressIndicator(-1, res.getString("app.title102"));
-
-                       CalcLayer.openLayer(() -> Platform.runLater(() ->
-                       {
-                           //отмена генерации. Что успело нагенериться то успело
-                           //скрытие произойдет по окончании работы  ниже
-                           CalcLayer.setInfoLayer(res.getString("app.title76"));
-
-                           fcp.cancel();
-                       }), getApp().getMainWindow(),false);
-
-
-
-
-
-                       threadTask.start();
-                       CalcLayer.showLayer();
-
-
-
-
-                   }else return;
-
-
-               }
-
-           }else
-           {
-               //у нас другой профиль
-               Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.title87"), res.getString("app.title111") + " ( " + nameP + " ) " + res.getString("app.title112"), res.getString("app.title113"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-
-               if(buttonType.isPresent())
-               {
-                   if (buttonType.get() == okButtonType)
-                   {
-                       //стирание профиля и запись заного
-                       ForceCopyProfile fcp=new ForceCopyProfile();
-
-
-
-                       Task<Boolean> task =new Task<Boolean>() {
-                           @Override
-                           protected Boolean call() throws Exception {
-                               fcp.setUpdateHandler((progress, total) -> updateProgress(progress, total));
-                               fcp.setFailHandler(failMessage -> failed());
-
-                               boolean r=false;
-                               try
-                               {
-                                   r= fcp.forceCopyProfile(f,false);
-                               }catch (Exception e)
-                               {
-                                   logger.error("",e);
-                               }
-                               return r;
-
-                           }
-                       };
-
-
-
-
-                       task.progressProperty().addListener((observable, oldValue, newValue) -> setProgressBar(newValue.doubleValue(),res.getString("app.title101"),""));
-                       task.setOnRunning(event1 -> setProgressBar(0.0, res.getString("app.title102"),""));
-
-                       task.setOnSucceeded(event ->
-                       {
-                          CalcLayer.closeLayer();
-                           if (task.getValue()) {
-                               hideProgressBar(false);
-                               setProgressIndicator(1.0, res.getString("app.title103"));
-
-                           } else {
-                               hideProgressBar(false);
-                              if(fcp.isCancel())setProgressIndicator(res.getString("app.title104"));
-                              else setProgressIndicator(res.getString("app.title93"));
-                           }
-                           hideProgressIndicator(true);
-                       });
-
-                       task.setOnFailed(event -> {
-                          CalcLayer.closeLayer();
-                           hideProgressBar(false);
-                           setProgressIndicator(res.getString("app.title93"));
-                           hideProgressIndicator(true);
-
-
-                       });
-
-
-                       Thread threadTask=new Thread(task);
-                       threadTask.setDaemon(true);
-                       setProgressBar(0.01, res.getString("app.title102"), "");
-
-
-
-                       CalcLayer.openLayer(() -> Platform.runLater(() ->
-                       {
-                           //отмена генерации. Что успело нагенериться то успело
-                           //скрытие произойдет по окончании работы  ниже
-                           CalcLayer.setInfoLayer(res.getString("app.title76"));
-
-                           fcp.cancel();
-                       }), getApp().getMainWindow(),false);
-
-                       threadTask.start();
-
-                       CalcLayer.showLayer();
-
-
-                   }else return;
-
-               }
-
-           }
-
-
-
-       }
-
-
-
-   }
-   */
 
 
 
@@ -5293,18 +3404,7 @@ class ForceCopyProfile
     }
 
 
-    public void onPrintProfile()
-    {
-        if(tableProfile.getSelectionModel().getSelectedItem()==null)return;
 
-        try {
-            openDialog(getApp().getMainWindow(),"/fxml/PrintContent.fxml",res.getString("app.menu.print_profile"),true,StageStyle.DECORATED,0,0,0,0,tableProfile.getSelectionModel().getSelectedItem().getId(),1);
-
-
-        } catch (IOException e) {
-            logger.error("",e);
-        }
-    }
 
 
     /**
@@ -5396,7 +3496,7 @@ class ForceCopyProfile
 
         final String up=uuidP;
 
-       long cnt= tableProfile.getItems().stream().filter(itm->itm.getUuid().equals(up)).count();
+       long cnt= ProfileTable.getInstance().getAllItems().stream().filter(itm->itm.getUuid().equals(up)).count();
         if(cnt!=0)
         {
             //имеется уже такой профиль с такой сигнатурой!!
@@ -5427,7 +3527,7 @@ class ForceCopyProfile
                 profile = getModel().createProfile(nameP);
                 profile.setUuid(uuidP);//сделаем uuid такой же как и в папке, если это прибор то мы сможем манипулировать профилем после этого!!!
                 getModel().updateProfile(profile);
-                tableProfile.getItems().add(profile);
+                ProfileTable.getInstance().getAllItems().add(profile);
 
                 TherapyComplex th=null;
 
@@ -5451,7 +3551,7 @@ class ForceCopyProfile
 
                 }
 
-                btnGenerate.setDisable(false);
+               profileAPI.enableGenerateBtn();
             } catch (Exception e) {
                 logger.error("",e);
                 showExceptionDialog("Ошибка сохраниения данных в базе","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
@@ -5475,7 +3575,7 @@ class ForceCopyProfile
             return false;
         }
         Profile pp=profile;
-      if(profile!=null)  Platform.runLater(() -> tableProfile.getSelectionModel().select(pp));
+      if(profile!=null)  Platform.runLater(() ->  ProfileTable.getInstance().select(pp));
         return true;
     }
 
@@ -5513,7 +3613,7 @@ class ForceCopyProfile
                     }
 
                 }
-                btnGenerate.setDisable(false);
+              profileAPI.enableGenerateBtn();
 
             } catch (Exception e) {
                 logger.error("",e);
@@ -5535,9 +3635,9 @@ class ForceCopyProfile
         Profile prf=profile;
         if(profile!=null) Platform.runLater(() ->
         {
-            tableProfile.getItems().add(prf);
-            tableProfile.getSelectionModel().select(prf);
-            tableProfile.getSelectionModel().select(prf);
+            ProfileTable.getInstance().getAllItems().add(prf);
+            ProfileTable.getInstance().select(prf);
+
         });
 return  true;
     }
@@ -5602,27 +3702,27 @@ return  true;
 
 
 
-        task2.setOnRunning(event1 -> setProgressBar(0.0, res.getString("app.title102"), ""));
+        task2.setOnRunning(event1 -> getProgressAPI().setProgressBar(0.0, res.getString("app.title102"), ""));
 
         task2.setOnSucceeded(event ->
         {
             Waiter.closeLayer();
             if (task2.getValue()) {
-                hideProgressBar(false);
-                setProgressIndicator(1.0, res.getString("app.title103"));
+                getProgressAPI().hideProgressBar(false);
+                getProgressAPI().setProgressIndicator(1.0, res.getString("app.title103"));
 
             } else {
-                hideProgressBar(false);
-               setProgressIndicator(res.getString("app.title93"));
+                getProgressAPI().hideProgressBar(false);
+                getProgressAPI().setProgressIndicator(res.getString("app.title93"));
             }
-            hideProgressIndicator(true);
+            getProgressAPI().hideProgressIndicator(true);
         });
 
         task2.setOnFailed(event -> {
             Waiter.closeLayer();
-            hideProgressBar(false);
-            setProgressIndicator(res.getString("app.title93"));
-            hideProgressIndicator(true);
+            getProgressAPI().hideProgressBar(false);
+            getProgressAPI().setProgressIndicator(res.getString("app.title93"));
+            getProgressAPI().hideProgressIndicator(true);
 
 
         });
@@ -5630,7 +3730,7 @@ return  true;
 
         Thread threadTask=new Thread(task2);
         threadTask.setDaemon(true);
-        setProgressBar(0.01, res.getString("app.title102"), "");
+        getProgressAPI().setProgressBar(0.01, res.getString("app.title102"), "");
 
 
         Waiter.openLayer(getApp().getMainWindow(),false);
@@ -5662,7 +3762,7 @@ return  true;
 
         try {
             if ( programms!=null) {
-                Profile profile = tableProfile.getSelectionModel().getSelectedItem();
+                Profile profile =  ProfileTable.getInstance().getSelectedItem();
                 if (profile != null) {
 
                     String name = dir.getName();
@@ -5694,7 +3794,7 @@ return  true;
                             else getModel().createTherapyProgram(entry.getValue().getSrcUUID(),th,entry.getValue().getName(),"",entry.getValue().getFreqs(),entry.getValue().isMulty());
 
                         }
-                        btnGenerate.setDisable(false);
+                       profileAPI.enableGenerateBtn();
                     }
 
                 }
@@ -5750,32 +3850,35 @@ return  true;
 
 
 
-        task2.setOnRunning(event1 -> setProgressBar(0.0, res.getString("app.title102"), ""));
+        task2.setOnRunning(event1 -> getProgressAPI().setProgressBar(0.0, res.getString("app.title102"), ""));
 
         task2.setOnSucceeded(event ->
         {
             Waiter.closeLayer();
             if (task2.getValue()) {
-                hideProgressBar(false);
-                setProgressIndicator(1.0, res.getString("app.title103"));
+                getProgressAPI().hideProgressBar(false);
+                getProgressAPI().setProgressIndicator(1.0, res.getString("app.title103"));
 
-                Profile selectedItem = tableProfile.getSelectionModel().getSelectedItem();
-                if(selectedItem!=null)   Platform.runLater(() -> {tableProfile.getSelectionModel().clearSelection();tableProfile.getSelectionModel().select(selectedItem);});
+                Profile selectedItem =  ProfileTable.getInstance().getSelectedItem();
+                if(selectedItem!=null)   Platform.runLater(() -> {
+                    ProfileTable.getInstance().clearSelection();
+                    ProfileTable.getInstance().select(selectedItem);
+                });
 
 
             } else {
-                hideProgressBar(false);
-                setProgressIndicator(res.getString("app.title93"));
+                getProgressAPI().hideProgressBar(false);
+                getProgressAPI().setProgressIndicator(res.getString("app.title93"));
             }
-            hideProgressIndicator(true);
+            getProgressAPI().hideProgressIndicator(true);
 
         });
 
         task2.setOnFailed(event -> {
             Waiter.closeLayer();
-            hideProgressBar(false);
-            setProgressIndicator(res.getString("app.title93"));
-            hideProgressIndicator(true);
+            getProgressAPI().hideProgressBar(false);
+            getProgressAPI().setProgressIndicator(res.getString("app.title93"));
+            getProgressAPI().hideProgressIndicator(true);
 
 
         });
@@ -5783,7 +3886,7 @@ return  true;
 
         Thread threadTask=new Thread(task2);
         threadTask.setDaemon(true);
-        setProgressBar(0.01, res.getString("app.title102"), "");
+        getProgressAPI().setProgressBar(0.01, res.getString("app.title102"), "");
 
         Waiter.openLayer(getApp().getMainWindow(),false);
         threadTask.start();
@@ -5848,32 +3951,35 @@ return  true;
 
 
 
-        task2.setOnRunning(event1 -> setProgressBar(0.0, res.getString("app.title102"), ""));
+        task2.setOnRunning(event1 -> getProgressAPI().setProgressBar(0.0, res.getString("app.title102"), ""));
 
         task2.setOnSucceeded(event ->
         {
             Waiter.closeLayer();
             if (task2.getValue()) {
-                hideProgressBar(false);
-                setProgressIndicator(1.0, res.getString("app.title103"));
+                getProgressAPI().hideProgressBar(false);
+                getProgressAPI().setProgressIndicator(1.0, res.getString("app.title103"));
 
-                Profile selectedItem = tableProfile.getSelectionModel().getSelectedItem();
-                if(selectedItem!=null)   Platform.runLater(() -> {tableProfile.getSelectionModel().clearSelection();tableProfile.getSelectionModel().select(selectedItem);});
+                Profile selectedItem =  ProfileTable.getInstance().getSelectedItem();
+                if(selectedItem!=null)   Platform.runLater(() -> {
+                    ProfileTable.getInstance().clearSelection();
+                ProfileTable.getInstance().select(selectedItem);
+                });
 
 
             } else {
-                hideProgressBar(false);
-                setProgressIndicator(res.getString("app.title93"));
+                getProgressAPI().hideProgressBar(false);
+                getProgressAPI().setProgressIndicator(res.getString("app.title93"));
             }
-            hideProgressIndicator(true);
+            getProgressAPI().hideProgressIndicator(true);
 
         });
 
         task2.setOnFailed(event -> {
             Waiter.closeLayer();
-            hideProgressBar(false);
-            setProgressIndicator(res.getString("app.title93"));
-            hideProgressIndicator(true);
+            getProgressAPI().hideProgressBar(false);
+            getProgressAPI().setProgressIndicator(res.getString("app.title93"));
+            getProgressAPI().hideProgressIndicator(true);
 
 
         });
@@ -5881,7 +3987,7 @@ return  true;
 
         Thread threadTask=new Thread(task2);
         threadTask.setDaemon(true);
-        setProgressBar(0.01, res.getString("app.title102"), "");
+        getProgressAPI().setProgressBar(0.01, res.getString("app.title102"), "");
 
 
 
@@ -5916,42 +4022,7 @@ return  true;
 
    }
 
-    /**
-     * Поиск по профилям
-     */
-    public void onSearchProfile()
-    {
-        //возврат ID выбранного профиля
-        SearchProfile.Data res=null;
-        try {
-          res=  BaseController.openDialogUserData(getApp().getMainWindow(), "/fxml/Search_profile.fxml", this.res.getString("search_in_profile"), false, StageStyle.UTILITY, 0, 0, 0, 0, new SearchProfile.Data(0));
-        } catch (IOException e) {
-            logger.error("",e);
-        }
 
-        if(res!=null)
-        {
-
-           if(res.isChanged())
-           {
-               long resf=res.getNewVal();
-               List<Profile> collect = tableProfile.getItems().stream().filter(profile -> profile.getId().longValue() == resf).collect(Collectors.toList());
-               if(!collect.isEmpty())
-               {
-
-                   int i = tableProfile.getItems().indexOf(collect.get(0));
-                   Platform.runLater(() -> {
-                       therapyTabPane.getSelectionModel().select(0);//выберем таб с профилями
-                       tableProfile.requestFocus();
-                       tableProfile.getSelectionModel().select(i);
-                       tableProfile.getFocusModel().focus(i);
-                       tableProfile.scrollTo(i);
-                   });
-               }
-           }
-        }
-
-    }
 
     /**
      * Добавить MP3 в выбранный комплекс
@@ -5992,7 +4063,7 @@ return  true;
             tableProgram.scrollTo(i);
 
             updateComplexTime(tableComplex.getSelectionModel().getSelectedItem(), true);
-            tableProfile.getSelectionModel().getSelectedItem().setProfileWeight(tableProfile.getSelectionModel().getSelectedItem().getProfileWeight()+1);
+            ProfileTable.getInstance().getSelectedItem().setProfileWeight( ProfileTable.getInstance().getSelectedItem().getProfileWeight()+1);
 
 
 
@@ -6039,7 +4110,7 @@ return  true;
                 //список файлов с не верными путями
                 String dirChooser1 = failedMp3.stream().map(tt ->tt.getFrequencies()).collect(Collectors.joining("\n"));
 
-                this.updateProfileTime(this.tableProfile.getSelectionModel().getSelectedItem());
+                profileAPI.updateProfileTime( ProfileTable.getInstance().getSelectedItem());
                 showWarningDialog(this.res.getString("app.title87"), dirChooser1, this.res.getString("app.ui.mp3_not_avaliable"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
             } else
             {
@@ -6284,13 +4355,13 @@ return  true;
                         }
 
                     });
-                    encoder.setOnScheduled(ev ->  this.setProgressBar(0.0D, this.res.getString("app.title83"), this.res.getString("app.title84")));
+                    encoder.setOnScheduled(ev ->  getProgressAPI().setProgressBar(0.0D, this.res.getString("app.title83"), this.res.getString("app.title84")));
 
                     encoder.setOnFailed(event ->
                         Platform.runLater(() -> {
                             CalcLayer.closeLayer();
-                            this.setProgressBar(100.0D, this.res.getString("app.error"), this.res.getString("app.title84"));
-                            this.hideProgressBar(true);
+                            getProgressAPI().setProgressBar(100.0D, this.res.getString("app.error"), this.res.getString("app.title84"));
+                            getProgressAPI().hideProgressBar(true);
                             encoder.removeActionListener();
                             tableComplex.requestFocus();
                             tableComplex.getSelectionModel().clearSelection();
@@ -6302,26 +4373,26 @@ return  true;
                         Platform.runLater(() -> {
                             if(encoder.isStop()) {
                                 CalcLayer.closeLayer();
-                                this.setProgressBar(0.0D, this.res.getString("app.cancel"), this.res.getString("app.title84"));
-                                this.hideProgressBar(true);
+                                getProgressAPI().setProgressBar(0.0D, this.res.getString("app.cancel"), this.res.getString("app.title84"));
+                                getProgressAPI().hideProgressBar(true);
                                 encoder.removeActionListener();
                             } else {
                                 if(encoder.getValue().booleanValue()) {
-                                    this.setProgressBar(100.0D, this.res.getString("app.title85"), this.res.getString("app.title84"));
+                                    getProgressAPI().setProgressBar(100.0D, this.res.getString("app.title85"), this.res.getString("app.title84"));
                                 } else {
-                                    this.setProgressBar(100.0D, this.res.getString("app.cancel"), this.res.getString("app.title84"));
+                                    getProgressAPI().setProgressBar(100.0D, this.res.getString("app.cancel"), this.res.getString("app.title84"));
                                 }
 
                                 System.out.println("Манипуляция сгенерированными комплексами");
-                                Profile profile = this.tableProfile.getSelectionModel().getSelectedItem();
-                                this.tableProfile.getSelectionModel().clearSelection();
-                                this.tableProfile.getSelectionModel().select(profile);
-                                this.tableProfile.getSelectionModel().getSelectedItem().setProfileWeight(this.tableProfile.getSelectionModel().getSelectedItem().getProfileWeight() + 1);
-                                this.checkUpploadBtn();
+                                Profile profile =  ProfileTable.getInstance().getSelectedItem();
+                                ProfileTable.getInstance().clearSelection();
+                                ProfileTable.getInstance().select(profile);
+                                ProfileTable.getInstance().getSelectedItem().setProfileWeight( ProfileTable.getInstance().getSelectedItem().getProfileWeight() + 1);
+                                profileAPI.checkUpploadBtn();
 
 
                                 CalcLayer.closeLayer();
-                                this.hideProgressBar(true);
+                                getProgressAPI().hideProgressBar(true);
                                 encoder.removeActionListener();
 
                                 Platform.runLater(() -> {
@@ -6338,7 +4409,7 @@ return  true;
                     });
                     encoder.progressProperty().addListener((observable, oldValue, newValue) -> {
                         Platform.runLater(() -> {
-                            this.setProgressBar(newValue.doubleValue(), encoder.getCurrentName(), this.res.getString("app.title84"));
+                            getProgressAPI().setProgressBar(newValue.doubleValue(), encoder.getCurrentName(), this.res.getString("app.title84"));
                         });
                     });
                     thread.start();
@@ -6536,7 +4607,7 @@ return  true;
         final Section sec=userSection;
         final File zipFile=file;
 
-        setProgressBar(0.0, res.getString("ui.backup.create_backup"), "");
+        getProgressAPI().setProgressBar(0.0, res.getString("ui.backup.create_backup"), "");
 
 
         Task<Boolean> task =new Task<Boolean>() {
@@ -6572,33 +4643,33 @@ return  true;
 
 
         task.progressProperty().addListener((observable, oldValue, newValue) -> {
-            setProgressBar(newValue.doubleValue(), res.getString("ui.backup.create_backup"), "");
+            getProgressAPI().setProgressBar(newValue.doubleValue(), res.getString("ui.backup.create_backup"), "");
         });
 
 
-        task.setOnRunning(event1 -> setProgressBar(0.0, res.getString("ui.backup.create_backup"), ""));
+        task.setOnRunning(event1 -> getProgressAPI().setProgressBar(0.0, res.getString("ui.backup.create_backup"), ""));
 
         task.setOnSucceeded(event ->
         {
             Waiter.closeLayer();
             if (task.getValue()) {
-                hideProgressBar(false);
-                setProgressIndicator(1.0, res.getString("app.title103"));
+                getProgressAPI().hideProgressBar(false);
+                getProgressAPI().setProgressIndicator(1.0, res.getString("app.title103"));
 
             } else {
-                hideProgressBar(false);
-                setProgressIndicator(res.getString("app.title93"));
+                getProgressAPI().hideProgressBar(false);
+                getProgressAPI().setProgressIndicator(res.getString("app.title93"));
             }
-            hideProgressIndicator(true);
+            getProgressAPI().hideProgressIndicator(true);
 
 
         });
 
         task.setOnFailed(event -> {
             Waiter.closeLayer();
-            hideProgressBar(false);
-            setProgressIndicator(res.getString("app.title93"));
-            hideProgressIndicator(true);
+            getProgressAPI().hideProgressBar(false);
+            getProgressAPI().setProgressIndicator(res.getString("app.title93"));
+            getProgressAPI().hideProgressIndicator(true);
 
 
         });
@@ -6606,7 +4677,7 @@ return  true;
 
         Thread threadTask=new Thread(task);
         threadTask.setDaemon(true);
-        setProgressBar(0.01, res.getString("app.title102"), "");
+        getProgressAPI().setProgressBar(0.01, res.getString("app.title102"), "");
 
 
         Waiter.openLayer(getApp().getMainWindow(),false);
@@ -6658,7 +4729,7 @@ return  true;
         final Section sec=userSection;
         final File zipFile=file;
 
-        setProgressBar(0.0, res.getString("ui.backup.load_backup"), "");
+        getProgressAPI().setProgressBar(0.0, res.getString("ui.backup.load_backup"), "");
 
 
 
@@ -6681,7 +4752,7 @@ return  true;
 
                     Platform.runLater(() -> {
                         //удалить из таблицы профилей профили, комплесы и програмы
-                        tableProfile.getItems().clear();
+                        ProfileTable.getInstance().getAllItems().clear();
                         //выбрать раздел 0 главный раздел
                         leftAPI.selectBase(0);
                     });
@@ -6795,11 +4866,11 @@ return  true;
 
 
         task.progressProperty().addListener((observable, oldValue, newValue) -> {
-            setProgressBar(newValue.doubleValue(), res.getString("ui.backup.load_backup"), "");
+            getProgressAPI().setProgressBar(newValue.doubleValue(), res.getString("ui.backup.load_backup"), "");
         });
 
 
-        task.setOnRunning(event1 -> setProgressBar(0.0, res.getString("ui.backup.load_backup"), ""));
+        task.setOnRunning(event1 -> getProgressAPI().setProgressBar(0.0, res.getString("ui.backup.load_backup"), ""));
 
 
         int count_profiles=replaceMode==true?0:getModel().countProfile();
@@ -6808,19 +4879,19 @@ return  true;
         {
             Waiter.closeLayer();
             if (task.getValue()) {
-                hideProgressBar(false);
-                setProgressIndicator(1.0, res.getString("app.title103"));
+                getProgressAPI().hideProgressBar(false);
+                getProgressAPI().setProgressIndicator(1.0, res.getString("app.title103"));
                 if(getModel().countProfile()!=0)
                 {
                     if(count_profiles==0){
-                        tableProfile.getItems().addAll(getModel().findAllProfiles().stream()
+                        ProfileTable.getInstance().getAllItems().addAll(getModel().findAllProfiles().stream()
                                                                  .filter(i->!i.getName().equals(App.BIOFON_PROFILE_NAME))
                         .collect(Collectors.toList()));
 
 
                     }
                     else if(count_profiles<getModel().countProfile()){
-                        tableProfile.getItems().addAll( getModel().findAllProfiles().subList(count_profiles,getModel().countProfile()).stream()
+                        ProfileTable.getInstance().getAllItems().addAll( getModel().findAllProfiles().subList(count_profiles,getModel().countProfile()).stream()
                                                                   .filter(i->!i.getName().equals(App.BIOFON_PROFILE_NAME))
                                                                   .collect(Collectors.toList()));
                     }
@@ -6828,11 +4899,11 @@ return  true;
                     biofonUIUtil.reloadComplexes();
 
 
-                    int i = tableProfile.getItems().size()-1;
-                    tableProfile.requestFocus();
-                    tableProfile.getSelectionModel().select(i);
-                    tableProfile.scrollTo(i);
-                    tableProfile.getFocusModel().focus(i);
+                    int i =  ProfileTable.getInstance().getAllItems().size()-1;
+                    ProfileTable.getInstance().requestFocus();
+                    ProfileTable.getInstance().select(i);
+                    ProfileTable.getInstance().scrollTo(i);
+                    ProfileTable.getInstance().setItemFocus(i);
 
                     leftAPI.selectBase(0);
                     leftAPI.selectBase(sec);
@@ -6842,19 +4913,19 @@ return  true;
 
 
             } else {
-                hideProgressBar(false);
-                setProgressIndicator(res.getString("app.title93"));
+                getProgressAPI().hideProgressBar(false);
+                getProgressAPI().setProgressIndicator(res.getString("app.title93"));
             }
-            hideProgressIndicator(true);
+            getProgressAPI().hideProgressIndicator(true);
 
 
         });
 
         task.setOnFailed(event -> {
             Waiter.closeLayer();
-            hideProgressBar(false);
-            setProgressIndicator(res.getString("app.title93"));
-            hideProgressIndicator(true);
+            getProgressAPI().hideProgressBar(false);
+            getProgressAPI().setProgressIndicator(res.getString("app.title93"));
+            getProgressAPI().hideProgressIndicator(true);
 
 
         });
@@ -6862,7 +4933,7 @@ return  true;
 
         Thread threadTask=new Thread(task);
         threadTask.setDaemon(true);
-        setProgressBar(0.01, res.getString("ui.backup.load_backup"), "");
+        getProgressAPI().setProgressBar(0.01, res.getString("ui.backup.load_backup"), "");
 
 
         Waiter.openLayer(getApp().getMainWindow(),false);
@@ -7213,11 +5284,11 @@ return  true;
                 ComplexTable.getInstance().clearSelection();
                 therapyTabPane.getSelectionModel().select(1);//выберем таб с комплексами
                 ComplexTable.getInstance().select(ComplexTable.getInstance().getAllItems().size() - 1);
-                updateProfileTime(ProfileTable.getInstance().getSelectedItem());
+                profileAPI.updateProfileTime(ProfileTable.getInstance().getSelectedItem());
 
                 //если есть программы  к перенесенном комплексе то можно разрешить генерацию
-                if(getModel().countTherapyPrograms(th)>0) btnGenerate.setDisable(false);
-                else btnGenerate.setDisable(true);
+                if(getModel().countTherapyPrograms(th)>0)profileAPI.enableGenerateBtn();
+                else profileAPI.disableGenerateBtn();
                 th = null;
             } catch (Exception e) {
                 logger.error("",e);
@@ -7293,7 +5364,7 @@ return  true;
                     ProgramTable.getInstance().scrollTo(ProgramTable.getInstance().getAllItems().size() - 1);
                 });
 
-                btnGenerate.setDisable(false);
+               profileAPI.enableGenerateBtn();
                 therapyProgram = null;
             } catch (Exception e) {
 
@@ -7358,7 +5429,9 @@ return  true;
 
 
 
-
+public void onPrintProfile(){
+        profileAPI.printProfile();
+}
 
 
     /**

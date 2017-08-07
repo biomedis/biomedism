@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.Reflection?>
+<?import javafx.scene.layout.*?>
+<StackPane HBox.hgrow="ALWAYS"  xmlns="http://javafx.com/javafx/8.0.72" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.Layouts.ProgressPanel.ProgressPanelController">
+
+      <children>
+         <VBox fx:id="progress2Pane" alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" spacing="8.0" visible="false">
+            <padding>
+               <Insets left="8.0" />
+            </padding>
+            <children>
+               <Label fx:id="textInfo" maxWidth="1.7976931348623157E308" text="Label">
+                  <VBox.margin>
+                     <Insets />
+                  </VBox.margin>
+               </Label>
+               <Label fx:id="textActionInfo" maxWidth="1.7976931348623157E308" text="Label" />
+               <ProgressBar fx:id="progressAction" maxWidth="400.0" prefWidth="200.0" progress="0.0" />
+            </children>
+         </VBox>
+         <VBox fx:id="progress1Pane" alignment="CENTER" maxWidth="1.7976931348623157E308" visible="false">
+            <children>
+               <ProgressIndicator fx:id="progressIndicator" VBox.vgrow="ALWAYS">
+                  <VBox.margin>
+                     <Insets bottom="3.0" left="8.0" right="8.0" />
+                  </VBox.margin>
+                  <effect>
+                     <Reflection bottomOpacity="0.13" fraction="0.32" topOpacity="0.2" />
+                  </effect>
+               </ProgressIndicator>
+               <Label fx:id="progressIndicatorLabel" alignment="CENTER" maxWidth="1.7976931348623157E308" text="Label">
+                  <VBox.margin>
+                     <Insets bottom="3.0" left="8.0" right="8.0" top="3.0" />
+                  </VBox.margin>
+               </Label>
+            </children>
+         </VBox>
+         <VBox fx:id="progress3Pane" alignment="CENTER" maxWidth="1.7976931348623157E308" StackPane.alignment="CENTER">
+            <children>
+               <Label fx:id="messageText" alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Label" VBox.vgrow="ALWAYS" />
+            </children>
+         </VBox>
+      </children>
+   </StackPane>

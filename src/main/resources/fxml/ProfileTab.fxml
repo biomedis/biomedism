@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.Bloom?>
+<?import javafx.scene.effect.Shadow?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import java.lang.*?>
+<VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8.0.72" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileController">
+   <children>
+      <HBox maxWidth="1.7976931348623157E308" prefWidth="200.0" spacing="8.0">
+         <children>
+            <Button minHeight="24.0" minWidth="24.0" mnemonicParsing="false" onAction="#onSearchProfile" prefHeight="24.0" prefWidth="24.0" styleClass="searchButton" />
+            <Button fx:id="btnCreateProfile" mnemonicParsing="false" onAction="#onCreateProfile" text="%ui.main.create_profile" />
+            <Button fx:id="btnGenerate" mnemonicParsing="false" onAction="#onGenerate" text="%app.file_generation" />
+            <Button fx:id="btnUploadm" mnemonicParsing="false" text="%app.uppload_" />
+            <Button fx:id="btnDeleteProfile" mnemonicParsing="false" onAction="#removeProfile" text="%ui.main.remove_profile" />
+         </children>
+         <padding>
+            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+         </padding>
+      </HBox>
+      <TableView fx:id="tableProfile" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0" prefHeight="60.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+   </children>
+   </VBox>
