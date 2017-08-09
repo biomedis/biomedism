@@ -11,6 +11,8 @@ import javafx.geometry.Side;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -25,6 +27,7 @@ import ru.biomedis.biomedismair3.Layouts.ProgressPanel.ProgressAPI;
 import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileAPI;
 import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileTable;
 import ru.biomedis.biomedismair3.TherapyTabs.Programs.ProgramTable;
+import ru.biomedis.biomedismair3.TherapyTabs.TablesCommon;
 import ru.biomedis.biomedismair3.entity.*;
 import ru.biomedis.biomedismair3.utils.Audio.MP3Encoder;
 import ru.biomedis.biomedismair3.utils.Date.DateUtil;
@@ -103,14 +106,14 @@ public class ComplexController extends BaseController implements ComplexAPI{
         initGenerateComplexesButton();
         complexTable.initComplexesContextMenu(() -> getDevicePath()!=null,
                 this::onPrintComplex,
-                cutInTables,
-                deleteInTables,
+                this::cutSelectedTherapyComplexesToBuffer,
+                this::removeComplex,
                 this::copyTherapyComplexToBase,
                 this::generateComplexes,
                 this::uploadComplexesToDir,
                 this::uploadComplexesToM,
-                copyInTables,
-                pasteInTables,
+                this::copySelectedTherapyComplexesToBuffer,
+                this::pasteTherapyComplexes,
                 this::complexesToBiofon,
                 ()->{
                     boolean res=true;
@@ -1078,6 +1081,254 @@ public class ComplexController extends BaseController implements ComplexAPI{
         ComplexTable.getInstance().select(i);
         profileAPI.updateProfileTime(ProfileTable.getInstance().getSelectedItem());
 
+
+    }
+
+
+    @Override
+    public  void pasteTherapyComplexes() {
+        if(ComplexTable.getInstance().getSelectedItems().size()>1){
+            showWarningDialog(res.getString("app.ui.insertion_elements"),res.getString("app.ui.insertion_not_allowed"),res.getString("app.ui.ins_not_av_mess"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
+            return;
+        }
+        Clipboard clipboard=Clipboard.getSystemClipboard();
+
+        if(clipboard.hasContent(ComplexTable.COMPLEX_COPY_ITEM))pasteTherapyComplexesByCopy();
+        else pasteTherapyComplexesByCut();
+    }
+
+
+    private void pasteTherapyComplexesByCopy(){
+        Profile profile = ProfileTable.getInstance().getSelectedItem();
+        if(profile==null) return;
+        if (ComplexTable.getInstance().getSelectedItems().size()>1) return;
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+
+        if (!clipboard.hasContent(ComplexTable.COMPLEX_COPY_ITEM)) return;
+        Long[] ids = (Long[]) clipboard.getContent(ComplexTable.COMPLEX_COPY_ITEM);
+        if(ids==null) return;
+        if(ids.length==0) return;
+
+        int dropIndex = ComplexTable.getInstance().getSelectedIndex();
+
+        List<TherapyComplex> therapyComplexes =  Arrays.stream(ids)
+                                                       .map(i->getModel().findTherapyComplex(i))
+                                                       .filter(i->i!=null)
+                                                       .collect(Collectors.toList());
+
+
+        if (ComplexTable.getInstance().getSelectedItems().isEmpty()) {
+            //вставка просто в конец таблицы
+            try {
+                ComplexTable.getInstance().clearSelection();
+                for (TherapyComplex tc : therapyComplexes) {
+
+                    TherapyComplex tpn = getModel().copyTherapyComplexToProfile(profile, tc);
+                    if(tpn==null) continue;
+                    ComplexTable.getInstance().getAllItems().add(tpn);
+                    ComplexTable.getInstance().select(tpn);
+
+                }
+
+                profileAPI.updateProfileTime(profile);
+            } catch (Exception e1) {
+                logger.error(e1);
+                showExceptionDialog("Ошибка копирования комплексов","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+                therapyComplexes.clear();
+                clipboard.clear();
+                return;
+            }
+        }else {
+            //вставка до выбранного элемента со сдвигом остальных
+            List<TherapyComplex> tpl=new ArrayList<>();
+            try {
+                ComplexTable.getInstance().clearSelection();
+                for (TherapyComplex tc : therapyComplexes) {
+                    TherapyComplex tcn = getModel().copyTherapyComplexToProfile(profile, tc);
+                    if(tcn==null) continue;
+                    tpl.add(tcn);
+                }
+                List<TherapyComplex> tpSlided =  ComplexTable.getInstance().getAllItems().subList(dropIndex,  ComplexTable.getInstance().getAllItems().size());
+                long posFirstSlidingElem =  ComplexTable.getInstance().getAllItems().get(dropIndex).getPosition();
+
+                for (TherapyComplex tp : tpSlided) {
+                    tp.setPosition(tp.getPosition()+tpl.size());
+                    getModel().updateTherapyComplex(tp);
+                }
+                int cnt=0;
+                for (TherapyComplex tp : tpl) {
+                    tp.setPosition(posFirstSlidingElem + cnt++);
+                    getModel().updateTherapyComplex(tp);
+                }
+
+                ComplexTable.getInstance().getAllItems().addAll(dropIndex,tpl);
+                for (TherapyComplex tp : tpl) {
+                    ComplexTable.getInstance().select(tp);
+                }
+                profileAPI.updateProfileTime(profile);
+            } catch (Exception e1) {
+                logger.error(e1);
+                showExceptionDialog("Ошибка копирования комплексов","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+                therapyComplexes.clear();
+                clipboard.clear();
+                return;
+            }
+
+        }
+
+
+        therapyComplexes.clear();
+        clipboard.clear();
+    }
+    private void pasteTherapyComplexesByCut(){
+        //в выбранный индекс вставляется новый элемент а все сдвигаются на 1 индекс  вырезанного индекса
+
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+
+        if (!clipboard.hasContent(ComplexTable.COMPLEX_CUT_ITEM_PROFILE)) return;
+        if (!clipboard.hasContent(ComplexTable.COMPLEX_CUT_ITEM_ID)) return;
+        if (!clipboard.hasContent(ComplexTable.COMPLEX_CUT_ITEM_INDEX)) return;
+        try {
+            Profile selectedProfile=ProfileTable.getInstance().getSelectedItem();
+            Long idProfile = (Long) clipboard.getContent(ComplexTable.COMPLEX_CUT_ITEM_PROFILE);
+            if(idProfile==null)return;
+
+            else if(idProfile.longValue()==selectedProfile.getId().longValue()){
+                //вставка в текущем профиле
+                if ( ComplexTable.getInstance().getSelectedItems().isEmpty()) return;
+                if ( ComplexTable.getInstance().getSelectedItems().size()!=1) return;
+
+                Integer[] indexes = (Integer[]) clipboard.getContent(ComplexTable.COMPLEX_CUT_ITEM_INDEX);
+                if(indexes==null) return;
+                if(indexes.length==0) return;
+                List<Integer> ind = Arrays.stream(indexes).collect(Collectors.toList());
+                int dropIndex = ComplexTable.getInstance().getSelectedIndex();
+
+                if(!TablesCommon.isEnablePaste(dropIndex,indexes)) {
+                    showWarningDialog(res.getString("app.ui.moving_items"),"",res.getString("app.ui.can_not_move_to_pos"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                    return;
+                }
+
+                List<TherapyComplex> therapyComplexes = ind.stream().map(i->ComplexTable.getInstance().getAllItems().get(i)).collect(Collectors.toList());
+                int startIndex=ind.get(0);//первый индекс вырезки
+                int lastIndex=ind.get(ind.size()-1);
+
+//элементы всегда будут оказываться выше чем индекс по которому вставляли, те визуально вставляются над выбираемым элементом
+
+                if(dropIndex < startIndex){
+
+                    for (TherapyComplex i : therapyComplexes) {
+                        ComplexTable.getInstance().getAllItems().remove(i);
+                    }
+                    //вставка программ в dropIndex; Изменение их позиции
+                    ComplexTable.getInstance().getAllItems().addAll(dropIndex,therapyComplexes);
+                }else if(dropIndex > lastIndex){
+
+                    TherapyComplex dropComplex = ComplexTable.getInstance().getAllItems().get(dropIndex);
+                    for (TherapyComplex i : therapyComplexes) {
+                        ComplexTable.getInstance().getAllItems().remove(i);
+                    }
+                    dropIndex= ComplexTable.getInstance().getAllItems().indexOf(dropComplex);
+                    ComplexTable.getInstance().getAllItems().addAll(dropIndex,therapyComplexes);
+
+
+                }else return;
+
+                int i=0;
+                for (TherapyComplex tp : ComplexTable.getInstance().getAllItems()) {
+                    tp.setPosition((long)(i++));
+                    getModel().updateTherapyComplex(tp);
+                }
+                profileAPI.updateProfileTime(selectedProfile);
+
+                therapyComplexes.clear();
+
+            }else {
+                //вставка в другом профиле. Нужно вырезать и просто вставить в указанном месте
+
+
+
+                Long[] ids = (Long[]) clipboard.getContent(ComplexTable.COMPLEX_CUT_ITEM_ID);
+
+                if(ids==null) return;
+                if(ids.length==0) return;
+                List<Long> ind = Arrays.stream(ids).collect(Collectors.toList());
+                int dropIndex =-1;
+                if (ComplexTable.getInstance().getSelectedItem()!=null)dropIndex = ComplexTable.getInstance().getSelectedIndex();
+                else if(ComplexTable.getInstance().getAllItems().size()==0) dropIndex=0;
+
+                List<TherapyComplex> movedTP = ind.stream()
+                                                  .map(i->getModel().findTherapyComplex(i))
+                                                  .filter(i->i!=null)
+                                                  .collect(Collectors.toList());
+
+                Profile srcProfile=null;
+                if(movedTP.size()>0){
+                    Optional<Profile> first = ProfileTable.getInstance().getAllItems().stream().filter(p -> p.getId().longValue() == idProfile.longValue()).findFirst();
+                    srcProfile=first.orElse(null);
+                }
+                //просто вставляем
+                if(dropIndex==-1)ComplexTable.getInstance().getAllItems().addAll(movedTP);
+                else  ComplexTable.getInstance().getAllItems().addAll(dropIndex,movedTP);
+                //теперь все обновляем
+                int i=0;
+                for (TherapyComplex tp : ComplexTable.getInstance().getAllItems()) {
+                    tp.setPosition((long)(i++));
+                    tp.setProfile(selectedProfile);
+                    getModel().updateTherapyComplex(tp);
+                }
+
+                if(movedTP.size()>0){
+                    profileAPI.updateProfileTime(selectedProfile);
+                    profileAPI.updateProfileTime( srcProfile);
+
+                }
+                movedTP.clear();
+            }
+
+        } catch (Exception e1) {
+            logger.error(e1);
+            showExceptionDialog("Ошибка обновления позиции комплексов","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+            return;
+        }finally {
+            clipboard.clear();
+        }
+    }
+
+
+    @Override
+    public  void copySelectedTherapyComplexesToBuffer() {
+        if (ComplexTable.getInstance().getSelectedItems().isEmpty()) return;
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.clear();
+        content.put(ComplexTable.COMPLEX_COPY_ITEM,
+                ComplexTable.getInstance().getSelectedItems().stream().map(i->i.getId()).collect(Collectors.toList()).toArray(new Long[0]));
+        clipboard.setContent(content);
+
+    }
+
+    /**
+     * Вырезать комплексы
+     */
+    @Override
+    public void cutSelectedTherapyComplexesToBuffer() {
+        if (ComplexTable.getInstance().getSelectedItems().isEmpty()) return;
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.clear();
+
+        content.put(ComplexTable.COMPLEX_CUT_ITEM_INDEX, ComplexTable.getInstance().getSelectedIndexes().toArray(new Integer[0]));
+        content.put(ComplexTable.COMPLEX_CUT_ITEM_PROFILE, ProfileTable.getInstance().getSelectedItem().getId());
+        content.put(ComplexTable.COMPLEX_CUT_ITEM_ID, ComplexTable.getInstance().getSelectedItems().stream()
+                                                                  .map(i->i.getId())
+                                                                  .collect(Collectors.toList())
+                                                                  .toArray(new Long[0])
+        );
+        clipboard.setContent(content);
 
     }
 }

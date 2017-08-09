@@ -11,4 +11,6 @@ public interface ProfileAPI {
     void removeProfileFiles();
     void removeProfile();
     void printProfile();
+    void pasteProfile();
+    void cutProfileToBuffer();
 }

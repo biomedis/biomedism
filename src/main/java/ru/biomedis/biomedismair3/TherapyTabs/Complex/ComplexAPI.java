@@ -10,4 +10,11 @@ public interface ComplexAPI {
     void printComplex();
 
     void updateComplexTime(TherapyComplex c, boolean reloadPrograms);
+
+    void pasteTherapyComplexes();
+
+    void copySelectedTherapyComplexesToBuffer();
+
+    void cutSelectedTherapyComplexesToBuffer();
+
 }

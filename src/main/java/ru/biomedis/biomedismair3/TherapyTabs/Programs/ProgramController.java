@@ -6,6 +6,8 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
@@ -19,17 +21,14 @@ import ru.biomedis.biomedismair3.TherapyTabs.Complex.ComplexAPI;
 import ru.biomedis.biomedismair3.TherapyTabs.Complex.ComplexTable;
 import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileAPI;
 import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileTable;
+import ru.biomedis.biomedismair3.TherapyTabs.TablesCommon;
 import ru.biomedis.biomedismair3.entity.*;
 import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static ru.biomedis.biomedismair3.Log.logger;
@@ -65,6 +64,8 @@ public class ProgramController extends BaseController implements ProgramAPI{
     private  ProfileAPI profileAPI;
     private ComplexAPI complexAPI;
 
+    private boolean therapyProgramsCopied=false;
+
     @Override
     protected void onCompletedInitialise() {
 
@@ -87,11 +88,11 @@ public class ProgramController extends BaseController implements ProgramAPI{
         programTable = initProgramsTable();
         programTable.initProgramsTableContextMenu(this::copyTherapyProgramToBase,
                 this::editMP3ProgramPath,
-                cutInTables,
-                copyInTables,
-                pasteInTables,
-                deleteInTables,
-                therapyProgramsCopied,
+                this::cutSelectedTherapyProgramsToBuffer,
+                this::copySelectedTherapyProgramsToBuffer,
+                this::pasteTherapyPrograms,
+                this::onRemovePrograms,
+                ()->therapyProgramsCopied,
                 ()-> {
                     boolean res = true;
                     if (leftAPI.selectedSectionTree() != null) {
@@ -133,29 +134,6 @@ public class ProgramController extends BaseController implements ProgramAPI{
     private ComplexAPI getComplexAPI(){return AppController.getComplexAPI();}
 
     private ProgressAPI getProgressAPI(){return AppController.getProgressAPI();}
-
-    Runnable cutInTables;
-    public void setCutInTables(Runnable f){
-        cutInTables =f;
-    }
-    Runnable pasteInTables;
-    public void setPasteInTables(Runnable f){
-        pasteInTables = f;
-    }
-    Runnable deleteInTables;
-    public void setDeleteInTable(Runnable f){
-        deleteInTables =f;
-    }
-
-    Runnable copyInTables;
-    public void setCopyInTable(Runnable f){
-        copyInTables =f;
-    }
-
-    Supplier<Boolean>  therapyProgramsCopied;
-    public void setTherapyProgramsCopiedFunc(Supplier<Boolean> f){
-        therapyProgramsCopied =f;
-    }
 
     public void setTherapyTabPane( TabPane pane){ therapyTabPane=pane;}
 
@@ -585,4 +563,257 @@ public class ProgramController extends BaseController implements ProgramAPI{
     public void removePrograms() {
         onRemovePrograms();
     }
+
+    @Override
+    public void pasteTherapyPrograms(){
+        if(ProgramTable.getInstance().getSelectedItems().size()>1){
+            showWarningDialog(res.getString("app.ui.insertion_elements"),res.getString("app.ui.insertion_not_allowed"),res.getString("app.ui.ins_not_av_mess"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
+            return;
+        }
+        if(therapyProgramsCopied)pasteTherapyProgramsByCopy();
+        else pasteTherapyProgramsByCut();
+    }
+
+    private void pasteTherapyProgramsByCopy(){
+        TherapyComplex therapyComplex = ComplexTable.getInstance().getSelectedItem();
+        if(therapyComplex==null) return;
+        if (ProgramTable.getInstance().getSelectedItems().size()>1) return;
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+
+        if (!clipboard.hasContent(ProgramTable.PROGRAM_COPY_ITEM)) return;
+        Long[] ids = (Long[]) clipboard.getContent(ProgramTable.PROGRAM_COPY_ITEM);
+        if(ids==null) return;
+        if(ids.length==0) return;
+
+        int dropIndex = ProgramTable.getInstance().getSelectedIndex();
+
+        List<TherapyProgram> therapyPrograms =  Arrays.stream(ids)
+                                                      .map(i->getModel().getTherapyProgram(i))
+                                                      .filter(i->i!=null)
+                                                      .collect(Collectors.toList());
+
+
+        if (ProgramTable.getInstance().getSelectedItems().isEmpty()) {
+            //вставка просто в конец таблицы
+            try {
+                ProgramTable.getInstance().clearSelection();
+                for (TherapyProgram therapyProgram : therapyPrograms) {
+
+                    TherapyProgram tp = getModel().copyTherapyProgramToComplex(therapyComplex, therapyProgram);
+                    if(tp==null) continue;
+                    ProgramTable.getInstance().getAllItems().add(tp);
+                    ProgramTable.getInstance().select(tp);
+
+                }
+                complexAPI.updateComplexTime(therapyComplex,true);
+                //updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
+            } catch (Exception e1) {
+                logger.error(e1);
+                showExceptionDialog("Ошибка копирования программ","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                therapyProgramsCopied=false;
+                therapyPrograms.clear();
+                clipboard.clear();
+                return;
+            }
+        }else {
+            //вставка до выбранного элемента со сдвигом остальных
+            List<TherapyProgram> tpl=new ArrayList<>();
+            try {
+                ProgramTable.getInstance().clearSelection();
+                for (TherapyProgram therapyProgram : therapyPrograms) {
+                    TherapyProgram tp = getModel().copyTherapyProgramToComplex(therapyComplex, therapyProgram);
+                    if(tp==null) continue;
+                    tpl.add(tp);
+                }
+                List<TherapyProgram> tpSlided =  ProgramTable.getInstance().getAllItems()
+                                                             .subList(dropIndex,  ProgramTable.getInstance().getAllItems().size());
+                long posFirstSlidingElem =  ProgramTable.getInstance().getAllItems().get(dropIndex).getPosition();
+
+                for (TherapyProgram tp : tpSlided) {
+                    tp.setPosition(tp.getPosition()+tpl.size());
+                    getModel().updateTherapyProgram(tp);
+                }
+                int cnt=0;
+                for (TherapyProgram tp : tpl) {
+                    tp.setPosition(posFirstSlidingElem + cnt++);
+                    getModel().updateTherapyProgram(tp);
+                }
+
+                ProgramTable.getInstance().getAllItems().addAll(dropIndex,tpl);
+                for (TherapyProgram tp : tpl) {
+                    ProgramTable.getInstance().select(tp);
+                }
+
+
+                complexAPI.updateComplexTime(therapyComplex,true);
+                //updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
+            } catch (Exception e1) {
+                logger.error(e1);
+                showExceptionDialog("Ошибка копирования программ","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                therapyProgramsCopied=false;
+                therapyPrograms.clear();
+                clipboard.clear();
+                return;
+            }
+
+        }
+
+        therapyProgramsCopied=false;
+        therapyPrograms.clear();
+        clipboard.clear();
+    }
+    /**
+     * Перемещение терапквтических программ через буффер обмена
+     */
+    private void pasteTherapyProgramsByCut() {
+        //в выбранный индекс вставляется новый элемент а все сдвигаются на 1 индекс  вырезанного индекса
+
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+
+        if (!clipboard.hasContent(ProgramTable.PROGRAM_CUT_ITEM_COMPLEX)) return;
+        if (!clipboard.hasContent(ProgramTable.PROGRAM_CUT_ITEM_ID)) return;
+        if (!clipboard.hasContent(ProgramTable.PROGRAM_CUT_ITEM_INDEX)) return;
+        try {
+            TherapyComplex selectedComplex=ComplexTable.getInstance().getSelectedItem();
+            Long idComplex = (Long) clipboard.getContent(ProgramTable.PROGRAM_CUT_ITEM_COMPLEX);
+            if(idComplex==null)return;
+            else if(idComplex.longValue()==selectedComplex.getId().longValue()){
+                //вставка в текущем комплексе
+                if ( ProgramTable.getInstance().getSelectedItems().isEmpty()) return;
+                if ( ProgramTable.getInstance().getSelectedItems().size()!=1) return;
+
+                Integer[] indexes = (Integer[]) clipboard.getContent(ProgramTable.PROGRAM_CUT_ITEM_INDEX);
+                if(indexes==null) return;
+                if(indexes.length==0) return;
+                List<Integer> ind = Arrays.stream(indexes).collect(Collectors.toList());
+                int dropIndex =  ProgramTable.getInstance().getSelectedIndex();
+
+                if(!TablesCommon.isEnablePaste(dropIndex,indexes)) {
+                    showWarningDialog(res.getString("app.ui.moving_items"),"",res.getString("app.ui.can_not_move_to_pos"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                    return;
+                }
+
+                List<TherapyProgram> therapyPrograms = ind.stream().map(i-> ProgramTable.getInstance().getAllItems().get(i)).collect(Collectors.toList());
+                int startIndex=ind.get(0);//первый индекс вырезки
+                int lastIndex=ind.get(ind.size()-1);
+
+//элементы всегда будут оказываться выше чем индекс по которому вставляли, те визуально вставляются над выбираемым элементом
+                TherapyProgram dropProgram =  ProgramTable.getInstance().getAllItems().get(dropIndex);
+                if(dropIndex < startIndex){
+
+                    for (TherapyProgram i : therapyPrograms) {
+                        ProgramTable.getInstance().getAllItems().remove(i);
+                    }
+                    //вставка программ в dropIndex; Изменение их позиции
+                    ProgramTable.getInstance().getAllItems().addAll(dropIndex,therapyPrograms);
+                }else if(dropIndex > lastIndex){
+
+
+                    for (TherapyProgram i : therapyPrograms) {
+                        ProgramTable.getInstance().getAllItems().remove(i);
+                    }
+                    dropIndex=  ProgramTable.getInstance().getAllItems().indexOf(dropProgram);
+                    ProgramTable.getInstance().getAllItems().addAll(dropIndex,therapyPrograms);
+
+
+                }else return;
+
+                int i=0;
+                for (TherapyProgram tp :  ProgramTable.getInstance().getAllItems()) {
+                    tp.setPosition((long)(i++));
+                    getModel().updateTherapyProgram(tp);
+                }
+
+                complexAPI.updateComplexTime(dropProgram.getTherapyComplex(),false);
+                profileAPI.updateProfileTime(ProfileTable.getInstance().getSelectedItem());
+                therapyPrograms.clear();
+
+            }else {
+                //вставка в другом комплексе. Нужно вырезать и просто вставить в указанном месте
+
+
+
+                Long[] ids = (Long[]) clipboard.getContent(ProgramTable.PROGRAM_CUT_ITEM_ID);
+
+                if(ids==null) return;
+                if(ids.length==0) return;
+                List<Long> ind = Arrays.stream(ids).collect(Collectors.toList());
+                int dropIndex =-1;
+                if ( ProgramTable.getInstance().getSelectedItem()!=null)dropIndex = ProgramTable.getInstance().getSelectedIndex();
+                else if(ProgramTable.getInstance().getAllItems().size()==0) dropIndex=0;
+
+                List<TherapyProgram> movedTP = ind.stream()
+                                                  .map(i->getModel().getTherapyProgram(i))
+                                                  .filter(i->i!=null)
+                                                  .collect(Collectors.toList());
+                TherapyComplex srcComplex=null;
+                if(movedTP.size() > 0){
+                    Optional<TherapyComplex> first = ComplexTable.getInstance().getAllItems().stream().filter(p -> p.getId().longValue() == idComplex.longValue()).findFirst();
+                    //будет найден только если вставка в том же профиле
+                    srcComplex=first.orElse(null);
+                }
+                //просто вставляем
+                if(dropIndex==-1) ProgramTable.getInstance().getAllItems().addAll(movedTP);
+                else   ProgramTable.getInstance().getAllItems().addAll(dropIndex,movedTP);
+                //теперь все обновляем
+                int i=0;
+                for (TherapyProgram tp :  ProgramTable.getInstance().getAllItems()) {
+                    tp.setPosition((long)(i++));
+                    tp.setTherapyComplex(selectedComplex);
+                    getModel().updateTherapyProgram(tp);
+                }
+
+                //обновление времени в таблицах
+                if(movedTP.size()>0){
+                    complexAPI.updateComplexTime(selectedComplex,true);
+                    //если вставка в другом профиле то обновлять не надо
+                    if(srcComplex!=null) complexAPI.updateComplexTime(srcComplex,true);
+                    //updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
+                }
+
+                //idComplex
+                movedTP.clear();
+            }
+
+        } catch (Exception e1) {
+            logger.error(e1);
+            showExceptionDialog("Ошибка обновления позиции программ","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+            return;
+        }finally {
+            clipboard.clear();
+        }
+    }
+    @Override
+    public void copySelectedTherapyProgramsToBuffer() {
+        if (ProgramTable.getInstance().getSelectedItems().isEmpty()) return;
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.clear();
+
+        content.put(ProgramTable.PROGRAM_COPY_ITEM, ProgramTable.getInstance().getSelectedItems().stream()
+                                                                .map(i->i.getId()).collect(Collectors.toList()).toArray(new Long[0]));
+        clipboard.setContent(content);
+        therapyProgramsCopied=true;
+    }
+
+
+    @Override
+    public void cutSelectedTherapyProgramsToBuffer() {
+        if (ProgramTable.getInstance().getSelectedItems().isEmpty()) return;
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.clear();
+
+        content.put(ProgramTable.PROGRAM_CUT_ITEM_INDEX, ProgramTable.getInstance().getSelectedIndexes().toArray(new Integer[0]));
+        content.put(ProgramTable.PROGRAM_CUT_ITEM_COMPLEX, ComplexTable.getInstance().getSelectedItem().getId());
+        content.put(ProgramTable.PROGRAM_CUT_ITEM_ID, ProgramTable.getInstance().getSelectedItems().stream()
+                                                                  .map(i->i.getId())
+                                                                  .collect(Collectors.toList())
+                                                                  .toArray(new Long[0])
+        );
+        clipboard.setContent(content);
+        therapyProgramsCopied=false;
+    }
+
 }

@@ -8,6 +8,8 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.control.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCode;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Modality;
@@ -68,7 +70,10 @@ public class ProfileController extends BaseController implements ProfileAPI {
         res = resources;
         btnGenerate.setDisable(true);
         profileTable = initProfileTable();
-        profileTable.initProfileContextMenu( this::onPrintProfile,  cutInTables,  pasteInTables, deleteInTables);
+        profileTable.initProfileContextMenu( this::onPrintProfile,
+                this::cutProfileToBuffer,
+                this::pasteProfile,
+                this::removeProfile);
 
         btnDeleteProfile.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
 
@@ -112,20 +117,6 @@ public class ProfileController extends BaseController implements ProfileAPI {
     }
     private boolean getConnectedDevice() {
         return connectedDevice.get();
-    }
-
-
-    Runnable cutInTables;
-    public void setCutInTables(Runnable f){
-        cutInTables =f;
-    }
-    Runnable pasteInTables;
-    public void setPasteInTables(Runnable f){
-        pasteInTables = f;
-    }
-    Runnable deleteInTables;
-    public void setDeleteInTable(Runnable f){
-        deleteInTables =f;
     }
 
     private Supplier<Path> devicePathFunc;
@@ -1457,4 +1448,62 @@ public class ProfileController extends BaseController implements ProfileAPI {
             logger.error("",e);
         }
     }
+
+    @Override
+    public  void pasteProfile() {
+        Profile profile = ProfileTable.getInstance().getSelectedItem();
+        if(profile==null) return;
+        int dropIndex= ProfileTable.getInstance().getSelectedIndex();
+
+        Clipboard clipboard= Clipboard.getSystemClipboard();
+        if(!clipboard.hasContent(ProfileTable.PROFILE_CUT_ITEM_ID)) return;
+        if(!clipboard.hasContent(ProfileTable.PROFILE_CUT_ITEM_INDEX)) return;
+
+
+        Integer ind = (Integer) clipboard.getContent(ProfileTable.PROFILE_CUT_ITEM_INDEX);
+        if (ind == null) return;
+        else {
+            if (dropIndex == ind) return;
+            else {
+                Profile movedProfile = ProfileTable.getInstance().getAllItems().get(ind);
+                if(movedProfile==null) {
+                    clipboard.clear();
+                    return;
+                }
+                ProfileTable.getInstance().getAllItems().remove(movedProfile);
+                ProfileTable.getInstance().getAllItems().add(dropIndex,movedProfile);
+                Profile tmp;
+                try {
+                    for (int i=0; i<ProfileTable.getInstance().getAllItems().size();i++){
+                        tmp = ProfileTable.getInstance().getAllItems().get(i);
+                        tmp.setPosition(i);
+                        getModel().updateProfile(tmp);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    clipboard.clear();
+                    return;
+                }
+
+
+
+            }
+        }
+
+        clipboard.clear();
+    }
+
+
+    @Override
+    public   void cutProfileToBuffer() {
+        Profile profile = ProfileTable.getInstance().getSelectedItem();
+        if(profile==null) return;
+        Clipboard clipboard=Clipboard.getSystemClipboard();
+        clipboard.clear();
+        ClipboardContent content = new ClipboardContent();
+        content.put(ProfileTable.PROFILE_CUT_ITEM_ID, profile.getId());
+        content.put(ProfileTable.PROFILE_CUT_ITEM_INDEX, ProfileTable.getInstance().getSelectedIndex());
+        clipboard.setContent(content);
+    }
+
 }
