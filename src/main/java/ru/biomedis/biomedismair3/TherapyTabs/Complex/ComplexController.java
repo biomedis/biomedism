@@ -1052,4 +1052,32 @@ public class ComplexController extends BaseController implements ComplexAPI{
     public void printComplex() {
         onPrintComplex();
     }
+
+    /**
+     * Обновит время комплекса, профиля и программ если указанно reloadPrograms
+     * @param c терапевтический комплекс - инстанс из таблицы!!
+     * @param reloadPrograms обновить время программ или нет, если нет то просто изменится время комплекса
+     */
+    @Override
+    public void updateComplexTime(TherapyComplex c, boolean reloadPrograms)
+    {
+        if(!reloadPrograms)
+        {
+            c.setTime(c.getTime()+1);
+            profileAPI.updateProfileTime(ProfileTable.getInstance().getSelectedItem());
+            return;
+        }
+
+        int i = ComplexTable.getInstance().getAllItems().indexOf(c);
+        if(i==-1){
+            System.out.println("null передан в updateComplexTime");
+            return;
+        }
+        ComplexTable.getInstance().getAllItems().set(i, null);
+        ComplexTable.getInstance().getAllItems().set(i, c);
+        ComplexTable.getInstance().select(i);
+        profileAPI.updateProfileTime(ProfileTable.getInstance().getSelectedItem());
+
+
+    }
 }

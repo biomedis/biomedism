@@ -312,14 +312,7 @@ public class ProfileTable {
         return table.getSelectionModel().getSelectedItem();
     }
     public Integer getSelectedIndex(){return table.getSelectionModel().getSelectedIndex();}
-   /*
-   public ObservableList<Profile> getSelectedItems(){
-        return table.getSelectionModel().getSelectedItems();
-    }
-    public ObservableList<Integer> getSelectedIndexes(){
-        return table.getSelectionModel().getSelectedIndices();
-    }
-    */
+
     public ObservableList<Profile> getAllItems(){
         return table.getItems();
     }

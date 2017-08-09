@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+<VBox fx:id="root" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="8.0" xmlns="http://javafx.com/javafx/8.0.72" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.TherapyTabs.Programs.ProgramController">
+   <children>
+      <HBox maxWidth="1.7976931348623157E308" prefWidth="200.0" spacing="8.0">
+         <children>
+            <Button fx:id="btnUpProgram" minWidth="50.0" mnemonicParsing="false" onAction="#onUpProgram" text="%app.up" />
+            <Button fx:id="btnDownProgram" minWidth="50.0" mnemonicParsing="false" onAction="#onDownProgram" text="%app.down" />
+            <Button mnemonicParsing="false" onAction="#onAddMP3" text="%app.ui.program_by_mp3" />
+            <Button fx:id="btnDeleteProgram" mnemonicParsing="false" onAction="#onRemovePrograms" text="%ui.main.remove_program" />
+            <Label alignment="CENTER_RIGHT" contentDisplay="RIGHT" text="%app.search" textAlignment="RIGHT" HBox.hgrow="ALWAYS">
+               <HBox.margin>
+                  <Insets top="3.0" />
+               </HBox.margin>
+            </Label>
+            <Label text=":">
+               <HBox.margin>
+                  <Insets top="3.0" />
+               </HBox.margin>
+            </Label>
+            <TextField fx:id="nameProgramSearch" promptText="%app.table.program_name" HBox.hgrow="ALWAYS" />
+            <TextField fx:id="freqProgramSearch" promptText="%app.table.freqs" HBox.hgrow="ALWAYS" />
+            <Button fx:id="searchReturnBtnPrograms" maxHeight="24.0" maxWidth="24.0" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" onAction="#onSearchReturnPrograms" prefHeight="24.0" prefWidth="24.0">
+               <styleClass>
+                  <String fx:value="searchReturnButton" />
+                  <String fx:value="GenericBtn" />
+               </styleClass>
+            </Button>
+            <Button fx:id="searchBtnProgram" maxHeight="24.0" maxWidth="24.0" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" onAction="#onSearchProgram" prefHeight="24.0" prefWidth="24.0">
+               <styleClass>
+                  <String fx:value="searchButton2" />
+                  <String fx:value="GenericBtn" />
+               </styleClass>
+            </Button>
+         </children>
+         <padding>
+            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+         </padding>
+      </HBox>
+      <TableView fx:id="tableProgram" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="50.0" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
+   </children>
+</VBox>

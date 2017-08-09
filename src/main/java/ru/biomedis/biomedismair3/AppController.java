@@ -5,7 +5,6 @@ import com.sun.javafx.scene.control.skin.VirtualFlow;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.binding.BooleanBinding;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
@@ -17,7 +16,9 @@ import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -37,6 +38,8 @@ import ru.biomedis.biomedismair3.TherapyTabs.Complex.ComplexTable;
 import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileAPI;
 import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileController;
 import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileTable;
+import ru.biomedis.biomedismair3.TherapyTabs.Programs.ProgramAPI;
+import ru.biomedis.biomedismair3.TherapyTabs.Programs.ProgramController;
 import ru.biomedis.biomedismair3.TherapyTabs.Programs.ProgramTable;
 import ru.biomedis.biomedismair3.TherapyTabs.TablesCommon;
 import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.*;
@@ -66,7 +69,6 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static ru.biomedis.biomedismair3.Log.logger;
@@ -76,51 +78,20 @@ public class AppController  extends BaseController {
 
     public static final int MAX_BUNDLES=7;
     @FXML private ImageView deviceIcon;//иконка устройства
-
-
-
     @FXML private ProgressBar diskSpaceBar;//прогресс бар занятого места на диске прибора
-
-
-    @FXML private TableView<TherapyProgram> tableProgram;
-
-
-
-    @FXML private Button  btnDeleteProgram;
-    @FXML private Button  btnUpProgram;
-    @FXML private Button  btnDownProgram;
-
-
     @FXML private MenuItem menuExportProfile;
-    @FXML private    MenuItem    menuExportTherapyComplex;
-    @FXML private    MenuItem  menuImportTherapyComplex;
-
-
+    @FXML private MenuItem    menuExportTherapyComplex;
+    @FXML private MenuItem  menuImportTherapyComplex;
     @FXML private MenuItem menuDelGeneratedFiles;
-
-
-
-
-   @FXML private SplitPane splitOuter;
+    @FXML private SplitPane splitOuter;
 
     @FXML private MenuItem printProfileMenu;
     @FXML private MenuItem printComplexMenu;
     @FXML private MenuItem menuImportComplex;
     @FXML private MenuItem   menuImportComplexToBase;
     @FXML private MenuItem   dataPathMenuItem;
-    @FXML TabPane therapyTabPane;
-
-
-
-    @FXML
-    private Tab tab1;
-    @FXML
-    private Tab tab2;
-    @FXML
-    private Tab tab3;
-
-    @FXML
-    private Tab tab5;
+    @FXML private TabPane therapyTabPane;
+    @FXML private Tab tab5;
 
 
 
@@ -131,12 +102,11 @@ public class AppController  extends BaseController {
     @FXML private AnchorPane profileLayout;
     @FXML private AnchorPane tab5_content;
     @FXML private AnchorPane complexLayout;
+    @FXML private AnchorPane programLayout;
     @FXML private Menu updateBaseMenu;
 
     private @FXML MenuItem clearTrinityItem;
-
     @FXML private  Menu menuImport;
-
     @FXML private  HBox topPane;
 
     private TableViewSkin<?> tableSkin;
@@ -158,11 +128,7 @@ public class AppController  extends BaseController {
 
     private  ResourceBundle res;
     private Tooltip diskSpaceTooltip=new Tooltip();
-
     private boolean stopGCthread=false;
-
-    private final DataFormat PROGRAM_DRAG_ITEM=new DataFormat("biomedis/programitem");
-
 
     private static M2UI m2ui;
 
@@ -184,6 +150,7 @@ public class AppController  extends BaseController {
     private static  ProfileAPI profileAPI;
     private static  ComplexAPI complexAPI;
     private static  ProgressAPI progressAPI;
+    private static  ProgramAPI programAPI;
 
     public static ProgressAPI getProgressAPI() {
         return progressAPI;
@@ -208,12 +175,17 @@ public class AppController  extends BaseController {
         return complexAPI;
     }
 
+    public static ProgramAPI getProgramAPI() {
+        return programAPI;
+    }
+
+    private List<MenuItem> tablesMenuHelper;
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
         res=rb;
         initNamesTables();
-
 
         dataPathMenuItem.setVisible(OSValidator.isWindows());//видимость пункта меню для введения пути к папки данных, только на винде!
         clearTrinityItem.disableProperty().bind(m2Connected.not());
@@ -221,16 +193,9 @@ public class AppController  extends BaseController {
 
         initVerticalDivider();
 
-
-
-
-
         diskSpaceBar.setVisible(false);
         diskSpaceBar.setTooltip(diskSpaceTooltip);
         hackTooltipStartTiming(diskSpaceTooltip, 250, 15000);
-
-
-
 
         initDoneCancelImages();
         initSeqParallelImages();
@@ -262,7 +227,7 @@ public class AppController  extends BaseController {
 
         initSectionTreeActionListener();
 
-        initTables();
+        tablesMenuHelper = initContextMenuHotKeyHolders();
 
         try {
             profileAPI = initProfileTab();
@@ -274,8 +239,6 @@ public class AppController  extends BaseController {
         }
 
 
-
-
         try {
             complexAPI = initComplexTab();
             initTabComplexNameListener();
@@ -285,8 +248,14 @@ public class AppController  extends BaseController {
             throw new RuntimeException("Ошибка инициализации панели комплексов",e);
         }
 
+        try {
+            programAPI = initProgramTab();
 
-        initProgramSearch();
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            throw new RuntimeException("Ошибка инициализации панели комплексов",e);
+        }
 
         biofonUIUtil = initBiofon();
 
@@ -294,10 +263,6 @@ public class AppController  extends BaseController {
 
         initTrinityReadingMenuItemDisabledPolicy();
         initM2UI();
-
-
-        /** кнопки  таблиц **/
-        initTablesButtonVisibilityPolicy();
 
         initMenuImport();
 
@@ -413,7 +378,16 @@ public class AppController  extends BaseController {
             return  (LeftPanelAPI) replaceContent("/fxml/LeftPanel.fxml",leftLayout);
     }
 
-
+    private ProgramAPI initProgramTab() throws Exception {
+        ProgramController pp = (ProgramController)replaceContent("/fxml/ProgramTab.fxml", programLayout);
+        pp.setTherapyTabPane(therapyTabPane);
+        pp.setPasteInTables(this::pasteInTables);
+        pp.setCutInTables(this::cutInTables);
+        pp.setDeleteInTable(this::deleteInTables);
+        pp.setCopyInTable(this::copyInTables);
+        pp.setTherapyProgramsCopiedFunc(()->therapyProgramsCopied);
+        return pp;
+    }
     private ComplexAPI initComplexTab() throws Exception {
         ComplexController cc = (ComplexController)replaceContent("/fxml/ComplexTab.fxml", complexLayout);
         cc.setTherapyTabPane(therapyTabPane);
@@ -453,40 +427,6 @@ public class AppController  extends BaseController {
         } catch (Exception e) {
             showExceptionDialog("Ошибка инициализации M2UI","","",e,getApp().getMainWindow(), Modality.WINDOW_MODAL);
         }
-    }
-
-    private void initTablesButtonVisibilityPolicy() {
-        btnDeleteProgram.disableProperty().bind(tableProgram.getSelectionModel().selectedItemProperty().isNull());
-
-
-        btnUpProgram.disableProperty().bind(new BooleanBinding() {
-            {bind(tableProgram.getSelectionModel().selectedItemProperty());}
-            @Override
-            protected boolean computeValue() {
-                if(tableProgram.getSelectionModel().getSelectedIndices().size()==0)return true;
-                 if(tableProgram.getSelectionModel().getSelectedIndices().size()>1) return true;
-                 if(tableProgram.getSelectionModel().getSelectedIndex()==0) return true;//верхний элемент
-                 return false;
-            }
-        });
-
-        btnDownProgram.disableProperty().bind(new BooleanBinding() {
-            {
-                //заставит этот биндинг обновляться при изменении свойства selectedIndexProperty
-              super.bind(tableProgram.getSelectionModel().selectedItemProperty());
-
-            }
-             @Override
-             protected boolean computeValue()
-             {
-
-                 if(tableProgram.getSelectionModel().getSelectedIndices().size()==0)return true;
-                 if(tableProgram.getSelectionModel().getSelectedIndices().size()>1) return true;
-
-                if( tableProgram.getSelectionModel().getSelectedIndex() == tableProgram.getItems().size()-1) return true;
-                return false;
-             }
-         });
     }
 
 
@@ -728,13 +668,13 @@ public class AppController  extends BaseController {
         tabs.get(2).textProperty().bind(new StringBinding() {
             {
                 //указывается через , список свойств изменения которых приведут к срабатыванию этого
-                super.bind(tableProgram.getSelectionModel().selectedItemProperty());
+                super.bind(ProgramTable.getInstance().getSelectedItemProperty());
             }
             @Override
             protected String computeValue() {
-                if(tableProgram.getSelectionModel().getSelectedItem()!=null)
+                if(ProgramTable.getInstance().getSelectedItem()!=null)
                 {
-                    return  baseProgramTabName+" ("+tableProgram.getSelectionModel().getSelectedItem().getName()+")";
+                    return  baseProgramTabName+" ("+ProgramTable.getInstance().getSelectedItem().getName()+")";
                 }else return baseProgramTabName;
             }
         });
@@ -851,75 +791,7 @@ public class AppController  extends BaseController {
     private boolean isProgramsTabSelected(){
         return 2 == therapyTabPane.getSelectionModel().getSelectedIndex();
     }
-    private List<MenuItem> tablesMenuHelper;
 
-
-
-    private ProgramTable programTable;
-    private void initTables()
-    {
-        tablesMenuHelper = initContextMenuHotKeyHolders();
-
-
-        /*** Профили  ****/
-
-
-
-        /*** Комплексы  ****/
-
-        /*** Программы  ****/
-         programTable = initProgramsTable();
-        programTable.initProgramsTableContextMenu(this::copyTherapyProgramToBase,
-                this::editMP3ProgramPath,
-                this::cutInTables,
-                this::copyInTables,
-                this::pasteInTables,
-                this::deleteInTables,
-                ()->therapyProgramsCopied,
-                ()-> {
-                    boolean res = true;
-                    if (leftAPI.selectedSectionTree() != null) {
-                        INamed value = leftAPI.selectedSectionTreeItem();
-                        if (value instanceof Section ) {
-                            return ((Section) value).isOwnerSystem();
-
-                        }else  if (value instanceof Complex) {
-                            return ((Complex) value).isOwnerSystem();
-
-                        }
-                    }
-                    return res;
-                });
-
-
-        initDeleteAndSwitchTableKeys();
-
-    }
-
-
-
-    private void initDeleteAndSwitchTableKeys() {
-
-        tableProgram.setOnKeyReleased(e ->{
-            //if(e.getCode()==KeyCode.DELETE) onRemovePrograms();
-             if(e.getCode()==KeyCode.LEFT && !tab2.isDisable()) {
-                therapyTabPane.getSelectionModel().select(1);
-                ComplexTable.getInstance().requestFocus();
-                if(ComplexTable.getInstance().getAllItems().size()!=0){
-                    ComplexTable.getInstance().setItemFocus(ComplexTable.getInstance().getSelectedIndex());
-                }
-            }
-
-
-        });
-    }
-
-    private ProgramTable initProgramsTable() {
-        return ProgramTable.init(tableProgram,res,imageCancel,imageDone,imageSeq,imageParallel,(needUpdateProfileTime) -> {
-            updateComplexTime(ComplexTable.getInstance().getSelectedItem(),true);
-            if(needUpdateProfileTime)profileAPI.updateProfileTime(ProfileTable.getInstance().getSelectedItem());
-        });
-    }
 
 
 
@@ -964,6 +836,9 @@ public class AppController  extends BaseController {
 
     public void onPrintComplex(){
         complexAPI.printComplex();
+    }
+    public void onRemovePrograms(){
+        programAPI.removePrograms();
     }
 
 
@@ -1050,14 +925,14 @@ public class AppController  extends BaseController {
 
 
     private void cutSelectedTherapyProgramsToBuffer() {
-        if (tableProgram.getSelectionModel().getSelectedItems().isEmpty()) return;
+        if (ProgramTable.getInstance().getSelectedItems().isEmpty()) return;
         Clipboard clipboard = Clipboard.getSystemClipboard();
         ClipboardContent content = new ClipboardContent();
         content.clear();
 
-        content.put(ProgramTable.PROGRAM_CUT_ITEM_INDEX, tableProgram.getSelectionModel().getSelectedIndices().toArray(new Integer[0]));
+        content.put(ProgramTable.PROGRAM_CUT_ITEM_INDEX, ProgramTable.getInstance().getSelectedIndexes().toArray(new Integer[0]));
         content.put(ProgramTable.PROGRAM_CUT_ITEM_COMPLEX, ComplexTable.getInstance().getSelectedItem().getId());
-        content.put(ProgramTable.PROGRAM_CUT_ITEM_ID, tableProgram.getSelectionModel().getSelectedItems().stream()
+        content.put(ProgramTable.PROGRAM_CUT_ITEM_ID, ProgramTable.getInstance().getSelectedItems().stream()
                 .map(i->i.getId())
                 .collect(Collectors.toList())
                 .toArray(new Long[0])
@@ -1067,12 +942,12 @@ public class AppController  extends BaseController {
     }
 
     private void copySelectedTherapyProgramsToBuffer() {
-        if (tableProgram.getSelectionModel().getSelectedItems().isEmpty()) return;
+        if (ProgramTable.getInstance().getSelectedItems().isEmpty()) return;
         Clipboard clipboard = Clipboard.getSystemClipboard();
         ClipboardContent content = new ClipboardContent();
         content.clear();
 
-        content.put(ProgramTable.PROGRAM_COPY_ITEM, tableProgram.getSelectionModel().getSelectedItems().stream()
+        content.put(ProgramTable.PROGRAM_COPY_ITEM, ProgramTable.getInstance().getSelectedItems().stream()
                .map(i->i.getId()).collect(Collectors.toList()).toArray(new Long[0]));
         clipboard.setContent(content);
         therapyProgramsCopied=true;
@@ -1324,7 +1199,7 @@ public class AppController  extends BaseController {
     private void pasteTherapyProgramsByCopy(){
         TherapyComplex therapyComplex = ComplexTable.getInstance().getSelectedItem();
         if(therapyComplex==null) return;
-        if (tableProgram.getSelectionModel().getSelectedItems().size()>1) return;
+        if (ProgramTable.getInstance().getSelectedItems().size()>1) return;
         Clipboard clipboard = Clipboard.getSystemClipboard();
 
         if (!clipboard.hasContent(ProgramTable.PROGRAM_COPY_ITEM)) return;
@@ -1332,7 +1207,7 @@ public class AppController  extends BaseController {
         if(ids==null) return;
         if(ids.length==0) return;
 
-        int dropIndex = tableProgram.getSelectionModel().getSelectedIndex();
+        int dropIndex = ProgramTable.getInstance().getSelectedIndex();
 
         List<TherapyProgram> therapyPrograms =  Arrays.stream(ids)
                 .map(i->getModel().getTherapyProgram(i))
@@ -1340,19 +1215,19 @@ public class AppController  extends BaseController {
                 .collect(Collectors.toList());
 
 
-        if (tableProgram.getSelectionModel().getSelectedItems().isEmpty()) {
+        if (ProgramTable.getInstance().getSelectedItems().isEmpty()) {
             //вставка просто в конец таблицы
             try {
-                tableProgram.getSelectionModel().clearSelection();
+                ProgramTable.getInstance().clearSelection();
                 for (TherapyProgram therapyProgram : therapyPrograms) {
 
                     TherapyProgram tp = getModel().copyTherapyProgramToComplex(therapyComplex, therapyProgram);
                     if(tp==null) continue;
-                    tableProgram.getItems().add(tp);
-                    tableProgram.getSelectionModel().select(tp);
+                    ProgramTable.getInstance().getAllItems().add(tp);
+                    ProgramTable.getInstance().select(tp);
 
                 }
-                updateComplexTime(therapyComplex,true);
+                complexAPI.updateComplexTime(therapyComplex,true);
                 //updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
             } catch (Exception e1) {
                 logger.error(e1);
@@ -1366,14 +1241,15 @@ public class AppController  extends BaseController {
             //вставка до выбранного элемента со сдвигом остальных
             List<TherapyProgram> tpl=new ArrayList<>();
             try {
-                tableProgram.getSelectionModel().clearSelection();
+                ProgramTable.getInstance().clearSelection();
                 for (TherapyProgram therapyProgram : therapyPrograms) {
                     TherapyProgram tp = getModel().copyTherapyProgramToComplex(therapyComplex, therapyProgram);
                     if(tp==null) continue;
                     tpl.add(tp);
                 }
-                List<TherapyProgram> tpSlided = tableProgram.getItems().subList(dropIndex, tableProgram.getItems().size());
-                long posFirstSlidingElem = tableProgram.getItems().get(dropIndex).getPosition();
+                List<TherapyProgram> tpSlided =  ProgramTable.getInstance().getAllItems()
+                                                             .subList(dropIndex,  ProgramTable.getInstance().getAllItems().size());
+                long posFirstSlidingElem =  ProgramTable.getInstance().getAllItems().get(dropIndex).getPosition();
 
                 for (TherapyProgram tp : tpSlided) {
                     tp.setPosition(tp.getPosition()+tpl.size());
@@ -1385,13 +1261,13 @@ public class AppController  extends BaseController {
                     getModel().updateTherapyProgram(tp);
                 }
 
-                tableProgram.getItems().addAll(dropIndex,tpl);
+                ProgramTable.getInstance().getAllItems().addAll(dropIndex,tpl);
                 for (TherapyProgram tp : tpl) {
-                    tableProgram.getSelectionModel().select(tp);
+                    ProgramTable.getInstance().select(tp);
                 }
 
 
-                updateComplexTime(therapyComplex,true);
+                complexAPI.updateComplexTime(therapyComplex,true);
                 //updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
             } catch (Exception e1) {
                 logger.error(e1);
@@ -1425,52 +1301,52 @@ public class AppController  extends BaseController {
         if(idComplex==null)return;
         else if(idComplex.longValue()==selectedComplex.getId().longValue()){
             //вставка в текущем комплексе
-            if (tableProgram.getSelectionModel().getSelectedItems().isEmpty()) return;
-            if (tableProgram.getSelectionModel().getSelectedItems().size()!=1) return;
+            if ( ProgramTable.getInstance().getSelectedItems().isEmpty()) return;
+            if ( ProgramTable.getInstance().getSelectedItems().size()!=1) return;
 
             Integer[] indexes = (Integer[]) clipboard.getContent(ProgramTable.PROGRAM_CUT_ITEM_INDEX);
             if(indexes==null) return;
             if(indexes.length==0) return;
             List<Integer> ind = Arrays.stream(indexes).collect(Collectors.toList());
-            int dropIndex = tableProgram.getSelectionModel().getSelectedIndex();
+            int dropIndex =  ProgramTable.getInstance().getSelectedIndex();
 
             if(!TablesCommon.isEnablePaste(dropIndex,indexes)) {
                 showWarningDialog(res.getString("app.ui.moving_items"),"",res.getString("app.ui.can_not_move_to_pos"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
                 return;
             }
 
-            List<TherapyProgram> therapyPrograms = ind.stream().map(i->tableProgram.getItems().get(i)).collect(Collectors.toList());
+            List<TherapyProgram> therapyPrograms = ind.stream().map(i-> ProgramTable.getInstance().getAllItems().get(i)).collect(Collectors.toList());
             int startIndex=ind.get(0);//первый индекс вырезки
             int lastIndex=ind.get(ind.size()-1);
 
 //элементы всегда будут оказываться выше чем индекс по которому вставляли, те визуально вставляются над выбираемым элементом
-            TherapyProgram dropProgram = tableProgram.getItems().get(dropIndex);
+            TherapyProgram dropProgram =  ProgramTable.getInstance().getAllItems().get(dropIndex);
                 if(dropIndex < startIndex){
 
                     for (TherapyProgram i : therapyPrograms) {
-                        tableProgram.getItems().remove(i);
+                        ProgramTable.getInstance().getAllItems().remove(i);
                     }
                     //вставка программ в dropIndex; Изменение их позиции
-                    tableProgram.getItems().addAll(dropIndex,therapyPrograms);
+                    ProgramTable.getInstance().getAllItems().addAll(dropIndex,therapyPrograms);
                 }else if(dropIndex > lastIndex){
 
 
                     for (TherapyProgram i : therapyPrograms) {
-                        tableProgram.getItems().remove(i);
+                        ProgramTable.getInstance().getAllItems().remove(i);
                     }
-                    dropIndex= tableProgram.getItems().indexOf(dropProgram);
-                    tableProgram.getItems().addAll(dropIndex,therapyPrograms);
+                    dropIndex=  ProgramTable.getInstance().getAllItems().indexOf(dropProgram);
+                    ProgramTable.getInstance().getAllItems().addAll(dropIndex,therapyPrograms);
 
 
                 }else return;
 
                 int i=0;
-                for (TherapyProgram tp : tableProgram.getItems()) {
+                for (TherapyProgram tp :  ProgramTable.getInstance().getAllItems()) {
                     tp.setPosition((long)(i++));
                     getModel().updateTherapyProgram(tp);
                 }
 
-            updateComplexTime(dropProgram.getTherapyComplex(),false);
+            complexAPI.updateComplexTime(dropProgram.getTherapyComplex(),false);
             profileAPI.updateProfileTime(ProfileTable.getInstance().getSelectedItem());
             therapyPrograms.clear();
 
@@ -1485,8 +1361,8 @@ public class AppController  extends BaseController {
             if(ids.length==0) return;
             List<Long> ind = Arrays.stream(ids).collect(Collectors.toList());
             int dropIndex =-1;
-            if (tableProgram.getSelectionModel().getSelectedItem()!=null)dropIndex = tableProgram.getSelectionModel().getSelectedIndex();
-            else if(tableProgram.getItems().size()==0) dropIndex=0;
+            if ( ProgramTable.getInstance().getSelectedItem()!=null)dropIndex = ProgramTable.getInstance().getSelectedIndex();
+            else if(ProgramTable.getInstance().getAllItems().size()==0) dropIndex=0;
 
             List<TherapyProgram> movedTP = ind.stream()
                     .map(i->getModel().getTherapyProgram(i))
@@ -1499,11 +1375,11 @@ public class AppController  extends BaseController {
                 srcComplex=first.orElse(null);
             }
             //просто вставляем
-           if(dropIndex==-1)tableProgram.getItems().addAll(movedTP);
-               else  tableProgram.getItems().addAll(dropIndex,movedTP);
+           if(dropIndex==-1) ProgramTable.getInstance().getAllItems().addAll(movedTP);
+               else   ProgramTable.getInstance().getAllItems().addAll(dropIndex,movedTP);
             //теперь все обновляем
             int i=0;
-            for (TherapyProgram tp : tableProgram.getItems()) {
+            for (TherapyProgram tp :  ProgramTable.getInstance().getAllItems()) {
                 tp.setPosition((long)(i++));
                 tp.setTherapyComplex(selectedComplex);
                 getModel().updateTherapyProgram(tp);
@@ -1511,9 +1387,9 @@ public class AppController  extends BaseController {
 
             //обновление времени в таблицах
             if(movedTP.size()>0){
-                updateComplexTime(selectedComplex,true);
+                complexAPI.updateComplexTime(selectedComplex,true);
                 //если вставка в другом профиле то обновлять не надо
-                if(srcComplex!=null)updateComplexTime(srcComplex,true);
+                if(srcComplex!=null) complexAPI.updateComplexTime(srcComplex,true);
                 //updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
             }
 
@@ -1532,206 +1408,13 @@ public class AppController  extends BaseController {
     }
 
     private void pasteTherapyPrograms(){
-        if(tableProgram.getSelectionModel().getSelectedItems().size()>1){
+        if(ProgramTable.getInstance().getSelectedItems().size()>1){
             showWarningDialog(res.getString("app.ui.insertion_elements"),res.getString("app.ui.insertion_not_allowed"),res.getString("app.ui.ins_not_av_mess"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
             return;
         }
         if(therapyProgramsCopied)pasteTherapyProgramsByCopy();
         else pasteTherapyProgramsByCut();
     }
-
-
-
-
-
-    private void editMP3ProgramPath()
-    {
-
-        TherapyProgram item = tableProgram.getSelectionModel().getSelectedItem();
-        if(item==null) return;
-        if(!item.isMp3()) return;
-
-        File tf=new File(item.getFrequencies());
-
-
-        FileChooser fileChooser =new FileChooser();
-
-        fileChooser.setTitle(res.getString("app.ui.program_by_mp3"));
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("mp3", "*.mp3"));
-
-            //если такой файл уже есть то установим путь относительно него
-         if( tf.exists()) fileChooser.setInitialDirectory(tf.getParentFile());
-         else fileChooser.setInitialDirectory( new File(getModel().getMp3Path(System.getProperty("user.home"))));
-        File mp3 = fileChooser.showOpenDialog(getApp().getMainWindow());
-
-        if(mp3==null)return;
-
-        item.setName(TextUtil.digitText(mp3.getName().substring(0,mp3.getName().length()-4)));
-        item.setFrequencies(mp3.getAbsolutePath());
-        int i = tableProgram.getItems().indexOf(item);
-        item.setChanged(false);
-
-        getModel().setMp3Path(mp3.getParentFile());
-        try
-        {
-
-            getModel().updateTherapyProgram(item);
-        } catch (Exception e)
-        {
-            logger.error("Ошибка обновления TherapyProgram",e);
-            return;
-        }
-
-        tableProgram.getItems().remove(i);
-        tableProgram.getItems().add(i,item);
-        updateComplexTime(ComplexTable.getInstance().getSelectedItem(),true);
-        tableProgram.getSelectionModel().select(i);
-
-
-
-    }
-
-    /**
-     * Копирование текущей программы в пользовательскую базу
-     */
-    private void copyTherapyProgramToBase()
-    {
-
-        ObservableList<TherapyProgram> selectedItems = tableProgram.getSelectionModel().getSelectedItems();
-        NamedTreeItem treeItem = leftAPI.selectedSectionTree();
-        if(selectedItems.isEmpty()|| treeItem==null) return;
-
-        List<TherapyProgram> src=selectedItems.stream().filter(i->!i.isMp3()).collect(Collectors.toList());
-
-
-        List<Program> tpl=new ArrayList<>();
-        try {
-
-            if(treeItem.getValue() instanceof Section) {
-                for (TherapyProgram therapyProgram : src) {
-                    Program p = getModel().createProgram(therapyProgram.getName(), therapyProgram.getDescription(), therapyProgram.getFrequencies(),(Section)treeItem.getValue(), false, getModel().getUserLanguage());
-                    tpl.add(p);
-                }
-
-
-            }
-            else if(treeItem.getValue() instanceof Complex){
-                for (TherapyProgram therapyProgram : src){
-
-                Program p = getModel().createProgram(therapyProgram.getName(), therapyProgram.getDescription(), therapyProgram.getFrequencies(),(Complex)treeItem.getValue(), false, getModel().getUserLanguage());
-                tpl.add(p);
-                }
-            }
-            else throw new Exception();
-
-
-            if (!treeItem.isLeaf())  {
-                getModel().initStringsProgram(tpl);
-                treeItem.getChildren().addAll(tpl.stream().map(NamedTreeItem::new).collect(Collectors.toList()));
-            }
-
-
-            boolean isleaf=treeItem.isLeaf();
-            if (treeItem.isLeaf())treeItem.setLeafNode(false);
-            if (!treeItem.isExpanded()) treeItem.setExpanded(true);
-          //s  if (treeItem != null) sectionTree.getSelectionModel().select(treeItem.getChildren().get(treeItem.getChildren().size() - 1));//выделим
-
-        } catch (Exception e) {
-            logger.error("",e);
-            showExceptionDialog("Ошибка переноса программы в базу","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
-        }
-
-
-
-
-
-
-    }
-
-
-
-    /**
-     * After adding elements to the list, remember to call loadVirtualFlow before calling scrollTo,
-     * so the VirtualFlow gets updated and doesn't throw an exception. можно вызывать в начале драга
-     * перемотает таблицу на экран выше
-     */
-    private void scrollProgrammJumpDown()
-    {
-        int first = virtualFlow.getFirstVisibleCell().getIndex();
-        int last = virtualFlow.getLastVisibleCell().getIndex();
-        if(last== tableProgram.getItems().size()-1) return;//если виден последний интекс
-        int delta=last-first;
-        if(last+delta>=tableProgram.getItems().size()-1)tableProgram.scrollTo(tableProgram.getItems().size()-1);
-        else tableProgram.scrollTo(last+delta);
-
-    }
-    private void scrollProgrammJumpUp()
-    {
-        int first = virtualFlow.getFirstVisibleCell().getIndex();
-        int last = virtualFlow.getLastVisibleCell().getIndex();
-        if(first==0) return;//если виден первый
-        int delta=last-first;
-        if(first-delta<=0)tableProgram.scrollTo(0);
-        else tableProgram.scrollTo(first-delta);
-
-    }
-
-    /**
-     * Scrolls the table until the given index is visible
-     * After adding elements to the list, remember to call loadVirtualFlow before calling scrollTo,
-     * so the VirtualFlow gets updated and doesn't throw an exception.
-     * @param index to be shown
-     */
-    private void scrollTo(int index){
-        int first = virtualFlow.getFirstVisibleCell().getIndex();
-        int last = virtualFlow.getLastVisibleCell().getIndex();
-        if (index <= first){
-            while (index <= first && virtualFlow.adjustPixels(-1) < 0){
-                first = virtualFlow.getFirstVisibleCell().getIndex();
-            }
-        } else {
-            while (index >= last && virtualFlow.adjustPixels(1) > 0){
-                last = virtualFlow.getLastVisibleCell().getIndex();
-            }
-        }
-    }
-    private void loadVirtualFlowTableProgramm(){
-        tableSkin = (TableViewSkin<?>) tableProgram.getSkin();
-        virtualFlow = (VirtualFlow<?>) tableSkin.getChildren().get(1);
-    }
-
-
-
-
-
-
-    /**
-     * Обновит время комплекса, профиля и программ если указанно reloadPrograms
-     * @param c терапевтический комплекс - инстанс из таблицы!!
-     * @param reloadPrograms обновить время программ или нет, если нет то просто изменится время комплекса
-     */
-    private void updateComplexTime(TherapyComplex c, boolean reloadPrograms)
-    {
-        if(!reloadPrograms)
-        {
-            c.setTime(c.getTime()+1);
-            profileAPI.updateProfileTime(ProfileTable.getInstance().getSelectedItem());
-            return;
-        }
-
-        int i = ComplexTable.getInstance().getAllItems().indexOf(c);
-        if(i==-1){
-            System.out.println("null передан в updateComplexTime");
-         return;
-        }
-        ComplexTable.getInstance().getAllItems().set(i, null);
-        ComplexTable.getInstance().getAllItems().set(i, c);
-        ComplexTable.getInstance().select(i);
-        profileAPI.updateProfileTime(ProfileTable.getInstance().getSelectedItem());
-
-
-    }
-
 
 /******************* Пункты меню *****************/
 
@@ -2671,97 +2354,6 @@ final ResourceBundle rest=this.res;
 
 
 
-    public void onUpProgram()
-    {
-        int i = tableProgram.getSelectionModel().getSelectedIndex();
-        TherapyProgram tp1=tableProgram.getItems().get(i - 1);
-        TherapyProgram tp2=tableProgram.getItems().get(i);
-        tableProgram.getItems().set(i-1,tp2);
-        tableProgram.getItems().set(i, tp1);
-
-        long pos =  tp1.getPosition();
-        tp1.setPosition(tp2.getPosition());
-        tp2.setPosition(pos);
-        try {
-            getModel().updateTherapyProgram(tp1);
-            getModel().updateTherapyProgram(tp2);
-        } catch (Exception e) {
-            logger.error("",e);
-        }
-
-
-        tp1=null;
-        tp2=null;
-
-
-
-    }
-
-    public void onDownProgram()
-    {
-        int i = tableProgram.getSelectionModel().getSelectedIndex();
-        TherapyProgram tp1=tableProgram.getItems().get(i + 1);
-        TherapyProgram tp2=tableProgram.getItems().get(i);
-        tableProgram.getItems().set(i+1,tp2);
-        tableProgram.getItems().set(i,tp1);
-
-        long pos =  tp1.getPosition();
-        tp1.setPosition(tp2.getPosition());
-        tp2.setPosition(pos);
-
-        try {
-            getModel().updateTherapyProgram(tp1);
-            getModel().updateTherapyProgram(tp2);
-        } catch (Exception e) {
-            logger.error("",e);
-        }
-        tp1=null;
-        tp2=null;
-
-    }
-
-    /**
-     * Удаление программи из таблиц терапевтических программ
-     */
-    public void onRemovePrograms()
-    {
-
-        List<TherapyProgram> selectedItems = tableProgram.getSelectionModel().getSelectedItems().stream().collect(Collectors.toList());
-        if(selectedItems.isEmpty())return;
-
-        Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.title66"), "", res.getString("app.title67"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-        TherapyComplex therapyComplex = ComplexTable.getInstance().getSelectedItem();
-        if(buttonType.isPresent() ? buttonType.get()==okButtonType: false)
-        {
-            try {
-                for (TherapyProgram p : selectedItems) {
-                    getModel().removeTherapyProgram(p);
-                    File   temp=new File(getApp().getDataDir(),p.getId()+".dat");
-                    if(temp.exists())temp.delete();
-                    tableProgram.getItems().remove(p);
-
-                }
-
-                selectedItems.clear();
-
-              updateComplexTime(therapyComplex, true);
-                tableProgram.getSelectionModel().clearSelection();
-
-            } catch (Exception e) {
-                logger.error("",e);
-
-                showExceptionDialog("Ошибка удаления программы","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
-
-            }
-
-
-        }
-
-
-
-
-
-    }
 
 
 
@@ -3507,60 +3099,6 @@ return  true;
    }
 
 
-
-    /**
-     * Добавить MP3 в выбранный комплекс
-     */
-    public void onAddMP3()
-    {
-
-        FileChooser fileChooser =new FileChooser();
-
-        fileChooser.setTitle(res.getString("app.ui.program_by_mp3"));
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("mp3", "*.mp3"));
-         fileChooser.setInitialDirectory(new File(getModel().getMp3Path(System.getProperty("user.home"))));
-
-        List<File> files = fileChooser.showOpenMultipleDialog(getApp().getMainWindow());
-
-
-
-        if(files==null)return;
-        if(files.size()==0) return;
-        getModel().setMp3Path(files.get(0).getParentFile());
-        TherapyComplex complex = ComplexTable.getInstance().getSelectedItem();
-        if(complex==null) return;
-
-        try {
-
-            List<TherapyProgram> tpl=new ArrayList<>();
-            for (File mp3 : files)
-            {
-                tpl.add(getModel().createTherapyProgramMp3(complex, TextUtil.digitText(mp3.getName().substring(0,mp3.getName().length()-4)), "", mp3.getAbsolutePath())) ;
-
-            }
-
-
-
-          if(tpl.isEmpty()) return;
-            tableProgram.getItems().addAll(tpl);
-            int i = tableProgram.getItems().size()-1;
-            tableProgram.scrollTo(i);
-
-            updateComplexTime(ComplexTable.getInstance().getSelectedItem(), true);
-            ProfileTable.getInstance().getSelectedItem().setProfileWeight( ProfileTable.getInstance().getSelectedItem().getProfileWeight()+1);
-
-
-
-
-
-        } catch (Exception e) {
-            logger.error("",e);
-            showExceptionDialog("Ошибка создания программы", "","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
-        }
-    }
-
-
-
  public void    onLanguageInsertComplexOption(){
 
 
@@ -4083,57 +3621,9 @@ return  true;
         }
     }
 
-    @FXML private Button searchReturnBtnPrograms;
-    @FXML private Button searchBtnProgram;
-
-    @FXML private TextField  nameProgramSearch;
-    @FXML private TextField freqProgramSearch;
-    private SimpleBooleanProperty programSearch =new SimpleBooleanProperty(false);
-
-    private void cleanSearchedProgram(){
-        TherapyProgram tp;
-        for(int i=0;i< tableProgram.getItems().size();i++) {
-            tp = tableProgram.getItems().get(i);
-            if(tp.isMatchedFreqs() || tp.isMatchedAnyName()){
-                tp.cleanSearch();
-                tableProgram.getItems().set(i,null);
-                tableProgram.getItems().set(i,tp);
-            }
-        }
-    }
-    private void initProgramSearch(){
-
-        searchReturnBtnPrograms.disableProperty().bind(programSearch.not());
-        searchBtnProgram.disableProperty().bind(nameProgramSearch.textProperty().isEmpty().and(freqProgramSearch.textProperty().isEmpty()));
-        programSearch.bind(nameProgramSearch.textProperty().isNotEmpty().or(freqProgramSearch.textProperty().isNotEmpty()));
-
-        programSearch.addListener((observable, oldValue, newValue) -> {
-           if(newValue==false)cleanSearchedProgram();
-        });
-
-        Predicate<String> characterFilter= c-> TextUtil.match(c,"[0-9. ]");
 
 
-        freqProgramSearch.textProperty().addListener((observable, oldValue, newValue) -> {
-            //3.6 + 4 .9;7;.0;46.0;70.0  -;70.5;;;++72.5;95.0
-            String val=
-                     newValue.replaceAll("[^0-9\\.;\\+ ]","")
-                    .replace(";"," ").replace("+"," ")
-                    .replaceAll("\\s+"," ")
-                            .replaceAll("\\s+\\.",".");
-            if(!val.equals(newValue)) freqProgramSearch.setText(val);
 
-        });
-        freqProgramSearch.addEventFilter(KeyEvent.KEY_TYPED, event ->
-        {
-            if(!characterFilter.test( event.getCharacter())) {event.consume();}
-        });
-        nameProgramSearch.setOnAction(event ->onSearchProgram());
-        freqProgramSearch.setOnAction(event ->onSearchProgram());
-    }
-    /*
-    Поиск по тер. программам в таблице
-     */
 
 
     public void onClearTrinity(){
@@ -4175,96 +3665,8 @@ return  true;
         Thread thread = new Thread(task);
         thread.setDaemon(true);
         thread.start();
-
-
-
-
-
-
-
-    }
-    /**
-     * Сброс режима поиска
-     * programSearch зависит от содержимого полей поиска
-     */
-    public void onSearchReturnPrograms(){
-        nameProgramSearch.setText("");
-        freqProgramSearch.setText("");
-        tableProgram.getSelectionModel().clearSelection();
-        tableProgram.scrollTo(0);
     }
 
-    public void onSearchProgram(){
-
-        String name = nameProgramSearch.getText().trim();
-        String freqs = freqProgramSearch.getText().trim();
-        if(name.length()<=2 && freqs.length()==0) { showInfoDialog(res.getString("app.search"),res.getString("app.search_1"),"",getApp().getMainWindow(),Modality.WINDOW_MODAL);return;}
-
-        tableProgram.getSelectionModel().clearSelection();
-
-        freqs=freqs.replaceAll("\\s+"," ").replaceAll("\\s+\\.",".");//исключим посторонние дырки в паттерне
-        freqProgramSearch.setText(freqs);
-
-        cleanSearchedProgram();
-
-        boolean first=true;
-
-        TherapyProgram tp;
-        for(int i=0;i< tableProgram.getItems().size();i++){
-            tp = tableProgram.getItems().get(i);
-            boolean searchRes=false;
-            if(!name.isEmpty() && freqs.isEmpty())searchRes = tp.searchNames(name);
-            else if(!name.isEmpty() && !freqs.isEmpty()) {
-
-                searchRes = tp.searchFreqs(freqs) & tp.searchNames(name);
-                if(!searchRes){
-                    if(tp.isMatchedAnyName())tp.cleanSearch();
-                    else if(tp.isMatchedFreqs())tp.cleanSearch();
-                }
-
-            }
-            else if(name.isEmpty() && !freqs.isEmpty()) searchRes = tp.searchFreqs(freqs);
-
-            if(searchRes){
-                tableProgram.getItems().set(i,null);
-                tableProgram.getItems().set(i,tp);
-
-                if(first){
-                    tableProgram.scrollTo(i);
-                    first=false;
-                }
-            }
-
-        }
-
-
-
-
-        if(!first){
-
-            for(int i=0;i< tableProgram.getItems().size();i++) {
-                tp = tableProgram.getItems().get(i);
-
-                boolean searchRes=false;
-
-                if(!name.isEmpty() && freqs.isEmpty())  searchRes = tp.isMatchedAnyName();
-                else if(!name.isEmpty() && !freqs.isEmpty())searchRes = tp.isMatchedFreqs() && tp.isMatchedAnyName();
-                else if(name.isEmpty() && !freqs.isEmpty())searchRes = tp.isMatchedFreqs();
-
-                if(searchRes)tableProgram.getSelectionModel().select(i);
-            }
-
-            tableProgram.requestFocus();
-        }else  {
-            showInfoDialog(res.getString("app.search_res"),res.getString("app.search_res_1"),"",
-                    getApp().getMainWindow(),Modality.WINDOW_MODAL);
-            return;
-
-        }
-
-
-
-    }
 
 
     private void restartProgram() {
@@ -4480,12 +3882,12 @@ return  true;
 
                 TherapyProgram therapyProgram = getModel().createTherapyProgram(p.getUuid(),ComplexTable.getInstance().getSelectedItem(), name, descr, p.getFrequencies(),oname);
                 ProgramTable.getInstance().getAllItems().add(therapyProgram);
-                updateComplexTime(ComplexTable.getInstance().getSelectedItem(), false);
+                complexAPI.updateComplexTime(ComplexTable.getInstance().getSelectedItem(), false);
                 therapyTabPane.getSelectionModel().select(2);//выберем таб с программами
 
 
                 Platform.runLater(() -> {
-                    updateComplexTime(ComplexTable.getInstance().getSelectedItem(),true);
+                    complexAPI.updateComplexTime(ComplexTable.getInstance().getSelectedItem(),true);
                     ProgramTable.getInstance().clearSelection();
                     ProgramTable.getInstance().requestFocus();
                     ProgramTable.getInstance().select( ProgramTable.getInstance().getAllItems().size() - 1);

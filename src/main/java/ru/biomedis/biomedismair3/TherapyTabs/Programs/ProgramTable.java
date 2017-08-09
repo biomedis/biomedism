@@ -277,7 +277,9 @@ public class ProgramTable {
     public void select(int index){
         table.getSelectionModel().select(index);
     }
-
+    public void select(TherapyProgram p){
+        table.getSelectionModel().select(p);
+    }
     public void requestFocus(){
         table.requestFocus();
     }
