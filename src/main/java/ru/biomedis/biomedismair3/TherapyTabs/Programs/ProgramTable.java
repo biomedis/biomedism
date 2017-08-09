@@ -1,6 +1,7 @@
 package ru.biomedis.biomedismair3.TherapyTabs.Programs;
 
 import com.mpatric.mp3agic.Mp3File;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -287,6 +288,16 @@ public class ProgramTable {
     public void scrollTo(int index){
         table.scrollTo(index);
     }
+
+    public ReadOnlyObjectProperty<TherapyProgram> getSelectedItemProperty(){
+        return table.getSelectionModel().selectedItemProperty();
+    }
+
+    public int getSelectedIndex() {
+
+        return table.getSelectionModel().getSelectedIndex();
+    }
+
 
     public interface NeedUpdateComplexTime{
          void update(boolean needUpdateProfileTime);

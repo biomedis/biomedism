@@ -1,6 +1,7 @@
 package ru.biomedis.biomedismair3.TherapyTabs.Complex;
 
 import javafx.beans.binding.StringBinding;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -568,6 +569,9 @@ public class ComplexTable {
     public void select(int index){
         table.getSelectionModel().select(index);
     }
+    public void select(TherapyComplex c){
+        table.getSelectionModel().select(c);
+    }
     public void requestFocus(){
         table.requestFocus();
     }
@@ -586,5 +590,9 @@ public class ComplexTable {
      */
     public boolean isTextEdited(){
         return  table.getEditingCell()==null?false:true;
+    }
+
+    public ReadOnlyObjectProperty<TherapyComplex> getSelectedItemProperty(){
+        return table.getSelectionModel().selectedItemProperty();
     }
 }

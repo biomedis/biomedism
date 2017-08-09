@@ -178,73 +178,8 @@
                       </Tab>
                       <Tab fx:id="tab2" closable="false" text="%app.ui.tab2">
                         <content>
-                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" fx:id="complexLayout">
                                  <children>
-                                    <VBox AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                       <children>
-                                          <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
-                                             <children>
-                                                <Button fx:id="btnCreateTherapy" mnemonicParsing="false" onAction="#onCreateComplex" text="%ui.main.create_complex" />
-                                                <Button fx:id="generationComplexesBtn" mnemonicParsing="false" text="%app.ui_comlexes_generation" />
-
-                                                <Button fx:id="uploadComplexesBtn" mnemonicParsing="false" text="%app.ui.upload_complexex" />
-                                                 <Button fx:id="btnDeleteTherapy" mnemonicParsing="false" onAction="#onRemoveComplex" text="%ui.main.remove_complex" />
-                                                 <HBox fx:id="bundlesPan" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
-                                                     <HBox.margin>
-                                                         <Insets top="-4.0" />
-                                                     </HBox.margin>
-                                                     <children>
-
-                                                         <Label alignment="CENTER" text="%ui.bundles_length">
-                                                             <HBox.margin>
-                                                                 <Insets right="3.0" />
-                                                             </HBox.margin>
-                                                         </Label>
-
-                                                      <Spinner fx:id="bundlesSpinner" minWidth="60.0" prefWidth="60.0" />
-                                                         <VBox fx:id="bundlesBtnPan" spacing="3.0">
-                                                             <children>
-                                                                 <Button fx:id="btnOkBundles" contentDisplay="CENTER" ellipsisString="" maxHeight="16.0" maxWidth="16.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0" />
-                                                                 <Button fx:id="btnCancelBundles" maxHeight="16.0" maxWidth="16.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0" />
-                                                             </children>
-                                                             <HBox.margin>
-                                                                 <Insets left="3.0" />
-                                                             </HBox.margin>
-                                                         </VBox>
-
-
-                                                     </children>
-                                                 </HBox>
-                                                <HBox fx:id="spinnerPan" alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
-                                                   <HBox.margin>
-                                                      <Insets top="-4.0" />
-                                                   </HBox.margin>
-                                                   <children>
-                                                      <Label alignment="CENTER" text="%ui.time_to_freq_m">
-                                                         <HBox.margin>
-                                                            <Insets right="3.0" />
-                                                         </HBox.margin>
-                                                      </Label>
-                                                      <Spinner fx:id="timeToFreqSpinner" maxWidth="80.0" minWidth="60.0" prefWidth="60.0" />
-                                                      <VBox fx:id="spinnerBtnPan" spacing="3.0">
-                                                         <children>
-                                                            <Button fx:id="btnOkSpinner" contentDisplay="CENTER" ellipsisString="" maxHeight="16.0" maxWidth="16.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0" />
-                                                            <Button fx:id="btnCancelSpinner" maxHeight="16.0" maxWidth="16.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0" />
-                                                         </children>
-                                                         <HBox.margin>
-                                                            <Insets left="3.0" />
-                                                         </HBox.margin>
-                                                      </VBox>
-                                                   </children>
-                                                </HBox>
-                                             </children>
-                                             <padding>
-                                                <Insets left="5.0" top="8.0" />
-                                             </padding>
-                                          </HBox>
-                                          <TableView fx:id="tableComplex" maxHeight="1.7976931348623157E308" minHeight="50.0" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
-                                       </children>
-                                    </VBox>
                                  </children>
                               </AnchorPane>
                         </content>
