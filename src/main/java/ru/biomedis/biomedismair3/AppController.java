@@ -16,6 +16,8 @@ import javafx.scene.control.*;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -109,6 +111,7 @@ public class AppController  extends BaseController {
     private String fsDeviceName="";
     private SimpleBooleanProperty connectedDevice =new SimpleBooleanProperty(false);//подключено ли устройство
 
+    private static TabPane _therapyTabPane;
 
     private Image imageDone;
     private Image imageCancel;
@@ -176,7 +179,7 @@ public class AppController  extends BaseController {
 
         res=rb;
         initNamesTables();
-
+        _therapyTabPane = therapyTabPane;
         dataPathMenuItem.setVisible(OSValidator.isWindows());//видимость пункта меню для введения пути к папки данных, только на винде!
         clearTrinityItem.disableProperty().bind(m2Connected.not());
         updateBaseMenu.setVisible(getApp().isUpdateBaseMenuVisible());
@@ -217,7 +220,7 @@ public class AppController  extends BaseController {
 
         initSectionTreeActionListener();
 
-        tablesMenuHelper = initContextMenuHotKeyHolders();
+
 
         try {
             profileAPI = initProfileTab();
@@ -269,6 +272,8 @@ public class AppController  extends BaseController {
         menuExportTherapyComplex.disableProperty().bind(ComplexTable.getInstance().getSelectedItemProperty().isNull());
         menuImportTherapyComplex.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
         /***************/
+
+        //tablesMenuHelper = initContextMenuHotKeyHolders();
     }
 
 
@@ -377,10 +382,6 @@ public class AppController  extends BaseController {
         ComplexController cc = (ComplexController)replaceContent("/fxml/ComplexTab.fxml", complexLayout);
         cc.setTherapyTabPane(therapyTabPane);
         cc.setDevicePathMethod(()->devicePath);
-        cc.setPasteInTables(this::pasteInTables);
-        cc.setCutInTables(this::cutInTables);
-        cc.setDeleteInTable(this::deleteInTables);
-        cc.setCopyInTable(this::copyInTables);
         return cc;
     }
 
@@ -741,15 +742,7 @@ public class AppController  extends BaseController {
     }
 
 
-    private boolean isProfileTabSelected(){
-        return 0 == therapyTabPane.getSelectionModel().getSelectedIndex();
-    }
-    private boolean isComplexesTabSelected(){
-        return 1 == therapyTabPane.getSelectionModel().getSelectedIndex();
-    }
-    private boolean isProgramsTabSelected(){
-        return 2 == therapyTabPane.getSelectionModel().getSelectedIndex();
-    }
+
 
     public void onPrintComplex(){
         complexAPI.printComplex();
@@ -762,42 +755,57 @@ public class AppController  extends BaseController {
         MenuItem mh3 =new MenuItem(this.res.getString("app.cut"));
         MenuItem mh4 =new MenuItem(this.res.getString("app.delete"));
 
+        mh1.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN));
+        mh2.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
+        mh3.setAccelerator(new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN));
+        mh4.setAccelerator(new KeyCodeCombination(KeyCode.DELETE));
+
+        mh3.setOnAction(e->cutInTables());
+        mh1.setOnAction(e->copyInTables());
+        mh2.setOnAction(e->pasteInTables());
+        mh4.setOnAction(e->deleteInTables());
+
         tablesMenuHelper.add(mh1);
         tablesMenuHelper.add(mh2);
         tablesMenuHelper.add(mh3);
         tablesMenuHelper.add(mh4);
 
-        mh1.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
-        mh2.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
-        mh3.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
-        mh4.setAccelerator(KeyCombination.keyCombination("Delete"));
-
-        mh1.setOnAction(e->cutInTables());
-        mh1.setOnAction(e->copyInTables());
-        mh1.setOnAction(e->pasteInTables());
-        mh1.setOnAction(e->deleteInTables());
         return  tablesMenuHelper;
     }
 
-    private void deleteInTables() {
+    private static boolean isProfileTabSelected(){
+        return 0 == _therapyTabPane.getSelectionModel().getSelectedIndex();
+    }
+    private static  boolean isComplexesTabSelected(){
+        return 1 == _therapyTabPane.getSelectionModel().getSelectedIndex();
+    }
+    private static boolean isProgramsTabSelected(){
+        return 2 == _therapyTabPane.getSelectionModel().getSelectedIndex();
+    }
+
+    public static  void deleteInTables() {
+        System.out.println("deleteInTables");
         if(isProgramsTabSelected())  programAPI.removePrograms();
         else if(isComplexesTabSelected()) complexAPI.removeComplex();
         else if(isProfileTabSelected())   profileAPI.removeProfile();
     }
 
-    private void pasteInTables() {
+    public static  void pasteInTables() {
+        System.out.println("pasteInTables");
         if(isProgramsTabSelected()) programAPI.pasteTherapyPrograms();
         else if(isComplexesTabSelected()) complexAPI.pasteTherapyComplexes();
         else if(isProfileTabSelected()) profileAPI.pasteProfile();
     }
 
-    private void copyInTables() {
+    public static  void copyInTables() {
+        System.out.println("copyInTables");
         if(isProgramsTabSelected()) programAPI.copySelectedTherapyProgramsToBuffer();
         else if(isComplexesTabSelected()) complexAPI.copySelectedTherapyComplexesToBuffer();
 
     }
 
-    private void cutInTables() {
+    public  static void cutInTables() {
+        System.out.println("cutInTables");
         if(isProgramsTabSelected()) programAPI.cutSelectedTherapyProgramsToBuffer();
         else if(isComplexesTabSelected()) complexAPI.cutSelectedTherapyComplexesToBuffer();
         else if(isProfileTabSelected()) profileAPI.cutProfileToBuffer();

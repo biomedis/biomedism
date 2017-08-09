@@ -9,9 +9,7 @@ import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.DataFormat;
-import javafx.scene.input.KeyCombination;
+import javafx.scene.input.*;
 import javafx.stage.Modality;
 import ru.biomedis.biomedismair3.App;
 import ru.biomedis.biomedismair3.BaseController;
@@ -267,10 +265,9 @@ public class ProfileTable {
         mip5.setOnAction(e->onPrintProfile.run());
 
 
-        mip3.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
-        //mip1.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
-        mip2.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
-        mip4.setAccelerator(KeyCombination.keyCombination("Delete"));
+        mip3.setAccelerator(new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN));
+        mip2.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
+        mip4.setAccelerator(new KeyCodeCombination(KeyCode.DELETE));
         profileMenu.getItems().addAll(mip3,mip2,mip4,mip6,mip5,translateMenu);
         mip3.setOnAction(e->cutInTables.run());
         mip2.setOnAction(e->pasteInTables.run());

@@ -88,10 +88,10 @@ public class ProgramController extends BaseController implements ProgramAPI{
         programTable = initProgramsTable();
         programTable.initProgramsTableContextMenu(this::copyTherapyProgramToBase,
                 this::editMP3ProgramPath,
-                this::cutSelectedTherapyProgramsToBuffer,
-                this::copySelectedTherapyProgramsToBuffer,
-                this::pasteTherapyPrograms,
-                this::onRemovePrograms,
+                AppController::cutInTables,
+                AppController::copyInTables,
+                AppController::pasteInTables,
+                AppController::deleteInTables,
                 ()->therapyProgramsCopied,
                 ()-> {
                     boolean res = true;
@@ -657,7 +657,12 @@ public class ProgramController extends BaseController implements ProgramAPI{
             }
 
         }
-
+        //чтобы инициировать проверку видимости кнопкок вверх и вниз, если при вставке не изменился выделенный элемент
+        if(tableProgram.getSelectionModel().getSelectedIndices().size()==1){
+            int ind = tableProgram.getSelectionModel().getSelectedIndex();
+            tableProgram.getSelectionModel().clearSelection();
+            tableProgram.getSelectionModel().select(ind);
+        }
         therapyProgramsCopied=false;
         therapyPrograms.clear();
         clipboard.clear();
@@ -781,6 +786,12 @@ public class ProgramController extends BaseController implements ProgramAPI{
 
             return;
         }finally {
+            //чтобы инициировать проверку видимости кнопкок вверх и вниз, если при вставке не изменился выделенный элемент
+            if(tableProgram.getSelectionModel().getSelectedIndices().size()==1){
+               int ind = tableProgram.getSelectionModel().getSelectedIndex();
+                tableProgram.getSelectionModel().clearSelection();
+                tableProgram.getSelectionModel().select(ind);
+            }
             clipboard.clear();
         }
     }

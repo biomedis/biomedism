@@ -106,14 +106,14 @@ public class ComplexController extends BaseController implements ComplexAPI{
         initGenerateComplexesButton();
         complexTable.initComplexesContextMenu(() -> getDevicePath()!=null,
                 this::onPrintComplex,
-                this::cutSelectedTherapyComplexesToBuffer,
-                this::removeComplex,
+                AppController::cutInTables,
+                AppController::deleteInTables,
                 this::copyTherapyComplexToBase,
                 this::generateComplexes,
                 this::uploadComplexesToDir,
                 this::uploadComplexesToM,
-                this::copySelectedTherapyComplexesToBuffer,
-                this::pasteTherapyComplexes,
+                AppController::copyInTables,
+                AppController::pasteInTables,
                 this::complexesToBiofon,
                 ()->{
                     boolean res=true;
@@ -141,9 +141,9 @@ public class ComplexController extends BaseController implements ComplexAPI{
         });
 
         this.tableComplex.setOnKeyReleased((e) -> {
-            if(e.getCode() == KeyCode.DELETE) {
-                this.onRemoveComplex();
-            }else
+           // if(e.getCode() == KeyCode.DELETE) {
+            //    this.onRemoveComplex();
+            //}else
 
             if(e.getCode() == KeyCode.A && e.isControlDown()) {
                 if(ComplexTable.getInstance().isTextEdited()) return;
@@ -177,24 +177,6 @@ public class ComplexController extends BaseController implements ComplexAPI{
         devicePathFunc =f;
     }
     private Path getDevicePath(){return devicePathFunc.get();}
-
-    Runnable cutInTables;
-    public void setCutInTables(Runnable f){
-        cutInTables =f;
-    }
-    Runnable pasteInTables;
-    public void setPasteInTables(Runnable f){
-        pasteInTables = f;
-    }
-    Runnable deleteInTables;
-    public void setDeleteInTable(Runnable f){
-        deleteInTables =f;
-    }
-
-    Runnable copyInTables;
-    public void setCopyInTable(Runnable f){
-        copyInTables =f;
-    }
 
     public void setTherapyTabPane( TabPane pane){ therapyTabPane=pane;}
 

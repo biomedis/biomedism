@@ -12,9 +12,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.DataFormat;
-import javafx.scene.input.KeyCombination;
+import javafx.scene.input.*;
 import javafx.scene.layout.HBox;
 import javafx.stage.Modality;
 import ru.biomedis.biomedismair3.App;
@@ -246,10 +244,10 @@ public class ComplexTable {
 
         MenuItem mic13 =new MenuItem(this.res.getString("app.ui.printing_complexes"));
 
-        mic11.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
-        mic9.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
-        mic10.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
-        mic12.setAccelerator(KeyCombination.keyCombination("Delete"));
+        mic11.setAccelerator(new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN));
+        mic9.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN));
+        mic10.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
+        mic12.setAccelerator(new KeyCodeCombination(KeyCode.DELETE));
 
         mic13.setOnAction(e->onPrintComplex.run());
         mic11.setOnAction(e-> cutInTables.run());

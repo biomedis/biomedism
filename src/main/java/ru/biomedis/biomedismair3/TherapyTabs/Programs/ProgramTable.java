@@ -12,10 +12,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.Clipboard;
-import javafx.scene.input.ClipboardContent;
-import javafx.scene.input.DataFormat;
-import javafx.scene.input.KeyCombination;
+import javafx.scene.input.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.stage.Modality;
@@ -321,10 +318,10 @@ public class ProgramTable {
         MenuItem mi2=new MenuItem(res.getString("app.paste"));
         MenuItem mi16=new MenuItem(res.getString("app.delete"));
 
-        mi1.setAccelerator(KeyCombination.keyCombination("Ctrl+X"));
-        mi7.setAccelerator(KeyCombination.keyCombination("Ctrl+C"));
-        mi2.setAccelerator(KeyCombination.keyCombination("Ctrl+V"));
-        mi16.setAccelerator(KeyCombination.keyCombination("Delete"));
+        mi1.setAccelerator(new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN));
+        mi7.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN));
+        mi2.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
+        mi16.setAccelerator(new KeyCodeCombination(KeyCode.DELETE));
 
         MenuItem mi3=new SeparatorMenuItem();
         MenuItem mi4=new MenuItem(res.getString("app.to_user_base"));

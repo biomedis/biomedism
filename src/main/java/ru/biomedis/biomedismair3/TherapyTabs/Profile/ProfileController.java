@@ -71,9 +71,9 @@ public class ProfileController extends BaseController implements ProfileAPI {
         btnGenerate.setDisable(true);
         profileTable = initProfileTable();
         profileTable.initProfileContextMenu( this::onPrintProfile,
-                this::cutProfileToBuffer,
-                this::pasteProfile,
-                this::removeProfile);
+                AppController::cutInTables,
+                AppController::pasteInTables,
+                AppController::deleteInTables);
 
         btnDeleteProfile.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
 
@@ -85,8 +85,8 @@ public class ProfileController extends BaseController implements ProfileAPI {
     private void initHotKeyProfileTab() {
         tableProfile.setOnKeyReleased(event ->
         {
-            if(event.getCode()== KeyCode.DELETE) removeProfile();
-            else
+            //if(event.getCode()== KeyCode.DELETE) removeProfile();
+            //else
             if(event.getCode()==KeyCode.RIGHT && !therapyTabPane.getTabs().get(1).isDisable()){
                 if(ProfileTable.getInstance().isTextEdited()) return;
                 therapyTabPane.getSelectionModel().select(1);
