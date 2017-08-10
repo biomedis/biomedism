@@ -90,7 +90,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
         initDoubleClickSwitchTable();
         initHotKeyProfileTab();
 
-
+        initProfileSelectedListener();
 
     }
 
@@ -178,6 +178,37 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
 
     }
+
+    private void initProfileSelectedListener() {
+        ProfileTable.getInstance().getSelectedItemProperty().addListener((observable, oldValue, newValue) ->
+        {
+            if (oldValue != newValue) {
+                //закроем кнопки спинера времени на частоту
+                getComplexAPI().hideSpinners();
+
+                ComplexTable.getInstance().getAllItems().clear();
+                //добавляем через therapyComplexItems иначе не будет работать event на изменение элементов массива и не будут работать галочки мультичастот
+
+                List<TherapyComplex> therapyComplexes = getModel().findTherapyComplexes(newValue);
+                try {
+                    checkBundlesLength(therapyComplexes);
+                } catch (Exception e) {
+                    Log.logger.error("",e);
+                    showExceptionDialog("Ошибка обновления комплексов","","",e,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                    return;
+                }
+                ComplexTable.getInstance().getAllItems().addAll(therapyComplexes);
+
+
+                if(newValue!=null){
+                    if(getModel().isNeedGenerateFilesInProfile(newValue)) enableGenerateBtn();
+                    else disableGenerateBtn();
+                }
+            }
+
+        });
+    }
+
     private ProfileTable initProfileTable() {
         return ProfileTable.init(tableProfile, res);
     }
