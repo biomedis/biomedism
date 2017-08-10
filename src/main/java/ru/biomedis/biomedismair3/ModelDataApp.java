@@ -131,7 +131,7 @@ public class ModelDataApp {
         
         defaultLanguage=languageMap.get("en");
         userLanguage=languageMap.get("user");
-        setProgramLanguageDefault();
+        //setProgramLanguageDefault();
 
 
         //работа с опциями. Стоит сделать проферку наличия конкретных опций, чтобы добавлять их без очистки базы
