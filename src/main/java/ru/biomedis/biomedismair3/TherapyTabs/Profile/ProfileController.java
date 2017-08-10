@@ -17,7 +17,9 @@ import javafx.stage.StageStyle;
 import ru.biomedis.biomedismair3.*;
 import ru.biomedis.biomedismair3.Dialogs.SearchProfile;
 import ru.biomedis.biomedismair3.Dialogs.TextInputValidationController;
+import ru.biomedis.biomedismair3.Layouts.LeftPanel.LeftPanelAPI;
 import ru.biomedis.biomedismair3.Layouts.ProgressPanel.ProgressAPI;
+import ru.biomedis.biomedismair3.TherapyTabs.Complex.ComplexAPI;
 import ru.biomedis.biomedismair3.TherapyTabs.Complex.ComplexTable;
 import ru.biomedis.biomedismair3.TherapyTabs.Programs.ProgramTable;
 import ru.biomedis.biomedismair3.entity.Profile;
@@ -55,6 +57,9 @@ public class ProfileController extends BaseController implements ProfileAPI {
     private SimpleBooleanProperty m2Connected;
     private SimpleBooleanProperty connectedDevice;
 
+    private LeftPanelAPI leftAPI;
+    private ComplexAPI complexAPI;
+
     @Override
     protected void onCompletedInitialise() {
 
@@ -68,6 +73,8 @@ public class ProfileController extends BaseController implements ProfileAPI {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         res = resources;
+        leftAPI = getLeftAPI();
+        complexAPI =getComplexAPI();
         btnGenerate.setDisable(true);
         profileTable = initProfileTable();
         profileTable.initProfileContextMenu( this::onPrintProfile,
@@ -80,6 +87,18 @@ public class ProfileController extends BaseController implements ProfileAPI {
         initDoubleClickSwitchTable();
         initHotKeyProfileTab();
 
+        initProfileSelectedListener();
+
+    }
+
+    private LeftPanelAPI getLeftAPI(){
+        return AppController.getLeftAPI();
+    }
+
+    private ComplexAPI getComplexAPI(){return AppController.getComplexAPI();}
+
+    private ProgressAPI getProgressAPI(){
+        return AppController.getProgressAPI();
     }
 
     private void initHotKeyProfileTab() {
@@ -1241,9 +1260,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
     }
 
-    private ProgressAPI getProgressAPI(){
-        return AppController.getProgressAPI();
-    }
+
 
     public void onPrintProfile(){
         printProfile();
@@ -1406,6 +1423,37 @@ public class ProfileController extends BaseController implements ProfileAPI {
         }
 
     }
+
+    private void initProfileSelectedListener() {
+        ProfileTable.getInstance().getSelectedItemProperty().addListener((observable, oldValue, newValue) ->
+        {
+            if (oldValue != newValue) {
+                //закроем кнопки спинера времени на частоту
+                complexAPI.hideSpinners();
+
+                ComplexTable.getInstance().getAllItems().clear();
+                //добавляем через therapyComplexItems иначе не будет работать event на изменение элементов массива и не будут работать галочки мультичастот
+
+                List<TherapyComplex> therapyComplexes = getModel().findTherapyComplexes(newValue);
+                try {
+                    checkBundlesLength(therapyComplexes);
+                } catch (Exception e) {
+                    Log.logger.error("",e);
+                    showExceptionDialog("Ошибка обновления комплексов","","",e,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                    return;
+                }
+                ComplexTable.getInstance().getAllItems().addAll(therapyComplexes);
+
+
+                if(newValue!=null){
+                    if(getModel().isNeedGenerateFilesInProfile(newValue)) enableGenerateBtn();
+                    else disableGenerateBtn();
+                }
+            }
+
+        });
+    }
+
     /*** API **/
     @Override
     public void disableGenerateBtn() {
