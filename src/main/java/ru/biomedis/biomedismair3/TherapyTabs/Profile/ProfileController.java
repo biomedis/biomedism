@@ -12,6 +12,7 @@ import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.KeyCode;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import ru.biomedis.biomedismair3.*;
@@ -22,13 +23,15 @@ import ru.biomedis.biomedismair3.Layouts.ProgressPanel.ProgressAPI;
 import ru.biomedis.biomedismair3.TherapyTabs.Complex.ComplexAPI;
 import ru.biomedis.biomedismair3.TherapyTabs.Complex.ComplexTable;
 import ru.biomedis.biomedismair3.TherapyTabs.Programs.ProgramTable;
+import ru.biomedis.biomedismair3.UserUtils.Export.ExportProfile;
+import ru.biomedis.biomedismair3.UserUtils.Import.ImportProfile;
 import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
 import ru.biomedis.biomedismair3.entity.TherapyProgram;
 import ru.biomedis.biomedismair3.m2.*;
 import ru.biomedis.biomedismair3.utils.Audio.MP3Encoder;
 import ru.biomedis.biomedismair3.utils.Date.DateUtil;
-import ru.biomedis.biomedismair3.utils.Files.FilesProfileHelper;
+import ru.biomedis.biomedismair3.utils.Files.*;
 import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
 import java.io.File;
@@ -87,7 +90,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
         initDoubleClickSwitchTable();
         initHotKeyProfileTab();
 
-        initProfileSelectedListener();
+
 
     }
 
@@ -1424,35 +1427,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
     }
 
-    private void initProfileSelectedListener() {
-        ProfileTable.getInstance().getSelectedItemProperty().addListener((observable, oldValue, newValue) ->
-        {
-            if (oldValue != newValue) {
-                //закроем кнопки спинера времени на частоту
-                complexAPI.hideSpinners();
 
-                ComplexTable.getInstance().getAllItems().clear();
-                //добавляем через therapyComplexItems иначе не будет работать event на изменение элементов массива и не будут работать галочки мультичастот
-
-                List<TherapyComplex> therapyComplexes = getModel().findTherapyComplexes(newValue);
-                try {
-                    checkBundlesLength(therapyComplexes);
-                } catch (Exception e) {
-                    Log.logger.error("",e);
-                    showExceptionDialog("Ошибка обновления комплексов","","",e,getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                    return;
-                }
-                ComplexTable.getInstance().getAllItems().addAll(therapyComplexes);
-
-
-                if(newValue!=null){
-                    if(getModel().isNeedGenerateFilesInProfile(newValue)) enableGenerateBtn();
-                    else disableGenerateBtn();
-                }
-            }
-
-        });
-    }
 
     /*** API **/
     @Override
@@ -1553,5 +1528,478 @@ public class ProfileController extends BaseController implements ProfileAPI {
         content.put(ProfileTable.PROFILE_CUT_ITEM_INDEX, ProfileTable.getInstance().getSelectedIndex());
         clipboard.setContent(content);
     }
+
+
+    @Override
+    public  void exportProfile()
+    {
+        Profile selectedItem = ProfileTable.getInstance().getSelectedItem();
+        if(selectedItem == null) return;
+
+        //получим путь к файлу.
+        File file=null;
+
+
+        FileChooser fileChooser =new FileChooser();
+        fileChooser.setTitle(res.getString("app.title32")+" - "+selectedItem.getName());
+
+        fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlp", "*.xmlp"));
+        fileChooser.setInitialFileName(TextUtil.replaceWinPathBadSymbols(selectedItem.getName())+".xmlp" );
+        file= fileChooser.showSaveDialog(getApp().getMainWindow());
+
+        if(file==null)return;
+        final Profile prof=selectedItem;
+        final File fileToSave=file;
+
+
+        getModel().setLastExportPath(file.getParentFile());
+
+
+
+        getProgressAPI().setProgressIndicator(res.getString("app.title33"));
+        Task<Boolean> task =new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception
+            {
+
+                boolean res= ExportProfile.export(prof,fileToSave,getModel());
+                if(res==false) {this.failed();return false;}
+                else return true;
+
+            }
+        };
+
+        task.setOnRunning(event1 -> getProgressAPI().setProgressIndicator(-1.0, res.getString("app.title34")));
+        task.setOnSucceeded(event ->
+        {
+            if (task.getValue()) getProgressAPI().setProgressIndicator(1.0, res.getString("app.title35"));
+            else getProgressAPI().setProgressIndicator(res.getString("app.title36"));
+            getProgressAPI().hideProgressIndicator(true);
+        });
+
+        task.setOnFailed(event -> {
+            getProgressAPI().setProgressIndicator(res.getString("app.title36"));
+            getProgressAPI().hideProgressIndicator(true);
+        });
+
+        Thread threadTask=new Thread(task);
+
+        threadTask.setDaemon(true);
+
+        threadTask.start();
+
+        selectedItem=null;
+    }
+
+    @Override
+    public void importProfile()
+    {
+
+        //получим путь к файлу.
+        File file=null;
+
+        FileChooser fileChooser =new FileChooser();
+        fileChooser.setTitle(res.getString("app.title40"));
+
+        fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlp", "*.xmlp"));
+        file= fileChooser.showOpenDialog(getApp().getMainWindow());
+
+        if(file==null)return;
+
+
+
+        final File fileToSave=file;
+
+        final ImportProfile imp=new ImportProfile();
+
+        Task<Boolean> task =new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception
+            {
+
+                imp.setListener(new ImportProfile.Listener() {
+                    @Override
+                    public void onStartParse() {
+                        updateProgress(10, 100);
+                    }
+
+                    @Override
+                    public void onEndParse() {
+                        updateProgress(30, 100);
+                    }
+
+                    @Override
+                    public void onStartAnalize() {
+                        updateProgress(35, 100);
+                    }
+
+                    @Override
+                    public void onEndAnalize() {
+                        updateProgress(50, 100);
+                    }
+
+                    @Override
+                    public void onStartImport() {
+                        updateProgress(55, 100);
+                    }
+
+                    @Override
+                    public void onEndImport() {
+                        updateProgress(90, 100);
+                    }
+
+                    @Override
+                    public void onSuccess() {
+                        updateProgress(98, 100);
+                    }
+
+                    @Override
+                    public void onError(boolean fileTypeMissMatch) {
+                        imp.setListener(null);
+
+                        if (fileTypeMissMatch) {
+                            showErrorDialog(res.getString("app.title41"), "", res.getString("app.title42"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                        }
+                        failed();
+
+                    }
+                });
+
+                boolean res= imp.parse(fileToSave, getModel());
+
+                if(res==false)
+                {
+                    imp.setListener(null);
+                    this.failed();
+                    return false;}
+                else {
+                    imp.setListener(null);
+                    return true;
+                }
+            }
+
+
+        };
+
+        task.progressProperty().addListener((observable, oldValue, newValue) -> getProgressAPI().setProgressIndicator(newValue.doubleValue()));
+        task.setOnRunning(event1 -> getProgressAPI().setProgressIndicator(0.0, res.getString("app.title43")));
+
+        task.setOnSucceeded(event ->
+        {
+
+            if (task.getValue())
+            {
+                getProgressAPI().setProgressIndicator(1.0, res.getString("app.title44"));
+                ProfileTable.getInstance().getAllItems().add(getModel().getLastProfile());
+                enableGenerateBtn();
+            }
+            else getProgressAPI().setProgressIndicator(res.getString("app.title45"));
+            getProgressAPI().hideProgressIndicator(true);
+        });
+
+        task.setOnFailed(event -> {
+            getProgressAPI().setProgressIndicator(res.getString("app.title45"));
+            getProgressAPI().hideProgressIndicator(true);
+
+        });
+
+        Thread threadTask=new Thread(task);
+        threadTask.setDaemon(true);
+        getProgressAPI().setProgressIndicator(0.01, res.getString("app.title46"));
+        threadTask.start();
+    }
+
+
+    /**
+     * Загрузжает профиль из папки
+     */
+    @Override
+    public void loadProfileDir()
+    {
+
+        DirectoryChooser dirChooser =new DirectoryChooser();
+        dirChooser.setTitle(res.getString("app.menu.read_profile_from_dir"));
+
+        // fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+
+        File dir= dirChooser.showDialog(getApp().getMainWindow());
+        if(dir==null)return;
+
+        Task<Boolean> task=null;
+        boolean profileType=false;
+        try {
+            profileType= testProfileDir(dir);
+        } catch (Exception e) {
+            e.printStackTrace();
+            showExceptionDialog("Ошибка чтения выбранной директории","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+            return;
+        }
+        if(profileType)
+        {
+            //новый профиль
+            task =new Task<Boolean>() {
+                @Override
+                protected Boolean call() throws Exception {
+
+                    boolean r= loadNewProfile(dir);
+                    if(r==false)failed();
+                    return r;
+                }
+            };
+
+        }else
+        {
+            //старый профиль или ничего вообще
+
+            task =new Task<Boolean>() {
+                @Override
+                protected Boolean call() throws Exception {
+
+                    boolean r=  loadOldProfile(dir);
+                    if(r==false)failed();
+                    return r;
+                }
+            };
+        }
+        Task<Boolean> task2=task;
+        task2.setOnRunning(event1 -> getProgressAPI().setProgressBar(0.0, res.getString("app.title102"), ""));
+
+        task2.setOnSucceeded(event ->
+        {
+            Waiter.closeLayer();
+            if (task2.getValue()) {
+                getProgressAPI().hideProgressBar(false);
+                getProgressAPI().setProgressIndicator(1.0, res.getString("app.title103"));
+
+            } else {
+                getProgressAPI().hideProgressBar(false);
+                getProgressAPI().setProgressIndicator(res.getString("app.title93"));
+            }
+            getProgressAPI().hideProgressIndicator(true);
+        });
+
+        task2.setOnFailed(event -> {
+            Waiter.closeLayer();
+            getProgressAPI().hideProgressBar(false);
+            getProgressAPI().setProgressIndicator(res.getString("app.title93"));
+            getProgressAPI().hideProgressIndicator(true);
+        });
+
+
+        Thread threadTask=new Thread(task2);
+        threadTask.setDaemon(true);
+        getProgressAPI().setProgressBar(0.01, res.getString("app.title102"), "");
+
+        Waiter.openLayer(getApp().getMainWindow(),false);
+
+        threadTask.start();
+        Waiter.show();
+    }
+
+    /**
+     * Тестирует директорию на тип профиля. Проводится расширенная проверка
+     * Не решает проблему, если у нас смешанные комплексы, старый и новый вариант
+     * @param profileDir директория профиля
+     * @return true если новый, false если старый
+     */
+    private boolean testProfileDir(File profileDir) throws Exception {
+        //проверим наличие файла profile
+        File f=new   File( profileDir,"profile.txt");
+        if(f.exists()) return true;
+
+        boolean res=true;
+        // до конца рекурсивного цикла
+        if (!profileDir.exists())  throw new Exception();
+        File textFile=null;
+
+        for (File file : profileDir.listFiles( dir -> dir.isDirectory()))
+        {
+            //найдем первый попавшийся текстовый файл
+            textFile=null;
+
+            for (File file1 : file.listFiles((dir, name) -> name.contains(".txt")))
+            {
+                textFile=file1;
+                break;
+            }
+
+            //пустая папка
+            if(textFile==null) continue;
+            //прочитаем файл
+
+            List<String> progrParam = new ArrayList<String>();
+            try( Scanner in = new Scanner(textFile,"UTF-8"))
+            {
+                while (in.hasNextLine()) progrParam.add(in.nextLine().replace("@",""));
+            }catch (Exception e) {res=false;break;}
+
+            if(progrParam.size()<8) {res=false;break;}
+            else {res=true;break;}
+        }
+        return res;
+    }
+
+    private boolean loadNewProfile(File dir)
+    {
+        File profileFile=new File(dir,"profile.txt");
+        //стоит учесть факт того, что у нас может быть новый профиль но без файла profile!
+        List<String> profileParam = new ArrayList<String>();
+        if(profileFile.exists()) {
+            try (Scanner in = new Scanner(profileFile, "UTF-8")) {
+                while (in.hasNextLine()) profileParam.add(in.nextLine());
+
+            } catch (IOException e) {
+                logger.error("", e);
+                showExceptionDialog(res.getString("app.title116"), res.getString("app.title106"), res.getString("app.title117"), e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                return false;
+            } catch (Exception e) {
+                logger.error("", e);
+                showExceptionDialog(res.getString("app.title116"), res.getString("app.title106"), res.getString("app.title117"), e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                return false;
+            }
+            if (profileParam.size() != 3) {
+                showErrorDialog(res.getString("app.title116"), res.getString("app.title106"), res.getString("app.title117"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                return false;
+            }
+        }
+        long idProf;
+        String uuidP;
+        String nameP;
+        Profile profile=null;
+
+        if(!profileParam.isEmpty())
+        {
+            idProf=Long.parseLong(profileParam.get(0));
+            uuidP=profileParam.get(1);
+            nameP=profileParam.get(2);
+        }else {
+            idProf=0;
+            uuidP=UUID.randomUUID().toString();
+            nameP="New profile";
+        }
+
+        final String up=uuidP;
+        long cnt= ProfileTable.getInstance().getAllItems().stream().filter(itm->itm.getUuid().equals(up)).count();
+        if(cnt!=0)
+        {
+            idProf=0;
+            uuidP=UUID.randomUUID().toString();
+            nameP="New profile";
+
+        }
+
+        //получим список комплексов
+
+        try {
+            List<ComplexFileData> complexes = FilesProfileHelper.getComplexes(dir);
+            Map<ComplexFileData,Map<Long, ProgramFileData>> data=new LinkedHashMap<>();
+            for (ComplexFileData complex : complexes)data.put(complex,FilesProfileHelper.getProgramms(complex.getFile()));
+
+///создадим теперь все если все нормально
+            try {
+                profile = getModel().createProfile(nameP);
+                profile.setUuid(uuidP);//сделаем uuid такой же как и в папке, если это прибор то мы сможем манипулировать профилем после этого!!!
+                getModel().updateProfile(profile);
+                ProfileTable.getInstance().getAllItems().add(profile);
+
+                TherapyComplex th=null;
+
+                for (Map.Entry<ComplexFileData, Map<Long, ProgramFileData>> complexFileDataMapEntry : data.entrySet())
+                {
+                    int ind= complexFileDataMapEntry.getKey().getName().indexOf("(");
+                    int ind2= complexFileDataMapEntry.getKey().getName().indexOf("-");
+                    if(ind==-1) ind= complexFileDataMapEntry.getKey().getName().length()-1;
+                    if(ind2==-1) ind2= 0;
+
+                    th=  getModel().createTherapyComplex(complexFileDataMapEntry.getKey().getSrcUUID(),profile, complexFileDataMapEntry.getKey().getName().substring(ind2+1,ind), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(),complexFileDataMapEntry.getKey().getBundlesLength());
+
+                    for (Map.Entry<Long, ProgramFileData> entry : complexFileDataMapEntry.getValue().entrySet())
+                    {
+                        if(entry.getValue().isMp3())   getModel().createTherapyProgramMp3(th,entry.getValue().getName(),"",entry.getValue().getFreqs());
+                        else getModel().createTherapyProgram(entry.getValue().getSrcUUID(), th,entry.getValue().getName(),"",entry.getValue().getFreqs(),entry.getValue().isMulty());
+
+                    }
+                }
+
+                enableGenerateBtn();
+            } catch (Exception e) {
+                logger.error("",e);
+                showExceptionDialog("Ошибка сохраниения данных в базе","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                return false;
+            }
+
+        }
+
+        catch (OldComplexTypeException e) {
+            logger.error("",e);
+            showErrorDialog(res.getString("app.title116"), res.getString("app.title118"), res.getString("app.title117"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
+            return false;
+        }
+        catch (Exception e)
+        {
+            logger.error("",e);
+            showExceptionDialog("Ошибка создания или обновления комплекса", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+            return false;
+        }
+        Profile pp=profile;
+        if(profile!=null)  Platform.runLater(() ->  ProfileTable.getInstance().select(pp));
+        return true;
+    }
+
+
+    private boolean loadOldProfile(File dir)
+    {
+        Profile   profile=null;
+        try {
+            List<ComplexFileData> complexes = FilesOldProfileHelper.getComplexes(dir);
+            Map<ComplexFileData,Map<Long, ProgramFileData>> data=new LinkedHashMap<>();
+            for (ComplexFileData complex : complexes)data.put(complex,FilesOldProfileHelper.getProgramms(complex.getFile(),(int)complex.getTimeForFreq()));
+
+            if(complexes.isEmpty()) return false;
+///создадим теперь все если все нормально
+            try {
+                profile = getModel().createProfile("New profile");
+                profile.setUuid("");
+                getModel().updateProfile(profile);
+
+                TherapyComplex th=null;
+
+                for (Map.Entry<ComplexFileData, Map<Long, ProgramFileData>> complexFileDataMapEntry : data.entrySet())
+                {
+                    th=  getModel().createTherapyComplex("",profile, complexFileDataMapEntry.getKey().getName(), "", (int) complexFileDataMapEntry.getKey().getTimeForFreq(),3);
+                    for (Map.Entry<Long, ProgramFileData> entry : complexFileDataMapEntry.getValue().entrySet())
+                    {
+                        getModel().createTherapyProgram("",th,entry.getValue().getName(),"",entry.getValue().getFreqs(),true);
+
+                    }
+                }
+                enableGenerateBtn();
+
+            } catch (Exception e) {
+                logger.error("",e);
+                showExceptionDialog("Ошибка сохраниения данных в базе","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                return  false;
+            }
+        }
+        catch (Exception e)
+        {
+            logger.error("",e);
+            showExceptionDialog(res.getString("app.error"), "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+            return  false;
+        }
+
+        Profile prf=profile;
+        if(profile!=null) Platform.runLater(() ->
+        {
+            ProfileTable.getInstance().getAllItems().add(prf);
+            ProfileTable.getInstance().select(prf);
+
+        });
+        return  true;
+    }
+
+
 
 }

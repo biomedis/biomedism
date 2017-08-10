@@ -17,6 +17,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import ru.biomedis.biomedismair3.*;
@@ -28,10 +29,13 @@ import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileAPI;
 import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileTable;
 import ru.biomedis.biomedismair3.TherapyTabs.Programs.ProgramTable;
 import ru.biomedis.biomedismair3.TherapyTabs.TablesCommon;
+import ru.biomedis.biomedismair3.UserUtils.Export.ExportTherapyComplex;
+import ru.biomedis.biomedismair3.UserUtils.Import.ImportTherapyComplex;
 import ru.biomedis.biomedismair3.entity.*;
 import ru.biomedis.biomedismair3.utils.Audio.MP3Encoder;
 import ru.biomedis.biomedismair3.utils.Date.DateUtil;
 import ru.biomedis.biomedismair3.utils.Files.FilesProfileHelper;
+import ru.biomedis.biomedismair3.utils.Files.ProgramFileData;
 import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
 import java.io.File;
@@ -39,6 +43,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -1313,4 +1318,306 @@ public class ComplexController extends BaseController implements ComplexAPI{
         clipboard.setContent(content);
 
     }
+
+    @Override
+    public void exportTherapyComplexes(List<TherapyComplex> complexes)
+    {
+        if(complexes.isEmpty()) return;
+
+        final List<TherapyComplex> selectedItems = complexes;
+
+        //получим путь к файлу.
+        File file=null;
+        String initname;
+
+        if(selectedItems.size()>1)initname=ProfileTable.getInstance().getSelectedItem().getName();
+        else initname=selectedItems.get(0).getName();
+
+        FileChooser fileChooser =new FileChooser();
+        fileChooser.setTitle(res.getString("app.title37"));
+        fileChooser.setInitialFileName(TextUtil.replaceWinPathBadSymbols(initname)+".xmlc");
+        fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlc", "*.xmlc"));
+        file= fileChooser.showSaveDialog(getApp().getMainWindow());
+
+        if(file==null)return;
+
+        final File fileToSave=file;
+
+
+        getProgressAPI().setProgressIndicator(res.getString("app.title38"));
+        Task<Boolean> task =new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception
+            {
+
+                boolean res= ExportTherapyComplex.export(selectedItems, fileToSave, getModel());
+                if(res==false) {this.failed();return false;}
+                else return true;
+
+            }
+        };
+
+
+        task.setOnRunning(event1 -> getProgressAPI().setProgressIndicator(-1.0, res.getString("app.title34")));
+        task.setOnSucceeded(event ->
+        {
+            if (task.getValue()) getProgressAPI().setProgressIndicator(1.0, res.getString("app.title35"));
+            else getProgressAPI().setProgressIndicator(res.getString("app.title39"));
+            getProgressAPI().hideProgressIndicator(true);
+        });
+
+        task.setOnFailed(event -> {
+            getProgressAPI().setProgressIndicator(res.getString("app.title39"));
+            getProgressAPI().hideProgressIndicator(true);
+        });
+
+        Thread threadTask=new Thread(task);
+
+        threadTask.setDaemon(true);
+
+        threadTask.start();
+    }
+
+    /**
+     * Импорт комплексов из файла
+     * @param profile
+     * @param afterAction выполняется после всего, в случае успеха. Передается параметр ему кол-во импортированных комплексов
+     */
+    @Override
+    public void importTherapyComplex(Profile profile, Consumer<Integer> afterAction)
+    {
+        if(profile==null)return;
+
+//получим путь к файлу.
+        File file=null;
+
+        FileChooser fileChooser =new FileChooser();
+        fileChooser.setTitle(res.getString("app.title62"));
+
+        fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlc", "*.xmlc"));
+        file= fileChooser.showOpenDialog(getApp().getMainWindow());
+
+        if(file==null)return;
+
+        final File fileToSave=file;
+
+        final ImportTherapyComplex imp=new ImportTherapyComplex();
+        final ResourceBundle rest=res;
+        Task<Integer> task =new Task<Integer>() {
+            @Override
+            protected Integer call() throws Exception
+            {
+
+                imp.setListener(new ImportTherapyComplex.Listener() {
+                    @Override
+                    public void onStartParse() {
+                        updateProgress(10, 100);
+                    }
+
+                    @Override
+                    public void onEndParse() {
+                        updateProgress(30, 100);
+                    }
+
+                    @Override
+                    public void onStartAnalize() {
+                        updateProgress(35, 100);
+                    }
+
+                    @Override
+                    public void onEndAnalize() {
+                        updateProgress(50, 100);
+                    }
+
+                    @Override
+                    public void onStartImport() {
+                        updateProgress(55, 100);
+                    }
+
+                    @Override
+                    public void onEndImport() {
+                        updateProgress(90, 100);
+                    }
+
+                    @Override
+                    public void onSuccess() {
+                        updateProgress(98, 100);
+                    }
+
+                    @Override
+                    public void onError(boolean fileTypeMissMatch) {
+                        imp.setListener(null);
+
+                        if (fileTypeMissMatch) {
+                            showErrorDialog(rest.getString("app.title41"), "", rest.getString("app.title42"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                        }
+                        failed();
+
+                    }
+                });
+
+                int res= imp.parse(fileToSave,getModel(),profile);
+
+                if(res==0)
+                {
+                    imp.setListener(null);
+                    this.failed();
+                    return 0;}
+                else {
+                    imp.setListener(null);
+                    return res;
+                }
+
+            }
+
+
+        };
+        task.progressProperty().addListener((observable, oldValue, newValue) -> getProgressAPI().setProgressIndicator(newValue.doubleValue()));
+        task.setOnRunning(event1 -> getProgressAPI().setProgressIndicator(0.0, rest.getString("app.title43")));
+
+        task.setOnSucceeded(event ->
+        {
+
+            if (task.getValue()!=0)
+            {
+
+
+                getProgressAPI().setProgressIndicator(1.0D, rest.getString("app.title44"));
+
+                afterAction.accept(task.getValue());
+
+            }
+            else getProgressAPI().setProgressIndicator(rest.getString("app.title45"));
+            getProgressAPI().hideProgressIndicator(true);
+        });
+
+        task.setOnFailed(event -> {
+            getProgressAPI().setProgressIndicator(rest.getString("app.title45"));
+            getProgressAPI(). hideProgressIndicator(true);
+
+        });
+
+        Thread threadTask=new Thread(task);
+        threadTask.setDaemon(true);
+        getProgressAPI().setProgressIndicator(0.01, rest.getString("app.title46"));
+        threadTask.start();
+    }
+
+    /**
+     * Импорт терап.комплексов из папки
+     */
+    @Override
+    public void importComplexFromDir()
+    {
+        DirectoryChooser dirChooser =new DirectoryChooser();
+        dirChooser.setTitle(res.getString("app.menu.read_complex_from_dir"));
+        File dir= dirChooser.showDialog(getApp().getMainWindow());
+        if(dir==null)return;
+
+        Task<Boolean> task=null;
+        //новый профиль
+        task =new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception {
+
+                boolean r= loadCompex(dir);
+                if(r==false)failed();
+                return r;
+            }
+        };
+        Task<Boolean> task2=task;
+        task2.setOnRunning(event1 -> getProgressAPI().setProgressBar(0.0, res.getString("app.title102"), ""));
+
+        task2.setOnSucceeded(event ->
+        {
+            Waiter.closeLayer();
+            if (task2.getValue()) {
+                getProgressAPI().hideProgressBar(false);
+                getProgressAPI().setProgressIndicator(1.0, res.getString("app.title103"));
+
+                Profile selectedItem =  ProfileTable.getInstance().getSelectedItem();
+                if(selectedItem!=null)   Platform.runLater(() -> {
+                    ProfileTable.getInstance().clearSelection();
+                    ProfileTable.getInstance().select(selectedItem);
+                });
+
+            } else {
+                getProgressAPI().hideProgressBar(false);
+                getProgressAPI().setProgressIndicator(res.getString("app.title93"));
+            }
+            getProgressAPI().hideProgressIndicator(true);
+
+        });
+
+        task2.setOnFailed(event -> {
+            Waiter.closeLayer();
+            getProgressAPI().hideProgressBar(false);
+            getProgressAPI().setProgressIndicator(res.getString("app.title93"));
+            getProgressAPI().hideProgressIndicator(true);
+        });
+        Thread threadTask=new Thread(task2);
+        threadTask.setDaemon(true);
+        getProgressAPI().setProgressBar(0.01, res.getString("app.title102"), "");
+
+        Waiter.openLayer(getApp().getMainWindow(),false);
+        threadTask.start();
+        Waiter.show();
+    }
+
+    /**
+     * Загрузка комплекса их выбранной папки, автоматически определяет старый или новый
+     * Применяется в импорте комплекса из папки
+     * @param dir
+     *
+     * @return
+     */
+    private boolean loadCompex(File dir)
+    {
+
+        Map<Long, ProgramFileData> programms= FilesProfileHelper.getProgrammsFromComplexDir(dir);
+
+        try {
+            if ( programms!=null) {
+                Profile profile =  ProfileTable.getInstance().getSelectedItem();
+                if (profile != null) {
+
+                    String name = dir.getName();
+                    int ind = name.indexOf('-');
+                    if (ind != -1) name = name.substring(ind + 1);
+
+                    ind = name.indexOf('(');
+                    if (ind != -1) name = name.substring(0,ind);
+                    name= name.trim();
+
+                    if(programms.isEmpty())
+                    {
+                        getModel().createTherapyComplex("",profile, name, "", 300,3);
+                    }else
+                    {
+                        Long next = programms.keySet().iterator().next();
+
+                        TherapyComplex th = getModel().createTherapyComplex(programms.get(next).getSrcUUIDComplex(),profile, name, "", (int) programms.get(next).getTimeForFreq(),(int) programms.get(next).getBundlesLenght());
+
+
+                        for (Map.Entry<Long, ProgramFileData> entry : programms.entrySet())
+                        {
+                            if(entry.getValue().isMp3()) getModel().createTherapyProgramMp3(th,entry.getValue().getName(),"",entry.getValue().getFreqs());
+                            else getModel().createTherapyProgram(entry.getValue().getSrcUUID(),th,entry.getValue().getName(),"",entry.getValue().getFreqs(),entry.getValue().isMulty());
+
+                        }
+                        profileAPI.enableGenerateBtn();
+                    }
+
+                }
+            }
+
+        }catch (Exception e){ logger.error("",e);return false;}
+
+        if(programms==null) return false;
+        else return true;
+    }
+
+
 }

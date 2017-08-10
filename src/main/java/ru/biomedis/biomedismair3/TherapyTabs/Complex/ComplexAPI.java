@@ -1,6 +1,10 @@
 package ru.biomedis.biomedismair3.TherapyTabs.Complex;
 
+import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
+
+import java.util.List;
+import java.util.function.Consumer;
 
 public interface ComplexAPI {
     void hideSpinners();
@@ -16,5 +20,11 @@ public interface ComplexAPI {
     void copySelectedTherapyComplexesToBuffer();
 
     void cutSelectedTherapyComplexesToBuffer();
+
+    void exportTherapyComplexes(List<TherapyComplex> complexes);
+
+    void importTherapyComplex(Profile profile, Consumer<Integer> afterAction);
+
+    void importComplexFromDir();
 
 }

@@ -51,5 +51,11 @@ public interface LeftPanelAPI {
      */
     boolean isInUserBaseComplexSelected();
 
+    void exportUserBase();
+
+    void importUserBase();
+
+    void  importComplexToBaseFromDir();
+
 
 }
