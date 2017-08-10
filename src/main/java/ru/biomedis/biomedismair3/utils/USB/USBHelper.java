@@ -383,7 +383,7 @@ static public class USBDeviceHandle{
         ByteBuffer buffer = BufferUtils.allocateByteBuffer(data.length);
         buffer.put(data);
         IntBuffer transferred = BufferUtils.allocateIntBuffer();
-        int result = LibUsb.bulkTransfer(handle.getHandle(), outEndPoint, buffer, transferred, timeout);
+        int result = LibUsb.interruptTransfer(handle.getHandle(), outEndPoint, buffer, transferred, timeout);
         if (result != LibUsb.SUCCESS)
         {
             throw new USBException("Unable to send data", result);
@@ -403,7 +403,7 @@ static public class USBDeviceHandle{
     public static ByteBuffer read(USBDeviceHandle handle, int size, byte inEndPoint, long timeout) throws USBException {
         ByteBuffer buffer = BufferUtils.allocateByteBuffer(size);
         IntBuffer transferred = BufferUtils.allocateIntBuffer();
-        int result = LibUsb.bulkTransfer(handle.getHandle(), inEndPoint, buffer,
+        int result = LibUsb.interruptTransfer(handle.getHandle(), inEndPoint, buffer,
                 transferred, timeout);
         if (result != LibUsb.SUCCESS)
         {
