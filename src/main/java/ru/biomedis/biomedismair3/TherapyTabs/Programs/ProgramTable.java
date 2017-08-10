@@ -524,7 +524,7 @@ public class ProgramTable {
 
 
     private void multyFreqProgramSwitchOff() {
-        List<TherapyProgram> selectedItems = getAllItems().stream().collect(Collectors.toList());
+        List<TherapyProgram> selectedItems = getSelectedItems().stream().collect(Collectors.toList());
         if(selectedItems.size()==0) return;
         try {
 
@@ -551,7 +551,7 @@ public class ProgramTable {
     }
 
     private void multyFreqProgramSwitchOn() {
-        List<TherapyProgram> selectedItems = getAllItems().stream().collect(Collectors.toList());
+        List<TherapyProgram> selectedItems = getSelectedItems().stream().collect(Collectors.toList());
         if(selectedItems.size()==0) return;
         try {
 
