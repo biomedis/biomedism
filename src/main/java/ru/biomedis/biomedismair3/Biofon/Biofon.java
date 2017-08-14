@@ -1,11 +1,10 @@
 package ru.biomedis.biomedismair3.Biofon;
 
 
-
+import org.hid4java.HidDevice;
 import ru.biomedis.biomedismair3.utils.USB.ByteHelper;
 import ru.biomedis.biomedismair3.utils.USB.USBHelper;
 
-import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 
@@ -30,64 +29,63 @@ public class Biofon
      */
     public static BiofonBinaryFile readFromDevice(final boolean debug) throws ReadFromDeviceException {
 
-        USBHelper.USBDeviceHandle usbDeviceHandle=null;
+        HidDevice device=null;
         BiofonBinaryFile biofonBinaryFile=null;
         try {
-         usbDeviceHandle = USBHelper.openDevice(productId, vendorId, 0);
-        byte[] commandRead = new byte[DATA_PACKET_SIZE];
-        commandRead[0]=READ_COMMAND;
-        USBHelper.write(usbDeviceHandle,commandRead,OUT_END_POINT,REQUEST_TIMEOUT_MS);
-
-        //читаем
-        ByteBuffer data = USBHelper.read(usbDeviceHandle, DATA_PACKET_SIZE, IN_END_POINT, REQUEST_TIMEOUT_MS);
-        data.position(0);
-        byte[] bytes2 = new byte[DATA_PACKET_SIZE];
-        data.get(bytes2);
-
-        if(debug) System.out.println(ByteHelper.bytesToHex(bytes2,DATA_PACKET_SIZE,' '));
-
-        data.position(1);
-        int size = data.getChar();
-        if(debug) System.out.println("Size = "+ size);
-        data.position(1);
-
-
-
-        int packets = (int)Math.ceil(size / DATA_PACKET_SIZE);
-        if(debug) System.out.println("packets = "+packets);
-        if(debug) System.out.println("___________________");
-
-        byte[] deviceData = new byte[DATA_PACKET_SIZE*packets];
-        for(int i=0;i<packets;i++){
-
-            USBHelper.write(usbDeviceHandle,commandRead,OUT_END_POINT,REQUEST_TIMEOUT_MS);
+            device = USBHelper.openDevice(productId, vendorId);
+            byte[] commandRead = new byte[DATA_PACKET_SIZE];
+            commandRead[0]=READ_COMMAND;
+            USBHelper.write(device, commandRead);
 
             //читаем
-            data = USBHelper.read(usbDeviceHandle, DATA_PACKET_SIZE, IN_END_POINT, REQUEST_TIMEOUT_MS);
-            data.position(0);
-
-            data.get(deviceData,i*DATA_PACKET_SIZE,DATA_PACKET_SIZE);
-
-        }
-        if(debug) System.out.println(ByteHelper.bytesToHex(deviceData,16,' '));
-        if(debug) System.out.print("Parse data...");
+            byte[] bytes2 = new byte[DATA_PACKET_SIZE];
+            USBHelper.read(device, bytes2, REQUEST_TIMEOUT_MS);
 
 
+            if(debug) System.out.println(ByteHelper.bytesToHex(bytes2,DATA_PACKET_SIZE,' '));
 
-             biofonBinaryFile = new BiofonBinaryFile(deviceData);
-            if(debug) System.out.print("Ok");
+            int size = ByteHelper.byteArray2ToInt(bytes2,1, ByteHelper.ByteOrder.BIG_TO_SMALL);
+            if(debug) System.out.println("Size = "+ size);
 
-            if(debug) System.out.println(biofonBinaryFile.toString());
 
+
+            int packets = (int)Math.ceil(size / DATA_PACKET_SIZE);
+            if(debug) System.out.println("packets = "+packets);
+            if(debug) System.out.println("___________________");
+
+            byte[] deviceData = new byte[DATA_PACKET_SIZE*packets];
+            byte[]  data = new byte[DATA_PACKET_SIZE];
+            int realReading;
+            for(int i=0;i<packets;i++){
+
+                USBHelper.write(device,commandRead);
+                //читаем
+                realReading = USBHelper.read(device, data, REQUEST_TIMEOUT_MS);
+                if(realReading<DATA_PACKET_SIZE) throw new Exception("Прочитанный пакет меньше "+DATA_PACKET_SIZE);
+                copyToBuffer(deviceData,data, realReading, i*DATA_PACKET_SIZE);
+
+                if(debug)System.out.println("Packet: "+i);
+
+
+            }
+            if(debug) System.out.println(ByteHelper.bytesToHex(deviceData,16,' '));
+            if(debug) System.out.print("Parse data...");
+
+
+
+            biofonBinaryFile = new BiofonBinaryFile(deviceData);
 
         } catch (BiofonBinaryFile.FileParseException e) {
-           throw new ReadFromDeviceException(e);
+            throw new ReadFromDeviceException(e);
         } catch (USBHelper.USBException e) {
             throw new ReadFromDeviceException(e);
-        } finally {
+        }
+        catch (Exception e){
+            throw new ReadFromDeviceException(e);
+        }finally {
 
             try {
-                USBHelper.closeDevice(usbDeviceHandle,0);
+                USBHelper.closeDevice(device);
             } catch (USBHelper.USBException e) {
 
             }
@@ -98,50 +96,65 @@ public class Biofon
 
 
     }
+    /**
+     * Копирует байтовый массив размера realReading из data В deviceData в позицию inDstPosition.
+     * @param deviceData
+     * @param data
+     * @param realReading
+     * @param inDstPosition
+     */
+    private static void copyToBuffer(byte[] deviceData, byte[] data, int realReading, int inDstPosition) {
+        for(int i=0;i<realReading;i++) deviceData[inDstPosition+i] = data[i];
 
+    }
     /**
      * Запись комплексов
      * @param data
      */
-    public static void writeToDevice(BiofonBinaryFile data) throws BiofonBinaryFile.MaxBytesBoundException, BiofonComplex.ZeroCountProgramBoundException, WriteToDeviceException {
+    public static void writeToDevice(BiofonBinaryFile data, boolean debug) throws BiofonBinaryFile.MaxBytesBoundException, BiofonComplex.ZeroCountProgramBoundException, WriteToDeviceException {
 
         byte[] dataToWrite = data.getData();
-        writeToDevice(dataToWrite);
+        writeToDevice(dataToWrite,debug);
 
 
     }
 
 
-    private static void writeToDevice(byte[] dataToWrite) throws WriteToDeviceException {
-        USBHelper.USBDeviceHandle usbDeviceHandle=null;
+    private static void writeToDevice(byte[] dataToWrite, boolean debug) throws WriteToDeviceException {
+        HidDevice device=null;
         try{
 
 
-             usbDeviceHandle = USBHelper.openDevice(productId, vendorId, 0);
+            device = USBHelper.openDevice(productId, vendorId);
             byte[] commandWrite = new byte[DATA_PACKET_SIZE];
             commandWrite[0]=WRITE_COMMAND;
 
             byte[] lenBytes = ByteHelper.intTo2ByteArray(dataToWrite.length, ByteHelper.ByteOrder.BIG_TO_SMALL);
             commandWrite[1]=lenBytes[0];
             commandWrite[2]=lenBytes[1];
+            if(debug) printPacket("Write command",commandWrite);
 
             //команда на запись
-            USBHelper.write(usbDeviceHandle,commandWrite,OUT_END_POINT,REQUEST_TIMEOUT_MS);
-
-            ByteBuffer writeResponse = USBHelper.read(usbDeviceHandle, DATA_PACKET_SIZE, IN_END_POINT, REQUEST_TIMEOUT_MS);
-
+            USBHelper.write(device,commandWrite);
+            byte[] writeResponse =  new byte[DATA_PACKET_SIZE];
+            USBHelper.read(device, writeResponse, REQUEST_TIMEOUT_MS);
+            if(debug) printPacket("Response",writeResponse);
+            if(debug)System.out.println("Размер записи "+dataToWrite.length/DATA_PACKET_SIZE);
+            if(debug) printPacket("Writing data",dataToWrite);
             //запись всего пакета в прибор по 64 байта. Нужно не забыть проверять ответ и статус записи, чтобы отловить ошибки
             for(int i=0;i < dataToWrite.length/DATA_PACKET_SIZE;i++){
 
-                USBHelper.write(usbDeviceHandle, Arrays.copyOfRange(dataToWrite,DATA_PACKET_SIZE*i,DATA_PACKET_SIZE*i+DATA_PACKET_SIZE),OUT_END_POINT,REQUEST_TIMEOUT_MS);            //читаем
-                writeResponse = USBHelper.read(usbDeviceHandle, DATA_PACKET_SIZE, IN_END_POINT, REQUEST_TIMEOUT_MS);
+                USBHelper.write(device, Arrays.copyOfRange(dataToWrite,DATA_PACKET_SIZE*i,DATA_PACKET_SIZE*i+DATA_PACKET_SIZE));
+
+                USBHelper.read(device, writeResponse, REQUEST_TIMEOUT_MS);
+                if(debug) printPacket("Response",writeResponse);
             }
 
         } catch (USBHelper.USBException e) {
-           throw new WriteToDeviceException(e);
+            throw new WriteToDeviceException(e);
         }finally {
             try {
-                USBHelper.closeDevice(usbDeviceHandle,0);
+                USBHelper.closeDevice(device);
             } catch (USBHelper.USBException e) {
 
             }
@@ -152,7 +165,7 @@ public class Biofon
      * Очистка устройства
      */
     public static void clearDevice() throws WriteToDeviceException {
-        writeToDevice(new byte[BiofonBinaryFile.MAX_FILE_BYTES]);
+        writeToDevice(new byte[BiofonBinaryFile.MAX_FILE_BYTES],false);
     }
 
 
@@ -168,6 +181,14 @@ public class Biofon
         }
     }
 
+    private static void printPacket(String name, byte[] packet){
+        System.out.println(name+" = ");
 
+        for (int i = 0; i < packet.length; i++) {
 
+            System.out.print((packet[i] < 0 ? packet[i] + 256 : packet[i]) + ", ");
+
+        }
+        System.out.println();
+    }
 }

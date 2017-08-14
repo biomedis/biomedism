@@ -8,12 +8,16 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import org.usb4java.Device;
+import org.hid4java.HidDevice;
 import ru.biomedis.starter.USB.PlugDeviceListener;
 import ru.biomedis.starter.USB.USBHelper;
-import ru.biomedis.starter.m2.*;
+import ru.biomedis.starter.m2.LanguageDevice;
+import ru.biomedis.starter.m2.M2;
+import ru.biomedis.starter.m2.M2BinaryFile;
+import ru.biomedis.starter.m2.Test;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -60,22 +64,32 @@ public class TrinityUtil extends BaseController {
     }
     private void usbInit() {
         try {
+
+            USBHelper.initContext();
+
              plugDeviceListener = new PlugDeviceListener() {
                 @Override
-                public void onAttachDevice() {
+                public void onAttachDevice(HidDevice device) {
                     System.out.println("Device connected");
                     m2Connected.set(true);
                 }
 
                 @Override
-                public void onDetachDevice() {
+                public void onDetachDevice(HidDevice device) {
                     System.out.println("Device disconnected");
                     m2Connected.set(false);
                 }
+
+                 @Override
+                 public void onFailure(USBHelper.USBException e) {
+                     Log.logger.error(e);
+                     showExceptionDialog("USB подключение","Ошибка!","",e,getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+                 }
             };
-            USBHelper.initContext();
+
             USBHelper.addPlugEventHandler(M2.productId, M2.vendorId,plugDeviceListener );
-            USBHelper.startHotPlugListener(4);
+            USBHelper.startHotPlugListener();
 
         } catch (USBHelper.USBException e) {
             e.printStackTrace();
@@ -93,7 +107,11 @@ public class TrinityUtil extends BaseController {
         getControllerWindow().setOnCloseRequest(event -> {
             System.setErr(err);
             System.setOut(out);
-            USBHelper.stopHotPlugListener();
+            try {
+                USBHelper.stopHotPlugListener();
+            } catch (USBHelper.USBException e) {
+                Log.logger.error(e);
+            }
             USBHelper.removePlugEventHandler(plugDeviceListener);
             USBHelper.closeContext();
         });
@@ -167,7 +185,8 @@ public class TrinityUtil extends BaseController {
             System.out.println("\n");
             System.out.println("Device info: "+name);
             System.out.println("\n");
-            Device device = USBHelper.findDevice(M2.vendorId, M2.productId);
+
+            HidDevice device = USBHelper.findDevice(M2.vendorId, M2.productId);
             if(device==null) throw new Exception("Устройство не обнаружено хотя присутствует на шине USB/ Device not found!");
             USBHelper.dumpDevice(device);
         } catch (M2.WriteToDeviceException e) {
@@ -175,7 +194,7 @@ public class TrinityUtil extends BaseController {
             System.out.println(e.getMessage());
             //e.printStackTrace();
         } catch (USBHelper.USBException e) {
-            System.out.println("USB ошибка в процессе выполнеия операций");
+            System.out.println("USB ошибка в процессе выполнения операций");
            // e.printStackTrace();
             System.out.println(e.getMessage());
         } catch (Exception e) {

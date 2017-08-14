@@ -1,73 +1,30 @@
 package ru.biomedis.biomedismair3.utils.USB;
 
-import org.usb4java.*;
+import org.hid4java.*;
+import org.hid4java.event.HidServicesEvent;
 
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/**
- * Обязательна инициализация initContext()
- * Контекст статческий.
- * Если был вызван closeContext(), то требуется переинициализация
- * <pre><code>
-        Device device = USBHelper.findDevice(vendorId, productId);
-        if(device==null) {
-        System.out.println("Устройство не обнаружено");
-        System.exit(0);
-        }
-        USBHelper.dumpDevice(device);
-
-
-        USBHelper.addPlugEventHandler(productId, vendorId, new USBHelper.PlugDeviceListener() {
-        @Override
-        public void onAttachDevice(Device device) {
-        System.out.println("Устройство присобачили");
-        }
-
-        @Override
-        public void onDetachDevice(Device device) {
-        System.out.println("Устройство отсобачили");
-        }
-        });
-
-        USBHelper.startHotPlugListener();
-
-        try {
-        System.in.read();
-        System.out.println("Выкл");
-        } catch (IOException e) {
-        e.printStackTrace();
-        }finally {
-        USBHelper.stopHotPlugListener();
-        USBHelper.closeContext();
-        }
- </code></pre>
- *
- *
- */
 public class USBHelper{
 
-    private static  Context context=null;
-    private static List<PlugListenerContainer> plugDeviceListenerList=new ArrayList<>();
 
+    private static HidServices hidService=null;
+    private static List<PlugListenerContainer> plugDeviceListenerList=new ArrayList<>();
+    private static HIDListener hidlistener = new HIDListener();
 
     protected static List<PlugListenerContainer> getPlugDeviceListenerList() {
         return plugDeviceListenerList;
     }
 
-    protected static Context getContext() {
-        return context;
-    }
-
-
     public static class USBException extends Exception{
-        public USBException(String message, int errorCode) {
+        public USBException(String message, Throwable cause) {
+            super(message, cause);
+        }
 
-            super(String.format("USB error %d: %s: %s", -errorCode, message,
-                    LibUsb.strError(errorCode)));
+        public USBException(String message) {
+            super(message);
         }
     }
 
@@ -77,146 +34,64 @@ public class USBHelper{
      * @throws USBException
      */
     public static void initContext() throws USBException {
-       if(context!=null) return;
-        // Create the libusb context
-         context = new Context();
 
-        // Initialize the libusb context
-        int result = LibUsb.init(context);
-        if (result < 0)
-        {
-            throw new USBException("Unable to initialize libusb.", result);
+        HidServicesSpecification hidServicesSpecification = new HidServicesSpecification();
+        hidServicesSpecification.setAutoShutdown(false);
+        hidServicesSpecification.setScanInterval(500);
+        hidServicesSpecification.setPauseInterval(5000);
+        hidServicesSpecification.setScanMode(ScanMode.SCAN_AT_FIXED_INTERVAL_WITH_PAUSE_AFTER_WRITE);
+        try {
+            hidService = HidManager.getHidServices(hidServicesSpecification);
+            hidService.addHidServicesListener(hidlistener);
+        }catch (HidException e){
+            throw new USBException("Unable to initialize usb.", e);
         }
+
     }
 
+    private static void checkConnectedDevices() throws USBException {
+        HidDevice device;
+        for (PlugListenerContainer container : plugDeviceListenerList) {
+            device = findDevice(container.getVid(), container.getPid());
+            if(device!=null) container.getPlugDeviceListener().attachDevice(device);
+        }
+
+    }
 
     /**
-     * Поиск устройства по идентификаторам
+     * Поиск устройства по идентификаторам. Устройство не открывается
      * @param vendorId
      * @param productId
-     * @return Вернет Device или null если ничего не найдено
+     * @return Вернет HidDevice или null если ничего не найдено
      * @throws USBException выбрасывается если была ошибка обращения с USB
      */
-    public static Device findDevice(short vendorId, short productId) throws USBException {
-        // Read the USB device list
-        DeviceList list = new DeviceList();
-        int result = LibUsb.getDeviceList(null, list);
-        if (result < 0) throw new USBException("Unable to get device list", result);
-
-        try
-        {
-            // Iterate over all devices and scan for the right one
-            for (Device device: list)
-            {
-                DeviceDescriptor descriptor = new DeviceDescriptor();
-                result = LibUsb.getDeviceDescriptor(device, descriptor);
-                if (result != LibUsb.SUCCESS) throw new USBException("Unable to read device descriptor", result);
-                if (descriptor.idVendor() == vendorId && descriptor.idProduct() == productId) return device;
+    public static HidDevice findDevice(int vendorId, int productId) throws USBException {
+        HidDevice hidDevice = null;
+        try{
+            // hidDevice = hidService.getHidDevice(vendorId, productId, null);
+            List<HidDevice> devices = hidService.getAttachedHidDevices();
+            for (HidDevice device : devices) {
+                if (device.isVidPidSerial(vendorId, productId, null)) {
+                    hidDevice = device;
+                    break;
+                }
             }
-        }
-        finally
-        {
-            // Ensure the allocated device list is freed
-            LibUsb.freeDeviceList(list, true);
+        }catch (Exception e){
+            throw new USBException("Error find device",e);
         }
 
-        // Device not found
-        return null;
+        return    hidDevice;
     }
 
     /**
      * Печатает дамп устройства в консоль
      *
-     * @param device  Device
+     * @param device  HidDevice
      *
      */
-    public static void dumpDevice(final Device device) throws USBException {
-        // Dump device address and bus number
-        final int address = LibUsb.getDeviceAddress(device);
-        final int busNumber = LibUsb.getBusNumber(device);
-        System.out.println(String
-                .format("Device %03d/%03d", busNumber, address));
-
-        // Dump port number if available
-        final int portNumber = LibUsb.getPortNumber(device);
-        if (portNumber != 0)
-            System.out.println("Connected to port: " + portNumber);
-
-        // Dump parent device if available
-        final Device parent = LibUsb.getParent(device);
-        if (parent != null)
-        {
-            final int parentAddress = LibUsb.getDeviceAddress(parent);
-            final int parentBusNumber = LibUsb.getBusNumber(parent);
-            System.out.println(String.format("Parent: %03d/%03d",
-                    parentBusNumber, parentAddress));
-        }
-
-        // Dump the device speed
-        System.out.println("Speed: "
-                + DescriptorUtils.getSpeedName(LibUsb.getDeviceSpeed(device)));
-
-        // Read the device descriptor
-        final DeviceDescriptor descriptor = new DeviceDescriptor();
-        int result = LibUsb.getDeviceDescriptor(device, descriptor);
-        if (result < 0)
-        {
-            throw new USBException("Unable to read device descriptor",
-                    result);
-        }
-
-        // Try to open the device. This may fail because user has no
-        // permission to communicate with the device. This is not
-        // important for the dumps, we are just not able to resolve string
-        // descriptor numbers to strings in the descriptor dumps.
-        DeviceHandle handle = new DeviceHandle();
-        result = LibUsb.open(device, handle);
-        if (result < 0)
-        {
-            System.out.println(String.format("Unable to open device: %s. "
-                            + "Continuing without device handle.",
-                    LibUsb.strError(result)));
-            handle = null;
-        }
-
-        // Dump the device descriptor
-        System.out.print(descriptor.dump(handle));
-
-        // Dump all configuration descriptors
-        dumpConfigurationDescriptors(device, descriptor.bNumConfigurations());
-
-        // Close the device if it was opened
-        if (handle != null)
-        {
-            LibUsb.close(handle);
-        }
+    public static void dumpDevice(final HidDevice device) throws USBException {
+        System.out.println(device.toString());
     }
-
-
-    private static void dumpConfigurationDescriptors(final Device device,
-                                                    final int numConfigurations) throws USBException {
-        for (byte i = 0; i < numConfigurations; i += 1)
-        {
-            final ConfigDescriptor descriptor = new ConfigDescriptor();
-            final int result = LibUsb.getConfigDescriptor(device, i, descriptor);
-            if (result < 0)
-            {
-                throw new USBException("Unable to read config descriptor",
-                        result);
-            }
-            try
-            {
-                System.out.println(descriptor.dump().replaceAll("(?m)^",
-                        "  "));
-            }
-            finally
-            {
-                // Ensure that the config descriptor is freed
-                LibUsb.freeConfigDescriptor(descriptor);
-            }
-        }
-    }
-
 
     /**
      * Добавит слушатель подключений, отключений устройств
@@ -246,63 +121,71 @@ public class USBHelper{
 
     }
 
-private static IDeviceDetect deviceDetector;
+
     /**
      * Начать отслеживать устройства, обработчики для которых были переданы через addPlugEventHandler()
      * Метод самостоятельно выбирает реализацию класса( HotPlugDeviceDetect или FindDeviceDetector)
-     * @param periodSec период опроса шины в секундах
+     *
      */
-    public synchronized static void startHotPlugListener(int periodSec){
-        if( deviceDetector !=null) return;
-
-        if(LibUsb.hasCapability(LibUsb.CAP_HAS_HOTPLUG)) deviceDetector=new HotPlugDeviceDetect(periodSec);
-        else  deviceDetector=new FindDeviceDetector(periodSec);
-
+    public synchronized static void startHotPlugListener() throws USBException {
+        if(hidService == null) return;
         try {
-            deviceDetector.startDeviceDetecting();
-        } catch (USBException e) {
-            e.printStackTrace();
-            closeContext();
-
+            checkConnectedDevices();
+            hidService.start();
+        }catch (Exception e){
+            throw new USBException("Error start listen", e);
         }
     }
+
+
+
 
     /**
      * Остановка слушателей событий устройств
      */
-    public static synchronized void stopHotPlugListener()
-    {
-
+    public static synchronized void stopHotPlugListener() throws USBException {
+        if(hidService == null) return;
         try {
-            deviceDetector.stopDeviceDetecting();
-        } catch (USBException e) {
-            e.printStackTrace();
-            closeContext();
+            hidService.shutdown();
+        }catch (Exception e){
+            throw new USBException("Error stop listen",e);
         }
-        deviceDetector=null;
-
 
     }
 
 
-static public class USBDeviceHandle{
-    private DeviceHandle handle;
-    private boolean needDetach;
 
-    public USBDeviceHandle(DeviceHandle handle, boolean needDetach) {
-        this.handle = handle;
-        this.needDetach = needDetach;
+    private static class HIDListener implements HidServicesListener{
+        @Override
+        public void hidDeviceAttached(HidServicesEvent event) {
+            System.out.println("HID Attach");
+            int vid = event.getHidDevice().getVendorId();
+            int pid = event.getHidDevice().getProductId();
+            plugDeviceListenerList.forEach(el->{
+                if(el.checkID(pid ,vid))el.getPlugDeviceListener().attachDevice(event.getHidDevice());
+            });
+        }
+
+        @Override
+        public void hidDeviceDetached(HidServicesEvent event) {
+            System.out.println("HID detach");
+            int vid = event.getHidDevice().getVendorId();
+            int pid = event.getHidDevice().getProductId();
+            plugDeviceListenerList.forEach(el->{
+                if(el.checkID(pid ,vid))el.getPlugDeviceListener().detachDevice(event.getHidDevice());
+            });
+        }
+
+        @Override
+        public void hidFailure(HidServicesEvent event) {
+            System.out.println("HID fail");
+            int vid = event.getHidDevice().getVendorId();
+            int pid = event.getHidDevice().getProductId();
+            plugDeviceListenerList.forEach(el->{
+                if(el.checkID(pid ,vid))el.getPlugDeviceListener().failure(new USBException("Device vid="+vid+" pid="+vid+ " error!  " +event.getHidDevice().getLastErrorMessage()));
+            });
+        }
     }
-
-    public DeviceHandle getHandle() {
-        return handle;
-    }
-
-    public boolean isNeedDetach() {
-        return needDetach;
-    }
-}
-
 
 
     /**
@@ -310,107 +193,88 @@ static public class USBDeviceHandle{
      * После завершения работы необходимо вызвать closeDevice(USBDeviceHandle handle, int interfaceNum)
      * @param pid
      * @param vid
-     * @param interfaceNum номер интерфейса
-     * @return USBDeviceHandle открытого устройства, который используется в методах чтения и записи
+     * @return HidDevice  устройства, который используется в методах чтения и записи
      * @throws USBException в случае ошибки открытия устройства.
      */
-    public static USBDeviceHandle openDevice(int pid, int vid, int interfaceNum) throws USBException {
-        DeviceHandle handle = LibUsb.openDeviceWithVidPid(context, (short)vid,
-                (short)pid);
+    public static HidDevice openDevice(int pid, int vid) throws USBException {
 
-        if (handle == null)
-        {
-            System.err.println("Test device not found.");
-            System.exit(1);
+        HidDevice device =null;
+        try{
+            device = findDevice(vid, pid);
+            if (!device.isOpen()) {
+                if(!device.open()) throw new Exception();
+            }
+
+        }catch (Exception e){
+            throw  new USBException("Error opening device");
         }
 
-        boolean detach = LibUsb.hasCapability(LibUsb.CAP_SUPPORTS_DETACH_KERNEL_DRIVER)
-                && LibUsb.kernelDriverActive(handle, interfaceNum)==1;
+        return device;
+    }
 
-// Detach the kernel driver
-        if (LibUsb.kernelDriverActive(handle, interfaceNum)==1)
-        {
-            int result = LibUsb.detachKernelDriver(handle,  interfaceNum);
-            if (result != LibUsb.SUCCESS) throw new USBException("Unable to detach kernel driver", result);
+
+    public static HidDevice openDevice(HidDevice device) throws USBException {
+        if(device ==null) throw new NullPointerException();
+        try{
+            if (!device.isOpen()) {
+                if(!device.open()) throw new Exception();
+            }
+        }catch (Exception e){
+            throw  new USBException("Error opening device");
         }
 
-
-        // Claim the ADB interface
-        int result = LibUsb.claimInterface(handle, interfaceNum);
-        if (result != LibUsb.SUCCESS)
-        {
-            throw new USBException("Unable to claim interface", result);
-        }
-        USBDeviceHandle usbDeviceHandle=new USBDeviceHandle(handle,detach);
-
-        return usbDeviceHandle;
+        return device;
     }
 
     /**
      * Закрывает устройство. Освобождает ресурсы
-     * @param handle  USBDeviceHandle полученый при открытии устройства
-     * @param interfaceNum  номер интерфейса, который открывался
+     * @param device  HidDevice полученый при открытии устройства
      *  @throws USBException в случае ошибки закрытия устройства.
      */
-    public static void closeDevice(USBDeviceHandle handle, int interfaceNum) throws USBException {
-        // Release the ADB interface
-        int result = LibUsb.releaseInterface(handle.getHandle(), interfaceNum);
-        if (result != LibUsb.SUCCESS)
-        {
-            throw new USBException("Unable to release interface", result);
-        }
-
-
-        // Close the device
-        LibUsb.close(handle.getHandle());
-
-        if (handle.isNeedDetach())
-        {
-             result = LibUsb.attachKernelDriver(handle.getHandle(),  interfaceNum);
-            if (result != LibUsb.SUCCESS) throw new USBException("Unable to re-attach kernel driver", result);
+    public static void closeDevice(HidDevice device) throws USBException {
+        try{
+            if(device!=null)device.close();
+        }catch (Exception e){
+            throw  new USBException("Error closing device",e);
         }
     }
 
     /**
      *Производит запись буффера data на устройство. Необходимо в конфигурации устройства определить размер передаваемых буфферов.
-     * @param handle USBDeviceHandle получаемый при открытии устройства
+     * @param device HidDevice получаемый при открытии устройства
      * @param data байтовый массив
-     * @param outEndPoint адрес конечной точки
-     * @param timeout таймаут операции в миллисекундах
      * @throws USBException в случае ошибки записи на устройства.
      */
-    public static void write(USBDeviceHandle handle, byte[] data, byte outEndPoint, long timeout) throws USBException {
-        ByteBuffer buffer = BufferUtils.allocateByteBuffer(data.length);
-        buffer.put(data);
-        IntBuffer transferred = BufferUtils.allocateIntBuffer();
-        int result = LibUsb.bulkTransfer(handle.getHandle(), outEndPoint, buffer, transferred, timeout);
-        if (result != LibUsb.SUCCESS)
-        {
-            throw new USBException("Unable to send data", result);
+    public static void write(HidDevice device, byte[] data) throws USBException {
+        try{
+            if(!device.isOpen())openDevice(device);
+            int val = device.write(data, data.length, (byte) 0x00);
+            if (val < 0)  throw new Exception(device.getLastErrorMessage());
+        }catch (Exception e){
+            throw  new USBException("Error writing device",e);
         }
-
     }
 
     /**
-     * Читает буффер с устройства
-     * @param handle USBDeviceHandle
-     * @param size размер читаемого буффера
-     * @param inEndPoint адрес конечной точки чтения
-     * @param timeout таймаут операции в миллисекундах
-     * @return возвращает ByteBuffer
+     * Читает буффер с устройства. Размер читаемого буффера определяется размером data
+     * @param device HidDevice
+     * @param timeOut таймаут в МС
+     * @return возвращает колличество реально прочитанных байт
      * @throws USBException в случае ошибки чтения устройства.
      */
-    public static ByteBuffer read(USBDeviceHandle handle, int size, byte inEndPoint, long timeout) throws USBException {
-        ByteBuffer buffer = BufferUtils.allocateByteBuffer(size);
-        IntBuffer transferred = BufferUtils.allocateIntBuffer();
-        int result = LibUsb.bulkTransfer(handle.getHandle(), inEndPoint, buffer,
-                transferred, timeout);
-        if (result != LibUsb.SUCCESS)
-        {
-            throw new USBException("Unable to read data", result);
-        }
+    public static int read(HidDevice device, byte[] data, int timeOut) throws USBException {
+        int val = 0;
+        try{
+            if(!device.isOpen())openDevice(device);
+            val = device.read(data, timeOut);
 
-        return buffer;
+            if (val < 0)  throw new Exception(device.getLastErrorMessage());
+        }catch (Exception e){
+            if(e.getCause()!=null) e.printStackTrace();
+            else e.printStackTrace();
+            throw  new USBException("Error reading device. "+e.getMessage(),e);
+        }
+        return val;
     }
 
 
@@ -492,32 +356,22 @@ static public class USBDeviceHandle{
     }
 
 
-
-
-
-
-
-
-
-
-
-
     /**
      * Явное закрытие контекста. Деинициализация работы с USB, освобождение ресурсов.
      * После чего класс становиться не работоспособным
      */
-   public static void closeContext(){
-
-       LibUsb.exit(context);
-       context=null;
-   }
+    public static void closeContext(){
+        if(hidService==null) return;
+        hidService.shutdown();
+        hidService.removeUsbServicesListener(hidlistener);
+    }
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
-        LibUsb.exit(context);
-        context=null;
-
+        hidService.shutdown();
+        hidService.removeUsbServicesListener(hidlistener);
     }
+
 
 
 }

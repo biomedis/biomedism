@@ -676,8 +676,16 @@ https://gist.github.com/DemkaAge/8999236
         stage.setOnCloseRequest(event -> {
             closeAppListeners.stream().forEach(listeners->listeners.onClose());
 
-            USBHelper.stopHotPlugListener();
-            USBHelper.closeContext();
+            try {
+                USBHelper.stopHotPlugListener();
+            } catch (USBHelper.USBException e) {
+                Log.logger.error("Ошибка остановки слушателей USB",e);
+            }catch (Exception e){
+                Log.logger.error("Ошибка остановки слушателей USB",e);
+            }finally {
+                USBHelper.closeContext();
+            }
+
         });
 
 
@@ -702,11 +710,6 @@ https://gist.github.com/DemkaAge/8999236
             AddonsDBImport addon=new AddonsDBImport(getModel());
             if(addon.execute()==false){System.out.println("Ошибка импорта аддонов"); return;}
         }
-
-
-
-
-        USBHelper.startHotPlugListener(2);
     }
 
     private void updateIn9(ProgramOptions updateOption, int updateFixVersion) {

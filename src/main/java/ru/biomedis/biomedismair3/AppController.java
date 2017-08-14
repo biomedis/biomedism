@@ -22,6 +22,7 @@ import javafx.stage.StageStyle;
 import javafx.util.Duration;
 import org.anantacreative.updater.Update.UpdateException;
 import org.anantacreative.updater.Update.UpdateTask;
+import org.hid4java.HidDevice;
 import ru.biomedis.biomedismair3.Layouts.BiofonTab.BiofonTabController;
 import ru.biomedis.biomedismair3.Layouts.BiofonTab.BiofonUIUtil;
 import ru.biomedis.biomedismair3.Layouts.LeftPanel.LeftPanelAPI;
@@ -728,25 +729,24 @@ public class AppController  extends BaseController {
     private void initUSBDetectionM2() {
         USBHelper.addPlugEventHandler(M2.productId, M2.vendorId, new PlugDeviceListener() {
             @Override
-            public void onAttachDevice() {
+            public void onAttachDevice(HidDevice device)  {
 
                 try {
                 Thread.sleep(1000);
-                    //M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
-                    M2BinaryFile m2BinaryFile = new M2BinaryFile();
+                    M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
+                    //M2BinaryFile m2BinaryFile = new M2BinaryFile();
                     Platform.runLater(() -> {
                                 m2ui.setContent(m2BinaryFile);
                                 m2Ready.setValue(true);
                             });
 
-                    System.out.println("Устройство Trinity подключено");
-                } /*catch (M2.ReadFromDeviceException e) {
+                } catch (M2.ReadFromDeviceException e) {
                    Platform.runLater(() -> {
                        showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"", e, getApp().getMainWindow(),Modality.WINDOW_MODAL);
                    });
 
 
-                }*/ catch (InterruptedException e) {
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }finally {
                     Platform.runLater(() ->   m2Connected.set(true));
@@ -759,13 +759,21 @@ public class AppController  extends BaseController {
             }
 
             @Override
-            public void onDetachDevice() {
+            public void onDetachDevice(HidDevice device) {
                 System.out.println("Устройство Trinity отключено");
                 Platform.runLater(() ->   {
                     m2Connected.set(false);
                     m2Ready.setValue(false);
                     m2ui.cleanView();
                 });
+
+            }
+
+            @Override
+            public void onFailure(USBHelper.USBException e)
+            {
+                Log.logger.error(e);
+                showExceptionDialog("USB подключение","Ошибка!","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
 
             }
         });
@@ -1682,6 +1690,14 @@ if(!getConnectedDevice())return;
 
                 }
             });
+        }
+
+
+        try {
+            USBHelper.startHotPlugListener();
+        } catch (USBHelper.USBException e) {
+            Log.logger.error(e);
+            showExceptionDialog("Детектирование USB подключений","Ошибка!","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
         }
     }
 

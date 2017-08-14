@@ -299,7 +299,7 @@ public class ByteHelper {
 
         byte src[]=new byte[size];
 
-        if(order==ByteOrder.BIG_TO_SMALL){
+        if(order== ByteOrder.BIG_TO_SMALL){
             for(int i=0;i<size;i++)src[i]=val[startPos+i];
         }else  for(int i=size-1;i<=0;i--)src[i]=val[startPos+i];
 

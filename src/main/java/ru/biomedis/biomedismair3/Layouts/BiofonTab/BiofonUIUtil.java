@@ -20,6 +20,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
+import org.hid4java.HidDevice;
 import ru.biomedis.biomedismair3.App;
 import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.Biofon.Biofon;
@@ -41,9 +42,8 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
-
-import static ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileController.checkBundlesLength;
 import static ru.biomedis.biomedismair3.Log.logger;
+import static ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileController.checkBundlesLength;
 
 /**
  * Created by anama on 09.12.16.
@@ -688,7 +688,7 @@ private enum LoadIndicatorType{RED,GREEN}
     private void initUSBDetection() {
         USBHelper.addPlugEventHandler(Biofon.productId, Biofon.vendorId, new PlugDeviceListener() {
             @Override
-            public void onAttachDevice() {
+            public void onAttachDevice(HidDevice device){
                 System.out.println("Устройство Biofon подключено");
 
                 Platform.runLater(() -> initComplexButtons(false));
@@ -705,7 +705,7 @@ private enum LoadIndicatorType{RED,GREEN}
             }
 
             @Override
-            public void onDetachDevice() {
+            public void onDetachDevice(HidDevice device) {
 
                 System.out.println("Устройство Biofon отключено");
 
@@ -719,6 +719,13 @@ private enum LoadIndicatorType{RED,GREEN}
                 bComplex3.setValue(null);
 
                 onDetach.run();
+            }
+
+            @Override
+            public void onFailure(USBHelper.USBException e) {
+                Log.logger.error(e);
+                BaseController.showExceptionDialog("USB подключение","Ошибка!","",e,app.getMainWindow(),Modality.WINDOW_MODAL);
+
             }
         });
     }
@@ -793,7 +800,7 @@ private enum LoadIndicatorType{RED,GREEN}
             BiofonBinaryFile file = createFile(bComplex1.get(), bComplex2.get(), bComplex3.get());
             if(file==null) throw new Exception("Отсутствуют комплексы");
 
-            Biofon.writeToDevice(file);
+            Biofon.writeToDevice(file, true);
             bc.showInfoDialog(resource.getString("app.ui.record_to_device"), resource.getString("app.ui.complexes_successfully_written"),"",
                     app.getMainWindow(),Modality.WINDOW_MODAL);
         } catch (BiofonBinaryFile.MaxBytesBoundException e1) {

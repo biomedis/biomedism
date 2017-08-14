@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class M2BinaryFile {
 
     private final List<M2Complex> complexesList=new ArrayList<>();
-    public static final int MAX_FILE_BYTES=786432;
+    public static final int MAX_FILE_BYTES=655360;
     private static final int ALIGN_FILE_BYTE_SIZE=64;//длина файла должна быть кратна ALIGN_FILE_BYTE_SIZE
     private  byte[] rawReadedData;
     private int systemLangID;

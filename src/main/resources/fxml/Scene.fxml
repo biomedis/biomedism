@@ -92,7 +92,7 @@
                   </Menu>
                   <MenuItem mnemonicParsing="false" onAction="#onLoadProfileDir" text="%app.menu.read_profile_from_dir" />
                   <MenuItem fx:id="menuImportComplex" mnemonicParsing="false" onAction="#onImportComplex" text="%app.menu.read_complex_from_dir" />
-                  <MenuItem fx:id="readFromTrinityMenu" mnemonicParsing="false" onAction="#onReadProfileFromTrinity" text="%app.menu.read_profile_from_trinity" visible="false"/>
+                  <MenuItem fx:id="readFromTrinityMenu" mnemonicParsing="false" onAction="#onReadProfileFromTrinity" text="%app.menu.read_profile_from_trinity" />
                   <MenuItem fx:id="menuDelGeneratedFiles" mnemonicParsing="false" onAction="#onRemoveProfileFiles" text="%app.menu.del_files" />
                   <MenuItem fx:id="menuFindDevice" mnemonicParsing="false" onAction="#onFindDevice" text="%app.menu.find_device" />
                 <MenuItem fx:id="menuClearFileSystemDevice" mnemonicParsing="false" onAction="#onClearDevice" text="%app.menu_filesystem_check" />
