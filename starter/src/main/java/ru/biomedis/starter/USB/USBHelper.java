@@ -2,6 +2,7 @@ package ru.biomedis.starter.USB;
 
 import org.hid4java.*;
 import org.hid4java.event.HidServicesEvent;
+import org.hid4java.jna.HidApi;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -34,6 +35,7 @@ public class USBHelper{
      * @throws USBException
      */
     public static void initContext() throws USBException {
+        HidApi.dropReportIdZero = false;
 
         HidServicesSpecification hidServicesSpecification = new HidServicesSpecification();
         hidServicesSpecification.setAutoShutdown(false);
