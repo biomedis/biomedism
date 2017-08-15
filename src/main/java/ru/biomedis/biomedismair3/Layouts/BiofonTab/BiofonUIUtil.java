@@ -91,7 +91,7 @@ public class BiofonUIUtil {
     private ContextMenu deviceBtnMenu1=new ContextMenu();
     private ContextMenu deviceBtnMenu2=new ContextMenu();
     private ContextMenu deviceBtnMenu3=new ContextMenu();
-    private static final int PAUSE_BETWEEN_PROGRAM=5;
+    private static final int PAUSE_BETWEEN_PROGRAM=1;
 
     public BiofonUIUtil(ResourceBundle resource, App app, BaseController bc, ModelDataApp mda, Profile biofonProfile,
                         ListView<TherapyComplex> biofonCompexesList, ListView<TherapyProgram> biofonProgramsList,
