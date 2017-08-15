@@ -191,7 +191,7 @@ public class BiofonUIUtil {
 
             complexTimeBiofon.setText(DateUtil.convertSecondsToHMmSs(calcComplexTime(biofonPrograms,
                     tc.getBundlesLength(),
-                    PAUSE_BETWEEN_PROGRAM,
+                    PAUSE_BETWEEN_PROGRAM*60,
                     tc.getTimeForFrequency())));
     }
 
