@@ -654,6 +654,10 @@ private enum LoadIndicatorType{RED,GREEN}
         //program Oname
         biofonProgramsList.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue==null) return;
+            if(newValue.getOname()==null) {
+                programOName.setText("");
+                return;
+            }
             if(!newValue.getOname().isEmpty()) programOName.setText(newValue.getOname());
             else programOName.setText("");
 
