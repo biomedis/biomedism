@@ -741,13 +741,33 @@ public class AppController  extends BaseController {
                             });
 
                 } catch (M2.ReadFromDeviceException e) {
-                   Platform.runLater(() -> {
-                       showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"", e, getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                   });
+
+                        try {
+                            Thread.sleep(1000);
+                            M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
+                            //M2BinaryFile m2BinaryFile = new M2BinaryFile();
+                            Platform.runLater(() -> {
+                                m2ui.setContent(m2BinaryFile);
+                                m2Ready.setValue(true);
+                            });
+
+                        } catch (M2.ReadFromDeviceException ex) {
+                            Platform.runLater(() -> {
+                                showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"", ex, getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                            });
 
 
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+                        } catch (Exception e1) {
+                            Platform.runLater(() -> {
+                                showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"", e1, getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                            });
+                        }
+
+
+                } catch (Exception e) {
+                    Platform.runLater(() -> {
+                        showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"", e, getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                    });
                 }finally {
                     Platform.runLater(() ->   m2Connected.set(true));
                     m2Ready.setValue(true);
@@ -1019,7 +1039,16 @@ if(!getConnectedDevice())return;
     public void onReadProfileFromTrinity(){
 
         try {
-            M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
+            M2BinaryFile m2BinaryFile =null;
+           try {
+               m2BinaryFile = M2.readFromDevice(true);
+           }catch (M2.ReadFromDeviceException e){
+               try {
+                   m2BinaryFile = M2.readFromDevice(true);
+               }catch (M2.ReadFromDeviceException e1){
+                    throw e1;
+               }
+           }
             List<TherapyComplex> tcs=new ArrayList<>();
             Map<Long,List<TherapyProgram>> programsCache=new HashMap<>();
             m2ui.parseFile(m2BinaryFile,tcs,programsCache);
