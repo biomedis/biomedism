@@ -878,16 +878,13 @@ private enum LoadIndicatorType{RED,GREEN}
                                      .findFirst()
                                      .orElseThrow(() -> new Exception("Не найдены программы"));
 
-
-
-
-        if(bCount==1) return 1;
-        int fCount = biofonComplex.getPrograms().stream()
-                     .filter(i->i.getProgramID()==pID)
-                     .mapToInt(i->i.getCountFrequencies())
-                     .sum();
-
-        return (int)Math.floor((double)fCount/(double)bCount);
+        //значением будет макс. число частот в программах выбранных по макс.числу одинаковых ID
+        int bundlesLength = biofonComplex.getPrograms().stream()
+                                         .filter(i->i.getProgramID()==pID)
+                                         .mapToInt(p->p.getCountFrequencies())
+                                         .max()
+                                         .orElseThrow(() -> new Exception("Не найдены программы"));
+        return bundlesLength;
     }
 
     private List<TherapyProgram> calcProgramsList(BiofonComplex bc,TherapyComplex tc){
@@ -949,7 +946,7 @@ private enum LoadIndicatorType{RED,GREEN}
     private void onLoad() {
         try {
             BiofonBinaryFile file = Biofon.readFromDevice(true);
-
+            //System.out.println(file);
             TherapyComplex [] tcArray=new TherapyComplex[3];
             if(bReadedTherapyPrograms.isEmpty()){
                 bReadedTherapyPrograms.add(new ArrayList<>());
