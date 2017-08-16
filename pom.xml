@@ -13,8 +13,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mainClass>ru.biomedis.biomedismair3.App</mainClass>
         <java-version>1.8</java-version>     
-        <programmVersionMajor>1</programmVersionMajor>
-        <programmVersionMinor>0</programmVersionMinor>
+        <programmVersionMajor>4</programmVersionMajor>
+        <programmVersionMinor>11</programmVersionMinor>
+        <programmVersionFix>0</programmVersionFix>
         <log4j.version>2.5</log4j.version>
 
     </properties>
@@ -202,10 +203,11 @@
                     <doCheck>true</doCheck>
                     <buildNumberPropertyName>buildNumber</buildNumberPropertyName>
                     <doUpdate>true</doUpdate>
-                    <format>{0}.{1}-{2,date,yyyyMMdd}</format>
+                    <format>{0}.{1}.{2}-{3,date,yyyyMMdd}</format>
                    <items>
                         <item>${programmVersionMajor}</item>
                          <item>${programmVersionMinor}</item>
+                       <item>${programmVersionFix}</item>
                         <item>timestamp</item>
                     </items>
                 </configuration>
