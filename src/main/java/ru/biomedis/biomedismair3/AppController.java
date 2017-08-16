@@ -743,7 +743,6 @@ public class AppController  extends BaseController {
                 } catch (M2.ReadFromDeviceException e) {
 
                         try {
-                            Thread.sleep(1000);
                             M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
                             //M2BinaryFile m2BinaryFile = new M2BinaryFile();
                             Platform.runLater(() -> {
@@ -751,16 +750,21 @@ public class AppController  extends BaseController {
                                 m2Ready.setValue(true);
                             });
 
-                        } catch (M2.ReadFromDeviceException ex) {
-                            Platform.runLater(() -> {
-                                showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"", ex, getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                            });
+                        }  catch (Exception e1) {
+                            try {
+                                M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
+                                //M2BinaryFile m2BinaryFile = new M2BinaryFile();
+                                Platform.runLater(() -> {
+                                    m2ui.setContent(m2BinaryFile);
+                                    m2Ready.setValue(true);
+                                });
 
 
-                        } catch (Exception e1) {
-                            Platform.runLater(() -> {
-                                showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"", e1, getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                            });
+                            } catch (Exception e2) {
+                                Platform.runLater(() -> {
+                                    showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),res.getString("trinity_should"), e2, getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                                });
+                            }
                         }
 
 
@@ -1046,7 +1050,11 @@ if(!getConnectedDevice())return;
                try {
                    m2BinaryFile = M2.readFromDevice(true);
                }catch (M2.ReadFromDeviceException e1){
-                    throw e1;
+                   try {
+                       m2BinaryFile = M2.readFromDevice(true);
+                   }catch (M2.ReadFromDeviceException e2){
+                       throw e2;
+                   }
                }
            }
             List<TherapyComplex> tcs=new ArrayList<>();
@@ -1077,7 +1085,8 @@ if(!getConnectedDevice())return;
 
         } catch (M2.ReadFromDeviceException e) {
             Platform.runLater(() -> {
-                showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),res.getString("trinity_should"), e, getApp().getMainWindow(),Modality.WINDOW_MODAL);
+
             });
 
         } catch (Exception e) {

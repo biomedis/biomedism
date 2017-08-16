@@ -219,7 +219,21 @@ public class TrinityUtil extends BaseController {
             @Override
             protected Void call() throws Exception {
 
-                M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
+                M2BinaryFile m2BinaryFile = null;
+
+                try{
+                    m2BinaryFile = M2.readFromDevice(true);
+                }catch (Exception e){
+                    try{
+                        m2BinaryFile = M2.readFromDevice(true);
+                    }catch (Exception e1){
+                        try{
+                            m2BinaryFile = M2.readFromDevice(true);
+                        }catch (Exception e2){
+                            throw e2;
+                        }
+                    }
+                }
                 System.out.println(m2BinaryFile);
                 return null;
 
