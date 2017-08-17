@@ -61,7 +61,7 @@ public class M2
                 //если прибор пустой, то создадим пустой файл
                 return new M2BinaryFile();
 
-            }else if(size > M2BinaryFile.MAX_FILE_BYTES ){
+            }else if(size > M2BinaryFile.MAX_FILE_BYTES   || size < 0){
                 //вычитывание левых буфферов из винды. Если пришел левый размер
                 while(USBHelper.read(device, data, 200)!=0);
                 try {
