@@ -33,6 +33,7 @@ public class M2
 
 
 
+
     /**
      * Чтение комплексов с прибора
      * @return
@@ -55,11 +56,20 @@ public class M2
             int size= ByteHelper.byteArray4ToInt(response.getPayload(),0, ByteHelper.ByteOrder.BIG_TO_SMALL);
             int langID=ByteHelper.byteArray1ToInt(response.getPayload(),4);
             System.out.println("Размер посылки: "+size);
-
+            byte[]  data = new byte[DATA_PACKET_SIZE];
             if(size==0){
                 //если прибор пустой, то создадим пустой файл
                 return new M2BinaryFile();
 
+            }else if(size > M2BinaryFile.MAX_FILE_BYTES ){
+                //вычитывание левых буфферов из винды. Если пришел левый размер
+                while(USBHelper.read(device, data, 200)!=0);
+                try {
+                    USBHelper.closeDevice(device);
+                } catch (USBHelper.USBException e) {
+
+                }
+                return readFromDevice(debug);
             }
 
 
@@ -68,7 +78,7 @@ public class M2
             if(debug) System.out.println("___________________");
 
             byte[] deviceData = new byte[DATA_PACKET_SIZE*packets];
-            byte[]  data = new byte[DATA_PACKET_SIZE];
+
             int realReading;
             for(int i=0;i<packets;i++){
                 //читаем
