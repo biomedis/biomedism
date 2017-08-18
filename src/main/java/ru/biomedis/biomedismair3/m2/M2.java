@@ -38,7 +38,7 @@ public class M2
      * Чтение комплексов с прибора
      * @return
      */
-    public static M2BinaryFile readFromDevice(final boolean debug) throws ReadFromDeviceException {
+    public static M2BinaryFile readFromDevice(final boolean debug) throws ReadFromDeviceException, WriteToDeviceException {
 
         HidDevice device = null;
         M2BinaryFile m2BinaryFile = null;
@@ -48,9 +48,12 @@ public class M2
             byte[] commandRead = new byte[DATA_PACKET_SIZE];
             commandRead[0]=READ_COMMAND;
             if(debug)printPacket("Reading command",  commandRead);
-            USBHelper.write(device,commandRead);
-
-            Response response = readResponseBuffer(device, REQUEST_TIMEOUT_MS, debug);
+            try {
+                USBHelper.write(device, commandRead);
+            }catch (USBHelper.USBException e){
+                throw new WriteToDeviceException(e);
+            }
+            Response response = readResponseBuffer(device, 200, debug);
             if(response.status==false) throw new DeviceFailException(response.errorCode);
 
             int size= ByteHelper.byteArray4ToInt(response.getPayload(),0, ByteHelper.ByteOrder.BIG_TO_SMALL);
@@ -104,6 +107,9 @@ public class M2
         } catch (DeviceFailException e) {
             e.printStackTrace();
             throw new ReadFromDeviceException(e);
+        } catch (WriteToDeviceException e) {
+            e.printStackTrace();
+            throw  e;
         } catch (Exception e) {
             e.printStackTrace();
             throw new ReadFromDeviceException(e);

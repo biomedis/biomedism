@@ -722,6 +722,48 @@ public class AppController  extends BaseController {
 
     }
 
+    private static   class ReadingWatchDog{
+        private int timeSec;
+        private boolean stop=false;
+        private Runnable action;
+        private Thread thread;
+
+
+        private ReadingWatchDog(int timeSec,Runnable action) {
+            this.timeSec = timeSec;
+            this.action = action;
+        }
+
+        public static ReadingWatchDog start(int timeSec,Runnable action){
+            ReadingWatchDog wd = new ReadingWatchDog(timeSec,action);
+            wd.readingWatchDog();
+            return wd;
+        }
+
+        private void readingWatchDog(){
+            Thread thread=new Thread(()->{
+                try {
+                    Thread.sleep(timeSec*1000);
+                    if(!stop){
+                        action.run();
+                    }
+
+                } catch (InterruptedException e) {
+                    //e.printStackTrace();
+                }
+            });
+            this.thread = thread;
+            thread.setDaemon(true);
+            thread.start();
+
+        }
+
+        public void stop(){
+            stop=true;
+            thread.interrupt();
+        }
+    }
+
 
     private SimpleBooleanProperty m2Ready =new SimpleBooleanProperty(false);
     private SimpleBooleanProperty m2Connected=new SimpleBooleanProperty(false);
@@ -730,37 +772,59 @@ public class AppController  extends BaseController {
         USBHelper.addPlugEventHandler(M2.productId, M2.vendorId, new PlugDeviceListener() {
             @Override
             public void onAttachDevice(HidDevice device)  {
-
+                boolean badConnect=false;
+                boolean needHub=false;
+                ReadingWatchDog wd=null;
                 try {
-                Thread.sleep(1000);
+                Thread.sleep(3000);
+                    wd =  ReadingWatchDog.start(15,() -> {
+                       Platform.runLater(() -> {
+                           showErrorDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),res.getString("trinity_should2"), getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                       });
+                   });
+
                     M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
-                    //M2BinaryFile m2BinaryFile = new M2BinaryFile();
+                    wd.stop();//остановка WatchDog, чтобы сообщение не всплыло
+
                     Platform.runLater(() -> {
                                 m2ui.setContent(m2BinaryFile);
                                 m2Ready.setValue(true);
                             });
 
-                } catch (M2.ReadFromDeviceException e) {
-
+                } catch (M2.WriteToDeviceException e){
+                    //если эта ошибка, то устройство вообще не корректно вставлено
+                    //ошибка покажется через WatchDog
+                    badConnect = true;
+                }catch (M2.ReadFromDeviceException e) {
+                        wd.stop();//остановка WatchDog, чтобы сообщение не всплыло
                         try {
                             M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
-                            //M2BinaryFile m2BinaryFile = new M2BinaryFile();
+                            wd.stop();//остановка WatchDog, чтобы сообщение не всплыло
+
                             Platform.runLater(() -> {
                                 m2ui.setContent(m2BinaryFile);
                                 m2Ready.setValue(true);
                             });
 
-                        }  catch (Exception e1) {
+                        } catch (M2.WriteToDeviceException ee){
+                            //если эта ошибка, то скорее всего нужен хаб
+                            needHub = true;
+                        } catch (Exception e1) {
                             try {
                                 M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
-                                //M2BinaryFile m2BinaryFile = new M2BinaryFile();
+                                wd.stop();//остановка WatchDog, чтобы сообщение не всплыло
+
                                 Platform.runLater(() -> {
                                     m2ui.setContent(m2BinaryFile);
                                     m2Ready.setValue(true);
                                 });
 
 
-                            } catch (Exception e2) {
+                            } catch (M2.WriteToDeviceException eee){
+                                //если эта ошибка, то скорее всего нужен хаб
+                                needHub = true;
+                            }
+                            catch (Exception e2) {
                                 Platform.runLater(() -> {
                                     showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),res.getString("trinity_should"), e2, getApp().getMainWindow(),Modality.WINDOW_MODAL);
                                 });
@@ -768,14 +832,26 @@ public class AppController  extends BaseController {
                         }
 
 
-                } catch (Exception e) {
+                }
+                catch (Exception e) {
+                    wd.stop();//остановка WatchDog, чтобы сообщение не всплыло
                     Platform.runLater(() -> {
                         showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"", e, getApp().getMainWindow(),Modality.WINDOW_MODAL);
                     });
                 }finally {
-                    Platform.runLater(() ->   m2Connected.set(true));
-                    m2Ready.setValue(true);
-                    System.out.println("Устройство Trinity подключено");
+                    if(needHub==false && badConnect==false){
+
+                        Platform.runLater(() ->   m2Connected.set(true));
+                        m2Ready.setValue(true);
+                        System.out.println("Устройство Trinity подключено");
+                    }
+
+                    if(needHub){
+                        Platform.runLater(() -> {
+                            showErrorDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),res.getString("trinity_should3"), getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                        });
+                    }
+
                 }
 
 
