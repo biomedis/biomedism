@@ -772,95 +772,40 @@ public class AppController  extends BaseController {
         USBHelper.addPlugEventHandler(M2.productId, M2.vendorId, new PlugDeviceListener() {
             @Override
             public void onAttachDevice(HidDevice device)  {
-                boolean badConnect=false;
-                boolean needHub=false;
-                ReadingWatchDog wd=null;
-                try {
-                Thread.sleep(3000);
-                    wd =  ReadingWatchDog.start(15,() -> {
-                       Platform.runLater(() -> {
-                           showErrorDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),res.getString("trinity_should2"), getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                       });
-                   });
-
-                    M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
-                    wd.stop();//остановка WatchDog, чтобы сообщение не всплыло
-
-                    Platform.runLater(() -> {
-                                m2ui.setContent(m2BinaryFile);
-                                m2Ready.setValue(true);
-                            });
-
-                } catch (M2.WriteToDeviceException e){
-                    //если эта ошибка, то устройство вообще не корректно вставлено
-                    //ошибка покажется через WatchDog
-                    badConnect = true;
-                }catch (M2.ReadFromDeviceException e) {
-                        wd.stop();//остановка WatchDog, чтобы сообщение не всплыло
-                        try {
-                            M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
-                            wd.stop();//остановка WatchDog, чтобы сообщение не всплыло
-
-                            Platform.runLater(() -> {
-                                m2ui.setContent(m2BinaryFile);
-                                m2Ready.setValue(true);
-                            });
-
-                        } catch (M2.WriteToDeviceException ee){
-                            //если эта ошибка, то скорее всего нужен хаб
-                            needHub = true;
-                        } catch (Exception e1) {
-                            try {
-                                M2BinaryFile m2BinaryFile = M2.readFromDevice(true);
-                                wd.stop();//остановка WatchDog, чтобы сообщение не всплыло
-
-                                Platform.runLater(() -> {
-                                    m2ui.setContent(m2BinaryFile);
-                                    m2Ready.setValue(true);
-                                });
-
-
-                            } catch (M2.WriteToDeviceException eee){
-                                //если эта ошибка, то скорее всего нужен хаб
-                                needHub = true;
-                            }
-                            catch (Exception e2) {
-                                Platform.runLater(() -> {
-                                    showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),res.getString("trinity_should"), e2, getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                                });
-                            }
-                        }
-
-
-                }
-                catch (Exception e) {
-                    wd.stop();//остановка WatchDog, чтобы сообщение не всплыло
-                    Platform.runLater(() -> {
-                        showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"", e, getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                    });
-                }finally {
-                    if(needHub==false && badConnect==false){
-
-                        Platform.runLater(() ->   m2Connected.set(true));
-                        m2Ready.setValue(true);
-                        System.out.println("Устройство Trinity подключено");
+                readingWatchDog =null;
+                Task<Void> task= new Task<Void>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        trinityAttachLogic();
+                        return null;
                     }
-
-                    if(needHub){
-                        Platform.runLater(() -> {
-                            showErrorDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),res.getString("trinity_should3"), getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                        });
-                    }
-
-                }
+                };
+                Thread thread=new Thread(task);
+                thread.setDaemon(true);
+                thread.start();
 
 
 
+
+/*
+                Platform.runLater(() -> {
+                    showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"", e, getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                });
+                Platform.runLater(() -> {
+                    showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),res.getString("trinity_should"), e2, getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                });
+
+                Platform.runLater(() -> {
+                    m2ui.setContent(new M2BinaryFile());
+                    m2Ready.setValue(true);
+                });
+*/
             }
 
             @Override
             public void onDetachDevice(HidDevice device) {
                 System.out.println("Устройство Trinity отключено");
+                if( readingWatchDog !=null)  readingWatchDog.stop();
                 Platform.runLater(() ->   {
                     m2Connected.set(false);
                     m2Ready.setValue(false);
@@ -878,8 +823,86 @@ public class AppController  extends BaseController {
             }
         });
     }
+    private ReadingWatchDog readingWatchDog;
+     private void trinityAttachLogic() {
+        boolean badConnect=false;
+        boolean readingError=false;
+        ReadingWatchDog wd=null;
+        try {
+        Thread.sleep(3000);
+        //если запись зависнет, то сработает это  сообщение.
+            wd =  ReadingWatchDog.start(15,() -> {
+               Platform.runLater(() -> {
+                   showErrorDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),res.getString("trinity_should2"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
+               });
+           });
 
-/**********************************************/
+            M2.readDeviceName(true);
+            wd.stop();//остановка WatchDog, чтобы сообщение не всплыло
+
+        } catch (M2.WriteToDeviceException e){
+            //если эта ошибка, то устройство вообще не корректно вставлено
+            //ошибка покажется через WatchDog
+            badConnect = true;
+            e.printStackTrace();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            wd.stop();//остановка WatchDog, чтобы сообщение не всплыло
+            readingError=true;
+
+        }finally {
+            //если есть какая-то из этих ошибок, то дальше скорее всего устройство не будет доступно для работы
+            if(badConnect || readingError) return;
+            else System.out.println("Устройство Trinity подключено");
+
+        }
+
+        M2BinaryFile m2BinaryFile = new M2BinaryFile();
+        try {
+
+             m2BinaryFile = M2.readFromDevice(true);
+
+        } catch (M2.WriteToDeviceException e) {
+            e.printStackTrace();
+            badConnect =true;
+
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            readingError =true;
+
+        } finally {
+
+            if(badConnect){
+                Platform.runLater(() -> {
+                    showErrorDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),res.getString("trinity_should2"), getApp().getMainWindow(),Modality.WINDOW_MODAL);
+                });
+                return;
+            }
+
+
+            if(readingError){
+                readingWatchDog = ReadingWatchDog.start(20,() ->Platform.runLater(() ->   {
+                    m2Connected.set(true);
+                    m2Ready.setValue(true);
+                    m2ui.setContent(new M2BinaryFile());
+                    readFromTrinityMenu.setVisible(false);
+                }));
+
+            }else {
+                M2BinaryFile m2bf= m2BinaryFile;
+                Platform.runLater(() ->   {
+                    m2Connected.set(true);
+                    m2Ready.setValue(true);
+                    m2ui.setContent(m2bf);
+                    readFromTrinityMenu.setVisible(true);
+                });
+            }
+        }
+    }
+
+    /**********************************************/
 
 
 

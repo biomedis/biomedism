@@ -54,13 +54,19 @@ public class M2
 
             }else if(size > M2BinaryFile.MAX_FILE_BYTES  || size < 0){
                 //вычитывание левых буфферов из винды. Если пришел левый размер
-                while(USBHelper.read(device, data, 200)!=0);
+                int cnt = M2BinaryFile.MAX_FILE_BYTES/64;
+              /*  while(USBHelper.read(device, data, 3)!=0 && cnt > 0) {
+                    cnt--;
+                    System.out.println("flush.. ");
+                }
+                */
                 try {
                     USBHelper.closeDevice(device);
                 } catch (USBHelper.USBException e) {
 
                 }
-                return readFromDevice(debug);
+                throw new ReadFromDeviceException("Не верный размер посылки");
+                //return readFromDevice(debug);
             }
 
 
@@ -73,8 +79,12 @@ public class M2
             int realReading;
             for(int i=0;i<packets;i++){
                 //читаем
+                if(debug) System.out.println("Packet: "+i);
                 realReading = USBHelper.read(device, data, 200);
-                if(realReading<DATA_PACKET_SIZE) throw new Exception("Прочитанный пакет меньше "+DATA_PACKET_SIZE);
+                if(realReading<DATA_PACKET_SIZE) {
+                    throw new Exception("Прочитанный "+i+" пакет меньше "+DATA_PACKET_SIZE);
+
+                }
                 copyToBuffer(deviceData,data, realReading, i*DATA_PACKET_SIZE);
 
 
@@ -124,6 +134,8 @@ public class M2
     }
 
 
+
+
     public static String readDeviceName(boolean debug) throws WriteToDeviceException {
         HidDevice device=null;
         String str="";
@@ -167,7 +179,6 @@ public class M2
         }
         return str;
     }
-
     /**
      * Запись комплексов
      * @param data
@@ -337,6 +348,10 @@ public class M2
     public static class ReadFromDeviceException extends Exception{
         public ReadFromDeviceException(Throwable cause) {
             super(cause);
+        }
+
+        public ReadFromDeviceException(String message) {
+            super(message);
         }
     }
     public static class WriteToDeviceException extends Exception{

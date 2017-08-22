@@ -220,8 +220,8 @@ public class TrinityUtil extends BaseController {
             protected Void call() throws Exception {
 
                 M2BinaryFile m2BinaryFile = null;
-
-                try{
+                m2BinaryFile = M2.readFromDevice(true);
+              /*  try{
                     m2BinaryFile = M2.readFromDevice(true);
                 }catch (Exception e){
                     try{
@@ -234,6 +234,7 @@ public class TrinityUtil extends BaseController {
                         }
                     }
                 }
+                */
                 System.out.println(m2BinaryFile);
                 return null;
 
