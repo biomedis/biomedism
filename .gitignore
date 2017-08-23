@@ -25,4 +25,6 @@ BiomedisMAir3.iml
 /starter/data/
 /starter/docs/
 /update_test_server/update_test_server.iml
-/update_test_server/dependency-reduced-pom.xml
+/*/dependency-reduced-pom.xml
+dependency-reduced-pom.xml
+*.iml
