@@ -1,9 +1,6 @@
 <?xml version="1.1" encoding="UTF-8" ?>
-<Update date="16.08.2017">
+<Update date="23.08.2017">
     <Action type="Move">
-        <File url="http://www.biomedis.ru/doc/b_mair/starter/files/1_2_0/starter.jar"  dst="assets/BiomedisMAir3-1.0-SNAPSHOT.jar"/>
-        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_11_0/hid4java-0.5.0.jar"  dst="assets/lib/hid4java-0.5.0.jar"/>
-        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_11_0/jna-4.2.2.jar"  dst="assets/lib/jna-4.2.2.jar"/>
-
+        <File url="http://www.biomedis.ru/doc/b_mair/starter/files/1_2_1/starter.jar"  dst="assets/BiomedisMAir3-1.0-SNAPSHOT.jar"/>
     </Action>
 </Update>
