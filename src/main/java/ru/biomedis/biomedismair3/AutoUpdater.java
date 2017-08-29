@@ -87,7 +87,7 @@ public class AutoUpdater {
     private String getUpdaterBaseUrl() throws NotSupportedPlatformException {
         if(OSValidator.isWindows())return "http://www.biomedis.ru/doc/b_mair/starter/win";
         else  if(OSValidator.isUnix())return "http://www.biomedis.ru/doc/b_mair/starter/linux";
-        else  if(OSValidator.isMac())return "http://www.biomedis.ru/doc/b_mair/starter/osx";
+        else  if(OSValidator.isMac())return "http://www.biomedis.ru/doc/b_mair/starter/mac";
         else {
             throw new NotSupportedPlatformException();
         }
@@ -234,8 +234,18 @@ public class AutoUpdater {
         if (isIDEStarted()) rootAppDir = new File("./");
         else {
             if (OSValidator.isWindows()) rootAppDir = new File(App.getInnerDataDir_(), "../../");
-            else if (OSValidator.isMac())
-                rootAppDir = new File(App.getInnerDataDir_(), "../../");//TODO: корректировать на MAC
+            else if (OSValidator.isMac()){
+
+                //на маке почему-то стандартные приемы получения родительской директории не срабатывают
+                String innerData = App.getInnerDataDir_().getAbsolutePath();
+                if(innerData.charAt(innerData.length()-1)=='/') innerData = innerData.substring(0,innerData.length()-1);
+
+                int index = innerData.lastIndexOf("/");
+                if(index ==-1) throw new Exception();
+
+                rootAppDir = new File(innerData.substring(0,index));//на маке нет папки ассетс, там просто все в папке java лежит. те плялшем далее  от нее
+                System.out.println("sasdasd "+rootAppDir.getAbsolutePath());
+            }
             else if (OSValidator.isUnix()) rootAppDir = new File(App.getInnerDataDir_(), "../../");
             else throw new Exception();
         }

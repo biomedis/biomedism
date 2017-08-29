@@ -1772,6 +1772,7 @@ if(!getConnectedDevice())return;
     @Override
     protected void onCompletedInitialise() {
         if(getModel().isAutoUpdateEnable()){
+            System.out.println("Current starter version = "+App.getStarterVersion());
             AutoUpdater.getAutoUpdater().startUpdater(App.getStarterVersion(), new AutoUpdater.Listener() {
                 @Override
                 public void taskCompleted() {
@@ -1791,6 +1792,8 @@ if(!getConnectedDevice())return;
 
                             @Override
                             public void error(UpdateException e) {
+                               e.printStackTrace();
+                                Log.logger.error("Ошибка обновления starter",e);
                                 Platform.runLater(() ->  Waiter.closeLayer());
                             }
                         });
