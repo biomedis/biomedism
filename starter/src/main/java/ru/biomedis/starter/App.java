@@ -298,7 +298,7 @@ public class App extends Application {
             File currentJar = new File(App.class.getProtectionDomain().getCodeSource().getLocation().toURI());
             if(!currentJar.getName().endsWith(".jar")) throw new Exception("Не найден путь к jar");
 
-            //TODO Сделать для MacOs
+
             final List<String> command = new ArrayList<>();
             String exec="";
             if(OSValidator.isUnix()){
@@ -306,6 +306,11 @@ public class App extends Application {
 
             }else if(OSValidator.isWindows()){
                 exec = new File(currentJar.getParentFile(),"./jre/bin/java.exe").getAbsolutePath();
+
+            }else if(OSValidator.isMac()){
+                exec = new File(currentJar.getParentFile(),"../Plugins/Java.runtime/Contents/Home/bin/java").getAbsolutePath();
+                System.out.println(exec);
+                Log.logger.error("dddddd",exec);
 
             }else return;
             command.add(exec);
@@ -319,6 +324,7 @@ public class App extends Application {
             System.out.println("startProgram"+builder.toString());
             System.exit(0);
         } catch (Exception e) {
+            Log.logger.error("Ошибка запуска приложения",e);
             throw new RuntimeException(e);
         }
 

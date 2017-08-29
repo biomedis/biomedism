@@ -15,7 +15,7 @@ public class NewsProvider {
     private static int port = 80;
     private static String ru_news="/doc/b_mair/apinews.php";
     private static String en_news="/doc/b_mair/apinewseng.php";
-    private static int timeout = 5;
+    private static int timeout = 25;
 
     public static CompletableFuture<List<News>> getRusNews(int maxResult){
        return getNews( host, ru_news,  port , timeout, maxResult);

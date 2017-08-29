@@ -226,9 +226,11 @@ public class AppController extends BaseController {
 
         try {
             App.getAppController().getApp().closePersisenceContext();
+            System.out.println("Make DB backup");
             DataHelper.ZipDBToBackup();
+            System.out.println("DB backup completed");
         } catch (PackException e) {
-
+            e.printStackTrace();
             Platform.runLater(() ->  {
                 setTextInfo(getRes().getString("process_updateing_stoped")+" "+getApp().getResources().getString("backup_error"));
                 showErrorImage();
@@ -236,7 +238,16 @@ public class AppController extends BaseController {
                 Waiter.closeLayer();
             });
 
-        }finally {
+        }catch (Exception e){
+            e.printStackTrace();
+            Platform.runLater(() ->  {
+                setTextInfo(getRes().getString("process_updateing_stoped")+" "+getApp().getResources().getString("backup_error"));
+                showErrorImage();
+                disableUpdateAndEnableStartProgram();
+                Waiter.closeLayer();
+            });
+        }
+        finally {
             getApp().reopenPersistentContext();
         }
 
@@ -264,6 +275,7 @@ public class AppController extends BaseController {
 
                 @Override
                 public void error(UpdateException e) {
+                    e.printStackTrace();
                     Platform.runLater(() -> {
                         setTextInfo(getRes().getString("processing_updating_files_error"));
                         showErrorImage();
@@ -273,7 +285,7 @@ public class AppController extends BaseController {
                 }
             });
         } catch (Exception e){
-
+            e.printStackTrace();
             if(e instanceof AutoUpdater.UpdateInProcessException) Log.logger.info("Обновление уже процессе.");
             else {
                 Log.logger.error("",e);
@@ -435,6 +447,7 @@ public class AppController extends BaseController {
         textInfo.setText(text);
     }
     public void onStartProgram(){
+        disableUpdateAndStartProgram();
         getApp().startMainApp();
     }
 

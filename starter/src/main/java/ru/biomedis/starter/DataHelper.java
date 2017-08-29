@@ -19,7 +19,7 @@ public class DataHelper {
        return BaseController.getApp();
     }
 
-    //TODO доработать для Мак
+
     public static void ZipDBToBackup() throws PackException {
 
         File rootDirApp = AutoUpdater.getAutoUpdater().getRootDirApp();
@@ -34,6 +34,8 @@ public class DataHelper {
         } else if (OSValidator.isWindows()) {
             dbDir = new File(rootDirApp, "assets");
 
+        }else if(OSValidator.isMac()){
+            dbDir = rootDirApp;
         }
 
         Packer.packFiles(Stream.of(dbDir.listFiles((dir, name) -> name.endsWith(".db"))).collect(Collectors.toList()),

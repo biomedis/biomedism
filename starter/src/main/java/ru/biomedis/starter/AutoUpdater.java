@@ -128,7 +128,7 @@ public class AutoUpdater {
             try {
                 rootDirApp = defineRootDirApp();
                 if (rootDirApp == null) throw new Exception();
-                System.out.println(rootDirApp.getAbsolutePath());
+                System.out.println("Путь к корню приложения "+rootDirApp.getAbsolutePath());
             } catch (Exception e) {
                 updateNotAvailableOnPlatformMessage();
             }
@@ -227,11 +227,21 @@ public class AutoUpdater {
 
     private File defineRootDirApp() throws Exception {
         File rootAppDir;
-        if (isIDEStarted()) rootAppDir = new File("./");
+       if (isIDEStarted()) rootAppDir = new File("./");
         else {
             if (OSValidator.isWindows()) rootAppDir = new File(App.getInnerDataDir_(), "../../");
-            else if (OSValidator.isMac())
-                rootAppDir = new File(App.getInnerDataDir_(), "../../");//TODO: корректировать на MAC
+            else if (OSValidator.isMac()){
+
+                //на маке почему-то стандартные приемы получения родительской директории не срабатывают
+                String innerData = App.getInnerDataDir_().getAbsolutePath();
+                if(innerData.charAt(innerData.length()-1)=='/') innerData = innerData.substring(0,innerData.length()-1);
+
+                int index = innerData.lastIndexOf("/");
+                if(index ==-1) throw new Exception();
+
+                rootAppDir = new File(innerData.substring(0,index));//на маке нет папки ассетс, там просто все в папке java лежит. те плялшем далее  от нее
+                System.out.println("sasdasd "+rootAppDir.getAbsolutePath());
+            }
             else if (OSValidator.isUnix()) rootAppDir = new File(App.getInnerDataDir_(), "../../");
             else throw new Exception();
         }
