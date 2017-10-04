@@ -78,6 +78,8 @@ public class BiofonTabController extends BaseController{
     @FXML private  Button biofonBtnComplex2;
     @FXML private  Button biofonBtnComplex3;
 
+    @FXML private HBox progressContainer;
+
     private ContextMenu biofonComplexesMenu=new ContextMenu();
 
     private MenuItem biofonPrintMi=new MenuItem();
@@ -89,6 +91,8 @@ public class BiofonTabController extends BaseController{
     public BiofonUIUtil getBiofonUIUtil() {
         return biofonUIUtil;
     }
+
+    public HBox getProgressContainer(){return progressContainer;}
 
     @Override
     protected void onCompletedInitialise() {

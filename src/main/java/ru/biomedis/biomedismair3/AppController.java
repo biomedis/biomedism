@@ -3,64 +3,43 @@ package ru.biomedis.biomedismair3;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
-import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.paint.Color;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import javafx.util.Duration;
-import org.anantacreative.updater.Update.UpdateException;
-import org.anantacreative.updater.Update.UpdateTask;
-import org.hid4java.HidDevice;
 import ru.biomedis.biomedismair3.Layouts.BiofonTab.BiofonTabController;
 import ru.biomedis.biomedismair3.Layouts.BiofonTab.BiofonUIUtil;
 import ru.biomedis.biomedismair3.Layouts.LeftPanel.LeftPanelAPI;
 import ru.biomedis.biomedismair3.Layouts.LeftPanel.TreeActionListener;
 import ru.biomedis.biomedismair3.Layouts.ProgressPanel.ProgressAPI;
-import ru.biomedis.biomedismair3.TherapyTabs.Complex.ComplexAPI;
-import ru.biomedis.biomedismair3.TherapyTabs.Complex.ComplexController;
-import ru.biomedis.biomedismair3.TherapyTabs.Complex.ComplexTable;
-import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileAPI;
-import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileController;
-import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileTable;
-import ru.biomedis.biomedismair3.TherapyTabs.Programs.ProgramAPI;
-import ru.biomedis.biomedismair3.TherapyTabs.Programs.ProgramController;
-import ru.biomedis.biomedismair3.TherapyTabs.Programs.ProgramTable;
 import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.*;
 import ru.biomedis.biomedismair3.UserUtils.CreateBaseHelper;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportProfile;
+import ru.biomedis.biomedismair3.UserUtils.Export.ExportTherapyComplex;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportUserBase;
 import ru.biomedis.biomedismair3.UserUtils.Import.ImportProfile;
+import ru.biomedis.biomedismair3.UserUtils.Import.ImportTherapyComplex;
 import ru.biomedis.biomedismair3.UserUtils.Import.ImportUserBase;
 import ru.biomedis.biomedismair3.entity.*;
-import ru.biomedis.biomedismair3.m2.M2;
-import ru.biomedis.biomedismair3.m2.M2BinaryFile;
-import ru.biomedis.biomedismair3.utils.Date.DateUtil;
 import ru.biomedis.biomedismair3.utils.Disk.DiskDetector;
-import ru.biomedis.biomedismair3.utils.Disk.DiskSpaceData;
-import ru.biomedis.biomedismair3.utils.Files.FilesProfileHelper;
 import ru.biomedis.biomedismair3.utils.Files.ZIPUtil;
-import ru.biomedis.biomedismair3.utils.OS.OSValidator;
-import ru.biomedis.biomedismair3.utils.USB.PlugDeviceListener;
-import ru.biomedis.biomedismair3.utils.USB.USBHelper;
+import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.net.URL;
-import java.nio.file.Path;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.List;
+import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -69,46 +48,27 @@ import static ru.biomedis.biomedismair3.Log.logger;
 public class AppController  extends BaseController {
 
     public static final int MAX_BUNDLES=7;
-    @FXML private ImageView deviceIcon;//иконка устройства
-    @FXML private ProgressBar diskSpaceBar;//прогресс бар занятого места на диске прибора
-    @FXML private MenuItem menuExportProfile;
-    @FXML private MenuItem    menuExportTherapyComplex;
-    @FXML private MenuItem  menuImportTherapyComplex;
-    @FXML private MenuItem menuDelGeneratedFiles;
+
     @FXML private SplitPane splitOuter;
 
-    @FXML private MenuItem printProfileMenu;
-    @FXML private MenuItem printComplexMenu;
-    @FXML private MenuItem menuImportComplex;
-    @FXML private MenuItem   menuImportComplexToBase;
-    @FXML private MenuItem   dataPathMenuItem;
+
+
     @FXML private TabPane therapyTabPane;
-    @FXML private Tab tab5;
+
 
     @FXML private AnchorPane leftLayout;
     @FXML private AnchorPane biofonTabContent;
-    @FXML private AnchorPane profileLayout;
-    @FXML private AnchorPane tab5_content;
-    @FXML private AnchorPane complexLayout;
-    @FXML private AnchorPane programLayout;
     @FXML private Menu updateBaseMenu;
 
-    private @FXML MenuItem clearTrinityItem;
-    @FXML private  Menu menuImport;
-    @FXML private  HBox topPane;
-    @FXML private MenuItem readFromTrinityMenu;
 
-    private Path devicePath=null;//путь ку устройству или NULL если что-то не так
-    private String fsDeviceName="";
+
+
     private SimpleBooleanProperty connectedDevice =new SimpleBooleanProperty(false);//подключено ли устройство
 
     private static TabPane _therapyTabPane;
 
-    private Image imageDeviceOff;
-    private Image imageDeviceOn;
-
     private  ResourceBundle res;
-    private Tooltip diskSpaceTooltip=new Tooltip();
+
     private boolean stopGCthread=false;
 
     private static M2UI m2ui;
@@ -118,17 +78,12 @@ public class AppController  extends BaseController {
     private Thread gcThreadRunner;
 
 
-
-    private String baseComplexTabName;
-    private String baseProgramTabName;
-    private String baseProfileTabName;
+private HBox containerProgress;
 
     private static  LeftPanelAPI leftAPI;
     private static  BiofonUIUtil biofonUIUtil;
-    private static  ProfileAPI profileAPI;
-    private static  ComplexAPI complexAPI;
     private static  ProgressAPI progressAPI;
-    private static  ProgramAPI programAPI;
+
 
     public static ProgressAPI getProgressAPI() {
         return progressAPI;
@@ -143,18 +98,6 @@ public class AppController  extends BaseController {
 
     public static BiofonUIUtil getBiofonUIUtil() {
         return biofonUIUtil;
-    }
-
-    public static ProfileAPI getProfileAPI() {
-        return profileAPI;
-    }
-
-    public static ComplexAPI getComplexAPI() {
-        return complexAPI;
-    }
-
-    public static ProgramAPI getProgramAPI() {
-        return programAPI;
     }
 
 
@@ -181,65 +124,35 @@ public class AppController  extends BaseController {
     public void initialize(URL url, ResourceBundle rb) {
 
         res = rb;
-        initNamesTables();
+
         _therapyTabPane = therapyTabPane;
-        dataPathMenuItem.setVisible(OSValidator.isWindows());//видимость пункта меню для введения пути к папки данных, только на винде!
-        clearTrinityItem.disableProperty().bind(m2Connected.not());
+
         updateBaseMenu.setVisible(getApp().isUpdateBaseMenuVisible());
 
         initVerticalDivider();
 
-        diskSpaceBar.setVisible(false);
-        diskSpaceBar.setTooltip(diskSpaceTooltip);
-        hackTooltipStartTiming(diskSpaceTooltip, 250, 15000);
 
         initGCRunner();
         getApp().addCloseApplistener(() -> {
             setStopGCthread();
-            DiskDetector.stopDetectingService();
+
         });
 
-        initDeviceMDetection(rb);
 
-        progressAPI = initProgressPanel();
         leftAPI = initLeftPanel();
-        profileAPI = initProfileTab();
-        complexAPI = initComplexTab();
-        programAPI = initProgramTab();
         biofonUIUtil = initBiofon();
+        progressAPI = initProgressPanel(containerProgress);
 
-        initTabComplexNameListener();
         initSectionTreeActionListener();
-
-        initUSBDetectionM2();
-        initTrinityReadingMenuItemDisabledPolicy();
-        initM2UI();
-
-        initMenuImport();
-
-        //настройка подписей в табах
-        initTabs();
-
-        /** Конопки меню верхнего ***/
-        menuDelGeneratedFiles.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
-
-        printProfileMenu.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
-        printComplexMenu.disableProperty().bind(ComplexTable.getInstance().getSelectedItemProperty().isNull());
-        menuImportComplex.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
-        menuExportProfile.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
-        menuExportTherapyComplex.disableProperty().bind(ComplexTable.getInstance().getSelectedItemProperty().isNull());
-        menuImportTherapyComplex.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
-        /***************/
-
     }
 
 
 
 
-    private ProgressAPI initProgressPanel(){
+    private ProgressAPI initProgressPanel(HBox container){
 
         try{
-          return (ProgressAPI) addContentHBox("/fxml/ProgressPane.fxml",topPane);
+          return (ProgressAPI) addContentHBox("/fxml/ProgressPane.fxml",container);
         }catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Ошибка инициализации панели програесса ",e);
@@ -248,6 +161,189 @@ public class AppController  extends BaseController {
     }
 
 
+    public void importTherapyComplex(Profile profile, Consumer<Integer> afterAction)
+    {
+        if(profile==null)return;
+
+//получим путь к файлу.
+        File file=null;
+
+        FileChooser fileChooser =new FileChooser();
+        fileChooser.setTitle(res.getString("app.title62"));
+
+        fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlc", "*.xmlc"));
+        file= fileChooser.showOpenDialog(getApp().getMainWindow());
+
+        if(file==null)return;
+
+        final File fileToSave=file;
+
+        final ImportTherapyComplex imp=new ImportTherapyComplex();
+        final ResourceBundle rest=res;
+        Task<Integer> task =new Task<Integer>() {
+            @Override
+            protected Integer call() throws Exception
+            {
+
+                imp.setListener(new ImportTherapyComplex.Listener() {
+                    @Override
+                    public void onStartParse() {
+                        updateProgress(10, 100);
+                    }
+
+                    @Override
+                    public void onEndParse() {
+                        updateProgress(30, 100);
+                    }
+
+                    @Override
+                    public void onStartAnalize() {
+                        updateProgress(35, 100);
+                    }
+
+                    @Override
+                    public void onEndAnalize() {
+                        updateProgress(50, 100);
+                    }
+
+                    @Override
+                    public void onStartImport() {
+                        updateProgress(55, 100);
+                    }
+
+                    @Override
+                    public void onEndImport() {
+                        updateProgress(90, 100);
+                    }
+
+                    @Override
+                    public void onSuccess() {
+                        updateProgress(98, 100);
+                    }
+
+                    @Override
+                    public void onError(boolean fileTypeMissMatch) {
+                        imp.setListener(null);
+
+                        if (fileTypeMissMatch) {
+                            showErrorDialog(rest.getString("app.title41"), "", rest.getString("app.title42"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                        }
+                        failed();
+
+                    }
+                });
+
+                int res= imp.parse(fileToSave,getModel(),profile);
+
+                if(res==0)
+                {
+                    imp.setListener(null);
+                    this.failed();
+                    return 0;}
+                else {
+                    imp.setListener(null);
+                    return res;
+                }
+
+            }
+
+
+        };
+        task.progressProperty().addListener((observable, oldValue, newValue) -> getProgressAPI().setProgressIndicator(newValue.doubleValue()));
+        task.setOnRunning(event1 -> getProgressAPI().setProgressIndicator(0.0, rest.getString("app.title43")));
+
+        task.setOnSucceeded(event ->
+        {
+
+            if (task.getValue()!=0)
+            {
+
+
+                getProgressAPI().setProgressIndicator(1.0D, rest.getString("app.title44"));
+
+                afterAction.accept(task.getValue());
+
+            }
+            else getProgressAPI().setProgressIndicator(rest.getString("app.title45"));
+            getProgressAPI().hideProgressIndicator(true);
+        });
+
+        task.setOnFailed(event -> {
+            getProgressAPI().setProgressIndicator(rest.getString("app.title45"));
+            getProgressAPI(). hideProgressIndicator(true);
+
+        });
+
+        Thread threadTask=new Thread(task);
+        threadTask.setDaemon(true);
+        getProgressAPI().setProgressIndicator(0.01, rest.getString("app.title46"));
+        threadTask.start();
+    }
+
+
+
+    public void exportTherapyComplexes(List<TherapyComplex> complexes)
+    {
+        if(complexes.isEmpty()) return;
+
+        final List<TherapyComplex> selectedItems = complexes;
+
+        //получим путь к файлу.
+        File file=null;
+        String initname;
+
+        initname=selectedItems.get(0).getName();
+
+        FileChooser fileChooser =new FileChooser();
+        fileChooser.setTitle(res.getString("app.title37"));
+        fileChooser.setInitialFileName(TextUtil.replaceWinPathBadSymbols(initname)+".xmlc");
+        fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlc", "*.xmlc"));
+        file= fileChooser.showSaveDialog(getApp().getMainWindow());
+
+        if(file==null)return;
+
+        final File fileToSave=file;
+
+
+        getProgressAPI().setProgressIndicator(res.getString("app.title38"));
+        Task<Boolean> task =new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception
+            {
+
+                boolean res= ExportTherapyComplex.export(selectedItems, fileToSave, getModel());
+                if(res==false) {this.failed();return false;}
+                else return true;
+
+            }
+        };
+
+
+        task.setOnRunning(event1 -> getProgressAPI().setProgressIndicator(-1.0, res.getString("app.title34")));
+        task.setOnSucceeded(event ->
+        {
+            if (task.getValue()) getProgressAPI().setProgressIndicator(1.0, res.getString("app.title35"));
+            else getProgressAPI().setProgressIndicator(res.getString("app.title39"));
+            getProgressAPI().hideProgressIndicator(true);
+        });
+
+        task.setOnFailed(event -> {
+            getProgressAPI().setProgressIndicator(res.getString("app.title39"));
+            getProgressAPI().hideProgressIndicator(true);
+        });
+
+        Thread threadTask=new Thread(task);
+
+        threadTask.setDaemon(true);
+
+        threadTask.start();
+    }
+    public void onExportUserBase()
+    {
+        leftAPI.exportUserBase();
+    }
     private BiofonUIUtil initBiofon(){
         BiofonUIUtil biofonUIUtil;
         try {
@@ -256,7 +352,7 @@ public class AppController  extends BaseController {
             biofonTabController.setImportTherapyComplexFunction(this::importTherapyComplex);
             biofonTabController.setPrintComplexesFunction(this::printComplexes);
             biofonUIUtil = biofonTabController.getBiofonUIUtil();
-
+            containerProgress = biofonTabController.getProgressContainer();
         } catch (Exception e) {
             showExceptionDialog("Ошибка инициализации панели биофона","","",e,getApp().getMainWindow(), Modality.WINDOW_MODAL);
             throw new RuntimeException(e);
@@ -292,7 +388,7 @@ public class AppController  extends BaseController {
 
     private void doubleClickOnSectionTreeComplexItemAction(TreeItem<INamed> selectedItem, int tabSelectedIndex) {
         //если выбран биофон вкладка
-        if(tabSelectedIndex==3){
+
             //добавляется комплекс в биофон
             Complex c = (Complex) selectedItem.getValue();
             try {
@@ -305,36 +401,6 @@ public class AppController  extends BaseController {
                 showExceptionDialog("Ошибка создания терапевтического комплекса ", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
 
             }
-
-
-        }else
-        if (ProfileTable.getInstance().getSelectedItem() != null)//добавление комплекса в профиль
-        {
-
-            Complex c = (Complex) selectedItem.getValue();
-
-            try {
-                TherapyComplex th = getModel().createTherapyComplex(ProfileTable.getInstance().getSelectedItem(), c, c.getTimeForFreq()==0?180:c.getTimeForFreq(),3,getModel().getInsertComplexLang());
-
-                //therapyComplexItems.clear();
-                //therapyComplexItems содержит отслеживаемый список, элементы которого добавляются в таблицу. Его не нужно очищать
-
-                ComplexTable.getInstance().getAllItems().add(th);
-                ComplexTable.getInstance().clearSelection();
-                therapyTabPane.getSelectionModel().select(1);//выберем таб с комплексами
-                ComplexTable.getInstance().select(ComplexTable.getInstance().getAllItems().size() - 1);
-                profileAPI.updateProfileTime(ProfileTable.getInstance().getSelectedItem());
-
-                //если есть программы  к перенесенном комплексе то можно разрешить генерацию
-                if(getModel().countTherapyPrograms(th)>0)profileAPI.enableGenerateBtn();
-                else profileAPI.disableGenerateBtn();
-                th = null;
-            } catch (Exception e) {
-                logger.error("",e);
-                showExceptionDialog("Ошибка создания терапевтического комплекса ", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-            }
-            c = null;
-        }
     }
 
     private void doubleClickOnSectionTreeProgramItemAction(TreeItem<INamed> selectedItem, int tabSelectedIndex) {
@@ -363,7 +429,7 @@ public class AppController  extends BaseController {
             }
         }
 
-        if(tabSelectedIndex==3){
+
             TherapyComplex selectedTCBiofon = biofonUIUtil.getSelectedComplex();
             if(selectedTCBiofon==null) return;
             try {
@@ -375,35 +441,6 @@ public class AppController  extends BaseController {
 
             }
 
-        }else
-        if (ComplexTable.getInstance().getSelectedItem() != null) {
-            //если выбран комплекс в таблице комплексов
-
-            try {
-                TherapyProgram therapyProgram = getModel().createTherapyProgram(p.getUuid(),ComplexTable.getInstance().getSelectedItem(), name, descr, p.getFrequencies(),oname);
-                ProgramTable.getInstance().getAllItems().add(therapyProgram);
-                complexAPI.updateComplexTime(ComplexTable.getInstance().getSelectedItem(), false);
-                therapyTabPane.getSelectionModel().select(2);//выберем таб с программами
-
-
-                Platform.runLater(() -> {
-                    complexAPI.updateComplexTime(ComplexTable.getInstance().getSelectedItem(),true);
-                    ProgramTable.getInstance().clearSelection();
-                    ProgramTable.getInstance().requestFocus();
-                    ProgramTable.getInstance().select( ProgramTable.getInstance().getAllItems().size() - 1);
-                    ProgramTable.getInstance().setItemFocus(ProgramTable.getInstance().getAllItems().size() - 1);
-                    ProgramTable.getInstance().scrollTo(ProgramTable.getInstance().getAllItems().size() - 1);
-                });
-
-                profileAPI.enableGenerateBtn();
-                therapyProgram = null;
-            } catch (Exception e) {
-
-                logger.error("",e);
-                showExceptionDialog("Ошибка создания терапевтической программы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
-            }
-            p = null;
-        }
     }
 
 
@@ -426,71 +463,17 @@ public class AppController  extends BaseController {
         }
     }
 
-    private ProgramAPI initProgramTab(){
-        try {
 
-        ProgramController pp = (ProgramController)replaceContent("/fxml/ProgramTab.fxml", programLayout);
-        pp.setTherapyTabPane(therapyTabPane);
-        return pp;
-        } catch (Exception e) {
-            e.printStackTrace();
-
-            throw new RuntimeException("Ошибка инициализации панели комплексов",e);
-        }
-    }
-    private ComplexAPI initComplexTab()  {
-       try{
-        ComplexController cc = (ComplexController)replaceContent("/fxml/ComplexTab.fxml", complexLayout);
-        cc.setTherapyTabPane(therapyTabPane);
-        cc.setDevicePathMethod(()->devicePath);
-        return cc;
-       } catch (Exception e) {
-           e.printStackTrace();
-
-           throw new RuntimeException("Ошибка инициализации панели комплексов",e);
-       }
-    }
-
-    private ProfileAPI initProfileTab() {
-       try {
-           ProfileController pc = (ProfileController) replaceContent("/fxml/ProfileTab.fxml", profileLayout);
-           pc.setDevicePathMethod(() -> devicePath);
-           pc.setTherapyTabPane(therapyTabPane);
-           pc.setDevicesProperties(m2Ready, connectedDevice, m2Connected);
-
-           return pc;
-       } catch (Exception e) {
-           e.printStackTrace();
-
-           throw new RuntimeException("Ошибка инициализации панели профилей",e);
-       }
-
-    }
 
     private BiofonTabController initBiofonTabContent() throws Exception {
         return  (BiofonTabController) replaceContent("/fxml/BiofonTab.fxml",biofonTabContent);
     }
 
-    private void initTrinityReadingMenuItemDisabledPolicy() {
-        readFromTrinityMenu.disableProperty().bind(m2Ready.not());
-    }
-
-    private void initM2UI() {
-        tab5.disableProperty().bind(m2Ready.not());
-        try {
-            m2ui=(M2UI)replaceContent("/fxml/M2UI.fxml",tab5_content);
-
-        } catch (Exception e) {
-            showExceptionDialog("Ошибка инициализации M2UI","","",e,getApp().getMainWindow(), Modality.WINDOW_MODAL);
-        }
-    }
 
 
-    private void initMenuImport() {
-        menuImport.setOnShowing(event -> {
-            menuImportComplexToBase.setDisable(!(leftAPI.isInUserBaseComplexSelected() || leftAPI.isInUserBaseSectionSelected()));
-        });
-    }
+
+
+
 
     private void initGCRunner() {
         gcThreadRunner =new Thread(() ->
@@ -514,125 +497,7 @@ public class AppController  extends BaseController {
 
 
 
-    private void initDeviceMDetection(ResourceBundle rb) {
-        DropShadow borderGlow;
-        borderGlow= new DropShadow();
-        borderGlow.setOffsetY(0f);
-        borderGlow.setOffsetX(0f);
-        borderGlow.setColor(Color.GREEN);
-        borderGlow.setWidth(20);
-        borderGlow.setHeight(20);
 
-
-        //при закрытии приложения мы закроем сервис детектирования диска
-
-        URL location;
-        location = getClass().getResource("/images/DeviceOff.png");
-        imageDeviceOff=new Image(location.toExternalForm());
-
-        location = getClass().getResource("/images/DeviceOn.png");
-        imageDeviceOn=new Image(location.toExternalForm());
-        deviceIcon.setImage(imageDeviceOff);
-        deviceIcon.setEffect(null);
-        try {
-            DiskDetector.waitForDeviceNotifying(4,getModel().getOption("device.disk.mark"),(state, fs)->{
-
-                Platform.runLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(state)
-                        {
-
-                            //вытащим путь к устройству, в перыый раз или когда он будет отличаться.
-                           if(fsDeviceName.isEmpty()){
-                               fsDeviceName=fs.name();
-                               try {
-                                   devicePath=DiskDetector.getRootPath(fs);
-                               } catch (Exception e) {
-                                   devicePath=null;
-                                   logger.error("",e);
-                               }
-                           }
-                            else if(!fsDeviceName.equals(fs.name()))
-                           {
-                               fsDeviceName=fs.name();
-                               try {
-                                   devicePath=DiskDetector.getRootPath(fs);
-                               } catch (Exception e) {
-                                   devicePath=null;
-                                   logger.error("",e);
-                               }
-
-                           }
-
-                            connectedDevice.setValue(true);
-
-                           // checkUpploadBtn();
-                            deviceIcon.setImage(imageDeviceOn);
-                            deviceIcon.setEffect(borderGlow);
-
-                            DiskSpaceData diskSpace = DiskDetector.getDiskSpace(fs);
-                            double progr = (double)diskSpace.getUsed(DiskSpaceData.SizeDiskType.MEGA) /(double) diskSpace.getTotal(DiskSpaceData.SizeDiskType.MEGA);
-                            if(progr>1.0)progr=1.0;
-
-                            diskSpaceBar.setProgress(progr);
-                            if(!diskSpaceBar.isVisible()) diskSpaceBar.setVisible(true);
-
-                            StringBuilder strb=new StringBuilder();
-
-
-
-                            strb.append(rb.getString("ui.main.avaliable_space"));
-                            strb.append(" ");
-                            strb.append(diskSpace.getAvaliable(DiskSpaceData.SizeDiskType.MEGA));
-                            strb.append(rb.getString("app.mb"));
-                            strb.append("\n");
-
-                            strb.append(rb.getString("ui.main.used_space"));
-                            strb.append(" ");
-                            strb.append(diskSpace.getUsed(DiskSpaceData.SizeDiskType.MEGA));
-                            strb.append(rb.getString("app.mb"));
-                            strb.append("\n");
-
-                            strb.append(rb.getString("ui.main.total_space"));
-                            strb.append(" ");
-                            strb.append(diskSpace.getTotal(DiskSpaceData.SizeDiskType.MEGA));
-                            strb.append(rb.getString("app.mb"));
-
-
-
-
-
-                            diskSpaceTooltip.setText(strb.toString());
-
-                            strb=null;
-                            diskSpace=null;
-
-
-
-
-                        }
-                        else {
-                            connectedDevice.setValue(false);
-
-                            fsDeviceName="";
-                            devicePath=null;
-
-
-                            deviceIcon.setImage(imageDeviceOff);
-                            deviceIcon.setEffect(null);
-                            if(diskSpaceBar.isVisible()) diskSpaceBar.setVisible(false);
-
-                        }
-                    }
-                });
-
-
-            });
-        } catch (Exception e) {
-            logger.error("",e);
-        }
-    }
 
 
     private void initVerticalDivider() {
@@ -642,314 +507,8 @@ public class AppController  extends BaseController {
         splitOuter.widthProperty().addListener((observableValue, oldSceneHeight, newSceneHeight) -> balanceSpitterDividers());
     }
 
-    private void initTabComplexNameListener() {
-        ComplexTable.getInstance().textComplexTimeProperty().addListener((observable, oldValue, newValue) -> {
 
-            String[] strings = newValue.split("#");
-            if(strings.length!=0)
-            {
-                TherapyComplex selectedItem = ComplexTable.getInstance().getSelectedItem();
-                if(selectedItem==null) return;
 
-
-                long idC= Long.parseLong(strings[1]);
-                if(idC!=selectedItem.getId().longValue())return;//если изменения не в выбраном комплексе, то и считать не надо
-                setComplexTabName(baseComplexTabName+" ("+ selectedItem.getName() +") +("+strings[0]+")") ;
-            }
-
-        });
-    }
-
-
-    private void setComplexTabName(String val){
-        Platform.runLater(() -> therapyTabPane.getTabs().get(1).setText(val));
-    }
-
-    private void initNamesTables() {
-        baseProfileTabName=res.getString("app.ui.tab1");
-        baseComplexTabName=res.getString("app.ui.tab2");
-        baseProgramTabName=res.getString("app.ui.tab3");
-    }
-
-    private void initTabs() {
-        ObservableList<Tab> tabs = therapyTabPane.getTabs();
-        tabs.get(1).disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
-        tabs.get(2).disableProperty().bind(ComplexTable.getInstance().getSelectedItemProperty().isNull());
-
-
-        //при переключении на вкладку профилей проверяем можно ли грузить файлы
-        tabs.get(0).setOnSelectionChanged(e -> {if(tabs.get(0).isSelected()) profileAPI.checkUpploadBtn();});
-
-        tabs.get(0).textProperty().bind(new StringBinding() {
-            {
-                //указывается через , список свойств изменения которых приведут к срабатыванию этого
-                super.bind(ProfileTable.getInstance().getSelectedItemProperty());
-            }
-            @Override
-            protected String computeValue() {
-                if(ProfileTable.getInstance().getSelectedItem()!=null)
-                {
-                   return  baseProfileTabName+" ("+ProfileTable.getInstance().getSelectedItem().getName()+")";
-                }else return baseProfileTabName;
-            }
-        });
-
-        ComplexTable.getInstance().getSelectedItemProperty().addListener((observable, oldValue, newValue) -> {
-
-            if(newValue !=null)
-            {
-                String s = DateUtil.convertSecondsToHMmSs(AppController.this.getModel().getTimeTherapyComplex(newValue));
-                setComplexTabName(baseComplexTabName+" ("+ newValue.getName() +") +("+s+")");
-
-
-            }else setComplexTabName(baseComplexTabName);
-
-        });
-
-        tabs.get(2).textProperty().bind(new StringBinding() {
-            {
-                //указывается через , список свойств изменения которых приведут к срабатыванию этого
-                super.bind(ProgramTable.getInstance().getSelectedItemProperty());
-            }
-            @Override
-            protected String computeValue() {
-                if(ProgramTable.getInstance().getSelectedItem()!=null)
-                {
-                    return  baseProgramTabName+" ("+ProgramTable.getInstance().getSelectedItem().getName()+")";
-                }else return baseProgramTabName;
-            }
-        });
-
-    }
-
-    private static   class ReadingWatchDog{
-        private int timeSec;
-        private boolean stop=false;
-        private Runnable action;
-        private Thread thread;
-
-
-        private ReadingWatchDog(int timeSec,Runnable action) {
-            this.timeSec = timeSec;
-            this.action = action;
-        }
-
-        public static ReadingWatchDog start(int timeSec,Runnable action){
-            ReadingWatchDog wd = new ReadingWatchDog(timeSec,action);
-            wd.readingWatchDog();
-            return wd;
-        }
-
-        private void readingWatchDog(){
-            Thread thread=new Thread(()->{
-                try {
-                    Thread.sleep(timeSec*1000);
-                    if(!stop){
-                        action.run();
-                    }
-
-                } catch (InterruptedException e) {
-                    //e.printStackTrace();
-                }
-            });
-            this.thread = thread;
-            thread.setDaemon(true);
-            thread.start();
-
-        }
-
-        public void stop(){
-            stop=true;
-            thread.interrupt();
-        }
-    }
-
-
-    private SimpleBooleanProperty m2Ready =new SimpleBooleanProperty(false);
-    private SimpleBooleanProperty m2Connected=new SimpleBooleanProperty(false);
-
-    private void initUSBDetectionM2() {
-        USBHelper.addPlugEventHandler(M2.productId, M2.vendorId, new PlugDeviceListener() {
-            @Override
-            public void onAttachDevice(HidDevice device)  {
-                readingWatchDog =null;
-                Task<Void> task= new Task<Void>() {
-                    @Override
-                    protected Void call() throws Exception {
-                        trinityAttachLogic();
-                        return null;
-                    }
-                };
-                Thread thread=new Thread(task);
-                thread.setDaemon(true);
-                thread.start();
-
-
-
-
-/*
-                Platform.runLater(() -> {
-                    showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),"", e, getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                });
-                Platform.runLater(() -> {
-                    showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),res.getString("trinity_should"), e2, getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                });
-
-                Platform.runLater(() -> {
-                    m2ui.setContent(new M2BinaryFile());
-                    m2Ready.setValue(true);
-                });
-*/
-            }
-
-            @Override
-            public void onDetachDevice(HidDevice device) {
-                System.out.println("Устройство Trinity отключено");
-                if( readingWatchDog !=null)  readingWatchDog.stop();
-                Platform.runLater(() ->   {
-                    m2Connected.set(false);
-                    m2Ready.setValue(false);
-                    m2ui.cleanView();
-                });
-
-            }
-
-            @Override
-            public void onFailure(USBHelper.USBException e)
-            {
-                Log.logger.error(e);
-                showExceptionDialog("USB подключение","Ошибка!","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
-
-            }
-        });
-    }
-    private ReadingWatchDog readingWatchDog;
-     private void trinityAttachLogic() {
-        boolean badConnect=false;
-        boolean readingError=false;
-        ReadingWatchDog wd=null;
-        try {
-        Thread.sleep(3000);
-        //если запись зависнет, то сработает это  сообщение.
-            wd =  ReadingWatchDog.start(15,() -> {
-               Platform.runLater(() -> {
-                   showErrorDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),res.getString("trinity_should2"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-               });
-           });
-
-            M2.readDeviceName(true);
-            wd.stop();//остановка WatchDog, чтобы сообщение не всплыло
-
-        } catch (M2.WriteToDeviceException e){
-            //если эта ошибка, то устройство вообще не корректно вставлено
-            //ошибка покажется через WatchDog
-            badConnect = true;
-            e.printStackTrace();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            wd.stop();//остановка WatchDog, чтобы сообщение не всплыло
-            readingError=true;
-
-        }finally {
-            //если есть какая-то из этих ошибок, то дальше скорее всего устройство не будет доступно для работы
-            if(badConnect || readingError) return;
-            else System.out.println("Устройство Trinity подключено");
-
-        }
-
-        M2BinaryFile m2BinaryFile = new M2BinaryFile();
-        try {
-
-             m2BinaryFile = M2.readFromDevice(true);
-
-        } catch (M2.WriteToDeviceException e) {
-            e.printStackTrace();
-            badConnect =true;
-
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-            readingError =true;
-
-        } finally {
-
-            if(badConnect){
-                Platform.runLater(() -> {
-                    showErrorDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),res.getString("trinity_should2"), getApp().getMainWindow(),Modality.WINDOW_MODAL);
-                });
-                return;
-            }
-
-
-            if(readingError){
-                readingWatchDog = ReadingWatchDog.start(20,() ->Platform.runLater(() ->   {
-                    m2Connected.set(true);
-                    m2Ready.setValue(true);
-                    m2ui.setContent(new M2BinaryFile());
-                    readFromTrinityMenu.setVisible(false);
-                }));
-
-            }else {
-                M2BinaryFile m2bf= m2BinaryFile;
-                Platform.runLater(() ->   {
-                    m2Connected.set(true);
-                    m2Ready.setValue(true);
-                    m2ui.setContent(m2bf);
-                    readFromTrinityMenu.setVisible(true);
-                });
-            }
-        }
-    }
-
-    /**********************************************/
-
-
-
-
-
-    public void onPrintComplex(){
-        complexAPI.printComplex();
-    }
-
-
-    public static boolean isProfileTabSelected(){
-        return 0 == _therapyTabPane.getSelectionModel().getSelectedIndex();
-    }
-    public static  boolean isComplexesTabSelected(){
-        return 1 == _therapyTabPane.getSelectionModel().getSelectedIndex();
-    }
-    public static boolean isProgramsTabSelected(){
-        return 2 == _therapyTabPane.getSelectionModel().getSelectedIndex();
-    }
-
-    public static  void deleteInTables() {
-        System.out.println("deleteInTables");
-        if(isProgramsTabSelected())  programAPI.removePrograms();
-        else if(isComplexesTabSelected()) complexAPI.removeComplex();
-        else if(isProfileTabSelected())   profileAPI.removeProfile();
-    }
-
-    public static  void pasteInTables() {
-        System.out.println("pasteInTables");
-        if(isProgramsTabSelected()) programAPI.pasteTherapyPrograms();
-        else if(isComplexesTabSelected()) complexAPI.pasteTherapyComplexes();
-        else if(isProfileTabSelected()) profileAPI.pasteProfile();
-    }
-
-    public static  void copyInTables() {
-        System.out.println("copyInTables");
-        if(isProgramsTabSelected()) programAPI.copySelectedTherapyProgramsToBuffer();
-        else if(isComplexesTabSelected()) complexAPI.copySelectedTherapyComplexesToBuffer();
-
-    }
-
-    public  static void cutInTables() {
-        System.out.println("cutInTables");
-        if(isProgramsTabSelected()) programAPI.cutSelectedTherapyProgramsToBuffer();
-        else if(isComplexesTabSelected()) complexAPI.cutSelectedTherapyComplexesToBuffer();
-        else if(isProfileTabSelected()) profileAPI.cutProfileToBuffer();
-    }
 
 
 /******************* Пункты меню *****************/
@@ -984,98 +543,11 @@ if(!retString.equals(option) && !retString.isEmpty())
     }
 
 
-    public void onClearDevice()
-    {
-        //очищение файлов lib для пересканирования
-if(!getConnectedDevice())return;
 
-        profileAPI.disableGenerateBtn();
-
-
-        Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.serv_1"), res.getString("app.serv_2"), res.getString("app.serv_3"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-
-        if(buttonType.isPresent())
-        {
-            if(buttonType.get()!=okButtonType)return;
-
-
-        }else return;
-
-
-        Task<Void> task =new Task<Void>() {
-            @Override
-            protected Void call() throws Exception
-            {
-
-                FilesProfileHelper.recursiveLibsDelete(devicePath.toFile());
-                Thread.sleep(2000);
-                return null;
-            }
-        };
-
-
-        task.setOnRunning(event1 -> getProgressAPI().setProgressIndicator(-1.0, res.getString("app.serv_4")));
-        task.setOnSucceeded(event ->
-        {
-            getProgressAPI().setProgressIndicator(1.0, res.getString("app.serv_5"));
-
-            getProgressAPI().hideProgressIndicator(true);
-            profileAPI.enableGenerateBtn();
-
-        });
-
-        task.setOnFailed(event -> {
-            getProgressAPI().setProgressIndicator(res.getString("app.serv_6"));
-            getProgressAPI().hideProgressIndicator(true);
-            profileAPI.enableGenerateBtn();
-        });
-
-        Thread threadTask=new Thread(task);
-
-        threadTask.setDaemon(true);
-
-        threadTask.start();
-
-
-    }
 
 /************  Обработчики меню Файл **********/
 
 
-    public void onExportUserBase()
-    {
-        leftAPI.exportUserBase();
-    }
-
-    public void onExportProfile()
-    {
-        profileAPI.exportProfile();
-    }
-
-
-
-    public void onExportTherapyComplex()
-    {
-        if(ComplexTable.getInstance().getSelectedItems().isEmpty()) return;
-
-       final ObservableList<TherapyComplex> selectedItems = ComplexTable.getInstance().getSelectedItems();
-        exportTherapyComplexes(selectedItems);
-
-    }
-
-    /**
-     * Экспорт выбранных комплексов в файл
-     * @param complexes
-     */
-    public void exportTherapyComplexes(List<TherapyComplex> complexes)
-    {
-        complexAPI.exportTherapyComplexes(complexes);
-    }
-
-    public void onImportProfile()
-    {
-         profileAPI.importProfile();
-    }
 
     /**
      * пользователь может не выбрать раздел ни в выборе базы, ни в выборе разделов 2 уровня ни в дереве. Также можно выбрать любой раздел.
@@ -1086,33 +558,8 @@ if(!getConnectedDevice())return;
         leftAPI.importUserBase();
     }
 
-    public void onImportTherapyComplex()
-    {
-        Profile profile = ProfileTable.getInstance().getSelectedItem();
-        importTherapyComplex(profile,nums -> {
-            ProfileTable.getInstance().select(profile);
 
-            List<TherapyComplex> lastTherapyComplexes = this.getModel().getLastTherapyComplexes(nums);
-            if(!lastTherapyComplexes.isEmpty())
-            {
 
-                ComplexTable.getInstance().getAllItems().addAll(lastTherapyComplexes);
-
-            }
-            profileAPI.enableGenerateBtn();
-
-        });
-    }
-
-    /**
-     * Импорт комплексов из файла
-     * @param profile
-     * @param afterAction выполняется после всего, в случае успеха. Передается параметр ему кол-во импортированных комплексов
-     */
-    public void importTherapyComplex(Profile profile, Consumer<Integer> afterAction)
-    {
-        complexAPI.importTherapyComplex(profile,afterAction);
-    }
 
     public void  onHelp()
     {
@@ -1131,71 +578,6 @@ if(!getConnectedDevice())return;
     }
 
 
-    public void onRemoveProfileFiles()
-    {
-       profileAPI.removeProfileFiles();
-
-    }
-
-
-
-    public void onReadProfileFromTrinity(){
-
-        try {
-            M2BinaryFile m2BinaryFile =null;
-           try {
-               m2BinaryFile = M2.readFromDevice(true);
-           }catch (M2.ReadFromDeviceException e){
-               try {
-                   m2BinaryFile = M2.readFromDevice(true);
-               }catch (M2.ReadFromDeviceException e1){
-                   try {
-                       m2BinaryFile = M2.readFromDevice(true);
-                   }catch (M2.ReadFromDeviceException e2){
-                       throw e2;
-                   }
-               }
-           }
-            List<TherapyComplex> tcs=new ArrayList<>();
-            Map<Long,List<TherapyProgram>> programsCache=new HashMap<>();
-            m2ui.parseFile(m2BinaryFile,tcs,programsCache);
-
-
-            Calendar cal = Calendar.getInstance();
-            Profile profile = getModel().createProfile("Trinity_" + cal.get(Calendar.DAY_OF_MONTH)+"_"+(cal.get(Calendar.MONTH)+1)+"_"+cal.get(Calendar.YEAR));
-            for (TherapyComplex tc : tcs) {
-                TherapyComplex tcn=getModel().createTherapyComplex("",profile,tc.getName(),tc.getDescription(),tc.getTimeForFrequency(),tc.getBundlesLength());
-                if(tcn==null) break;
-                for (TherapyProgram tp : programsCache.get(tc.getId())) {
-                    getModel().createTherapyProgram("",tcn,tp.getName(),"",tp.getFrequencies());
-                }
-            }
-
-
-
-            Platform.runLater(() -> {
-
-                ProfileTable.getInstance().getAllItems().add(profile);
-                ProfileTable.getInstance().select(profile);
-                ProfileTable.getInstance().scrollTo(profile);
-            therapyTabPane.getSelectionModel().select(0);
-
-            });
-
-        } catch (M2.ReadFromDeviceException e) {
-            Platform.runLater(() -> {
-                showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.error"),res.getString("trinity_should"), e, getApp().getMainWindow(),Modality.WINDOW_MODAL);
-
-            });
-
-        } catch (Exception e) {
-         logger.error("Ошибка парсинга времени",e);
-            Platform.runLater(() -> {
-                showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.title116"),"",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
-            });
-        }
-
-    }
 
     public void onLangChoose()
     {
@@ -1228,21 +610,7 @@ if(!getConnectedDevice())return;
         }
     }
 
-    /**
-     * Загрузжает профиль из папки
-     */
-    public void onLoadProfileDir()
-    {
-        profileAPI.loadProfileDir();
-    }
 
-    /**
-     * Импорт терап.комплексов из папки
-     */
-    public void onImportComplex()
-    {
-        complexAPI.importComplexFromDir();
-    }
 
     /**
      * Импорт терапевтического комплекса в базу частот
@@ -1544,8 +912,6 @@ if(!getConnectedDevice())return;
                     getModel().clearUserBaseAndProfiles();
 
                     Platform.runLater(() -> {
-                        //удалить из таблицы профилей профили, комплесы и програмы
-                        ProfileTable.getInstance().getAllItems().clear();
                         //выбрать раздел 0 главный раздел
                         leftAPI.selectBase(0);
                     });
@@ -1671,24 +1037,10 @@ if(!getConnectedDevice())return;
                 getProgressAPI().setProgressIndicator(1.0, res.getString("app.title103"));
                 if(getModel().countProfile()!=0)
                 {
-                    if(count_profiles==0){
-                        ProfileTable.getInstance().getAllItems().addAll(getModel().findAllProfiles().stream()
-                                                                 .filter(i->!i.getName().equals(App.BIOFON_PROFILE_NAME))
-                        .collect(Collectors.toList()));
-                    }
-                    else if(count_profiles<getModel().countProfile()){
-                        ProfileTable.getInstance().getAllItems().addAll( getModel().findAllProfiles().subList(count_profiles,getModel().countProfile()).stream()
-                                                                  .filter(i->!i.getName().equals(App.BIOFON_PROFILE_NAME))
-                                                                  .collect(Collectors.toList()));
-                    }
+
 
                     biofonUIUtil.reloadComplexes();
 
-                    int i =  ProfileTable.getInstance().getAllItems().size()-1;
-                    ProfileTable.getInstance().requestFocus();
-                    ProfileTable.getInstance().select(i);
-                    ProfileTable.getInstance().scrollTo(i);
-                    ProfileTable.getInstance().setItemFocus(i);
 
                     leftAPI.selectBase(0);
                     leftAPI.selectBase(sec);
@@ -1729,116 +1081,10 @@ if(!getConnectedDevice())return;
         }
     }
 
-    public void onClearTrinity(){
-        if(!m2Connected.get()) return;
 
-        Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.menu.clear_trinity"), "", res.getString("app.clear_trinity_ask"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
-        if(buttonType.get()!=okButtonType) return;
-
-        Task task = new Task() {
-            protected Boolean call() {
-                try {
-                    M2.clearDevice(true);
-                    return true;
-                } catch (M2.WriteToDeviceException e) {
-                    e.printStackTrace();
-                    return false;
-                }
-            }
-        };
-
-        task.setOnScheduled((event) -> {
-            Waiter.openLayer(getApp().getMainWindow(), true);
-        });
-        task.setOnFailed(ev -> {
-            Waiter.closeLayer();
-            showErrorDialog(res.getString("app.ui.write_error"), "", "", getApp().getMainWindow(), Modality.WINDOW_MODAL);
-        });
-
-        task.setOnSucceeded(ev -> {
-                    Waiter.closeLayer();
-                    if (((Boolean) task.getValue()).booleanValue()) {
-                        showInfoDialog(res.getString("app.success"),res.getString("app.success"),"",getApp().getMainWindow(),Modality.WINDOW_MODAL);
-
-                    } else
-                        showErrorDialog(res.getString("app.ui.write_error"), res.getString("app.error"), "",  getApp().getMainWindow(), Modality.WINDOW_MODAL);
-                }
-        );
-        Thread thread = new Thread(task);
-        thread.setDaemon(true);
-        thread.start();
-    }
 
     @Override
     protected void onCompletedInitialise() {
-        if(getModel().isAutoUpdateEnable()){
-            System.out.println("Current starter version = "+App.getStarterVersion());
-            AutoUpdater.getAutoUpdater().startUpdater(App.getStarterVersion(), new AutoUpdater.Listener() {
-                @Override
-                public void taskCompleted() {
-                    try {
-                        Platform.runLater(() -> Waiter.openLayer(getApp().getMainWindow(),true));
-                        AutoUpdater.getAutoUpdater().performUpdateTask(new UpdateTask.UpdateListener() {
-                            @Override
-                            public void progress(int i) {
-
-                            }
-
-                            @Override
-                            public void completed() {
-                                Platform.runLater(() ->  Waiter.closeLayer());
-                                System.out.println("Обновлен Starter");
-                            }
-
-                            @Override
-                            public void error(UpdateException e) {
-                               e.printStackTrace();
-                                Log.logger.error("Ошибка обновления starter",e);
-                                Platform.runLater(() ->  Waiter.closeLayer());
-                            }
-                        });
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        Log.logger.error("",e);
-                    }
-
-                }
-
-                @Override
-                public void error(Exception e) {
-                    e.printStackTrace();
-                    Log.logger.error("",e);
-                }
-
-                @Override
-                public void completeFile(String name) {
-
-                }
-
-                @Override
-                public void currentFileProgress(float val) {
-
-                }
-
-                @Override
-                public void nextFileStartDownloading(String name) {
-
-                }
-
-                @Override
-                public void totalProgress(float val) {
-
-                }
-            });
-        }
-
-
-        try {
-            USBHelper.startHotPlugListener();
-        } catch (USBHelper.USBException e) {
-            Log.logger.error(e);
-            showExceptionDialog("Детектирование USB подключений","Ошибка!","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
-        }
     }
 
 
@@ -1850,9 +1096,7 @@ if(!getConnectedDevice())return;
         }
     }
 
-    public void onPrintProfile(){
-        profileAPI.printProfile();
-    }
+
 
     @Override
     public void setParams(Object... params)

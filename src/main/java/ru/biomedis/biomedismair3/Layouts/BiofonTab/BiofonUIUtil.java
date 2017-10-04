@@ -43,7 +43,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static ru.biomedis.biomedismair3.Log.logger;
-import static ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileController.checkBundlesLength;
+
 
 /**
  * Created by anama on 09.12.16.
@@ -92,6 +92,20 @@ public class BiofonUIUtil {
     private ContextMenu deviceBtnMenu2=new ContextMenu();
     private ContextMenu deviceBtnMenu3=new ContextMenu();
     private static final int PAUSE_BETWEEN_PROGRAM=1;
+
+    public static void checkBundlesLength(List<TherapyComplex> complexList) throws Exception {
+
+        List<TherapyComplex> edited = complexList.stream().filter(c -> c.getBundlesLength() > 7).collect(Collectors.toList());
+
+        for (TherapyComplex tc : edited) {
+            tc.setBundlesLength(7);
+            App.getStaticModel().updateTherapyComplex(tc);
+
+        }
+
+
+    }
+
 
     public BiofonUIUtil(ResourceBundle resource, App app, BaseController bc, ModelDataApp mda, Profile biofonProfile,
                         ListView<TherapyComplex> biofonCompexesList, ListView<TherapyProgram> biofonProgramsList,

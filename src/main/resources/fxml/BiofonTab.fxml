@@ -1,15 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.control.*?>
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.effect.Bloom?>
 <?import javafx.scene.effect.Shadow?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
-<?import java.lang.*?>
-<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8.0.72" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.Layouts.BiofonTab.BiofonTabController">
+
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.Layouts.BiofonTab.BiofonTabController">
       <padding>
          <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
       </padding>
@@ -215,62 +225,80 @@
                      <Separator maxHeight="128" orientation="VERTICAL" prefHeight="100" prefWidth="3" />
                      <VBox maxHeight="1.7976931348623157E308" spacing="5.0" HBox.hgrow="ALWAYS">
                         <children>
-                           <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
-                              <children>
-                                 <Button fx:id="bProgramUp" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
-                                    <styleClass>
-                                       <String fx:value="UpBtn" />
-                                       <String fx:value="GenericBtn" />
-                                    </styleClass></Button>
-                                 <Button fx:id="bProgramDown" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
-                                    <styleClass>
-                                       <String fx:value="DownBtn" />
-                                       <String fx:value="GenericBtn" />
-                                    </styleClass></Button>
-                                 <HBox alignment="BOTTOM_LEFT" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
-                                    <children>
-                                       <Button fx:id="bProgramDel" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
-                                          <styleClass>
-                                             <String fx:value="DelBtn" />
-                                             <String fx:value="GenericBtn" />
-                                          </styleClass>
-                                       </Button>
-                                    </children>
-                                    <padding>
-                                       <Insets left="15.0" />
-                                    </padding>
-                                 </HBox>
-                              </children>
-                              <padding>
-                                 <Insets bottom="2.0" left="1.0" right="5.0" top="3.0" />
-                              </padding>
-                           </HBox>
+                        <HBox>
+                           <children>
 
-                           <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
-                              <children>
-                                 <Label alignment="TOP_LEFT" text="%ui.time_to_freq" />
-                                 <Label fx:id="tToFBiofonInfo" alignment="TOP_LEFT" maxWidth="Infinity" text="-" />
-                              </children>
-                           </HBox>
-                           <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
-                              <children>
-                                 <Label alignment="TOP_LEFT" text="%ui.bundles_length" />
-                                 <Label fx:id="bundlesBiofonInfo" alignment="TOP_LEFT" maxWidth="Infinity" text="-" />
-                              </children>
-                           </HBox>
-                           <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
-                              <children>
-                                 <Label alignment="TOP_LEFT" text="%ui.program_count" />
-                                 <Label fx:id="countProgramsBiofonInfo" alignment="TOP_LEFT" maxWidth="Infinity" text="-" />
-                              </children>
-                           </HBox>
-                           <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
-                              <children>
-                                 <Label alignment="TOP_LEFT" text="%ui.complexTime" />
-                                 <Label fx:id="complexTimeBiofon" alignment="TOP_LEFT" maxWidth="Infinity" text="-" />
-                              </children>
-                           </HBox>
-                           <Label fx:id="biofonInsLangProgram" alignment="TOP_LEFT" maxWidth="1.7976931348623157E308" text="Label" />
+                              <VBox spacing="3.0">
+                                 <children>
+                                       <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
+                                          <children>
+                                             <Button fx:id="bProgramUp" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
+                                                <styleClass>
+                                                   <String fx:value="UpBtn" />
+                                                   <String fx:value="GenericBtn" />
+                                                </styleClass>
+                                          </Button>
+                                             <Button fx:id="bProgramDown" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
+                                                <styleClass>
+                                                   <String fx:value="DownBtn" />
+                                                   <String fx:value="GenericBtn" />
+                                                </styleClass>
+                                          </Button>
+                                             <HBox alignment="BOTTOM_LEFT" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
+                                                <children>
+                                                   <Button fx:id="bProgramDel" minHeight="30.0" minWidth="30.0" mnemonicParsing="false" prefHeight="30.0" prefWidth="30.0">
+                                                      <styleClass>
+                                                         <String fx:value="DelBtn" />
+                                                         <String fx:value="GenericBtn" />
+                                                      </styleClass>
+                                                   </Button>
+                                                </children>
+                                                <padding>
+                                                   <Insets left="15.0" />
+                                                </padding>
+                                             </HBox>
+                                          </children>
+                                          <padding>
+                                             <Insets bottom="2.0" left="1.0" right="5.0" top="3.0" />
+                                          </padding>
+                                       </HBox>
+            
+                                       <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
+                                          <children>
+                                             <Label alignment="TOP_LEFT" text="%ui.time_to_freq" />
+                                             <Label fx:id="tToFBiofonInfo" alignment="TOP_LEFT" maxWidth="Infinity" text="-" />
+                                          </children>
+                                       </HBox>
+                                       <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
+                                          <children>
+                                             <Label alignment="TOP_LEFT" text="%ui.bundles_length" />
+                                             <Label fx:id="bundlesBiofonInfo" alignment="TOP_LEFT" maxWidth="Infinity" text="-" />
+                                          </children>
+                                       </HBox>
+                                       <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
+                                          <children>
+                                             <Label alignment="TOP_LEFT" text="%ui.program_count" />
+                                             <Label fx:id="countProgramsBiofonInfo" alignment="TOP_LEFT" maxWidth="Infinity" text="-" />
+                                          </children>
+                                       </HBox>
+                                       <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
+                                          <children>
+                                             <Label alignment="TOP_LEFT" text="%ui.complexTime" />
+                                             <Label fx:id="complexTimeBiofon" alignment="TOP_LEFT" maxWidth="Infinity" text="-" />
+                                          </children>
+                                       </HBox>
+                                 </children>
+                              </VBox>
+                              <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"  fx:id="progressContainer"/>
+                           </children>
+                           <padding>
+                              <Insets bottom="8.0" />
+                           </padding>
+                        </HBox>
+                           <Label fx:id="biofonInsLangProgram" alignment="TOP_LEFT" maxWidth="1.7976931348623157E308" text="Label">
+                           <VBox.margin>
+                              <Insets bottom="4.0" />
+                           </VBox.margin></Label>
 
                            <ListView fx:id="biofonProgramsList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
                         </children>

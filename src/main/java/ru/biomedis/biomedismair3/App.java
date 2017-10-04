@@ -675,7 +675,7 @@ https://gist.github.com/DemkaAge/8999236
 
 
         BaseController.setApp(this);//установим ссылку на приложение для всех контроллеров
-         stage.setTitle(this.strings.getString("app.name")+getUpdateVersion()+"."+currentMinorVersion);
+         stage.setTitle(this.strings.getString("app.name"));
         // stage.getIcons().add(new Image(App.class.getResourceAsStream("icon.png")));
          URL ico = getClass().getResource("/images/icon.png");
          stage.getIcons().add(new Image(ico.toExternalForm()));

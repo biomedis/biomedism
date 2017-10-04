@@ -126,7 +126,7 @@ public class ReferenceController extends BaseController {
 
     private void buildMenu(){
         List<Section> rootSections = getModel().findAllRootSection().stream()
-                                        .filter(s -> s.getTag()==null?true:!s.getTag().equals("USER"))
+                                        .filter(s -> s.getTag()==null?true:!(s.getTag().equals("USER")||s.getTag().equals("TRINITY")))
                                         .collect(Collectors.toList());
         getModel().initStringsSection(rootSections,getModel().getProgramLanguage(),true);
 

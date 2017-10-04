@@ -1,6 +1,5 @@
 package ru.biomedis.biomedismair3.Layouts.LeftPanel;
 
-import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
@@ -20,8 +19,6 @@ import ru.biomedis.biomedismair3.Converters.SectionConverter;
 import ru.biomedis.biomedismair3.Dialogs.NameDescroptionDialogController;
 import ru.biomedis.biomedismair3.Dialogs.ProgramDialogController;
 import ru.biomedis.biomedismair3.Layouts.ProgressPanel.ProgressAPI;
-import ru.biomedis.biomedismair3.TherapyTabs.Complex.ComplexAPI;
-import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileTable;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportUserBase;
 import ru.biomedis.biomedismair3.UserUtils.Import.ImportUserBase;
 import ru.biomedis.biomedismair3.Waiter;
@@ -97,7 +94,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
     }
 
-    private ComplexAPI getComplexAPI(){return AppController.getComplexAPI();}
+
     private ProgressAPI getProgressAPI(){ return AppController.getProgressAPI(); }
 
     private void initSearchUI() {
@@ -178,7 +175,12 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
     private void initBaseCombo() {
         List<Section> allRootSection;// разделы старая и новая база
-        allRootSection = getModel().findAllRootSection();// разделы разных баз(старая и новая)
+        allRootSection = getModel().findAllRootSection().stream()
+                                   .filter(dep->{
+                                       if(dep.getTag()!=null) return  !dep.getTag().equals("TRINITY");
+                                       else return true;
+                                   })
+                                   .collect(Collectors.toList());
         getModel().initStringsSection(allRootSection);
         baseCombo.setConverter(new SectionConverter(getModel().getProgramLanguage().getAbbr()));
         baseCombo.getItems().addAll(allRootSection);
@@ -2062,11 +2064,6 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
                 getProgressAPI().hideProgressBar(false);
                 getProgressAPI().setProgressIndicator(1.0, res.getString("app.title103"));
 
-                Profile selectedItem =  ProfileTable.getInstance().getSelectedItem();
-                if(selectedItem!=null)   Platform.runLater(() -> {
-                    ProfileTable.getInstance().clearSelection();
-                    ProfileTable.getInstance().select(selectedItem);
-                });
             } else {
                 getProgressAPI().hideProgressBar(false);
                 getProgressAPI().setProgressIndicator(res.getString("app.title93"));
