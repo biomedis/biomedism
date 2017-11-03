@@ -482,7 +482,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
 
                 while(e.hasNext()) {
                     TherapyComplex itm = (TherapyComplex)e.next();
-                    complex = this.getModel().createComplex(itm.getName(), itm.getDescription(), (Section)treeItem.getValue(), false, this.getModel().getUserLanguage());
+                    complex = this.getModel().createComplex(itm.getName(), itm.getDescription(), (Section)treeItem.getValue(), false, this.getModel().getUserLanguage(), itm.getTimeForFrequency());
                     this.getModel().initStringsComplex(complex);
                     Iterator<TherapyProgram> it = this.getModel().findTherapyPrograms(itm.getId()).stream().filter((s) ->!s.isMp3()).collect(
                             Collectors.toList()).iterator();
