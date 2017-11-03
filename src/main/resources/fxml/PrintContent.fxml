@@ -1,15 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.web.*?>
-<?import javafx.scene.control.*?>
-<?import java.lang.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.web.WebView?>
 
-<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/null" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.Dialogs.PrintController" fx:id="root">
+<BorderPane fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.Dialogs.PrintController">
    <center>
       <WebView fx:id="webView" prefHeight="490.0" prefWidth="590.0" BorderPane.alignment="CENTER" />
    </center>
    <top>
-      <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onPrint" text="%app.menu.print" BorderPane.alignment="CENTER" />
+      <VBox spacing="8.0" BorderPane.alignment="CENTER">
+         <children>
+            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onPrint" text="%app.menu.print" />
+            <HBox alignment="CENTER_LEFT" spacing="8.0">
+               <children>
+                  <RadioButton fx:id="freqRadio" mnemonicParsing="false" onAction="#choiceFreqs" selected="true" text="%app.with_freqs" />
+                  <RadioButton fx:id="noFreqRadio" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#choiceNoFreqs" text="%app.without_freqs" />
+                  <Label text="%app.font_size">
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin></Label>
+                  <ChoiceBox fx:id="fontSize" onAction="#choiceFontSize" />
+               </children>
+            </HBox>
+         </children>
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </padding>
+      </VBox>
    </top>
 </BorderPane>
