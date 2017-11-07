@@ -52,7 +52,7 @@ public class BiofonTabController extends BaseController{
 
     @FXML private Button bComplexSort;
 
-    @FXML private Spinner<String> bundlesSpinnerBiofon;
+    @FXML private Spinner<Integer> bundlesSpinnerBiofon;
     @FXML  private VBox bundlesBtnPanBiofon;
     @FXML private Button btnOkBundlesBiofon;
     @FXML private Button btnCancelBundlesBiofon;
@@ -188,7 +188,7 @@ public class BiofonTabController extends BaseController{
 
     private void hideBundlesSpinnerBTNPanBiofon(int val)
     {
-        bundlesSpinnerBiofon.getValueFactory().setValue(String.valueOf(val));
+        bundlesSpinnerBiofon.getValueFactory().setValue(val);
         bundlesBtnPanBiofon.setVisible(false);
 
     }
@@ -264,14 +264,14 @@ public class BiofonTabController extends BaseController{
         /** Комбо пачек частот **/
 
 
-        ObservableList<String> bundlesSpinnerDataBiofon = FXCollections.observableArrayList();
+        ObservableList<Integer> bundlesSpinnerDataBiofon = FXCollections.observableArrayList();
 
 
 
 
-        for(int i=2; i<=MAX_BUNDLES; i++)bundlesSpinnerDataBiofon.add(String.valueOf(i));
-        bundlesSpinnerBiofon.setValueFactory(new SpinnerValueFactory.ListSpinnerValueFactory<String>(bundlesSpinnerDataBiofon));
-        bundlesSpinnerBiofon.getValueFactory().setValue("2");
+        for(int i=2; i<=MAX_BUNDLES+8; i++)bundlesSpinnerDataBiofon.add(i);
+        bundlesSpinnerBiofon.setValueFactory(new SpinnerValueFactory.ListSpinnerValueFactory<Integer>(bundlesSpinnerDataBiofon));
+        bundlesSpinnerBiofon.getValueFactory().setValue(2);
 
         btnOkBundlesBiofon.setGraphic(new ImageView(new Image(okUrl.toExternalForm())));
         btnCancelBundlesBiofon.setGraphic(new ImageView(new Image(cancelUrl.toExternalForm())));
@@ -297,6 +297,14 @@ public class BiofonTabController extends BaseController{
             }
 
             hideTFSpinnerBTNPanBiofon(newValue.getTimeForFrequency()/60);
+            if(newValue.getBundlesLength()<2){
+                newValue.setBundlesLength(2);
+                try {
+                    getModel().updateTherapyComplex(newValue);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             hideBundlesSpinnerBTNPanBiofon(newValue.getBundlesLength()<2?2:newValue.getBundlesLength());
         });
 
@@ -316,7 +324,7 @@ public class BiofonTabController extends BaseController{
             try {
                 for (TherapyComplex complex : selectedItems) {
 
-                    complex.setBundlesLength(Integer.parseInt(bundlesSpinnerBiofon.getValue()));
+                    complex.setBundlesLength(bundlesSpinnerBiofon.getValue());
                     this.getModel().updateTherapyComplex(complex);
                     hideBundlesSpinnerBTNPanBiofon();
                 }

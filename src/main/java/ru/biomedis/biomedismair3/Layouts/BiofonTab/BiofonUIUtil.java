@@ -204,7 +204,8 @@ public class BiofonUIUtil {
                 resTimeSec += splitFreqsByBundles(tp.parseFreqs(), bundlesLength).size()*(timeForFreq + pauseBetweenProgramm);
 
             }else {
-                resTimeSec +=(timeForFreq+pauseBetweenProgramm);
+                resTimeSec +=(timeForFreq+pauseBetweenProgramm)*tp.getNumFreqs();//после каждой частоты будет пауза , тк каждая частота - это программа
+                //resTimeSec +=(timeForFreq+pauseBetweenProgramm);
             }
 
         }
@@ -1341,6 +1342,7 @@ private void changePositionProgram(boolean up){
     }
 
 
+
     private List<List<Double>> splitFreqsByBundles(List<Double> fl,int bundlesLength){
         List<List<Double>> res=new ArrayList<>();
         if(bundlesLength >1)
@@ -1391,7 +1393,12 @@ private void changePositionProgram(boolean up){
         for (TherapyProgram therapyProgram : therapyPrograms) {
 
             if(tc1.getBundlesLength()==1){
-                bc1.addProgram(new BiofonProgram(therapyProgram.parseFreqs(),therapyProgram.getId().intValue()));
+               // bc1.addProgram(new BiofonProgram(therapyProgram.parseFreqs(),therapyProgram.getId().intValue()));
+                for (Double fl : therapyProgram.parseFreqs()) {
+                    List<Double> p =new ArrayList<>();
+                    p.add(fl);
+                    bc1.addProgram(new BiofonProgram(p, therapyProgram.getId().intValue()));
+                }
             }else {
                 for (List<Double> fl : splitFreqsByBundles(therapyProgram.parseFreqs(), tc1.getBundlesLength())) {
                     bc1.addProgram(new BiofonProgram(fl,therapyProgram.getId().intValue()));
@@ -1408,7 +1415,12 @@ private void changePositionProgram(boolean up){
 
 
             if(tc2.getBundlesLength()==1){
-                bc2.addProgram(new BiofonProgram(therapyProgram.parseFreqs(),therapyProgram.getId().intValue()));
+                //bc2.addProgram(new BiofonProgram(therapyProgram.parseFreqs(),therapyProgram.getId().intValue()));
+                for (Double fl : therapyProgram.parseFreqs()) {
+                    List<Double> p =new ArrayList<>();
+                    p.add(fl);
+                    bc2.addProgram(new BiofonProgram(p, therapyProgram.getId().intValue()));
+                }
             }else {
                 for (List<Double> fl : splitFreqsByBundles(therapyProgram.parseFreqs(), tc2.getBundlesLength())) {
                     bc2.addProgram(new BiofonProgram(fl,therapyProgram.getId().intValue()));
@@ -1424,7 +1436,11 @@ private void changePositionProgram(boolean up){
 
 
             if(tc3.getBundlesLength()==1){
-                bc3.addProgram(new BiofonProgram(therapyProgram.parseFreqs(),therapyProgram.getId().intValue()));
+                for (Double fl : therapyProgram.parseFreqs()) {
+                    List<Double> p =new ArrayList<>();
+                    p.add(fl);
+                    bc3.addProgram(new BiofonProgram(p, therapyProgram.getId().intValue()));
+                }
             }else {
                 for (List<Double> fl : splitFreqsByBundles(therapyProgram.parseFreqs(), tc3.getBundlesLength())) {
                     bc3.addProgram(new BiofonProgram(fl,therapyProgram.getId().intValue()));

@@ -7,6 +7,7 @@ import javafx.beans.property.SimpleStringProperty;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -352,7 +353,7 @@ public class TherapyProgram implements Serializable {
 
        return Arrays.stream( frequencies.get().split(";"))
                     .flatMap(f->Arrays.stream(f.split("\\+")))
-                    .map(f->Double.parseDouble(f.replace(",",".")))
+                    .map(TherapyProgram::parseSingleFreq)
                     .collect(Collectors.toList());
     }
 
@@ -365,6 +366,41 @@ public class TherapyProgram implements Serializable {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Получает списки с частотами разбитые на группу по ;
+     * Если в списке более 1 частоты, то они были набиты с +
+     * @return
+     */
+    @Transient
+    public List<List<Double>> parseFreqsSequenceMode(){
 
+        return Arrays.stream( frequencies.get().split(";"))
+                     .map(TherapyProgram::parseMultySequence)
+                     .collect(Collectors.toList());
+
+    }
+
+    /**
+     * Парсит часть часть строки с частотами с учетом + +
+     * @param f строка частот с + или без
+     * @return
+     */
+    private static List<Double> parseMultySequence(String f) {
+        List<Double> con;
+        if(!f.contains("+")) {
+            con = new ArrayList();
+            con.add(parseSingleFreq(f));
+        }
+        else {
+             con = Arrays.stream(f.split("\\+"))
+                         .map(TherapyProgram::parseSingleFreq)
+                         .collect(Collectors.toList());
+        }
+        return con;
+    }
+
+    private static Double parseSingleFreq(String f){
+        return Double.parseDouble(f.replace(",","."));
+    }
 
 }
