@@ -255,12 +255,13 @@ public class ProfileTable {
     }
 
     public void initProfileContextMenu(Runnable onPrintProfile, Runnable cutInTables, Runnable pasteInTables,Runnable deleteInTables) {
-        //MenuItem mip1 = new MenuItem(this.res.getString("app.ui.copy"));
+        MenuItem mip1 = new MenuItem(this.res.getString("app.ui.duplicate"));
         MenuItem mip2 =new MenuItem(this.res.getString("app.ui.paste"));
         MenuItem mip3 =new MenuItem(this.res.getString("app.cut"));
         MenuItem mip4 =new MenuItem(this.res.getString("app.delete"));
         MenuItem mip5 =new MenuItem(this.res.getString("app.menu.print_profile"));
         MenuItem mip6 =new SeparatorMenuItem();
+
 
         mip5.setOnAction(e->onPrintProfile.run());
 
@@ -268,7 +269,8 @@ public class ProfileTable {
         mip3.setAccelerator(new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN));
         mip2.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
         mip4.setAccelerator(new KeyCodeCombination(KeyCode.DELETE));
-        profileMenu.getItems().addAll(mip3,mip2,mip4,mip6,mip5,translateMenu);
+        profileMenu.getItems().addAll(mip3,mip1,mip2,mip4,mip6,mip5,translateMenu);
+        mip1.setOnAction(e->duplicateProfile());
         mip3.setOnAction(e->cutInTables.run());
         mip2.setOnAction(e->pasteInTables.run());
         mip4.setOnAction(e->deleteInTables.run());
@@ -278,13 +280,14 @@ public class ProfileTable {
             mip3.setDisable(false);
             mip4.setDisable(false);
             mip5.setDisable(false);
+            mip1.setDisable(true);
             if(table.getSelectionModel().getSelectedItem()==null) {
                 mip2.setDisable(true);
                 mip3.setDisable(true);
                 mip4.setDisable(true);
                 mip5.setDisable(true);
             }else {
-
+                mip1.setDisable(false);
                 mip4.setDisable(false);
                 Clipboard clipboard= Clipboard.getSystemClipboard();
                 if(clipboard.hasContent(PROFILE_CUT_ITEM_ID)){
@@ -299,6 +302,20 @@ public class ProfileTable {
             }
 
         });
+    }
+
+    private void duplicateProfile() {
+        try {
+            Profile p = getModel().duplicateProfile(getSelectedItem());
+
+            getAllItems().add(p);
+            select(p);
+            scrollTo(p);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     private ModelDataApp getModel() {

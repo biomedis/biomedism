@@ -596,6 +596,15 @@ public class ModelDataApp {
 
     }
 
+
+    public Profile duplicateProfile(Profile profile) throws Exception {
+        Profile p = createProfile(profile.getName() + "_");
+        for (TherapyComplex therapyComplex : findTherapyComplexes(profile)) {
+            copyTherapyComplexToProfile(p, therapyComplex);
+        }
+        return p;
+    }
+
     
     /******************************************/
     
