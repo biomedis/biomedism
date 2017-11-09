@@ -100,7 +100,7 @@ public class App extends Application {
     public ResourceBundle getResources(){return strings;}
       private final boolean test=false;//указывает что будут проводиться интеграционные тесты. Соответсвенно будет подключена другая БД и запущенны тесты
       private final boolean importDB=false;//импорт базы данных
-      private final boolean updateBaseMenuVisible =false;//показ пункта обновления базы частот
+      private final boolean updateBaseMenuVisible =true;//показ пункта обновления базы частот
 
     public boolean isUpdateBaseMenuVisible() {
         return updateBaseMenuVisible;
@@ -312,8 +312,8 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         /******** Обновления ************/
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
-        int currentUpdateFile=11;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=1;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentUpdateFile=12;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
+        int currentMinorVersion=0;//версия исправлений в пределах мажорной версии currentUpdateFile
         //требуется размещение в папке с dist.jar  файла version.txt с текущей версией типа 4.9.0!!! Этот файл в обновление нужно включать
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -383,6 +383,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(()->updateIn10(updateOption,updateFixVersion))
                                  .thenRun(() -> update11(updateOption))
                                  .thenRun(()->updateIn11(updateOption,updateFixVersion))
+                                 .thenRun(()->update12(updateOption))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -401,6 +402,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(()->updateIn10(updateOption,updateFixVersion))
                                  .thenRun(() -> update11(updateOption))
                                  .thenRun(()->updateIn11(updateOption,updateFixVersion))
+                                 .thenRun(()->update12(updateOption))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -418,6 +420,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(()->updateIn10(updateOption,updateFixVersion))
                                  .thenRun(() -> update11(updateOption))
                                  .thenRun(()->updateIn11(updateOption,updateFixVersion))
+                                 .thenRun(()->update12(updateOption))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -434,6 +437,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(()->updateIn10(updateOption,updateFixVersion))
                                  .thenRun(() -> update11(updateOption))
                                  .thenRun(()->updateIn11(updateOption,updateFixVersion))
+                                 .thenRun(()->update12(updateOption))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -450,6 +454,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(()->updateIn10(updateOption,updateFixVersion))
                                  .thenRun(() -> update11(updateOption))
                                  .thenRun(()->updateIn11(updateOption,updateFixVersion))
+                                 .thenRun(()->update12(updateOption))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -465,6 +470,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(()->updateIn10(updateOption,updateFixVersion))
                                  .thenRun(() -> update11(updateOption))
                                  .thenRun(()->updateIn11(updateOption,updateFixVersion))
+                                 .thenRun(()->update12(updateOption))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -479,6 +485,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(()->updateIn10(updateOption,updateFixVersion))
                                  .thenRun(() -> update11(updateOption))
                                  .thenRun(()->updateIn11(updateOption,updateFixVersion))
+                                 .thenRun(()->update12(updateOption))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -493,6 +500,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(()->updateIn10(updateOption,updateFixVersion))
                                  .thenRun(() -> update11(updateOption))
                                  .thenRun(()->updateIn11(updateOption,updateFixVersion))
+                                 .thenRun(()->update12(updateOption))
                                  .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                                  .exceptionally(e->{
                                      showUpdateErrorAndExit(e.getMessage());
@@ -504,6 +512,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(()->updateIn10(updateOption,updateFixVersion))
                                  .thenRun(() -> update11(updateOption))
                                  .thenRun(()->updateIn11(updateOption,updateFixVersion))
+                                 .thenRun(()->update12(updateOption))
                                  .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                                  .exceptionally(e->{
                                      showUpdateErrorAndExit(e.getMessage());
@@ -517,6 +526,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
             else if(getUpdateVersion()==11){
                 CompletableFuture.runAsync(() -> changeDDL())
                                  .thenRun(()->updateIn11(updateOption,updateFixVersion))
+                                 .thenRun(()->update12(updateOption))
                                  .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                                  .exceptionally(e->{
                                      showUpdateErrorAndExit(e.getMessage());
@@ -526,7 +536,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
 
                 System.out.println("Update >11.0");
 
-            }
+            }            
             else {
                 showUpdateErrorAndExit("Версия обновления и версия программы конфликтуют. " + getUpdateVersion());
             }
@@ -740,6 +750,19 @@ https://gist.github.com/DemkaAge/8999236
 
             AddonsDBImport addon=new AddonsDBImport(getModel());
             if(addon.execute()==false){System.out.println("Ошибка импорта аддонов"); return;}
+        }
+    }
+
+    private void update12(ProgramOptions updateOption) {
+        logger.info("ОБНОВЛЕНИЕ 12.");
+
+        try {
+
+            //addPsyhoComplexesToTrinity();
+            //setUpdateVersion(updateOption, 12);
+
+        }catch (Exception ex){
+            wrapException("12",ex);
         }
     }
 
@@ -2005,6 +2028,65 @@ https://gist.github.com/DemkaAge/8999236
             throw new Exception("Обработка "+langAbbr+" языка ОШИБКА");
         }
     }
+
+    private void addPsyhoComplexesToTrinity() throws Exception {
+        Section  section = model.findAllSectionByTag("TRINITY");
+        if(section == null) throw new Exception("Отсутствует раздел Trinity");
+        ImportUserBase iUB=new ImportUserBase();
+
+        ResourceUtil ru=new ResourceUtil();
+        File trinityBaseFile = ru.saveResource(getTmpDir(),"trinity_new.xmlb","/updates/update11_2/new_complexes.xmlb",true);
+
+        if(trinityBaseFile==null) throw new Exception("Не удалось создать файл для импорта базы");
+
+        iUB.setListener(new ImportUserBase.Listener() {
+            @Override
+            public void onStartParse() {
+
+            }
+
+            @Override
+            public void onEndParse() {
+
+            }
+
+            @Override
+            public void onStartAnalize() {
+
+            }
+
+            @Override
+            public void onEndAnalize() {
+
+            }
+
+            @Override
+            public void onStartImport() {
+
+            }
+
+            @Override
+            public void onEndImport() {
+
+            }
+
+            @Override
+            public void onSuccess() {
+
+            }
+
+            @Override
+            public void onError(boolean fileTypeMissMatch) {
+
+            }
+        });
+        boolean res = iUB.parse(trinityBaseFile, model, section,true,getModel().getLanguage("ru"));
+        if(res==false) {
+            throw new Exception("Ошибка импорта программ");
+        }
+
+    }
+
     private void addTrinityBase() throws Exception {
         Section section=null;
         boolean alsoNewsVers=false;
