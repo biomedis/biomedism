@@ -103,6 +103,7 @@
                         <MenuItem mnemonicParsing="false" onAction="#onRecoveryLoad" text="%ui.backup.load_backup" />
                     </items>
                   </Menu>
+                  <MenuItem mnemonicParsing="false" onAction="#onTrinityInfo" text="%trinity.info" fx:id="trinityInfo"></MenuItem>
               </items>
             </Menu>
             <Menu mnemonicParsing="false" text="%app.menu.options">

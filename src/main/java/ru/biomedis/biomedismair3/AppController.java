@@ -76,7 +76,7 @@ public class AppController  extends BaseController {
     @FXML private MenuItem  menuImportTherapyComplex;
     @FXML private MenuItem menuDelGeneratedFiles;
     @FXML private SplitPane splitOuter;
-
+    @FXML private MenuItem trinityInfo;
     @FXML private MenuItem printProfileMenu;
     @FXML private MenuItem printComplexMenu;
     @FXML private MenuItem menuImportComplex;
@@ -229,6 +229,7 @@ public class AppController  extends BaseController {
         menuExportProfile.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
         menuExportTherapyComplex.disableProperty().bind(ComplexTable.getInstance().getSelectedItemProperty().isNull());
         menuImportTherapyComplex.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
+        trinityInfo.disableProperty().bind(m2Connected.not());
         /***************/
 
     }
@@ -719,6 +720,29 @@ public class AppController  extends BaseController {
                 }else return baseProgramTabName;
             }
         });
+
+    }
+
+    public void onTrinityInfo() {
+
+        try {
+            String name = M2.readDeviceName(true);
+
+            showInfoDialog(res.getString("trinity.info"),"",name, getApp().getMainWindow(),Modality.WINDOW_MODAL);
+
+        } catch (M2.WriteToDeviceException e) {
+            System.out.println("USB ошибка в процессе отправки команды чтения");
+            System.out.println(e.getMessage());
+            showExceptionDialog(res.getString("trinity.info"),"","",e, getApp().getMainWindow(),Modality.WINDOW_MODAL);
+
+        }  catch (Exception e) {
+            System.out.println("Ошибка в процессе выполнения операций: "+e.getMessage());
+            //e.printStackTrace();
+            System.out.println(e.getMessage());
+            showExceptionDialog(res.getString("trinity.info"),"","",e, getApp().getMainWindow(),Modality.WINDOW_MODAL);
+        }
+        System.out.println("---------------------------------------\n");
+
 
     }
 
