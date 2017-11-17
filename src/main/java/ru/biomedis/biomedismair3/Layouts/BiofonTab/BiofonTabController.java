@@ -269,7 +269,7 @@ public class BiofonTabController extends BaseController{
 
 
 
-        for(int i=2; i<=MAX_BUNDLES+8; i++)bundlesSpinnerDataBiofon.add(i);
+        for(int i=2; i<=MAX_BUNDLES; i++)bundlesSpinnerDataBiofon.add(i);
         bundlesSpinnerBiofon.setValueFactory(new SpinnerValueFactory.ListSpinnerValueFactory<Integer>(bundlesSpinnerDataBiofon));
         bundlesSpinnerBiofon.getValueFactory().setValue(2);
 
