@@ -98,6 +98,9 @@ public class AppController  extends BaseController {
     @FXML private  HBox topPane;
     @FXML private MenuItem readFromTrinityMenu;
 
+    @FXML private ImageView deviceTrinityIcon;
+    @FXML private ImageView deviceBiofonIcon;
+
     private Path devicePath=null;//путь ку устройству или NULL если что-то не так
     private String fsDeviceName="";
     private SimpleBooleanProperty connectedDevice =new SimpleBooleanProperty(false);//подключено ли устройство
@@ -106,6 +109,12 @@ public class AppController  extends BaseController {
 
     private Image imageDeviceOff;
     private Image imageDeviceOn;
+
+    private Image imageBiofonOff;
+    private Image imageBiofonOn;
+
+    private Image imageTrinityOff;
+    private Image imageTrinityOn;
 
     private  ResourceBundle res;
     private Tooltip diskSpaceTooltip=new Tooltip();
@@ -129,6 +138,8 @@ public class AppController  extends BaseController {
     private static  ComplexAPI complexAPI;
     private static  ProgressAPI progressAPI;
     private static  ProgramAPI programAPI;
+
+    private DropShadow borderGlow;
 
     public static ProgressAPI getProgressAPI() {
         return progressAPI;
@@ -177,11 +188,21 @@ public class AppController  extends BaseController {
     }
 
 
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
         res = rb;
         initNamesTables();
+
+        borderGlow= new DropShadow();
+        borderGlow.setOffsetY(0f);
+        borderGlow.setOffsetX(0f);
+        borderGlow.setColor(Color.GREEN);
+        borderGlow.setWidth(20);
+        borderGlow.setHeight(20);
+
+
         _therapyTabPane = therapyTabPane;
         dataPathMenuItem.setVisible(OSValidator.isWindows());//видимость пункта меню для введения пути к папки данных, только на винде!
         clearTrinityItem.disableProperty().bind(m2Connected.not());
@@ -208,6 +229,12 @@ public class AppController  extends BaseController {
         programAPI = initProgramTab();
         biofonUIUtil = initBiofon();
 
+
+        initBiofonImage();
+        initTrinityImage();
+
+
+
         initTabComplexNameListener();
         initSectionTreeActionListener();
 
@@ -232,8 +259,58 @@ public class AppController  extends BaseController {
         trinityInfo.disableProperty().bind(m2Connected.not());
         /***************/
 
+
+
     }
 
+    private void initBiofonImage(){
+
+        URL location;
+        location = getClass().getResource("/images/biofon_on.png");
+        imageBiofonOn=new Image(location.toExternalForm());
+
+        location = getClass().getResource("/images/biofon_off.png");
+        imageBiofonOff=new Image(location.toExternalForm());
+
+
+        deviceBiofonIcon.setImage(imageBiofonOff);
+        deviceBiofonIcon.setEffect(null);
+
+        biofonConnected.addListener((observable, oldValue, newValue) -> {
+            if(newValue==true){
+                deviceBiofonIcon.setImage(imageBiofonOn);
+                deviceBiofonIcon.setEffect(borderGlow);
+            }else {
+                deviceBiofonIcon.setImage(imageBiofonOff);
+                deviceBiofonIcon.setEffect(null);
+            }
+        });
+
+    }
+
+    private void initTrinityImage(){
+
+        URL location;
+        location = getClass().getResource("/images/trinity_on.png");
+        imageTrinityOn=new Image(location.toExternalForm());
+
+        location = getClass().getResource("/images/trinity_off.png");
+        imageTrinityOff=new Image(location.toExternalForm());
+
+
+        deviceTrinityIcon.setImage(imageTrinityOff);
+        deviceTrinityIcon.setEffect(null);
+
+        m2Connected.addListener((observable, oldValue, newValue) -> {
+            if(newValue==true){
+                deviceTrinityIcon.setImage(imageTrinityOn);
+                deviceTrinityIcon.setEffect(borderGlow);
+            }else {
+                deviceTrinityIcon.setImage(imageTrinityOff);
+                deviceTrinityIcon.setEffect(null);
+            }
+        });
+    }
 
 
 
@@ -248,7 +325,7 @@ public class AppController  extends BaseController {
 
     }
 
-
+    private SimpleBooleanProperty biofonConnected;
     private BiofonUIUtil initBiofon(){
         BiofonUIUtil biofonUIUtil;
         try {
@@ -256,6 +333,7 @@ public class AppController  extends BaseController {
             biofonTabController.setExportTherapyComplexesFunction(this::exportTherapyComplexes);
             biofonTabController.setImportTherapyComplexFunction(this::importTherapyComplex);
             biofonTabController.setPrintComplexesFunction(this::printComplexes);
+            biofonConnected = biofonTabController.biofonConnected;
             biofonUIUtil = biofonTabController.getBiofonUIUtil();
 
         } catch (Exception e) {

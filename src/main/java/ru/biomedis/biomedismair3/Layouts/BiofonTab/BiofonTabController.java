@@ -1,6 +1,7 @@
 package ru.biomedis.biomedismair3.Layouts.BiofonTab;
 
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -347,6 +348,8 @@ public class BiofonTabController extends BaseController{
 
     }
 
+    public SimpleBooleanProperty biofonConnected =new SimpleBooleanProperty(false);
+
     /**
      * Обработчик подключения биофона
      */
@@ -354,6 +357,7 @@ public class BiofonTabController extends BaseController{
         biofonRedInd.setVisible(true);
         biofonBlueInd.setVisible(true);
         biofonGreenInd.setVisible(true);
+        biofonConnected.set(true);
     }
 
     /**
@@ -363,6 +367,7 @@ public class BiofonTabController extends BaseController{
         biofonRedInd.setVisible(false);
         biofonBlueInd.setVisible(false);
         biofonGreenInd.setVisible(false);
+        biofonConnected.set(false);
     }
 
     void showBiofonProgressIndicator(){
