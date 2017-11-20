@@ -30,6 +30,7 @@ import java.nio.channels.FileChannel;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static ru.biomedis.biomedismair3.BaseController.getApp;
 import static ru.biomedis.biomedismair3.BaseController.showExceptionDialog;
@@ -100,7 +101,7 @@ public class App extends Application {
     public ResourceBundle getResources(){return strings;}
       private final boolean test=false;//указывает что будут проводиться интеграционные тесты. Соответсвенно будет подключена другая БД и запущенны тесты
       private final boolean importDB=false;//импорт базы данных
-      private final boolean updateBaseMenuVisible =true;//показ пункта обновления базы частот
+      private final boolean updateBaseMenuVisible =false;//показ пункта обновления базы частот
 
     public boolean isUpdateBaseMenuVisible() {
         return updateBaseMenuVisible;
@@ -758,8 +759,8 @@ https://gist.github.com/DemkaAge/8999236
 
         try {
 
-            //addPsyhoComplexesToTrinity();
-            //setUpdateVersion(updateOption, 12);
+            addPsyhoComplexesToTrinity();
+            setUpdateVersion(updateOption, 12);
 
         }catch (Exception ex){
             wrapException("12",ex);
@@ -2032,59 +2033,74 @@ https://gist.github.com/DemkaAge/8999236
     private void addPsyhoComplexesToTrinity() throws Exception {
         Section  section = model.findAllSectionByTag("TRINITY");
         if(section == null) throw new Exception("Отсутствует раздел Trinity");
-        ImportUserBase iUB=new ImportUserBase();
 
-        ResourceUtil ru=new ResourceUtil();
-        File trinityBaseFile = ru.saveResource(getTmpDir(),"trinity_new.xmlb","/updates/update11_2/new_complexes.xmlb",true);
+        Complex complex = getModel().findComplex("440f8acf-6156-457f-908f-a4106915bcaa");
+        if(complex==null){
+            ImportUserBase iUB=new ImportUserBase();
 
-        if(trinityBaseFile==null) throw new Exception("Не удалось создать файл для импорта базы");
+            ResourceUtil ru=new ResourceUtil();
+            File trinityBaseFile = ru.saveResource(getTmpDir(),"trinity_new.xmlb",
+                    "/updates/update12/new_complexes.xmlb",true);
 
-        iUB.setListener(new ImportUserBase.Listener() {
-            @Override
-            public void onStartParse() {
+            if(trinityBaseFile==null) throw new Exception("Не удалось создать файл для импорта базы");
 
+            iUB.setListener(new ImportUserBase.Listener() {
+                @Override
+                public void onStartParse() {
+
+                }
+
+                @Override
+                public void onEndParse() {
+
+                }
+
+                @Override
+                public void onStartAnalize() {
+
+                }
+
+                @Override
+                public void onEndAnalize() {
+
+                }
+
+                @Override
+                public void onStartImport() {
+
+                }
+
+                @Override
+                public void onEndImport() {
+
+                }
+
+                @Override
+                public void onSuccess() {
+
+                }
+
+                @Override
+                public void onError(boolean fileTypeMissMatch) {
+
+                }
+            });
+            boolean res = iUB.parse(trinityBaseFile, model, section,true,getModel().getLanguage("ru"));
+            if(res==false) {
+                throw new Exception("Ошибка импорта программ");
             }
 
-            @Override
-            public void onEndParse() {
-
-            }
-
-            @Override
-            public void onStartAnalize() {
-
-            }
-
-            @Override
-            public void onEndAnalize() {
-
-            }
-
-            @Override
-            public void onStartImport() {
-
-            }
-
-            @Override
-            public void onEndImport() {
-
-            }
-
-            @Override
-            public void onSuccess() {
-
-            }
-
-            @Override
-            public void onError(boolean fileTypeMissMatch) {
-
-            }
-        });
-        boolean res = iUB.parse(trinityBaseFile, model, section,true,getModel().getLanguage("ru"));
-        if(res==false) {
-            throw new Exception("Ошибка импорта программ");
         }
 
+        LoadLanguageFiles llf =new LoadLanguageFiles();
+
+        ResourceUtil en=new ResourceUtil();
+        File translateFile = en.saveResource(getTmpDir(),"trinity_new_en.xmlb",
+                "/updates/update12/translate_en_new_trinity.xml",true);
+
+        if(translateFile==null) throw new Exception("Не удалось создать файл для импорта базы");
+       boolean res =  llf.parse(Stream.of(translateFile).collect(Collectors.toList()), getModel());
+       if(res==false) throw new Exception("Ошибка импорта переводов программ");
     }
 
     private void addTrinityBase() throws Exception {
