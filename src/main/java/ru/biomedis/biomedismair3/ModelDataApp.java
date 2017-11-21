@@ -2165,13 +2165,17 @@ public class ModelDataApp {
     {
         Query query = emf.createEntityManager().createQuery("Select t from Complex t where t.uuid = :p").setMaxResults(1);
         query.setParameter("p", uuid);
-        return (Complex)query.getSingleResult();
+        List<Complex> resultList = query.getResultList();
+        if(resultList.size()==0) return null;
+        else    return resultList.get(0);
     }
     public Program findProgram(String uuid)
     {
         Query query = emf.createEntityManager().createQuery("Select t from Program t where t.uuid = :p").setMaxResults(1);
         query.setParameter("p", uuid);
-        return (Program)query.getSingleResult();
+        List<Program> resultList = query.getResultList();
+        if(resultList.size()==0) return null;
+        else    return resultList.get(0);
     }
     /**
        * Удалит терапевтический комплекс и все терапевтические программы в нем
