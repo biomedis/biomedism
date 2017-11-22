@@ -14,6 +14,7 @@ import ru.biomedis.biomedismair3.DBImport.NewDBImport;
 import ru.biomedis.biomedismair3.DBImport.OldDBImport;
 import ru.biomedis.biomedismair3.Tests.TestsFramework.TestsManager;
 import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadLanguageFiles;
+import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadUUIDs;
 import ru.biomedis.biomedismair3.UserUtils.Import.ImportUserBase;
 import ru.biomedis.biomedismair3.entity.*;
 import ru.biomedis.biomedismair3.utils.Files.ResourceUtil;
@@ -314,7 +315,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
         int currentUpdateFile=12;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=0;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentMinorVersion=1;//версия исправлений в пределах мажорной версии currentUpdateFile
         //требуется размещение в папке с dist.jar  файла version.txt с текущей версией типа 4.9.0!!! Этот файл в обновление нужно включать
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -385,6 +386,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(() -> update11(updateOption))
                                  .thenRun(()->updateIn11(updateOption,updateFixVersion))
                                  .thenRun(()->update12(updateOption))
+                                 .thenRun(() -> update_in12(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -404,6 +406,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(() -> update11(updateOption))
                                  .thenRun(()->updateIn11(updateOption,updateFixVersion))
                                  .thenRun(()->update12(updateOption))
+                                 .thenRun(() -> update_in12(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -422,6 +425,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(() -> update11(updateOption))
                                  .thenRun(()->updateIn11(updateOption,updateFixVersion))
                                  .thenRun(()->update12(updateOption))
+                                 .thenRun(() -> update_in12(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -439,6 +443,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(() -> update11(updateOption))
                                  .thenRun(()->updateIn11(updateOption,updateFixVersion))
                                  .thenRun(()->update12(updateOption))
+                                 .thenRun(() -> update_in12(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -456,6 +461,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(() -> update11(updateOption))
                                  .thenRun(()->updateIn11(updateOption,updateFixVersion))
                                  .thenRun(()->update12(updateOption))
+                                 .thenRun(() -> update_in12(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -472,6 +478,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(() -> update11(updateOption))
                                  .thenRun(()->updateIn11(updateOption,updateFixVersion))
                                  .thenRun(()->update12(updateOption))
+                                 .thenRun(() -> update_in12(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -487,6 +494,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(() -> update11(updateOption))
                                  .thenRun(()->updateIn11(updateOption,updateFixVersion))
                                  .thenRun(()->update12(updateOption))
+                                 .thenRun(() -> update_in12(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -502,6 +510,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(() -> update11(updateOption))
                                  .thenRun(()->updateIn11(updateOption,updateFixVersion))
                                  .thenRun(()->update12(updateOption))
+                                 .thenRun(() -> update_in12(updateOption,updateFixVersion))
                                  .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                                  .exceptionally(e->{
                                      showUpdateErrorAndExit(e.getMessage());
@@ -510,10 +519,11 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
 
             }else if(getUpdateVersion()==10){
                 CompletableFuture.runAsync(() -> changeDDL())
-                                 .thenRun(()->updateIn10(updateOption,updateFixVersion))
+                                 .thenRun(()->updateIn10(updateOption, updateFixVersion))
                                  .thenRun(() -> update11(updateOption))
-                                 .thenRun(()->updateIn11(updateOption,updateFixVersion))
+                                 .thenRun(()->updateIn11(updateOption, updateFixVersion))
                                  .thenRun(()->update12(updateOption))
+                                 .thenRun(() -> update_in12(updateOption, updateFixVersion))
                                  .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                                  .exceptionally(e->{
                                      showUpdateErrorAndExit(e.getMessage());
@@ -528,6 +538,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                 CompletableFuture.runAsync(() -> changeDDL())
                                  .thenRun(()->updateIn11(updateOption,updateFixVersion))
                                  .thenRun(()->update12(updateOption))
+                                 .thenRun(() -> update_in12(updateOption, updateFixVersion))
                                  .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                                  .exceptionally(e->{
                                      showUpdateErrorAndExit(e.getMessage());
@@ -537,7 +548,20 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
 
                 System.out.println("Update >11.0");
 
-            }            
+            }
+            else if(getUpdateVersion()==12){
+                CompletableFuture.runAsync(() -> changeDDL())
+                                 .thenRun(() -> update_in12(updateOption, updateFixVersion))
+                                 .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
+                                 .exceptionally(e->{
+                                     showUpdateErrorAndExit(e.getMessage());
+                                     return null;
+                                 });
+
+
+                System.out.println("Update >11.0");
+
+            }
             else {
                 showUpdateErrorAndExit("Версия обновления и версия программы конфликтуют. " + getUpdateVersion());
             }
@@ -766,6 +790,95 @@ https://gist.github.com/DemkaAge/8999236
             wrapException("12",ex);
         }
     }
+    private void update_in12(ProgramOptions updateOption, int updateFixVersion) {
+        if(updateFixVersion == 0) {
+            updateIn12_1(updateOption);
+        }
+    }
+    private void updateIn12_1(ProgramOptions updateOption) {
+        System.out.println("updateIn12_1");
+        //исправляет ошибку предыдущего обновления - у всех юзеров новые комплексы тринити стали с разными UUID + не встали переводы!!!
+        //необходимо поправить UUID для этих комплексов + вставить переводы
+
+
+
+
+        try {
+
+            Section  section = model.findAllSectionByTag("TRINITY");
+            if(section == null) throw new Exception("Отсутствует раздел Trinity");
+
+            ResourceUtil en=new ResourceUtil();
+            File translateFile = en.saveResource(getTmpDir(),"trinity_new_en.xmlb",
+                    "/updates/update12/translate_en_new_trinity.xml",true);
+
+            if(translateFile==null) throw new Exception("Не удалось создать файл для импорта базы");
+
+            LoadUUIDs loadUUIDs =new LoadUUIDs();
+
+            if(loadUUIDs.parse(Stream.of(translateFile).collect(Collectors.toList()))){
+            //необходимо найти в базе программы и комплексы в разделе Trinity из списка, полученого из базы по именам
+
+                Map<String, Complex> mapComplexes = new HashMap<>();
+                List<Complex> allComplexBySection = getModel().findAllComplexBySection(section);
+                getModel().initStringsComplex(allComplexBySection,getModel().getLanguage("ru"));
+
+
+
+
+                for (Complex complex : allComplexBySection) {
+                        mapComplexes.put(complex.getNameString(),complex);
+                        System.out.println("Комплекс из базы : "+complex.getNameString());
+                }
+
+                Map<String, LoadUUIDs.Program> mapPrograms = new HashMap<>();
+                for (LoadUUIDs.Program program : loadUUIDs.getListPrograms()) {
+                    mapPrograms.put(program.getNameRus(), program);
+                }
+
+                for (LoadUUIDs.Complex complex : loadUUIDs.getListComplex()) {
+                    System.out.println("Комплекс из Файла : "+complex.getNameRus());
+                    if(!mapComplexes.containsKey(complex.getNameRus())) throw new Exception("Не верное сопоставление имен комплексов");
+                    Complex baseComplex = mapComplexes.get(complex.getNameRus());
+                    baseComplex.setUuid(complex.getUuid());
+
+                    getModel().updateComplex(baseComplex);
+
+                    List<Program> allProgramsBySection = getModel().findAllProgramByComplex(baseComplex);
+                    getModel().initStringsProgram(allProgramsBySection, getModel().getLanguage("ru"));
+                    if(allProgramsBySection.isEmpty()) throw new Exception("В комплексах нет программ");
+
+                    if(!mapPrograms.containsKey(allProgramsBySection.get(0).getNameString())) throw new Exception("Не верное сопостовление имен программ");
+                    LoadUUIDs.Program program = mapPrograms.get(allProgramsBySection.get(0).getNameString());
+                    allProgramsBySection.get(0).setUuid(program.getUuid());
+                    getModel().updateProgram(allProgramsBySection.get(0));
+
+                }
+
+
+
+            }else throw new Exception("Не удалось получить список UUID");
+
+
+            LoadLanguageFiles llf =new LoadLanguageFiles();
+            boolean res =  llf.parse(Stream.of(translateFile).collect(Collectors.toList()), getModel());
+            if(res==false) throw new Exception("Ошибка импорта переводов программ");
+
+
+                logger.info("ОБНОВЛЕНИЕ 12.1  ЗАВЕРШЕНО.");
+
+
+        } catch (IOException e) {
+            wrapException("12.1",e);
+            logger.info("ОБНОВЛЕНИЕ 12.1 НЕ ЗАВЕРШЕНО.");
+
+        } catch (Exception e) {
+            wrapException("12.1",e);
+            logger.info("ОБНОВЛЕНИЕ 12.1 НЕ ЗАВЕРШЕНО.");
+
+        }
+    }
+
 
     private void updateIn9(ProgramOptions updateOption, int updateFixVersion) {
         //после обновлений минорных не устанавливается число в базу, тк оно внесется по ниже автоматически
@@ -779,6 +892,7 @@ https://gist.github.com/DemkaAge/8999236
             updateIn9_3( updateOption);
         }else if(updateFixVersion == 2) updateIn9_3( updateOption);
     }
+
     private void updateIn10(ProgramOptions updateOption, int updateFixVersion) {
         //после обновлений минорных не устанавливается число в базу, тк оно внесется по ниже автоматически
         if(updateFixVersion == 0){
@@ -2091,7 +2205,7 @@ https://gist.github.com/DemkaAge/8999236
             }
 
         }
-
+/*
         LoadLanguageFiles llf =new LoadLanguageFiles();
 
         ResourceUtil en=new ResourceUtil();
@@ -2101,6 +2215,9 @@ https://gist.github.com/DemkaAge/8999236
         if(translateFile==null) throw new Exception("Не удалось создать файл для импорта базы");
        boolean res =  llf.parse(Stream.of(translateFile).collect(Collectors.toList()), getModel());
        if(res==false) throw new Exception("Ошибка импорта переводов программ");
+
+       //не нужно, тк переводы вставятся в обновлении 12.1 а эти переводы не могут встать тк будет несовподение UUID
+       */
     }
 
     private void addTrinityBase() throws Exception {

@@ -491,13 +491,13 @@
 
    </Complex>
    <Complex uuid="4a90df4d-0b66-4ea8-951c-672865c0c772"  
-   nameRussian="Увеличение ресурсов иммунной адаптации -2 Режим 4"  
+   nameRussian="Увеличение ресурсов иммунной системы -2 Режим 4"
    name="Increasing resources of immunity adaptation -2 Mode 4" 
    descriptionRussian="Программа предназначена для увеличения ресурсов иммунной адаптации в случае пониженного иммунного ответа любого происхождения Используется в случае если предыдущая программа не тестируется или не оказывает должного терапевтического воздействия Эта программа может  рассматриваться как  альтернатива программе Увеличение ресурсов иммунной адаптации –1 применяемая прежде всего в тех случаях когда слабое звено иммунной системы неочевидно"  
    description="The program is created to increase resources of immunity adaptation in case of decreased immune response of any origin. It is used in case when the previous program is not being tested or have a due therapeutic effect. This program can be considered as an alternative to the program Increasing resources of immunity adaptation -1 used first of all in cases when a weak link of immunity system is not obvious"  
    >
        <Program uuid="b3d5d1b8-002d-4d6b-9c9e-e1725e801b5e"  
-       nameRussian="Увеличение ресурсов иммунной адаптации – 2 (Р41)"  
+       nameRussian="Увеличение ресурсов иммунной адаптации – 2 (Р41)"
        name="Increasing resources of immunity adaptation -2 (P41)" 
        descriptionRussian=""  
        description=""  
