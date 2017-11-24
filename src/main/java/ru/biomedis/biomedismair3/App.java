@@ -315,7 +315,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
         int currentUpdateFile=12;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=2;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentMinorVersion=3;//версия исправлений в пределах мажорной версии currentUpdateFile
         //требуется размещение в папке с dist.jar  файла version.txt с текущей версией типа 4.9.0!!! Этот файл в обновление нужно включать
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -794,15 +794,27 @@ https://gist.github.com/DemkaAge/8999236
         if(updateFixVersion == 0) {
             updateIn12_1(updateOption);
             updateIn12_2(updateOption);
-        }else if(updateFixVersion == 1) updateIn12_2(updateOption);
+            updateIn12_3(updateOption);
+        }else if(updateFixVersion == 1) {
+            updateIn12_2(updateOption);
+            updateIn12_3(updateOption);
+        }else if(updateFixVersion == 1) {
+            updateIn12_3(updateOption);
+        }
     }
 
+    int _cnt_12_2 =0;
     private void updateIn12_2(ProgramOptions updateOption) {
         //поправим время на частоту в базе частот для новых комплексов тринити, тк в прошлом обновлении они встали в базу не корректно.
+        _cnt_12_2++;
+
+        boolean flag =false;
+        int cnt=0;
+
         logger.info("ОБНОВЛЕНИЕ 12.2");
         try {
         ResourceUtil en=new ResourceUtil();
-        File translateFile = en.saveResource(getTmpDir(),"trinity_new_en.xmlb",
+        File translateFile = en.saveResource(getTmpDir(),"trinity_new_en_.xmlb",
                 "/updates/update12/translate_en_new_trinity.xml",true);
 
         if(translateFile==null) throw new Exception("Не удалось создать файл для импорта базы");
@@ -815,6 +827,12 @@ https://gist.github.com/DemkaAge/8999236
             for (LoadUUIDs.Complex complex : loadUUIDs.getListComplex()) {
 
                 Complex baseComplex = getModel().findComplex(complex.getUuid());
+              if(baseComplex == null){
+                  flag =true;
+                  cnt++;
+                  continue;
+              }
+
                 if(complex.getUuid().equals("3b9f960c-e94c-4bfb-9144-44a01205fc29"))baseComplex.setTimeForFreq(180);
                 else  if(complex.getUuid().equals("0fda2db8-aab6-4a26-826f-13a4bc95e690"))baseComplex.setTimeForFreq(60);
                 else  if(complex.getUuid().equals("e25856a1-a42e-4265-9b87-400d7864fdd2"))baseComplex.setTimeForFreq(60);
@@ -822,6 +840,7 @@ https://gist.github.com/DemkaAge/8999236
 
                 getModel().updateComplex(baseComplex);
             }
+
 
         } catch (IOException e) {
             wrapException("12.2",e);
@@ -832,6 +851,22 @@ https://gist.github.com/DemkaAge/8999236
             logger.info("ОБНОВЛЕНИЕ 12.2 НЕ ЗАВЕРШЕНО.");
 
         }
+        if(flag ==true && cnt==38){
+            if(_cnt_12_2==2) {
+                //исправляет проблему  у тех у кого почему-то не поправилась база на 12.1
+                wrapException("12.2",new Exception());
+                logger.info("ОБНОВЛЕНИЕ 12.2 НЕ ЗАВЕРШЕНО.");
+            }
+            updateIn12_1(updateOption);
+            updateIn12_2(updateOption);
+        }
+
+    }
+
+
+    private void updateIn12_3(ProgramOptions updateOption) {
+       //необходима была замена файлов формальная
+        logger.info("ОБНОВЛЕНИЕ 12.3  ЗАВЕРШЕНО.");
 
     }
 
