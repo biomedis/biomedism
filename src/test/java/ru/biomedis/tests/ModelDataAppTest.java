@@ -5,12 +5,10 @@
  */
 package ru.biomedis.tests;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.*;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  *ИСПОЛЬЗОВАТЬ ТОЛЬКО НА ПУСТОЙ БАЗЕ - ТК ДАННЫЕ В БАЗЕ ПЕРЕЗ ТЕСТОМ УНИЧТОЖАЮТСЯ!!!
@@ -44,7 +42,10 @@ public class ModelDataAppTest {
     @Test
      public void hello() 
      {
-         System.err.println("Hello test");
-         //assertTrue("Фигня", false);
+         double f = 115092 / 100;
+         double res =  new BigDecimal(f).setScale(2, RoundingMode.UP).doubleValue();
+         Assert.assertEquals(1150.92, res);
      }
+
+
 }

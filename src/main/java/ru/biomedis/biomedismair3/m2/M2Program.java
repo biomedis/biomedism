@@ -1,7 +1,5 @@
 package ru.biomedis.biomedismair3.m2;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -145,9 +143,7 @@ public class M2Program {
      * @return
      */
     private static double freqFromDeviceFormat(int freq) {
-        double f = freq / FREQ_FORMAT_COEFF;
-        return new BigDecimal(f).setScale(FREQ_PRECISE, RoundingMode.UP).doubleValue();
-
+        return (double)freq / FREQ_FORMAT_COEFF;
     }
 
 
