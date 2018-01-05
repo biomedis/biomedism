@@ -14,6 +14,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.*;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
 import javafx.stage.Modality;
 import ru.biomedis.biomedismair3.App;
 import ru.biomedis.biomedismair3.BaseController;
@@ -93,6 +94,8 @@ public class ComplexTable {
     private void initTable(){
         initTranslateMenu();
         //номер по порядку
+        table.setFixedCellSize(Region.USE_COMPUTED_SIZE);//для переносов
+
         TableColumn<TherapyComplex,Number> numComplexCol =new TableColumn<>("№");
         numComplexCol.setCellValueFactory(param -> new SimpleIntegerProperty(param.getTableView().getItems().indexOf(param.getValue()) + 1));
 

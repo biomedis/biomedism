@@ -24,15 +24,15 @@
             <items>
                   <Menu mnemonicParsing="false" text="%app.menu.export">
                     <items>
-                        <MenuItem fx:id="menuExportTherapyComplex" mnemonicParsing="false" onAction="#onExportTherapyComplex" text="%app.menu.export_therapy_complex" />
                         <MenuItem fx:id="menuExportProfile" mnemonicParsing="false" onAction="#onExportProfile" text="%app.menu.export_profile" />
+                        <MenuItem fx:id="menuExportTherapyComplex" mnemonicParsing="false" onAction="#onExportTherapyComplex" text="%app.menu.export_therapy_complex" />
                       <MenuItem fx:id="menuExportUserBase" mnemonicParsing="false" onAction="#onExportUserBase" text="%app.menu.export_user_base" />
                     </items>
                   </Menu>
                   <Menu fx:id="menuImport" mnemonicParsing="false" text="%app.menu.import">
                     <items>
-                        <MenuItem fx:id="menuImportTherapyComplex" mnemonicParsing="false" onAction="#onImportTherapyComplex" text="%app.menu.import_therapy_complex" />
                         <MenuItem fx:id="menuImportProfile" mnemonicParsing="false" onAction="#onImportProfile" text="%app.menu.import_profile" />
+                        <MenuItem fx:id="menuImportTherapyComplex" mnemonicParsing="false" onAction="#onImportTherapyComplex" text="%app.menu.import_therapy_complex" />
                       <MenuItem fx:id="menuImportUserBase" mnemonicParsing="false" onAction="#onImportUserBase" text="%app.menu.import_user_base" />
                         <MenuItem fx:id="menuImportComplexToBase" mnemonicParsing="false" onAction="#onImportComplexToBase" text="%app.ui.import_compl_to_base" />
                     </items>
