@@ -1,0 +1,566 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LanguageBaseFile lang="it">
+   <Complex uuid="440f8acf-6156-457f-908f-a4106915bcaa"  
+   nameRussian="Альфа-ритм Режим 4"  
+   name="Alfa-ritmo modalità 4" 
+   descriptionRussian="Альфа-ритм с частотами в диапазоне 75 –135 Гц характеризуется состоянием расслабленности и интеллектуальным спокойствием Он возникает при закрывании глаз и связан с чувством приятного покоя С альфа-ритмом связано начало медитативного расслабления Длительность программы 20 минут время на частоту 30 секунд "  
+   description="Il ritmo Alfa con frequenze nella gamma 75-135 Hz è caratterizzato da uno stato di rilassamento e di calma intellettuale, nasce quando si chiudono gli occhi ed è associato a una sensazione di piacevole riposo. Il ritmo alfa corrisponde all'inizio di un rilassamento meditativo . Durata del programma:  20 minuti, ritmo della frequenza 30 secondi"  
+   >
+       <Program uuid="989bf740-d115-4fc0-8196-2cee1a4ba7d8"  
+       nameRussian="Альфа-ритм(Р1)"  
+       name="Alfa-ritmo (P1)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="2873a233-a972-4501-97fa-8b593cf96c88"  
+   nameRussian="Бета-ритм Режим 4"  
+   name="Beta-ritmo modalità4 " 
+   descriptionRussian="Бета-ритм находится в диапазоне  14 – 30 Гц Он характерен для концентрации направленной вовне и бодрствующего готового к тревоге состояния Логическое мышление интеллектуальная деятельность и напряженная работа также являются выражением бета-ритма как и чувства беспокойства и состояния близкие к состояниям страха Часть бета-волн связанас усиленным выбросом гормонов стресса адреналин норадреналин Длительность программы 30 минут время на частоту 30 секунд"  
+   description="Il ritmo Beta è nella gamma 14 e 30 Hz. È caratteristico della concentrazione, di stati di allerta e di vigilanza. Il ritmo Beta è l’espressione dell'attività intellettuale del pensiero logico e del duro lavoro, nonché  di sentimenti di ansia e stati vicini alla paura. Aumento del rilascio di ormoni dello stress epinefrina norepinefrina. Durata del programma 30 min, 30 sec per la frequenza"  
+   >
+       <Program uuid="8d06ebd4-0775-4fcd-b93a-65cc3cd41e49"  
+       nameRussian="Бета-ритм (Р2)"  
+       name="Beta-ritmo (P2) " 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="14739724-ceab-4ec9-85a3-46d529e88694"  
+   nameRussian="Тета-ритм Режим 4"  
+   name="Teta-ritmo modalità4" 
+   descriptionRussian="Тета-ритм в частотном диапазоне 4 – 7 Гц отвечает за определенные фазы сна и за глубокую медитацию На передний план выходит активизация более глубоких слоев сознания Активизируется воображение образная память и интуиция  отсутствует фильтр аналитического мышления У детей регистрируется большая составляющая тета-ритма"  
+   description="Il ritmo Theta nella gamma di frequenze 4-7 Hz è responsabile di alcune fasi del sonno e della meditazione profonda. In primo piano si ha l'attivazione degli strati più profondi della coscienza: si attiva l’immaginazione, il miglioramento della memoria e dell'intuizione. Si toglie il filtro del pensiero analitico. Nei  bambini  si registra maggior  componente del ritmo Theta"  
+   >
+       <Program uuid="01463683-9832-4eb8-9243-b47fa5194a1b"  
+       nameRussian="Тета-ритм (Р3)"  
+       name="Teta-ritmo (P3)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="0f700cfa-106f-42c0-870a-ce4b34a6d5b1"  
+   nameRussian="Дельта-ритм Режим 4"  
+   name="Delta-ritmo modalità4" 
+   descriptionRussian="Дельта-ритм находится в диапазоне 05 – 35 Гц Эти частоты характерны для глубокого сна без сновидений для состояния транса и глубокого гипноза В состоянии бодрствования они регистрируются очень редко Дельта-ритм имеет большое значение для процессов выздоровления восстановления а также для неповрежденной иммунной системы Длительность программы 20 минут время на частоту 30 секунд"  
+   description="Il ritmo Delta è nella gamma 05-35 Hz. Queste frequenze sono tipiche del sonno profondo senza sogni e dello stato di trance e ipnosi profonda. Nel periodo di veglia sono registrate molto raramente. Il ritmo Delta è di grande importanza per i processi di recupero e anche per avere il sistema immunitario efficace. Durata 20min, 30 sec.per la frequenza"  
+   >
+       <Program uuid="a3806a37-65fa-44a1-b1e6-ef060e426179"  
+       nameRussian="Дельта-ритм (Р4)"  
+       name="Delta-ritmo (P4) " 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="00b5b9a0-fe01-4525-a4d2-ddf0248e7b48"  
+   nameRussian="Программа покоя Режим 4"  
+   name="Programma della tranquillità modalità4" 
+   descriptionRussian="Программа покоя общеукрепляющая программа применяется для глубокого внутреннего расслабления и для стабилизации иммунной системы Показания – состояния беспокойства нервозность – конфликтные стрессовые ситуации в семье школе психологические конфликты со сверстниками учителями родителями – астено-невротический синдром у детей и подростков раздражительность плаксивость эмоциональная лабильность – вегето-сосудистая  дистония пубертатного периода – фобии – психосоматические нарушения у детей и подростков дискинезии желчных путей язвенная болезнь желудка и 12-перстной кишки бронхиальная астма – вегето-висцеральные пароксизмы – нарушения процесса засыпания и сна беспокойный поверхностный сон частые пробуждения кошмарные сновидения снохождение и сноговорение – повышенное количество холестерина триглицеридов и гамма — GT – состояния напряжения плечевого пояса и позвоночника Противопоказаний нет На курс 8 – 10 сеансов которые проводятся один раз в неделю"  
+   description="Il programma di riposo è usato per un profondo rilassamento interiore e per la stabilizzazione del sistema immunitario . Indicazioni:  ansia, nervosismo, conflitto, situazioni stressanti nella scuola e in famiglia, conflitti psicologici con colleghi,  insegnanti e genitori , sindrome astenico-nevrotica nei bambini e adolescenti ,  irritabilità, pianto , labilità emotiva, distonia vegetativa-vascolare del periodo puberale, fobie e  disturbi psicosomatici nei bambini ed adolescenti , discinesia delle vie biliari, ulcera allo stomaco e ulcera duodenale , asma bronchiale, parossismi vegetativo-viscerali , disturbi nel processo di addormentamento e sonno , sonno agitato , risvegli frequenti , incubi, aumento dei trigliceridi del colesterolo e gamma  GT,  stati di tensione della fascia scapolare e della colonna vertebrale.  Controindicazioni : Nessuna Corso di 8 - 10 sedute che si svolgono una volta alla settimana"  
+   >
+       <Program uuid="2a5fd5e4-0d2c-44f1-8b66-6ad70f926916"  
+       nameRussian="Программа покоя (Р5)"  
+       name="Programma della tranquillità (P5)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="bef65f76-e250-43d3-bbd0-53719d5d8f1f"  
+   nameRussian="Программа сна  Режим 4"  
+   name="Programma per dormire modalità4 " 
+   descriptionRussian="Для проведения сеанса необходимо  – исключить прием возбуждающих веществ алкоголь наркотики тяжелая пища – устранить раздражающее влияние искусственного света Программа используется для быстрого успокоения пациента Показания – бессонница – нарушения процесса засыпания и сна беспокойный поверхностный сон частые пробуждения кошмарные сновидения снохождение и сноговорение – все состояния беспокойства которые сопровождаются нарушением сна или не могут быть убраны применением программы покоя"  
+   description="Per sottoporsi alla sessione è necessario escludere l’assunzione di sostanze eccitatorie, droghe, alcool, cibo pesante.  Il programma è usato per calmare rapidamente il paziente e per eliminare l'effetto irritante della luce artificiale. Indicazioni: insonnia, disturbi nel processo di addormentamento, sonno agitato, sonno con frequenti risvegli, incubi , tutte le condizioni di ansia accompagnate da disturbo del sonno o le situazioni che non possono essere rimosse con un programma di riposo"  
+   >
+       <Program uuid="571723de-e2a2-46c7-96cb-726fb1bd99f5"  
+       nameRussian="Программа сна (Р6)"  
+       name="Programma per dormire (P6) " 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="f4fe8d3d-5238-447d-bf39-4c62a8129248"  
+   nameRussian="Детская программа Режим 4"  
+   name="Programma per i bambini modalità4" 
+   descriptionRussian="Детская программа используется для синхронизации ритмов головного мозга для психической стабилизации отягощенного детского подсознания Показания – детские страхи – лимфатический диатез со всеми его последствиями рецидивирующие синуситы бронхиты тонзиллиты и тд – неврозоподобный синдром ночное недержание мочи тики логоневроз – трудности с обучением трудное запоминание снижение памяти – нарушение концентрации внимания – повышенная утомляемость сниженная работоспособность – аллергии снижение активности иммунной системы – в качестве вспомогательного средства при детских нарушениях речи – подросткам если психологически значимые проблемы и различные нарушения эмоционально-волевой сферы как основа их сегодняшнего заболевания лежит в детстве так называемые «трудные дети» агрессивность замкнутость ребенка нарушение поведенческих реакций конфликты со сверстниками учителями родителями – головная боль и головокружение различной этиологии в детском и подростковом возрасте последствия сотрясения головного мозга перенесенные нейроинфекции вегетативно-сосудистая дистония – минимальная мозговая дисфункция Длительность программы 37 минут время на частоту 30 секунд"  
+   description="Programma per i bambini, utilizzato per la sincronizzazione dei ritmi del cervello  e per la stabilizzazione mentale. Il programma è usato in caso di paure dei bambini, diatesi linfatica con tutte le sue conseguenze: sinusiti ricorrenti, bronchiti, tonsilliti, ecc.,  sindrome di nevrosi enuresi , logoneurosis, difficoltà di apprendimento ,  diminuzione della memoria, difficoltà di concentrazione ed attenzione, maggiore affaticamento, riduzione delle prestazioni, allergie ,abbassamento dell’attività del sistema immunitario. Il programma è utilizzato inoltre nei casi di disturbi del  linguaggio dei bambini, problemi psicologici negli adolescenti, problemi e disturbi emotivi nati come conseguenza di esperienze difficili nell’infanzia, aggressività, chiusura,  aggressività,  conflitto  con compagni,  insegnanti, genitori. Efficace in caso di mal di testa e vertigini, diversa eziologia nell'infanzia e nell'adolescenza , conseguenze di commozione cerebrale, neuroinfezioni cerebrali ,  distonia vegetativa-vascolare, disfunzione cerebrale minima . Durata del programma 37 min, 30 sec per la frequenza"  
+   >
+       <Program uuid="702155d7-f633-4d64-859d-05607eae82f5"  
+       nameRussian="Детская программа (Р7)"  
+       name="Programma per i bambini (P7)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="10b7559a-851a-43f7-8fb7-4bf03cd03046"  
+   nameRussian="Программа стресса - 1 Режим 4"  
+   name="Programma antistress-1 modalità4" 
+   descriptionRussian="Предназначена для устранения психических блокад и высвобождения пациента из спирали стресс – болезнь – стресс Показания – состояния психической блокады – конфликтные стрессовые ситуации в семье школе психологические конфликты со сверстниками учителями родителями – состояния беспокойства нервозность – психосоматические нарушения у детей и подростков дискинезия желчных путей язвенная болезнь желудка и 12-перстной кишки бронхиальная астма – ситуационно обусловленные невротические реакции – астено-невротический синдром у детей и подростков раздражительность плаксивость эмоциональная лабильность – неврозоподобный синдром ночное недержание мочи тики логоневроз – детские страхи"  
+   description="Progettato per eliminare i blocchi mentali e liberare il paziente dalla  spirale stress – malattie. Efficace in situazioni di stress e conflitto nella scuola e nella  famiglia, conflitti psicologici con i coetanei, gli insegnanti e i genitori, stato di ansia, nervosismo,  disturbi psicosomatici nei bambini e negli adolescenti, discinesia biliare, ulcera allo stomaco e  ulcera duodenale , asma bronchiale, reazioni nevrotiche, sindrome nevrotica nei bambini e irritabilità nell’adolescenza, pianto, labilità emotiva, sindrome da nevrosi,  sindrome da incontinenza urinaria, logoneurosis, paure infantili"  
+   >
+       <Program uuid="e1991196-3de9-4490-81d3-a435447fe65a"  
+       nameRussian="Программа стресса -1 (Р8)"  
+       name="Programma antistress-1 (P8)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="9fefcd46-86ec-4147-a668-0d1bcf49fd18"  
+   nameRussian="Программа стресса -2 Режим 4"  
+   name="Programma antistress-2 modalità4" 
+   descriptionRussian="Эта программа оказывает специфическое воздействие на регуляцию иммунологического состояния пациента так как механизмы стресса тесно связаны с иммунной системой Стресс приводит к стойкому сдвигу гормонального баланса и тем самым к постоянному угнетению иммунной системы Следствием являются не только иммуноподавляющие заболевания но и аутоагрессивные заболевания Показания – дегенеративные заболевания связанные с иммунной системой – аллергии различной этиологии – микозы – лимфатический диатез у детей – в профилактических целях для повышения защитных сил в данном случае индукция может проводиться через относительно большие промежутки времени – конфликтные стрессовые ситуации в семье школе психологические конфликты со сверстниками учителями родителями – состояния беспокойства нервозность – психосоматические нарушения у детей и подростков дискинезия желчных путей язвенная болезнь желудка и 12-перстной кишки бронхиальная астма – ситуационно обусловленные невротические реакции – астено-невротический синдром у детей и подростков раздражительность плаксивость эмоциональная лабильность – неврозоподобный синдром ночное недержание мочи тики логоневроз – головная боль и головокружение различной этиологии в детском и подростковом возрасте последствия сотрясения головного мозга перенесенные нейроинфекции вегетативно-сосудистая дистония"  
+   description="Questo programma ha un effetto specifico sulla regolazione dello stato immunologico del paziente. I meccanismi dello stress sono strettamente correlati allo stress del sistema immunitario: situazioni costanti di stress portano a cambiamenti permanenti dell’equilibrio ormonale e quindi alla soppressione permanente del sistema immunitario. Il risultato non è solo la malattia immunosoppressiva ma anche l’insorgere di malattie auto aggressive, malattie degenerative legate al sistema immunitario, allergie di diversa eziologia, micosi, diatesi linfatica nei bambini, situazioni di stress conflittuale nella scuola e in famiglia, situazioni di stress psicologico nei conflitti con colleghi – insegnanti – genitori, stato di nervosismo, ansia, disturbi psicosomatici nei bambini e negli adolescenti, discinesia biliare, ulcera peptica e  duodenale, asma, sindrome astenico-nevrotica nei bambini e negli adolescenti, irritabilità, pianto, labilità emotiva, sindrome di nevrosi, tic, enuresi, logoneurosis, mal di testa e vertigini,  eziologia diversa nell'infanzia e nell'adolescenza. Il programma ha effetti specifici in casi di commozione cerebrale e neuro infezione come aggravante di distonia vegetativa-vascolare.  Inoltre è utilizzato anche a scopo preventivo per aumentare le difese immunitarie, in questo caso l'induzione può essere effettuata a intervalli di tempo relativamente ampi"  
+   >
+       <Program uuid="11961c2b-16c9-4260-9a5a-f87f27d90aa8"  
+       nameRussian="Проргамма стресса-2 (Р9)"  
+       name="Programma antistress-2 (P9)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="536cca21-531f-4447-bc96-6ec54084dd47"  
+   nameRussian="Программа стресса -3 Режим 4"  
+   name="Programma antistress-3 modalità4" 
+   descriptionRussian="Это основная программа применяемая при лечении нарушений эндокринной регуляции вызванной стрессовой ситуацией Показания – как основная программа при всех заболеваниях связанных с недостаточностью эндокринных желез  – аллергоз –экзема – язва двенадцатиперстной кишки –бронхиальная астма – синусопатия – шизоидные неврозы вплоть до психозов – гипотония – мигрень – первичная аменорея ювенильная – нарушения менструального цикла у девочек-подростков – фимоз – почечнокаменная болезнь – сахарный диабет – панкреатопатии – эндокринные нарушения – гормонально-вегетативный синдром включая нервную анорексию или булимию – половое созревание"  
+   description="E’ il programma principalmente utilizzato in caso di regolazione endocrina perturbata  a causa di situazioni stressanti. Questo è il programma di base per tutte le malattie associate alla mancanza di ghiandole endocrine, allergosi, eczema, ulcera duodenale, asma, sinusopatie, nevrosi schizoide fino alla psicosi, ipotonia, emicrania, amenorrea giovanile, disturbi mestruali dell’adolescente, fimosi, malattie renali, calcoli renali, diabete, pancreatopatia, squilibrio endocrino, anoressia nervosa o bulimia, pubertà"  
+   >
+       <Program uuid="6d48cbd1-9886-4208-8fb8-c150ebc7a6cf"  
+       nameRussian="Программа стресса-3 (Р10)"  
+       name="Programma antistress-3 (P10)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="85f12702-6bda-4f12-8360-58a0f985b754"  
+   nameRussian="Программа стресса -4 Режим 4"  
+   name="Programma antistress-4 modalità4" 
+   descriptionRussian="Это базовая программа при всех видах «колющих» болей используется для снятия спазма  Показания – мигрень цефалгии – все виды спазмов – спастические боли в области плеча и затылка – пупочные колики у детей  – все виды «колющих» болей – вегето-висцеральные пароксизмы  Противопоказания – опухоли"  
+   description="Questo programma è la base per tutti i tipi di dolore comunemente chiamati colica: è usato per alleviare lo spasmo. Indicazioni: emicrania cefalea, tutti i tipi di spasmi, dolori spastici nella zona delle spalle e occipitale, colica ombelicale nei bambini, parossismi vegetativo-viscerali. Controindicazioni: tumori"  
+   >
+       <Program uuid="3c9259ca-d232-426c-b89e-87d6006ff06c"  
+       nameRussian="Программа стресса -4 (Р11)"  
+       name="Programma antistress-4 (P11)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="3faebcbe-3042-4cd5-9264-3b1cd818295c"  
+   nameRussian="Программа депрессии -1 Режим 4"  
+   name="Programma depressione-1 modalità4" 
+   descriptionRussian="Предназначена для равномерного «пробуждения» пациента При воздействии глаза пациента открыты  Показания – депрессии без состояний страха – усталость безрадостность разбитость – состояние выздоровления  Противопоказания – маниакальная фаза депрессии с состоянием страха Длительность программы 30 минут время на частоту 30 секунд"  
+   description="Questo programma è utilizzato quando gli occhi del paziente sono aperti e siamo di fronte ad una depressione senza stati di paura. Crea uno stato di recupero da stanchezza, squallore, inflessibilità. Controindicazioni: fase maniacale di depressione con uno stato di paura. Durata del programma 30 min, ogni 30 sec"  
+   >
+       <Program uuid="88cd9fdb-6716-4602-bbff-519cb9a326d1"  
+       nameRussian="Программа депрессии -1 (Р12)"  
+       name="Programma depressione-1 (P12)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="92cad89b-a1c2-48d5-acc4-fbe267eacd55"  
+   nameRussian="Программа депрессии -2 Режим 4"  
+   name="Programma depressione-2 modalità4" 
+   descriptionRussian="Здесь у пациента глаза закрыты Показания – маниакальные фазы депрессии – беспокойство нервозность – фобии состояния страха – конфликтные стрессовые ситуации – «вегетативная дистония» – психосоматические жалобы со стороны сердца и органов кровообращения – вегетативные расстройства ЖКТ также язвенная болезнь – повышенное количество холестерина триглицеридов и гамма - GT – состояния напряжения плечевого пояса и позвоночника Длительность программы 30 минут время на частоту 30 секунд"  
+   description="Qui gli occhi del paziente sono chiusi. Indicazioni: fasi maniacali della depressione, nervosismo ansioso, fobie dello stato di paura, situazioni di stress conflittuale, distonia vegetativa, disturbi psicosomatici da parte del cuore e dell’apparato circolatorio, disturbi vegetativi del tratto gastrointestinale (anche ulcera peptica), alti livelli di trigliceridi e gamma di colesterolo GT, stati di tensione della zona spalla e della colonna vertebrale. Durata del programma 30 min, ogni 30 sec"  
+   >
+       <Program uuid="53dfaeab-4bf0-49d2-91d1-5b19dfaf71f8"  
+       nameRussian="Программа депрессии -2 (Р13)"  
+       name="Programma depressione-2 (P13)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="d455aa3d-1226-41c0-89e8-5017f8015eda"  
+   nameRussian="Программа депрессии -3 Режим 4"  
+   name="Programma depressione-3 modalità4" 
+   descriptionRussian="Применяется при лечении нарушений эндокринной регуляции вызванной различными видами депрессий В данном случае важно найти причину заболевания и начать соответствующую терапию При воздействии у пациента глаза закрыты Показания – депрессия менструального периода у подростков – депрессия периода полового созревания у девочек Длительность программы 40 минут время на частоту 30 секунд"  
+   description="Viene utilizzato nel trattamento nello squilibrio endocrino causato da vari tipi di depressione. In questo caso è importante trovare la causa della malattia e iniziare una terapia appropriata. Gli occhi del paziente sono chiusi. Indicazioni: depressione del periodo mestruale negli adolescenti, depressione della pubertà nelle ragazze. Durata del programma 40 min, ogni 30 sec"  
+   >
+       <Program uuid="cdaf60ba-4243-4701-931c-4d6b6ad3a97e"  
+       nameRussian="Программа депрессии -3 (Р14)"  
+       name="Programma depressione-3 (P14)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="bc10d10c-66ff-4d0c-906f-3a7bba60fd5e"  
+   nameRussian="Церебральная программа Режим 4"  
+   name="Programma cerebrale modalità4 " 
+   descriptionRussian="Благодаря прохождению всех частотных диапазонов организм стимулируется что соответствует церебральному тренингу Показания – активизация интеллектуальной деятельности – трудности с обучением снижение памяти процессов запоминания быстрая утомляемость истощаемость психических процессов – способствует ясности и активности головного мозга – резидуально-органические нарушения – минимальная мозговая дисфункция"  
+   description="Attraverso il passaggio di tutte le gamme di frequenza, viene stimolato l’allenamento cerebrale. Indicazioni: difficoltà di apprendimento, diminuzione della memoria nei processi di memorizzazione, affaticamento rapido, esaurimento nei processi mentali, disturbi residui organici, minima disfunzione cerebrale. Promuove la chiarezza e l'attività cerebrale e l’attivazione dell'attività intellettuale"  
+   >
+       <Program uuid="3c9acc86-197d-4543-b462-cad6e63e89bb"  
+       nameRussian="Церебральная программа (Р15)"  
+       name="Programma cerebrale (P15)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="2bff0e83-0b6a-48b9-b96d-d3d94ec72ed6"  
+   nameRussian="Программа обучения Режим 4 "  
+   name="Programma per l’insegnamento modalità4" 
+   descriptionRussian="Во время воздействия этой программы пациент чувствует глубокое расслабление которое соответствует высокой степени интеллектуальной готовности Программа синхронизирует ритм головного мозга снимает стрессовые нагрузки у обучаемого позволяет извлечь из подсознания забытые знания Общее время программы – 35 минут Обучающий текст включается по истечении первых десяти минут работы программы Так как глаза должны быть закрыты обучение возможно только аудиоспособом С терапевтическими целями программа проводится 1-2 сеанса в неделю Показания  – слабая обучаемость – обучение иностранным языкам – нарушения концентрации – снижение остроты зрения слуха без органических нарушений – страх перед экзаменами – забывчивость - нарушения координации - нарушение засыпания перед экзаменами школьный стресс - минимальная мозговая дисфункция Необходимо отметить что во время 35-минутного сеанса возможны гипнотические состояния Это обстоятельство предоставляет возможность успешно применять программу обучения при лечении непреодолимых влечений Применять программу обучения можно ежедневно Достаточно прослушать текст 1 – 2 раза Для языковых курсов рекомендуется дополнительно прослушивать текст на следующий день и перед сеансом"  
+   description="Durante l'utilizzo del programma il paziente sente un rilassamento profondo, che corrisponde ad un alto grado di preparazione intellettuale. Il programma sincronizza il ritmo cerebrale e allevia i carichi di stress. Lo studente recupera  dal subconscio l’informazione dimenticata. Tempo totale del programma: 35 minuti.  Dopo i primi dieci minuti di utilizzo del programma, si inizia a studiare il materiale da ricordare Poiché gli occhi devono essere chiusi, è necessario utilizzare solo il metodo audio. Con scopi terapeutici, il programma viene utilizzato 1-2 volte a settimana. Indicazioni: in caso di scarsa capacità di apprendimento, insegnamento delle lingue straniere, mancanza di concentrazione, riduzione dell'acuità dell'udito (senza disturbi organici), paura degli esami, dimenticanza, coordinamento alterato, disturbo del sonno causa stress prima degli esami di scuola, disfunzione cerebrale minima. Utilizzare il programma di 35 minuti può creare uno stato ipnotico Questo programma può essere utilizzato con successo in casi di attaccamenti ossessivi. Consigliato 1-2 volte alla settimana per i corsi di lingua. E’ raccomandato ascoltare il testo un giorno dopo e prima della sessione del programma"  
+   >
+       <Program uuid="f311448c-cb10-412e-ac50-c5182599b6fa"  
+       nameRussian="Программа обучения (Р16)"  
+       name="Programma per l’insegnamento (P16)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="9eb55a4a-3fce-47d5-a110-a5a762adcd08"  
+   nameRussian="Программа запоминания Режим 4"  
+   name="Programma per la memorizzazione modalità4" 
+   descriptionRussian="Применение программы запоминания оказывает стимулирующее воздействие на глютамины и нейротрансмиттеры в головном мозгу значительно повышает интеллектуальные способности пациента в сочетании с программами P15 и P16 Для этого программы применяются по 5 раз с ежедневным чередованием Показания — активизация творчества — улучшение кровоснабжения головного мозга Длительность программы 35 минут время на частоту 30 секунд"  
+   description="L'uso del programma di memoria ha un effetto stimolante su glutammine e neurotrasmettitori nel cervello. In combinazione con i programmi P15 e P16 migliora notevolmente le capacità intellettive del paziente. Questo programma viene applicato alternativamente 5 volte al giorno. Indicazioni: attivazione della creatività, miglioramento dell'afflusso di sangue al cervello. Durata del programma 35 min, ogni 30 sec"  
+   >
+       <Program uuid="181efed9-cc8c-4f59-82fc-b2e743308f91"  
+       nameRussian="Программа запоминания (Р17)"  
+       name="Programma per la memorizzazione (P17)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="269fcb15-63b5-4ae3-81c6-4e3a4b0b8ac7"  
+   nameRussian="Программа сна -2 Режим 4"  
+   name="Programma per dormire -2 modalità4" 
+   descriptionRussian="Программа сна-2 отличается от Программы сна   тем что после того как частота медленно понизилась до дельта-ритма она сохраняется в этом диапазоне частот до конца сеанса без возвращения в диапазон альфа-ритма как это делается в программе сна чтобы осуществить пробуждение Поэтому эту программу особенно хорошо использовать перед сном когда ребенок устал но не можете уснуть или когда просыпается ночью и долго не засыпает В остальном показания те же что и у программы сна "  
+   description="Il programma per dormire -2 si differenzia dal programma 1  in quanto, dopo che la frequenza è diminuita lentamente fino al ritmo delta, questa gamma di frequenze viene utilizzata fino alla fine della sessione, senza tornare all'intervallo del ritmo Alfa. Si utilizza prima di andare a dormire, quando il bambino è stanco e non riesce ad addormentarsi o si sveglia di notte e non si addormenta per lungo tempo. Il resto delle indicazioni sono le stesse del programma per dormire 1 "  
+   >
+       <Program uuid="2d5845d4-0fcf-4d94-a3d3-c6bc57555d7b"  
+       nameRussian="Программа сна-2 (Р18)"  
+       name="Programma per dormire -2 (P18)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="558c533a-c2aa-4c13-afb4-678b0aea1a5f"  
+   nameRussian="Короткий перерыв Режим 4"  
+   name="Breve pausa modalità4" 
+   descriptionRussian="Программа Короткий перерыв разработана для предоставления «короткой передышки» при работе связанной с высокой степенью стрессовых воздействий длительная умственная деятельность в период подготовки к экзаменам Короткий и глубокий период отдыха содействует развитию спокойного состояния в короткое время Оканчивается программа на энергизирующей частоте которая подготавливает пользователя к возвращению к работе отдохнувшим Программа может быть использована многократно в течение дня Показания – уменьшение усталости – повышение работоспособности – улучшение концентрации сознания Длительность программы 15 минут время на частоту 30 секунд"  
+   description="Il programma è progettato per fornire una breve pausa dal lavoro associato ad un alto grado di recupero  dell’efficienza mentale. Promuove uno stato di calma in breve tempo, attraverso un periodo di riposo breve e profondo. In seguito il programma genera frequenza di alta energia che prepara l'utente a tornare al lavoro. Utile nel periodo di preparazione agli esami o per un lavoro che richiede alta competitività e produttività. Il programma può essere usato ripetutamente per tutto il giorno. Indicazioni: riduzione della fatica, aumento della competitività, miglioramento della concentrazione e della coscienza. Tempo di durata 15 min e 30 sec"  
+   >
+       <Program uuid="be45b731-95ef-40c5-99e6-6fca5eef7341"  
+       nameRussian="Короткий перерыв (Р19)"  
+       name="Breve pausa (P19)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="d605eb1f-8688-4d33-bf58-1c88003261d7"  
+   nameRussian="Прояснение разума Режим 4"  
+   name="Schiarimento della coscienza modalità4" 
+   descriptionRussian="Длительность программы 20 минут время на частоту 30 секунд"  
+   description="Durata del programma 20 min."  
+   >
+       <Program uuid="fbf7f047-8ee0-44c0-83f5-88fcea47f99a"  
+       nameRussian="Прояснение разума (Р21)"  
+       name="Schiarimento della coscienza (P21)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="9bfc2bfc-2ec8-41ee-8ac3-9cd64044bced"  
+   nameRussian="Волны Шумана Режим 4"  
+   name="Onde di Schumann  modalità4" 
+   descriptionRussian="Человек находится в резонансе с окружающим миром и ему требуются различные сигналы окружающей среды которые сегодня называются «биологическими нормалями» Впервые это было обнаружено во время первых космических полетов с космонавтами на борту Сегодня известно что особенно важное значение имеет одна биологическая нормаль основная  частота шумановских волн 78 Гц  Профессор электрофизики из Мюнхена Шуман в 50-е годы рассчитал резонансные частоты пространства земной оболочки которая образуется поверхностью Земли обладающей достаточно  хорошей электрической  проводимостью  и нижней границей ионосферы Примечательно что гиппокамп  в мозгу всех младенцев и млекопитающих имеет точно такую же частоту Эта область отвечает за внимание и способность к концентрации и играет решающую роль для сна Если отсутствует сигнал окружающей среды составляющий 78 Гц с гармониками до мегагерцевого диапазона то как показали эксперименты в экранированном бункере на добровольцах происходит временная дезориентация появляются головные боли и тд Кратковременная подача шумановских волн в бункер стабилизировала состояние добровольцев на несколько дней Это означает что данная биологическая нормаль может присутствовать не постоянно организм способен запоминать характер действия отдельных частот и продолжает затем генерировать их самостоятельно Цель данной программы имитация волн Шумана Завершается программа альфа-ритмом для энергизации пациента Длительность программы 25 минут время на частоту 30 секунд"  
+   description="L'uomo è in risonanza con la natura  e riceve diversi segnali dall'ambiente. La frequenza biologica è stata scoperta per la prima volta durante il primo volo spaziale con a bordo astronauti. Ora sappiamo che  la frequenza biologica chiamata “onde di Schumann” è particolarmente importanti e ha una frequenza di 78 Hz 50s. Il professore di elettrofisica Monaco Schumann, ha calcolato le frequenze di risonanza dalla superficie terrestre hanno una buona conduttività elettrica. Il limite inferiore della ionosfera ha esattamente la stessa frequenza dell'ippocampo nel cervello dei neonati e dei mammiferi,  ed è responsabile dell'attenzione e della concentrazione, oltre a svolgere un ruolo cruciale per il sonno. Se il segnale ambientale di 78 Hz con armoniche fino alla gamma megahertz è assente ci sono mal di testa, disorientamento temporaneo ecc. Esperimenti in un bunker schermato su volontari, dimostrano che la normale frequenza biologica può essere presente anche in modo non costante, in quanto l'organismo è capace di ricordare il carattere e le azioni delle singole frequenze, e continuare a generarle in modo indipendente. La fornitura a breve termine delle onde di Schumann nel bunker dell’esperimento ha stabilizzato lo stato dei volontari per diversi giorni. Lo scopo di questo programma è l'imitazione delle onde di Schuman.  Il programma termina con un ritmo Alfa per energizzare il paziente. Durata del programma 25 minuti con ritmo di 30 secondi"  
+   >
+       <Program uuid="b1596590-c26a-4a97-b76f-9ac0ac0cb901"  
+       nameRussian="Волны Шумана (Р22)"  
+       name="Onde di Schumann  (P22)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="b302b4c4-fb8f-4b81-8833-75c9d59b7d43"  
+   nameRussian="Управление состоянием сознания Режим 4"  
+   name="Controllo dello stato di coscienza modalità4" 
+   descriptionRussian="Эту программу необходимо применять перед применением программы Развитие творческих способностей  и Увеличение ресурсов адаптации 1 в качестве подготовительной процедуры"  
+   description="Questo programma dovrebbe essere utilizzato prima dell'applicazione dei programmi “Sviluppo delle competenze creative” e “Aumento delle risorse di adattamento 1”, come procedura preparatoria"  
+   >
+       <Program uuid="0520a7e4-7e31-4966-a336-a77a9342c888"  
+       nameRussian="Управление состоянием сознания (Р23)"  
+       name="Controllo dello stato di coscienza (P23)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="65ca1dfd-80e5-4837-a09e-a8a83714004b"  
+   nameRussian="Развитие творческих способностей Режим 4"  
+   name="Sviluppo delle competenze creative modalità4" 
+   descriptionRussian="Помогает расширить доступ к творческим кладовым подсознания Усиливающий эффект тета-ритма приводит к лучшему решению проблем и задач выработке образов которые могут быть метафорами для творческих решений Расширение возможностей сознания – основная цель данной программы На протяжении всей истории человечества многие творческие знаменитости пользовались искусством мечтать в состоянии близком ко сну для разрешения великих проблем Программа позволяет легче достичь подобного творческого состояния так как тренирует готовность к воображению кодирует образы для лучшего запоминания и обработки их в сознании таким образом чтобы более полно использовать их значение Программа может применяться  ежедневно За полчаса до сеанса необходимо применить программу Управление состояния сознания"  
+   description="Il programma aumenta la capacità di accesso alla parte del subconscio creativo: aumenta gli effetti del ritmo Theta, porta ad affrontare meglio problemi e sfide nello sviluppo di immagini, che possono essere metafore per soluzioni creative. Molte celebrità creative, da tempi immemorabili, hanno utilizzato l'arte di sognare, il raggiungere uno stato che è quasi dormire, per la risoluzione di grandi problemi. Il programma crea una estensione della coscienza; rende più facile raggiungere lo stato creativo, codifica le immagini per una migliore conservazione e  trattamento nella mente, in modo tale da farne il miglior uso. Il programma può essere utilizzato quotidianamente per mezz'ora prima di una sessione"  
+   >
+       <Program uuid="7d021801-f625-47f6-9811-be3f10ec20fd"  
+       nameRussian="Развитие творческих способностей (Р24)"  
+       name="Sviluppo delle competenze creative (P24)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="533ff6ca-dffe-4201-aba7-dbcba1e47b8e"  
+   nameRussian="Преодоление страха Режим 4"  
+   name="Superare la paura modalità4" 
+   descriptionRussian="Постепенно и спокойно эта программа от сеанса к сеансу помогает пациенту представить воочию и преодолеть страхи фобии и беспокойства Постоянные повторы помогают собрать воедино и преодолеть все эти опасные ситуации Программа адаптирована к таким часто встречающимся трудностям как боязнь публичных выступлений страх перед экзаменами «школьная фобия»  Длительность программы 30 минут время на частоту 30 секунд"  
+   description="Gradualmente e con calma, questo programma, da sessione a sessione, aiuta il paziente ad immaginare con i propri occhi, e superare le paure, le fobie ed l’ansia Le ripetizioni costanti aiutano a mettere insieme e superare tutte le situazioni che provocano paura. Il programma è adattato a difficoltà così frequenti come la paura di parlare in pubblico, la paura degli esami, la fobia della scuola. Durata del programma 30 min per 30 sec"  
+   >
+       <Program uuid="e941a0bf-4efd-4d91-abe5-36a04ff73362"  
+       nameRussian="Преодоление страха (Р28)"  
+       name="Superare la paura (P28)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="480b8303-e928-4ce6-accd-0970b789a0dd"  
+   nameRussian="Программа обезболивания Режим 4"  
+   name="Programma per l'anestesia modalità4" 
+   descriptionRussian="Программа обезболивания помогает более успешно справляться с напряженными головными болями и другими формами дискомфорта используя силу метода «метафорической трансформации боли» Пациент может уменьшить а часто и полностью снять хронические боли и расширить возможности организма к самовыздоровлению Воздействие методом  МЧС повышает уровень эндорфинов вводит в состояние гипноза медитации что позволяет управлять болью Результаты особенно заметны когда боль вызвана психо-физиологическими расстройствами то есть имеет стресс-реактивный характер Многие заболевания связанные с болью в том числе и те которые имеют первично физическую причину способствуют развитию эмоционально-стрессовых расстройств что приводит к развитию «порочного круга» Применение  описываемой программы позволяет разорвать этот круг и существенно ослабить или устранить боль "  
+   description="Il programma di gestione del dolore, utilizzando la potenza del metodo di trasformazione metaforica del dolore, è utilissimo per far fronte al mal di testa intenso e ad altre forme di disagio. Il paziente può ridurre e rimuovere completamente il dolore cronico e aumentare la capacità di autoguarigione del corpo L'effetto del metodo MOE aumenta il livello di endorfine e porta ad uno stato di ipnosi, permettendo di gestire il dolore. I risultati sono particolarmente evidenti quando il dolore è causato da disturbi psico-fisiologici, cioè da stress-reattivo. Molte malattie associate al dolore, comprese quelle che hanno una causa principalmente fisica, contribuiscono allo sviluppo di disturbi emotivi e stressanti. Questi portano allo sviluppo di un circolo vizioso L'applicazione del programma descritto rende possibile rompere questo circolo e sostanzialmente alleviare o eliminare il dolore"  
+   >
+       <Program uuid="839bbca4-528f-47fb-8d33-dc72f2e8c73a"  
+       nameRussian="Программа обезболивания (Р29)"  
+       name="Programma per l'anestesia (P29)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="1b248faf-776f-4b02-a0e9-71b94f9651b5"  
+   nameRussian="Развитие самоуважения Режим 4"  
+   name="Sviluppo del’autostima modalità4" 
+   descriptionRussian="Программа Развития самоуважения позволяет взглянуть на себя глазами того человека которым Вы хотите стать помочь себе прежнему используя свое желание и волю Другой важной особенностью этой программы является то что человек в состоянии выздоровления проникается сочувствием к самому себе устанавливает вновь внутренние взаимосвязи Программа позволяет увидеть себя целостным и нормально действующим человеком Особенно эффективно использование программы у детей подростков робких по характеру стеснительных склонных к заниженной самооценке "  
+   description="Il programma di sviluppo dell’autostima permette di guardare a sè stessi attraverso gli occhi della persona che si desidera diventare. Un aiuto a te stesso utilizzando la sua volontà. Un'altra caratteristica importante di questo programma è che la persona recupera simpatia per se stesso, definisce un nuovo rapporto interno, permette di vedere se stessi in un’ottica di stima e fiducia. L'uso del programma è particolarmente funzionale nei bambini e negli adolescenti particolarmente timidi  ed inclini a bassa autostima"  
+   >
+       <Program uuid="453c39e2-6e8f-40d3-8e73-87e8ad7cd505"  
+       nameRussian="Развитие Самоуважения (Р30)"  
+       name="Sviluppo del’autostima (P30)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="f8754360-b5b7-4a80-a2fe-1bb4795e7f2b"  
+   nameRussian="Энергизирующая программа Режим 4"  
+   name="Ripristino del energia modalità4" 
+   descriptionRussian="Энергизирующая программа позволяет осуществить быструю энергизацию организма что особенно важно после утреннего пробуждения или после сильной усталости Отмечается хороший эффект от применения программы в процессе подготовки и сдачи экзаменов детьми и подростками"  
+   description="Il programma energizzante consente di energizzare rapidamente il corpo, il che è particolarmente importante dopo il risveglio mattutino o dopo un forte affaticamento. L’applicazione del programma nel processo di preparazione e superamento degli esami da parte di bambini e adolescenti è ottima"  
+   >
+       <Program uuid="7cc0bccc-aae3-4732-b0b0-5bcca5f9f1f8"  
+       nameRussian="Энергизирующая программа (Р31)"  
+       name="Ripristino del energia (P31)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="fbd716c7-af47-4115-b156-8449d05dec86"  
+   nameRussian="Спортивная программа Режим 4"  
+   name="Programma sportivo modalità4" 
+   descriptionRussian="Спортивная программа позволяет одновременно расслаблять и тонизировать. Сеанс придает состояние сосредоточения перед началом спортивных соревнований. Длительность программы 15 минут, время на частоту 30 секунд"  
+   description="Il programma sportivo consente di rilassare e tonificare allo stesso tempo. La sessione dà lo stato di concentrazione prima dell'inizio degli eventi sportivi. La durata del programma è di 15 min, il ritmo della frequenza è di 30 sec"  
+   >
+       <Program uuid="da88101b-fd0f-4951-b440-22808a77b975"  
+       nameRussian="Спортивная программа (Р32)"  
+       name="Programma sportivo (P32)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="7a224e45-f675-4382-bf4a-38c8879ae64f"  
+   nameRussian="Событийное регулирование Режим 4"  
+   name="Controllo degli eventi modalità4" 
+   descriptionRussian="Программа используется для регулирования событийной реальности окружающей пациента в тех случаях когда пациент не в состоянии точно определить ту зону или ту область событийной реальности в которой возникают беспокоящие его нарушения Кроме того программа может быть использована при невротических состояниях с неотчётливой неопределённой симптоматикой ощущениях тревоги беспокойства раздражительности усталости не сопровождающимися никакими отчётливыми симптомами За полчаса до сеанса необходимо применить программу Управление состоянием сознания"  
+   description="Il programma viene utilizzato per regolare la realtà circostante del paziente, nei casi in cui il paziente non è in grado di determinare con precisione la realtà degli eventi, in cui si verificano disturbi. Il programma può essere utilizzato in stati nevrotici con indefinite sensazioni sintomatiche di ansia, stanchezza da irritabilità, affaticamento non accompagnato da alcun sintomo distinto. Mezz'ora prima della seduta è necessario applicare il programma Gestire lo stato di coscienza"  
+   >
+       <Program uuid="97df4285-5ace-4436-9729-979116ca9317"  
+       nameRussian="Событийное регулирование (Р33)"  
+       name="Controllo degli eventi (P33)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="a57c80eb-2c57-445a-9a1d-ef6023200871"  
+   nameRussian="Увеличение ресурсов адаптации 1 Режим 4"  
+   name="Aumentare la capacità di adattamento 1 modalità4" 
+   descriptionRussian="Программа предназначена для увеличения ресурсов адаптации если эти ресурсы оказываются  низкими например по результатам ВРТ-тестирования"  
+   description="Il programma è progettato per aumentare le capacità di adattamento, se queste risorse sono basse"  
+   >
+       <Program uuid="c3ac5673-e1c0-4e76-abc6-2fb2884103a0"  
+       nameRussian="Увеличение ресурсов адаптации 1 (Р35)"  
+       name="Aumentare la capacità di adattamento 1 (P35)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="3b9f960c-e94c-4bfb-9144-44a01205fc29"  
+   nameRussian="Увеличение ресурсов адаптации 2 Режим 4"  
+   name="Aumentare la capacità di adattamento 2 modalità4" 
+   descriptionRussian="Альтернативная программа программе «Увеличение ресурсов адаптации 1» Используется в случае если предыдущая программа не оказывает должного терапевтического воздействия"  
+   description="Programma alternativo al programma Aumento delle risorse di adattamento 1.  Utilizzato se il programma precedente non ha l'effetto terapeutico appropriato"  
+   >
+       <Program uuid="23c0bff0-88d4-4536-a56e-181f052f0dc2"  
+       nameRussian="Увеличение ресурсов адаптации 2 (Р36)"  
+       name="Aumentare la capacità di adattamento 2 (P36)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="0fda2db8-aab6-4a26-826f-13a4bc95e690"  
+   nameRussian="Увеличение ресурсов нейрогуморальной регуляции Режим 4"  
+   name="Aumento delle risorse-capacità di regolazione neuroumorale modalità4" 
+   descriptionRussian="Программа предназначена для увеличения ресурсов нейрогуморальной регуляции в том случае если эти ресурсы оказываются низкими например в соответствии с данными ВРТ-тестирования указывающими на нарушения в эндокринной системе"  
+   description="Il programma è progettato per aumentare le risorse della regolazione neuroumorale nel caso in cui queste risorse siano basse. Se, ad esempio, i dati dei test BRT indicano violazioni nel sistema endocrino"  
+   >
+       <Program uuid="9035a38c-7e8c-4f2e-b5ff-8d12cba9ae59"  
+       nameRussian="Увеличение ресурсов нейрогуморальной регуляции (Р37)"  
+       name="Aumento delle risorse-capacità di regolazione neuroumorale (P37)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="e25856a1-a42e-4265-9b87-400d7864fdd2"  
+   nameRussian="Сексуальная регуляция -1 Режим 4"  
+   name="Equilibrio sessuale-1 modalità4" 
+   descriptionRussian="Программа предназначена для увеличения ресурсов сексуальной регуляции в случае ослабления потенции по самым различным с внешней точки зрения причинам"  
+   description="Il programma è progettato per aumentare le risorse della regolazione sessuale in caso di indebolimento della potenza dovuto ad una serie di ragioni esterne alla persona"  
+   >
+       <Program uuid="2391f5b8-2e5b-488e-8ed6-f55526cb3010"  
+       nameRussian="Сексуальная регуляция - 1 (Р38)"  
+       name="Equilibrio sessuale-1 (P38)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="323e8aba-1147-41b6-8cd1-c8c9aba33ed3"  
+   nameRussian="Сексуальная регуляция -2 Режим 4"  
+   name="Equilibrio sessuale-2 modalità4" 
+   descriptionRussian="Эта программа альтернативна предыдущей и применяется в тех случаях когда та недостаточно эффективна"  
+   description="Questo programma è alternativo al precedente e viene utilizzato quando il precedente non è abbastanza efficace"  
+   >
+       <Program uuid="c955ba48-9056-4241-a33e-f9fd44a564aa"  
+       nameRussian="Сексуальная регуляция - 2 (Р39)"  
+       name="Equilibrio sessuale-2 (P39)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="7b01bc6e-4d06-4c49-aacb-0168e109945b"  
+   nameRussian="Увеличение ресурсов иммунной адаптации -1 Режим 4"  
+   name="Aumento delle risorse di adattamento immunitario-1 modalità4" 
+   descriptionRussian="Программа предназначена для увеличения ресурсов иммунной адаптации в случае снижения иммунитета гипофункции или дисфункции тимуса Применяется например в случаях когда ВРТ-тестирование указывает на лимфатическое отягощение или на истощение иммунной системы"  
+   description="Il programma è progettato per aumentare le risorse di adattamento immunitario in caso di diminuzione dell'immunità di ipofunzione o disfunzione timica. E’ usato, ad esempio, nei casi in cui i test BRT indicano l’affaticamento linfatico o l'esaurimento del sistema immunitario"  
+   >
+       <Program uuid="4ed8cb9d-2688-460a-a63d-16ccd9a543dc"  
+       nameRussian="Увеличение ресурсов иммунной адаптации – 1 (Р40)"  
+       name="Aumento delle risorse di adattamento immunitario-1 (P40)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="4a90df4d-0b66-4ea8-951c-672865c0c772"  
+   nameRussian="Увеличение ресурсов иммунной системы -2 Режим 4"  
+   name="Aumento delle risorse di adattamento immunitario-2 modalità4" 
+   descriptionRussian="Программа предназначена для увеличения ресурсов иммунной адаптации в случае пониженного иммунного ответа любого происхождения Используется в случае если предыдущая программа не тестируется или не оказывает должного терапевтического воздействия Эта программа может  рассматриваться как  альтернатива программе Увеличение ресурсов иммунной адаптации –1 применяемая прежде всего в тех случаях когда слабое звено иммунной системы неочевидно"  
+   description="Il programma è progettato per aumentare le difese immunitarie in caso di risposta immunitaria ridotta di qualsiasi origine. Utilizzato se il programma precedente non è testato o non ha l'effetto terapeutico appropriato. Questo programma può essere considerato un'alternativa al programma Aumentare le risorse di adattamento immunitario -1, è utilizzato principalmente nei casi in cui l'anello debole del sistema immunitario non è evidente"  
+   >
+       <Program uuid="b3d5d1b8-002d-4d6b-9c9e-e1725e801b5e"  
+       nameRussian="Увеличение ресурсов иммунной адаптации – 2 (Р41)"  
+       name="Aumento delle risorse di adattamento immunitario-2 (P41)" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="adfd96fb-a2f3-43b5-bce7-19afae3f44cd"  
+   nameRussian="Сессия для обучения Режим 4"  
+   name="Sessione per l’apprendimento modalità4" 
+   descriptionRussian="Во время обучающего процесса"  
+   description="Durante il processo di apprendimento "  
+   >
+       <Program uuid="f2dfff53-3e1b-47cd-8ed8-8ffe61c599bb"  
+       nameRussian="Сессия для обучения"  
+       name="Sessione per l’apprendimento" 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+   <Complex uuid="aacbcda9-6ec5-443b-8e0f-00eb98a8f694"  
+   nameRussian="Сессия для осознанного сновидения Режим 4"  
+   name="Sessione per un sogno cosciente modalità4" 
+   descriptionRussian="Если вы проснулись ночью и хотите провести остаток ночи с пользой."  
+   description="Se ti svegli di notte e vuoi trascorrere il resto della notte beneficiando"  
+   >
+       <Program uuid="5146ddfa-9a2a-43f0-8572-5808ebb75716"  
+       nameRussian="Сессия для ососзнанного сновидения"  
+       name="Sessione per un sogno cosciente " 
+       descriptionRussian=""  
+       description=""  
+       />
+
+   </Complex>
+
+   <Complex uuid="f30ab9ed-ab8a-4d72-86fc-32f63307fe5c"
+            nameRussian="Утренняя свежесть"
+            name="Freschezza del mattino"
+            descriptionRussian=""
+            description=""
+   >
+   <Program uuid="9b9d1afa-1c15-4f4b-8002-ec76d01d37ac"
+            nameRussian="Утренняя свежесть"
+            name="Freschezza del mattino"
+            descriptionRussian=""
+            description=""
+   />
+
+   </Complex>
+
+   <Complex uuid="8df024e8-8e7e-40c3-83d5-de52be1e6fce"
+            nameRussian="Уменьшение тревожности"
+            name="Diminuire l’ansia"
+            descriptionRussian=""
+            description=""
+   >
+   <Program uuid="c94518ab-d122-408e-bb39-89d0fbc7c208"
+            nameRussian="Уменьшение тревожности"
+            name="Diminuire l’ansia"
+            descriptionRussian=""
+            description=""
+   />
+
+   </Complex>
+
+</LanguageBaseFile>

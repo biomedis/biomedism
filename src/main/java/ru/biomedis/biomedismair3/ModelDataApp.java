@@ -94,7 +94,7 @@ public class ModelDataApp {
             findAllLanguage.add(createLanguage("hu", "венгерский"));
             findAllLanguage.add(createLanguage("fil", "филиппинский"));
             findAllLanguage.add(createLanguage("lv", "латышский"));
-            findAllLanguage.add(createLanguage("lt", "литовский"));
+            findAllLanguage.add(createLanguage("lt", "Lietuvių", true));
             findAllLanguage.add(createLanguage("hi", "хинди"));
             findAllLanguage.add(createLanguage("th", "тайский"));
             findAllLanguage.add(createLanguage("de", "Deutsch",true));

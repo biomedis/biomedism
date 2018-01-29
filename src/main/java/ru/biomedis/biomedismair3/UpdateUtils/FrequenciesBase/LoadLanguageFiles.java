@@ -326,7 +326,11 @@ public class LoadLanguageFiles
             {
                 if(attributes.getLength()!=0)
                 {
-                    listComplex.add(new LoadLanguageFiles.Complex(TextUtil.unEscapeXML(attributes.getValue("name")),TextUtil.unEscapeXML(attributes.getValue("description")),attributes.getValue("uuid"),TextUtil.unEscapeXML(attributes.getValue("nameRussian"))));
+                    listComplex.add(new LoadLanguageFiles.Complex(
+                            TextUtil.unEscapeXML(attributes.getValue("name"))
+                            ,TextUtil.unEscapeXML(attributes.getValue("description"))
+                            ,attributes.getValue("uuid")
+                            ,TextUtil.unEscapeXML(attributes.getValue("nameRussian"))));
 
                 }
 
@@ -348,8 +352,16 @@ public class LoadLanguageFiles
                     if(attributes.getValue("nameRussian")==null) {
                         System.out.println(attributes.getValue("uuid")+" --nameRussian");
                     }
+                    if(attributes.getValue("uuid")==null) {
+                        System.out.println(attributes.getValue("nameRussian")+" --nameRussian");
+                    }
 
-                    listSection.add(new LoadLanguageFiles.Section(TextUtil.unEscapeXML(attributes.getValue("name")),TextUtil.unEscapeXML(attributes.getValue("description")),attributes.getValue("uuid"),TextUtil.unEscapeXML(attributes.getValue("nameRussian"))));
+
+                    listSection.add(new LoadLanguageFiles.Section(
+                            TextUtil.unEscapeXML(attributes.getValue("name"))
+                            ,TextUtil.unEscapeXML(attributes.getValue("description"))
+                            ,attributes.getValue("uuid")
+                            ,TextUtil.unEscapeXML(attributes.getValue("nameRussian"))));
 
                 }
 
