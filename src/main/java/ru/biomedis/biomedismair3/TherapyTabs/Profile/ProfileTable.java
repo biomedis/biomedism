@@ -261,6 +261,7 @@ public class ProfileTable {
         MenuItem mip4 =new MenuItem(this.res.getString("app.delete"));
         MenuItem mip5 =new MenuItem(this.res.getString("app.menu.print_profile"));
         MenuItem mip6 =new SeparatorMenuItem();
+        MenuItem mi_insert_botom =new MenuItem(this.res.getString("app.menu.print_profile"));
 
 
         mip5.setOnAction(e->onPrintProfile.run());
@@ -269,7 +270,7 @@ public class ProfileTable {
         mip3.setAccelerator(new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN));
         mip2.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
         mip4.setAccelerator(new KeyCodeCombination(KeyCode.DELETE));
-        profileMenu.getItems().addAll(mip3,mip1,mip2,mip4,mip6,mip5,translateMenu);
+        profileMenu.getItems().addAll(mip3,mip1,mip2/*,mi_insert_botom*/, mip4,mip6,mip5,translateMenu);
         mip1.setOnAction(e->duplicateProfile());
         mip3.setOnAction(e->cutInTables.run());
         mip2.setOnAction(e->pasteInTables.run());
