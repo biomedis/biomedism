@@ -1828,7 +1828,7 @@
 
            <Program uuid="319b494d-72fe-4d90-82db-d7e10377b4da"  
            nameRussian="Кислотно-щелочное равновесие, регуляция"  
-           name="Regulierung des Säure-Basen-Haushalts" 
+           name="Regulation des Säure-Basen-Haushalts" 
            descriptionRussian=""  
            description=""  
            />
@@ -3333,7 +3333,7 @@
 
            <Program uuid="d2096f71-4a01-4e21-b7a6-f5d463d1a472"  
            nameRussian="Кислотность желудочного сока, регуляция "  
-           name="Regulierung der Magensaeure" 
+           name="Regulation der Magensaeure" 
            descriptionRussian=""  
            description=""  
            />
@@ -3361,7 +3361,7 @@
 
            <Program uuid="90d4aa12-28f9-40a7-9449-1d083eef17f5"  
            nameRussian="Колит, регуляция"  
-           name="Kolitis, Regulierung" 
+           name="Kolitis, Regulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -3494,7 +3494,7 @@
 
            <Program uuid="2c38714f-0f39-4d61-a4d5-a24d2c56886c"  
            nameRussian="Регуляция ЖКТ"  
-           name="Magen-Darm-Trakt - Regulierung" 
+           name="Magen-Darm-Trakt - Regulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -3837,7 +3837,7 @@
 
            <Program uuid="6cacaf89-6183-4240-b0fc-a6457505b939"  
            nameRussian="Желчь, регуляция"  
-           name="Regulierung der Gallenbildung" 
+           name="Regulation der Gallenbildung" 
            descriptionRussian=""  
            description=""  
            />
@@ -3865,14 +3865,14 @@
 
            <Program uuid="a9673f11-eda3-4b89-afe3-b3233533d0e6"  
            nameRussian="Печень, регуляция функций"  
-           name="Leber, Funktionsregulierung" 
+           name="Leber, FunktionsRegulation" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="8d572609-dbdb-4653-9a4a-2254dbc63cfc"  
            nameRussian="Регуляция гепатобилиарной системы"  
-           name="Regulierung des hepatobiliären Systems" 
+           name="Regulation des hepatobiliären Systems" 
            descriptionRussian=""  
            description=""  
            />
@@ -4075,7 +4075,7 @@
 
            <Program uuid="baab56bc-77be-492a-ae16-9fc7076c47cf"  
            nameRussian="Половое влечение женщин, регуляция"  
-           name="Regulierung der sexuellen Anziehung - Frau" 
+           name="Regulation der sexuellen Anziehung - Frau" 
            descriptionRussian=""  
            description=""  
            />
@@ -4096,7 +4096,7 @@
 
            <Program uuid="fc01b8e9-c356-41ec-b947-8dbb3bb2bda5"  
            nameRussian="Регуляция женской мочеполовой системы"  
-           name="Regulierung des weiblichen Harn- und Geschlechtsapparats" 
+           name="Regulation des weiblichen Harn- und Geschlechtsapparats" 
            descriptionRussian=""  
            description=""  
            />
@@ -4215,7 +4215,7 @@
 
            <Program uuid="886ed281-a2fe-473a-9e8b-17898d8dbc6d"  
            nameRussian="Волосы - регуляция выпадения"  
-           name="Regulierung des Haarausfalls" 
+           name="Regulation des Haarausfalls" 
            descriptionRussian=""  
            description=""  
            />
@@ -4257,7 +4257,7 @@
 
            <Program uuid="8f9ed882-419c-46b3-a855-601027d467f0"  
            nameRussian="Кожа, регуляция иммунных и защитных функций "  
-           name="Haut, Regulierung des Immunsystems and der Abwehrkraefte" 
+           name="Haut, Regulation des Immunsystems and der Abwehrkraefte" 
            descriptionRussian=""  
            description=""  
            />
@@ -4565,7 +4565,7 @@
 
            <Program uuid="53def47b-528c-4d3e-b71f-dae5c537914d"  
            nameRussian="Регуляция и очистка лимфатической системы"  
-           name="Regulierung und Entgiftung des lymphatischen Systems" 
+           name="Regulation und Entgiftung des lymphatischen Systems" 
            descriptionRussian=""  
            description=""  
            />
@@ -4985,7 +4985,7 @@
 
            <Program uuid="8009c32e-4bcd-43e3-b0f0-c1c07340f751"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
@@ -5027,7 +5027,7 @@
 
            <Program uuid="2145889b-9796-48cd-8332-a9f20a2f24a5"  
            nameRussian="Сердце, регуляция"  
-           name="Regulierung der Herzfunktion" 
+           name="Regulation der Herzfunktion" 
            descriptionRussian=""  
            description=""  
            />
@@ -5125,7 +5125,7 @@
 
            <Program uuid="bfe6a808-1abe-428f-938b-8de956cb9ea6"  
            nameRussian="Лимфосистема, управление регуляцией"  
-           name="Lymphatisches System - Steuerung der Regulierung" 
+           name="Lymphatisches System - Steuerung der Regulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -5902,7 +5902,7 @@
 
            <Program uuid="4ff86d55-a874-4f10-81b9-34d3adabc5fd"  
            nameRussian="Сон, регуляция"  
-           name="Schlafregulierung" 
+           name="SchlafRegulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -6035,7 +6035,7 @@
 
            <Program uuid="7beb7aaa-9b1c-4d83-8bbf-724ce3855579"  
            nameRussian="Центральная нервная система, регуляция"  
-           name="Regulierung des Zentralnervensystems" 
+           name="Regulation des Zentralnervensystems" 
            descriptionRussian=""  
            description=""  
            />
@@ -6301,14 +6301,14 @@
 
            <Program uuid="743de66d-10f3-4824-94e1-983747f3be05"  
            nameRussian="Регуляция и очистка почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="daa9957d-3251-443d-a486-7eea9857e9d4"  
            nameRussian="Регуляция юкстагломерулярного аппарата"  
-           name="Regulierung des juxtaglomerulaeren Apparats" 
+           name="Regulation des juxtaglomerulaeren Apparats" 
            descriptionRussian=""  
            description=""  
            />
@@ -6616,7 +6616,7 @@
 
            <Program uuid="dc5b9ae5-5df2-43be-8c25-4661297f28d5"  
            nameRussian="Регуляция функции слуха"  
-           name="Regulierung der auditiven Wahrnehmung" 
+           name="Regulation der auditiven Wahrnehmung" 
            descriptionRussian=""  
            description=""  
            />
@@ -6973,7 +6973,7 @@
 
            <Program uuid="0d31fa9c-678b-4684-b597-a441fdf9de85"  
            nameRussian="Регуляция мышц глаз"  
-           name="Regulierung der Augenmuskeln" 
+           name="Regulation der Augenmuskeln" 
            descriptionRussian=""  
            description=""  
            />
@@ -6994,7 +6994,7 @@
 
            <Program uuid="311f690b-b328-4683-8684-066fb5bce659"  
            nameRussian="Сетчатка, регуляция"  
-           name="Regulierung der Netzhaut" 
+           name="Regulation der Netzhaut" 
            descriptionRussian=""  
            description=""  
            />
@@ -8037,14 +8037,14 @@
 
            <Program uuid="8e7ec5bc-5fa9-4f91-8062-2e74a83f2b19"  
            nameRussian="Регуляция мужской мочеполовой системы "  
-           name="Regulierung des maennlichen Harn- und Geschlechtsapparats" 
+           name="Regulation des maennlichen Harn- und Geschlechtsapparats" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="eb2a01a1-ff9b-49fc-a057-f2204b6418d6"  
            nameRussian="Регуляция функции яичек и простаты"  
-           name="Regulierung - Hoden, Prostata" 
+           name="Regulation - Hoden, Prostata" 
            descriptionRussian=""  
            description=""  
            />
@@ -8058,7 +8058,7 @@
 
            <Program uuid="5beaf19a-eb3d-4d5e-88ba-81c0a58c6cf3"  
            nameRussian="Сексуальная регуляция у мужчин"  
-           name="sexuelle Regulierung bei Maennern" 
+           name="sexuelle Regulation bei Maennern" 
            descriptionRussian=""  
            description=""  
            />
@@ -8667,7 +8667,7 @@
 
            <Program uuid="f61a7232-40e5-4d46-addc-99c4c0aa1068"  
            nameRussian="Кальций/фосфор регуляция"  
-           name="Regulierung des Calcium- und Phosphathaushalts" 
+           name="Regulation des Calcium- und Phosphathaushalts" 
            descriptionRussian=""  
            description=""  
            />
@@ -8681,7 +8681,7 @@
 
            <Program uuid="9200870e-aeb9-4338-a7e2-5047d751202c"  
            nameRussian="Молочная железа, регуляция"  
-           name="Regulierung der Milchdruesen" 
+           name="Regulation der Milchdruesen" 
            descriptionRussian=""  
            description=""  
            />
@@ -8709,7 +8709,7 @@
 
            <Program uuid="ddaf07ce-82aa-45f5-872a-c5ed1fedbef7"  
            nameRussian="Нейроэндокринная система, регуляция "  
-           name="Regulierung des neuroendokrinen Systems" 
+           name="Regulation des neuroendokrinen Systems" 
            descriptionRussian=""  
            description=""  
            />
@@ -8730,7 +8730,7 @@
 
            <Program uuid="2a042b9e-48c5-4e0d-a0e0-f353d561278b"  
            nameRussian="Паращитовидные железы, регуляция"  
-           name="Regulierung der Nebenschilddruesen" 
+           name="Regulation der Nebenschilddruesen" 
            descriptionRussian=""  
            description=""  
            />
@@ -8814,14 +8814,14 @@
 
            <Program uuid="c4f29313-5a40-4e7f-801b-8f518ab5ecfc"  
            nameRussian="Щитовидная железа, регуляция"  
-           name="Regulierung der Schilddruese" 
+           name="Regulation der Schilddruese" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="a928924b-2b50-4d8d-90de-605ebf3c99a1"  
            nameRussian="Эндокринная система, регуляция "  
-           name="Regulierung des Hormonsystems" 
+           name="Regulation des Hormonsystems" 
            descriptionRussian=""  
            description=""  
            />
@@ -8877,14 +8877,14 @@
 
            <Program uuid="671bf1ee-4b70-4582-96f7-2a247b76ed7c"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="2b68f81c-e2fe-4bfa-9e14-c29448dad843"  
            nameRussian="Регуляция и очистка почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -8933,7 +8933,7 @@
 
            <Program uuid="45101c9e-91a4-4030-b042-85042594eac0"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
@@ -8975,7 +8975,7 @@
 
            <Program uuid="82bbb588-bd81-4ce4-8091-36310a878a31"  
            nameRussian="Регуляция ЖКТ"  
-           name="Magen-Darm-Trakt - Regulierung" 
+           name="Magen-Darm-Trakt - Regulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -8996,14 +8996,14 @@
 
            <Program uuid="27ddbc5a-5b81-49b2-ae75-1b29eae3fcc0"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="d7328382-8463-44fd-aa40-ea2afc3baf26"  
            nameRussian="Регуляция и очистка почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -9052,14 +9052,14 @@
 
            <Program uuid="3e92e0b0-a62c-46c8-8ea4-361b1f7b164a"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="e1a64635-4696-4905-87a8-b2a295fe7e84"  
            nameRussian="Регуляция и очистка почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -9094,21 +9094,21 @@
 
            <Program uuid="1ba788b4-651a-4e70-a410-21c50d6871d7"  
            nameRussian="Регуляция ЖКТ"  
-           name="Magen-Darm-Trakt - Regulierung" 
+           name="Magen-Darm-Trakt - Regulation" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="32df1d0f-5996-42ef-a3e5-66a0d4d97a9e"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="e8027de4-e835-460c-8b38-a134e530899e"  
            nameRussian="Регуляция и очистка  почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -9157,21 +9157,21 @@
 
            <Program uuid="e278fe7f-8f8f-4a5a-b35b-f274f8e5fb4e"  
            nameRussian="Регуляция ЖКТ"  
-           name="Magen-Darm-Trakt - Regulierung" 
+           name="Magen-Darm-Trakt - Regulation" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="abdc9ff5-c6d6-48e1-909c-366807475181"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="570bad40-ebe8-4184-b4a3-a09d4ea68016"  
            nameRussian="Регуляция и очистка почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -9206,7 +9206,7 @@
 
            <Program uuid="45563e74-a5e7-4382-b754-1bdc6437b798"  
            nameRussian="Регуляция ЖКТ"  
-           name="Magen-Darm-Trakt - Regulierung" 
+           name="Magen-Darm-Trakt - Regulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -9220,14 +9220,14 @@
 
            <Program uuid="d2926c08-d686-47cc-9513-40c9e431fcf7"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="73b59f7f-0d61-418c-a42b-cd3a05154ba8"  
            nameRussian="Регуляция и очистка  почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -9276,7 +9276,7 @@
 
            <Program uuid="976d1e23-1fd7-4474-a6a5-0079f2a0a2bd"  
            nameRussian="Регуляция и очистка почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -9318,14 +9318,14 @@
 
            <Program uuid="9c01798c-7366-4680-a6eb-88eeea3e4fa7"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="8db0969a-7000-427b-b3ae-6d2453faf586"  
            nameRussian="Регуляция и очистка  почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -9367,14 +9367,14 @@
 
            <Program uuid="010de456-7b86-462c-9751-03503294a18d"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="5be2c15e-5d0e-4d86-b4d1-3bd1b3450208"  
            nameRussian="Регуляция и очистка почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -9416,14 +9416,14 @@
 
            <Program uuid="9c7ee833-7c8d-49a1-ae9f-abfb761889d3"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="acffc7b3-3982-4360-91f5-c0186632f667"  
            nameRussian="Регуляция  и очистка почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -9465,14 +9465,14 @@
 
            <Program uuid="9270110a-a7b7-4423-9c12-279fd273e3c5"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="502dd2f1-752c-479a-a929-7e68657cb1f2"  
            nameRussian="Регуляция и очистка почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -9514,14 +9514,14 @@
 
            <Program uuid="5a0ac194-2295-4b4c-a8b7-525e8ae97212"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="e774de3e-aa38-4a43-8b60-014526b9e87a"  
            nameRussian="Регуляция и очистка почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -9563,14 +9563,14 @@
 
            <Program uuid="8400faf1-1e5b-4726-adaf-bf49662a856a"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="d71fead5-2609-45c5-90b6-0d4bfd6e75d8"  
            nameRussian="Регуляция и очистка почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -9612,14 +9612,14 @@
 
            <Program uuid="2b3531f5-30b6-41a3-b189-5772266ba6f1"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="372d6ef6-d83b-49ea-8110-e65589ebbd4d"  
            nameRussian="Регуляция и очистка почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -9703,14 +9703,14 @@
 
            <Program uuid="22193935-4b0d-40ec-8dda-938ad136f025"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="b0b75ad1-c17f-415f-bfaa-1da2bfb11a48"  
            nameRussian="Регуляция и очистка почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -9745,7 +9745,7 @@
 
            <Program uuid="05a998b9-ce41-4c55-ad96-591daa9cf047"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
@@ -9794,7 +9794,7 @@
 
            <Program uuid="69311838-3615-4814-b557-ea51c86fb095"  
            nameRussian="Регуляция и очистка  почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -9836,14 +9836,14 @@
 
            <Program uuid="ba8bf8b6-5d3b-4727-b3c9-3f2c8167707b"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="604f9038-d523-4090-953e-9b93f67755ca"  
            nameRussian="Регуляция и очистка  почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -9885,14 +9885,14 @@
 
            <Program uuid="f0639fd2-50d5-4c5d-9c82-bdc7917769da"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="2b6cac32-8649-43dc-814b-a5e9ebfdb89f"  
            nameRussian="Регуляция и очистка  почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -9927,7 +9927,7 @@
 
            <Program uuid="adef6dcc-b4a8-470b-a45a-9e8ea35a2125"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
@@ -9941,7 +9941,7 @@
 
            <Program uuid="0a0ed858-c896-445a-a328-ebba35a718ca"  
            nameRussian="Регуляция и очистка  почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -9983,14 +9983,14 @@
 
            <Program uuid="c681ed1a-1813-4202-80d7-72fbd62b9d43"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="77676364-036e-491b-9e3d-083e825991ec"  
            nameRussian="Регуляция и очистка  почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -10032,7 +10032,7 @@
 
            <Program uuid="342afd25-6428-4152-af82-0cd0dd60a137"  
            nameRussian="Регуляция и очистка  почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -10067,21 +10067,21 @@
 
            <Program uuid="d61e1ec2-eb7a-4bdb-a377-4c984f21c225"  
            nameRussian="Регуляция  углеводного обмена базовая"  
-           name="Regulierung des Kohlenhydratstoffwechsels, Basisprogramm" 
+           name="Regulation des Kohlenhydratstoffwechsels, Basisprogramm" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="7cd60caf-6804-452e-9924-bf24713926ec"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="ceb17e3a-4f6d-4ed4-b102-db3cebae6981"  
            nameRussian="Регуляция и очистка  почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -10116,7 +10116,7 @@
 
            <Program uuid="e88ecd71-8399-4b7d-96f2-f0ec51b4f8e5"  
            nameRussian="Антистресс (регуляция сна) "  
-           name="Anti-Stress (Schlafregulierung)" 
+           name="Anti-Stress (SchlafRegulation)" 
            descriptionRussian=""  
            description=""  
            />
@@ -10158,7 +10158,7 @@
        >
            <Program uuid="471e8745-22db-4ec4-ba8e-ddf740a67d92"  
            nameRussian="Регуляция и очистка лимфатической системы"  
-           name="Regulierung und Entgiftung des limphatischen Systems" 
+           name="Regulation und Entgiftung des limphatischen Systems" 
            descriptionRussian=""  
            description=""  
            />
@@ -10193,7 +10193,7 @@
 
            <Program uuid="b696feab-ea6e-4d20-a228-ac56de642615"  
            nameRussian="Регуляция ЖКТ "  
-           name="Magen-Darm-Trakt - Regulierung" 
+           name="Magen-Darm-Trakt - Regulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -10222,20 +10222,20 @@
        </Complex>
        <Complex uuid="cee532cd-31bf-4322-a234-bce2f88ee80f"  
        nameRussian="Сердце регуляция"  
-       name="Regulierung der Herzfunktion" 
+       name="Regulation der Herzfunktion" 
        descriptionRussian=""  
        description=""  
        >
            <Program uuid="294bb3e5-adc2-4bce-9edd-021d4ca1cbd6"  
            nameRussian="Сердце, регуляция"  
-           name="Regulierung der Herzfunktion" 
+           name="Regulation der Herzfunktion" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="f46b2cb6-2541-4082-92b3-e9fea414e1d3"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
@@ -10291,7 +10291,7 @@
        >
            <Program uuid="f51b1f83-0917-43e7-a750-7ca9b0632b05"  
            nameRussian="Регуляция и очистка почек "  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
@@ -10312,7 +10312,7 @@
 
            <Program uuid="b229a565-159c-46b2-b673-fd20109cfcdd"  
            nameRussian="Регуляция эндокринной системы"  
-           name="Regulierung des Hormonsystems" 
+           name="Regulation des Hormonsystems" 
            descriptionRussian=""  
            description=""  
            />
@@ -10438,7 +10438,7 @@
 
            <Program uuid="466cc928-9d44-4529-b8d4-c127a8ce7b6e"  
            nameRussian="Регуляция кровообращения"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
@@ -10473,28 +10473,28 @@
 
            <Program uuid="4af32232-de54-4b2c-908f-a4080bc5302f"  
            nameRussian="Регуляция желудочно-кишечного тракта (спец.)"  
-           name="Regulierung des Magen-Darm-Trakts (spezielles Programm)" 
+           name="Regulation des Magen-Darm-Trakts (spezielles Programm)" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="933aaa2b-dde1-4f98-a049-37ad67e4a581"  
            nameRussian="Регуляция кровообращения ( спец.)"  
-           name="Regulierung des Blutkreislaufs (spezielles Programm)" 
+           name="Regulation des Blutkreislaufs (spezielles Programm)" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="0de6a05e-d493-4427-9a33-d76c636e5fa5"  
            nameRussian="Регуляция мужской мочеполовой системы"  
-           name="Regulierung des maennlichen Harn- und GeschlechtsApparats" 
+           name="Regulation des maennlichen Harn- und GeschlechtsApparats" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="2bb322e5-ab4e-4646-ac88-a09cd7712a0c"  
            nameRussian="Регуляция эндокринной системы"  
-           name="Regulierung des Hormonsystems" 
+           name="Regulation des Hormonsystems" 
            descriptionRussian=""  
            description=""  
            />
@@ -10529,28 +10529,28 @@
 
            <Program uuid="93338420-c075-4172-a870-5c687dfe3b88"  
            nameRussian="Регуляция желудочно-кишечного тракта (спец.)"  
-           name="Regulierung des Magen-Darm-Trakts (spezielles Programm)" 
+           name="Regulation des Magen-Darm-Trakts (spezielles Programm)" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="bc1afced-9773-47ba-af26-4d86c9677938"  
            nameRussian="Регуляция кровообращения ( спец.)"  
-           name="Regulierung des Blutkreislaufs (spezielles Programm)" 
+           name="Regulation des Blutkreislaufs (spezielles Programm)" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="9b5a5fea-ed5f-42d3-b005-fe6195c9d66d"  
            nameRussian="Регуляция женской мочеполовой системы"  
-           name="Regulierung des weiblichen Harn- und GeschlechtsApparats" 
+           name="Regulation des weiblichen Harn- und GeschlechtsApparats" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="9124760c-1dc4-4c86-8959-825d06e9edc4"  
            nameRussian="Регуляция эндокринной системы"  
-           name="Regulierung des Hormonsystems" 
+           name="Regulation des Hormonsystems" 
            descriptionRussian=""  
            description=""  
            />
@@ -10606,14 +10606,14 @@
 
            <Program uuid="a8f03abe-b7c5-41fe-bfb8-cc748fa3a811"  
            nameRussian="Регуляция мужской мочеполовой системы (спец)"  
-           name="Regulierung des maennlichen Harn- und GeschlechtsApparats (spezielles Programm)" 
+           name="Regulation des maennlichen Harn- und GeschlechtsApparats (spezielles Programm)" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="ff2d5fa9-0629-4f59-b420-4ba7e1067f4f"  
            nameRussian="Регуляция предст.железы, мочевого пузыря "  
-           name="Regulierung - Prostata, Harnblase" 
+           name="Regulation - Prostata, Harnblase" 
            descriptionRussian=""  
            description=""  
            />
@@ -10634,7 +10634,7 @@
 
            <Program uuid="605d6ad6-91a0-4a56-82c3-a34fd67e2a53"  
            nameRussian="Регуляция кровообращения (спец.)"  
-           name="Regulierung des Blutkreislaufs (spezielles Programm)" 
+           name="Regulation des Blutkreislaufs (spezielles Programm)" 
            descriptionRussian=""  
            description=""  
            />
@@ -10760,7 +10760,7 @@
 
            <Program uuid="9f3fb549-95d3-4e90-b949-f3f92dd540fd"  
            nameRussian="Регуляция мышц глаз"  
-           name="Regulierung der Augenmuskeln" 
+           name="Regulation der Augenmuskeln" 
            descriptionRussian=""  
            description=""  
            />
@@ -10795,7 +10795,7 @@
 
            <Program uuid="f11cb2c9-8f86-4bab-b67c-3c208403c2de"  
            nameRussian="Регуляция ЖКТ спец."  
-           name="Magen-Darm-Trakt - Regulierung - spezielles Programm" 
+           name="Magen-Darm-Trakt - Regulation - spezielles Programm" 
            descriptionRussian=""  
            description=""  
            />
@@ -10816,21 +10816,21 @@
 
            <Program uuid="c0963eb9-0af6-4e5c-a099-45a452cffb7c"  
            nameRussian="Регуляция и очистка почек"  
-           name="Regulierung und Entgiftung der Nieren" 
+           name="Regulation und Entgiftung der Nieren" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="c0fda7f3-a5a4-4148-b7d1-3b5182508446"  
            nameRussian="Регуляция и очистка лимфатической системы"  
-           name="Regulierung und Entgiftung des limphatischen Systems" 
+           name="Regulation und Entgiftung des limphatischen Systems" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="bc24df76-8ac3-464a-bdbb-1040059a6d08"  
            nameRussian="Регуляция эндокринной системы"  
-           name="Regulierung des Hormonsystems" 
+           name="Regulation des Hormonsystems" 
            descriptionRussian=""  
            description=""  
            />
@@ -11859,7 +11859,7 @@
 
            <Program uuid="06d82eed-52f6-42ed-9e85-bac46119b350"  
            nameRussian="Регул.кровообращ"  
-           name="Regulierung des Blutkreislaufs" 
+           name="Regulation des Blutkreislaufs" 
            descriptionRussian=""  
            description=""  
            />
@@ -11880,7 +11880,7 @@
 
            <Program uuid="c4fa2df9-5e55-4686-84fa-4711a3259dd7"  
            nameRussian="Регул.энд.систем"  
-           name="Regulierung des Hormonsystems" 
+           name="Regulation des Hormonsystems" 
            descriptionRussian=""  
            description=""  
            />
@@ -11985,7 +11985,7 @@
 
            <Program uuid="af429923-eaf1-4fe5-9b1c-5cfe6236b804"  
            nameRussian="Сердце, регуляц"  
-           name="Regulierung der Herzfunktion" 
+           name="Regulation der Herzfunktion" 
            descriptionRussian=""  
            description=""  
            />
@@ -12090,7 +12090,7 @@
 
            <Program uuid="f4104360-d066-40f2-b1ff-ec9cb29c237b"  
            nameRussian="Регуляция КЩР"  
-           name="Regulierung des Saeure-Basen-Haushalts" 
+           name="Regulation des Saeure-Basen-Haushalts" 
            descriptionRussian=""  
            description=""  
            />
@@ -12699,7 +12699,7 @@
 
            <Program uuid="844851b7-5df2-48f5-9f0b-c5c214200711"  
            nameRussian="Юкстагломер. рег"  
-           name="Regulierung des juxtaglomerulaeren Apparats" 
+           name="Regulation des juxtaglomerulaeren Apparats" 
            descriptionRussian=""  
            description=""  
            />
@@ -12923,7 +12923,7 @@
 
            <Program uuid="c93aa09b-bc38-453a-aae1-02d6baa8ade3"  
            nameRussian="Регуляция КЩР"  
-           name="Regulierung des Saeure-Basen-Haushalts" 
+           name="Regulation des Saeure-Basen-Haushalts" 
            descriptionRussian=""  
            description=""  
            />
@@ -13154,7 +13154,7 @@
 
            <Program uuid="2bfecf12-a912-4e4d-af00-3a220537c06b"  
            nameRussian="Секс.регул.мужч"  
-           name="sexuelle Regulierung Mann" 
+           name="sexuelle Regulation Mann" 
            descriptionRussian=""  
            description=""  
            />
@@ -13168,7 +13168,7 @@
 
            <Program uuid="c43675df-88de-4501-9fd0-e9a62435baad"  
            nameRussian="Регуляция КЩР"  
-           name="Regulierung des Saeure-Basen-Haushalts" 
+           name="Regulation des Saeure-Basen-Haushalts" 
            descriptionRussian=""  
            description=""  
            />
@@ -13217,7 +13217,7 @@
 
            <Program uuid="d57c1803-e506-4dfe-abee-e14d6931821d"  
            nameRussian="Регуляция ЖКТ"  
-           name="Magen-Darm-Trakt - Regulierung" 
+           name="Magen-Darm-Trakt - Regulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -13287,7 +13287,7 @@
 
            <Program uuid="1e7a2d11-40d0-4c34-9694-7d5366fd217b"  
            nameRussian="Регуляция сердца"  
-           name="Herz-Regulierung" 
+           name="Herz-Regulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -13392,7 +13392,7 @@
 
            <Program uuid="38ad7f4d-807b-48d7-a886-325bb32ee09f"  
            nameRussian="Регуляция сердца"  
-           name="Regulierung des Herzens" 
+           name="Regulation des Herzens" 
            descriptionRussian=""  
            description=""  
            />
@@ -13574,7 +13574,7 @@
 
            <Program uuid="d61d72fc-2ebb-4536-a496-131323de2204"  
            nameRussian="Секс.регул.женщ."  
-           name="sexuelle Regulierung Frau" 
+           name="sexuelle Regulation Frau" 
            descriptionRussian=""  
            description=""  
            />
@@ -13595,7 +13595,7 @@
 
            <Program uuid="09863898-657f-48c0-96df-114f3850d7c2"  
            nameRussian="Регул.энд.систем"  
-           name="Regulierung des Hormonsystems" 
+           name="Regulation des Hormonsystems" 
            descriptionRussian=""  
            description=""  
            />
@@ -13679,7 +13679,7 @@
 
            <Program uuid="5d06f51e-2f89-43e2-a847-2f1b82f95ecf"  
            nameRussian="Секс.регул.мужч"  
-           name="sexuelle Regulierung Mann" 
+           name="sexuelle Regulation Mann" 
            descriptionRussian=""  
            description=""  
            />
@@ -13952,7 +13952,7 @@
 
            <Program uuid="e318ed6d-1106-44f6-bae7-9d220c96dccc"  
            nameRussian="Регуляция ЖКТ"  
-           name="Magen-Darm-Trakt - Regulierung" 
+           name="Magen-Darm-Trakt - Regulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -14022,7 +14022,7 @@
 
            <Program uuid="db07f003-7a56-4a47-900a-13549dccb630"  
            nameRussian="Регул.энд.систем"  
-           name="Regulierung des Hormonsystems" 
+           name="Regulation des Hormonsystems" 
            descriptionRussian=""  
            description=""  
            />
@@ -14071,7 +14071,7 @@
 
            <Program uuid="74e33f12-6d0c-4f7b-a80f-19230d8b24f8"  
            nameRussian="Регуляция КЩР"  
-           name="Regulierung des Saeure-Basen-Haushalts" 
+           name="Regulation des Saeure-Basen-Haushalts" 
            descriptionRussian=""  
            description=""  
            />
@@ -14337,7 +14337,7 @@
 
            <Program uuid="6c0649b2-8378-46ad-8dbe-b6e2883d8545"  
            nameRussian="Регуляция КЩР"  
-           name="Regulierung des Saeure-Basen-Haushalts" 
+           name="Regulation des Saeure-Basen-Haushalts" 
            descriptionRussian=""  
            description=""  
            />
@@ -14351,7 +14351,7 @@
 
            <Program uuid="5f1f811a-af48-4baa-87d5-d040faf4c03e"  
            nameRussian="Регуляция ЖКТ-1"  
-           name="Magen-Darm-Trakt - Regulierung 1" 
+           name="Magen-Darm-Trakt - Regulation 1" 
            descriptionRussian=""  
            description=""  
            />
@@ -14743,7 +14743,7 @@
 
            <Program uuid="f6c62f81-74de-497c-84a1-5fe8eddd0314"  
            nameRussian="Регуляция КЩР"  
-           name="Regulierung des Saeure-Basen-Haushalts" 
+           name="Regulation des Saeure-Basen-Haushalts" 
            descriptionRussian=""  
            description=""  
            />
@@ -14827,7 +14827,7 @@
 
            <Program uuid="a79fd65f-8b51-4c5b-acc8-5fedfa8eddf5"  
            nameRussian="Регул.энд.систем"  
-           name="Regulierung des Hormonsystems" 
+           name="Regulation des Hormonsystems" 
            descriptionRussian=""  
            description=""  
            />
@@ -15149,7 +15149,7 @@
 
            <Program uuid="8a7073d8-2142-4616-8344-c5a8a8656a8a"  
            nameRussian="Регуляция КЩР"  
-           name="Regulierung des Saeure-Basen-Haushalts" 
+           name="Regulation des Saeure-Basen-Haushalts" 
            descriptionRussian=""  
            description=""  
            />
@@ -15786,7 +15786,7 @@
 
            <Program uuid="6bca85c8-f49f-497f-b51a-047fe1420adf"  
            nameRussian="Кожа, регуляция"  
-           name="Regulierung der Haut" 
+           name="Regulation der Haut" 
            descriptionRussian=""  
            description=""  
            />
@@ -16255,7 +16255,7 @@
 
            <Program uuid="380d081f-cc20-425b-a126-e2273c947751"  
            nameRussian="Регуляция ЖКТ"  
-           name="Magen-Darm-Trakt - Regulierung" 
+           name="Magen-Darm-Trakt - Regulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -16367,7 +16367,7 @@
 
            <Program uuid="267cb9fe-7f4e-48f7-acd8-890d50ebbc33"  
            nameRussian="Сон - регуляция"  
-           name="Schlaf - Regulierung" 
+           name="Schlaf - Regulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -16423,7 +16423,7 @@
 
            <Program uuid="52797402-6ccb-4587-b8c5-5724fe444c50"  
            nameRussian="Регуляция сердца"  
-           name="Regulierung der Herzfunktion" 
+           name="Regulation der Herzfunktion" 
            descriptionRussian=""  
            description=""  
            />
@@ -16542,7 +16542,7 @@
 
            <Program uuid="3da0825f-5d86-4b79-b3a8-8267e9272c35"  
            nameRussian="Регуляция сердца"  
-           name="Regulierung der Herzfunktion" 
+           name="Regulation der Herzfunktion" 
            descriptionRussian=""  
            description=""  
            />
@@ -16556,7 +16556,7 @@
 
            <Program uuid="8bd957cd-b914-41b6-8c32-cee018ffb18d"  
            nameRussian="Регуляция ЖКТ"  
-           name="Magen-Darm-Trakt - Regulierung" 
+           name="Magen-Darm-Trakt - Regulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -16619,7 +16619,7 @@
 
            <Program uuid="bf495648-ac2b-408e-9fd4-9fb418d4cfe3"  
            nameRussian="Регуляция КЩР"  
-           name="Regulierung des Saeure-Basen-Haushalts" 
+           name="Regulation des Saeure-Basen-Haushalts" 
            descriptionRussian=""  
            description=""  
            />
@@ -16724,7 +16724,7 @@
 
            <Program uuid="dd147b57-cd9b-4744-adc2-f8676f7e07ca"  
            nameRussian="Регуляция ЖКТ-1"  
-           name="Magen-Darm-Trakt - Regulierung 1" 
+           name="Magen-Darm-Trakt - Regulation 1" 
            descriptionRussian=""  
            description=""  
            />
@@ -16794,7 +16794,7 @@
 
            <Program uuid="334da376-e6e8-4704-9c1b-93b8d2f40bc1"  
            nameRussian="Регуляция ЖКТ"  
-           name="Magen-Darm-Trakt - Regulierung" 
+           name="Magen-Darm-Trakt - Regulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -16913,7 +16913,7 @@
 
            <Program uuid="60db00be-9a04-4c59-8688-9fa48f7b64c6"  
            nameRussian="Сетчатка регуляц"  
-           name="Regulierung der Netzhaut" 
+           name="Regulation der Netzhaut" 
            descriptionRussian=""  
            description=""  
            />
@@ -17081,7 +17081,7 @@
 
            <Program uuid="9aba8b02-3fc9-41b1-960a-20aeb565a56c"  
            nameRussian="Регуляция ЖКТ"  
-           name="Magen-Darm-Trakt - Regulierung" 
+           name="Magen-Darm-Trakt - Regulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -17151,7 +17151,7 @@
 
            <Program uuid="30da028b-76fa-4175-9338-5192a3e2a81d"  
            nameRussian="Регуляция сердца"  
-           name="Regulierung der Herzfunktion" 
+           name="Regulation der Herzfunktion" 
            descriptionRussian=""  
            description=""  
            />
@@ -17179,7 +17179,7 @@
 
            <Program uuid="3f164008-8d4e-42b3-a41b-3064d58bf143"  
            nameRussian="Регул.кровообращ"  
-           name="Blutkreislauf - Regulierung" 
+           name="Blutkreislauf - Regulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -17235,7 +17235,7 @@
 
            <Program uuid="778a39db-4e7e-4e75-8e41-cd92e4a45b69"  
            nameRussian="Регул.энд.систем"  
-           name="Endokrines System - Regulierung" 
+           name="Endokrines System - Regulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -17480,7 +17480,7 @@
 
            <Program uuid="5022d3ad-9b1c-4f22-bf62-323fa749530b"  
            nameRussian="Регуляция КЩР"  
-           name="Regulierung des Saeure-Basen-Haushalts" 
+           name="Regulation des Saeure-Basen-Haushalts" 
            descriptionRussian=""  
            description=""  
            />
@@ -17578,7 +17578,7 @@
 
            <Program uuid="45548da1-8070-4129-aa7a-346b7f6022b1"  
            nameRussian="Регуляция ЖКТ"  
-           name="Magen-Darm-Trakt - Regulierung" 
+           name="Magen-Darm-Trakt - Regulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -18047,7 +18047,7 @@
 
            <Program uuid="361cc726-ec25-4e8c-8f26-763855aad346"  
            nameRussian="Волосы,регуляция"  
-           name="Regulierung der Haare" 
+           name="Regulation der Haare" 
            descriptionRussian=""  
            description=""  
            />
@@ -19104,7 +19104,7 @@
 
            <Program uuid="20d4dfe4-0424-4357-ad0f-51b0386a36a1"  
            nameRussian="Сон - регуляция-4"  
-           name="Schlafregulierung-4" 
+           name="SchlafRegulation-4" 
            descriptionRussian=""  
            description=""  
            />
@@ -20525,7 +20525,7 @@
 
            <Program uuid="de69efd9-dc0e-4456-84ec-628aa3d13079"  
            nameRussian="Желчь регуляция"  
-           name="Regulierung der Gallenblasefunktion" 
+           name="Regulation der Gallenblasefunktion" 
            descriptionRussian=""  
            description=""  
            />
@@ -20567,7 +20567,7 @@
 
            <Program uuid="7d605972-8300-47e6-bb2b-c9c7f28702a1"  
            nameRussian="Желчь, регуляция"  
-           name="Regulierung der Gallenblasefunktion" 
+           name="Regulation der Gallenblasefunktion" 
            descriptionRussian=""  
            description=""  
            />
@@ -21414,7 +21414,7 @@
 
            <Program uuid="e8b90d42-491c-404a-ba72-9fc0d8f2decd"  
            nameRussian="Волосы регуляция"  
-           name="Haarregulierung" 
+           name="HaarRegulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -21512,7 +21512,7 @@
 
            <Program uuid="2fe7a52d-4253-4799-b67e-9a1b17e2fead"  
            nameRussian="Кожа, регуляция"  
-           name="Regulierung der Haut" 
+           name="Regulation der Haut" 
            descriptionRussian=""  
            description=""  
            />
@@ -22170,7 +22170,7 @@
 
            <Program uuid="3f5928fa-3f5d-4824-9ed2-66510520fbea"  
            nameRussian="Регуляция сердца-1"  
-           name="Regulierung der Herzfunktion-1" 
+           name="Regulation der Herzfunktion-1" 
            descriptionRussian=""  
            description=""  
            />
@@ -22478,7 +22478,7 @@
 
            <Program uuid="a713cc3e-4a0f-447f-ad6c-458690afccfb"  
            nameRussian="Сердце, регуляц"  
-           name="Regulierung der Herzfunktion" 
+           name="Regulation der Herzfunktion" 
            descriptionRussian=""  
            description=""  
            />
@@ -24193,7 +24193,7 @@
 
            <Program uuid="4bc01d24-d488-42b4-8162-ac07e1c0c112"  
            nameRussian="Сон - регуляция"  
-           name="Schlafregulierung" 
+           name="SchlafRegulation" 
            descriptionRussian=""  
            description=""  
            />
@@ -24984,14 +24984,14 @@
 
            <Program uuid="804cdcae-38b6-49d5-902d-4e9a1655ae22"  
            nameRussian="Управ.лимфосис.1"  
-           name="Regulierung des lymphatischen Systems 1" 
+           name="Regulation des lymphatischen Systems 1" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="d8ec2274-d095-4cd7-8879-f9fdc3ca2afd"  
            nameRussian="Управ.лимфосис.2-2"  
-           name="Regulierung des lymphatischen Systems 2-2" 
+           name="Regulation des lymphatischen Systems 2-2" 
            descriptionRussian=""  
            description=""  
            />
@@ -25180,7 +25180,7 @@
 
            <Program uuid="ad8e3bba-1765-47d4-b62e-cdeba9b138de"  
            nameRussian="Сетчатка регуляц"  
-           name="Regulierung der Netzhaut" 
+           name="Regulation der Netzhaut" 
            descriptionRussian=""  
            description=""  
            />
@@ -25677,7 +25677,7 @@
 
            <Program uuid="24fee79c-e4e1-4e0b-9668-d13201b1382c"  
            nameRussian="Сон - регуляция-2"  
-           name="Schlafregulierung-2" 
+           name="SchlafRegulation-2" 
            descriptionRussian=""  
            description=""  
            />
@@ -26426,14 +26426,14 @@
 
            <Program uuid="e4348f4e-7c57-434c-986b-7f28e64a8691"  
            nameRussian="Секс.регул.женщ."  
-           name="sexuelle Regulierung-Frau" 
+           name="sexuelle Regulation-Frau" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="68533002-5149-4540-b8cc-2a6101bb75fd"  
            nameRussian="Секс.регул.мужч"  
-           name="sexuelle Regulierung-Mann" 
+           name="sexuelle Regulation-Mann" 
            descriptionRussian=""  
            description=""  
            />
@@ -26888,7 +26888,7 @@
 
            <Program uuid="67931433-93c1-4976-a3ec-2e58a5891204"  
            nameRussian="Сон - регуляция-3"  
-           name="Schlafregulierung-3" 
+           name="SchlafRegulation-3" 
            descriptionRussian=""  
            description=""  
            />
@@ -27784,7 +27784,7 @@
 
            <Program uuid="9a6af631-8a61-42de-a32e-a3e024e156f0"  
            nameRussian="Юкстагломер. рег"  
-           name="Regulierung des juxtaglomerulaeren Apparats" 
+           name="Regulation des juxtaglomerulaeren Apparats" 
            descriptionRussian=""  
            description=""  
            />
@@ -29044,7 +29044,7 @@
 
            <Program uuid="c8d9e79b-5ce9-4f89-9aa2-af0cb739ef51"  
            nameRussian="Рост - регуляция"  
-           name="Regulierung des Wachstums" 
+           name="Regulation des Wachstums" 
            descriptionRussian=""  
            description=""  
            />
@@ -29492,7 +29492,7 @@
 
            <Program uuid="5f40f8e4-7899-4840-9bfd-b862eefb5af7"  
            nameRussian="Регуляция КЩР"  
-           name="Regulierung des Saeure-Basen-Haushalts" 
+           name="Regulation des Saeure-Basen-Haushalts" 
            descriptionRussian=""  
            description=""  
            />
@@ -29527,14 +29527,14 @@
 
            <Program uuid="8f2150d8-a906-4d06-9ba2-cead821a13e8"  
            nameRussian="Регуляция ЖКТ-1"  
-           name="Regulierung des Magen-Darm-Traktes 1" 
+           name="Regulation des Magen-Darm-Traktes 1" 
            descriptionRussian=""  
            description=""  
            />
 
            <Program uuid="69d28a28-e5e7-47b9-b376-5b9cbd2fa634"  
            nameRussian="Регуляция ЮГ апп"  
-           name="Regulierung des juxtaglomerulaeren Apparats" 
+           name="Regulation des juxtaglomerulaeren Apparats" 
            descriptionRussian=""  
            description=""  
            />
@@ -31256,7 +31256,7 @@
 
            <Program uuid="69f64db4-cda3-4a71-b386-7d5a37b2dcaf"  
            nameRussian="Регуляция ЖКТ"  
-           name="Regulierung des Magen-Darm-Traktes" 
+           name="Regulation des Magen-Darm-Traktes" 
            descriptionRussian=""  
            description=""  
            />
@@ -39901,7 +39901,7 @@
 
            <Program uuid="39178eed-5db3-4d83-8e6d-86574af1e434"  
            nameRussian="Регул.энд.систем"  
-           name="Regulierung des Hormonsystems" 
+           name="Regulation des Hormonsystems" 
            descriptionRussian=""  
            description=""  
            />
@@ -40554,7 +40554,7 @@
    </Complex>
    <Complex uuid="67d79b66-f1bb-4cae-b5dc-dca96fd9b4c2"  
    nameRussian="Измененные состояния сознания"  
-   name="aenderungen im Bewusstseinszustand" 
+   name="Aenderungen im Bewusstseinszustand" 
    descriptionRussian=""  
    description=""  
    >
@@ -40694,13 +40694,13 @@
    </Complex>
    <Complex uuid="bb6afdbc-229a-4afd-b6ba-9349136786d8"  
    nameRussian="Тета релакс вдохновение"  
-   name="Teta relax - dient der Inspiration" 
+   name="Theta relax - dient der Inspiration" 
    descriptionRussian=""  
    description=""  
    >
        <Program uuid="bac6401e-6366-4818-a1ac-1d8a378f9c27"  
        nameRussian="Тета релакс вдохновение"  
-       name="Teta relax - dient der Inspiration" 
+       name="Theta relax - dient der Inspiration" 
        descriptionRussian=""  
        description=""  
        />
@@ -40708,13 +40708,13 @@
    </Complex>
    <Complex uuid="562387a0-bc40-40fc-ae69-2564c63a99b4"  
    nameRussian="Тета релакс пробуждение сознания"  
-   name="Teta relax - Bewusstsein erwecken" 
+   name="Theta relax - Bewusstsein erwecken" 
    descriptionRussian=""  
    description=""  
    >
        <Program uuid="fbdcbb47-a935-4853-bd0f-681752e82683"  
        nameRussian="Тета релакс пробуждение сознания"  
-       name="Teta relax - Bewusstsein erwecken" 
+       name="Theta relax - Bewusstsein erwecken" 
        descriptionRussian=""  
        description=""  
        />
@@ -40752,11 +40752,11 @@
    nameRussian="Альфа-ритм Режим 4"  
    name="Alpha-Wellen - Kur 4" 
    descriptionRussian="Альфа-ритм с частотами в диапазоне 75 –135 Гц характеризуется состоянием расслабленности и интеллектуальным спокойствием Он возникает при закрывании глаз и связан с чувством приятного покоя С альфа-ритмом связано начало медитативного расслабления Длительность программы 20 минут время на частоту 30 секунд "  
-   description=""  
+   description="Die Alpha-Wellen im Frequenzbereich von 75-135 Hz zeichnen sich durch einen Zustand der Entspannung und intellektuellen Ruhe aus. Sie entsteht wenn die Augen geschlossen sind und sind mit einem angenehmen Ruhegefühl und einer meditativen Entspannung verbunden. Die Programmdauer beträgt 20 Minuten, bei einer Frequenzdauer von 30 Sekunden."  
    >
        <Program uuid="989bf740-d115-4fc0-8196-2cee1a4ba7d8"  
        nameRussian="Альфа-ритм(Р1)"  
-       name="Alpha-Rhythmus (P1)" 
+       name="Alpha-Wellen (P1)" 
        descriptionRussian=""  
        description=""  
        />
@@ -40766,7 +40766,7 @@
    nameRussian="Бета-ритм Режим 4"  
    name="Beta-Wellen - Kur 4" 
    descriptionRussian="Бета-ритм находится в диапазоне  14 – 30 Гц Он характерен для концентрации направленной вовне и бодрствующего готового к тревоге состояния Логическое мышление интеллектуальная деятельность и напряженная работа также являются выражением бета-ритма как и чувства беспокойства и состояния близкие к состояниям страха Часть бета-волн связана с усиленным выбросом гормонов стресса адреналин норадреналин Длительность программы 30 минут время на частоту 30 секунд"  
-   description=""  
+   description="Die Frequenz der Beta-Wellen liegt im Bereich von 14-30 Hz. Diese sind charakteristisch für äußere Konzentration und wache Alarmbereitschaft. Logisches Denken, intellektuelle Aktivität und harte Arbeit sind auch eine Äußerung des Beta-Rhythmus, dies gilt auch für Angstgefühle und Angstzustände. Ein Teil der Beta-Wellen ist mit erhöhter Freisetzung von Stresshormonen Adrenalin und Noradrenalin verbunden. Die Programmdauer beträgt 30 Minuten, bei einer Frequenzdauer von 30 Sekunden."  
    >
        <Program uuid="8d06ebd4-0775-4fcd-b93a-65cc3cd41e49"  
        nameRussian="Бета-ритм (Р2)"  
@@ -40780,7 +40780,7 @@
    nameRussian="Тета-ритм Режим 4"  
    name="Theta-Wellen - Kur 4" 
    descriptionRussian="Тета-ритм в частотном диапазоне 4 – 7 Гц отвечает за определенные фазы сна и за глубокую медитацию На передний план выходит активизация более глубоких слоев сознания Активизируется воображение образная память и интуиция  отсутствует фильтр аналитического мышления У детей регистрируется большая составляющая тета-ритма"  
-   description=""  
+   description="Die Theta-Wellen im Frequenzbereich von 4-7 Hz sind verantwortlich für bestimmte Phasen des Schlafes und für tiefe Meditation. Dabei kommt es zur Aktivierung der tieferen Bewusstseinsschichten. Es werde außerdem bildhafte Erinnerungen und Intuition aktiviert. Es fehlt der Filter des analytischen Denkens. Bei Kindern kann ein großer Schlafanteil der Theta-Wellen registriert werden. "  
    >
        <Program uuid="01463683-9832-4eb8-9243-b47fa5194a1b"  
        nameRussian="Тета-ритм (Р3)"  
@@ -40794,7 +40794,7 @@
    nameRussian="Дельта-ритм Режим 4"  
    name="Delta-Wellen - Kur 4" 
    descriptionRussian="Дельта-ритм находится в диапазоне 05 – 35 Гц Эти частоты характерны для глубокого сна без сновидений для состояния транса и глубокого гипноза В состоянии бодрствования они регистрируются очень редко Дельта-ритм имеет большое значение для процессов выздоровления восстановления а также для неповрежденной иммунной системы Длительность программы 20 минут время на частоту 30 секунд"  
-   description=""  
+   description="Die Frequenz der Delta-Wellen liegt im Bereich von 05-35 Hz. Diese Frequenzen sind charakteristisch für den Tiefschlaf ohne Träume, den Trancezustand und die tiefe Hypnose. Im Wachzustand werden sie sehr selten aufgezeichnet. Die Delta-Wellen sind wichtig für Erholungsprozesse und auch für ein intaktes Immunsystem. Die Programmdauer beträgt 20 Minuten, bei einer Frequenzdauer von 30 Sekunden."  
    >
        <Program uuid="a3806a37-65fa-44a1-b1e6-ef060e426179"  
        nameRussian="Дельта-ритм (Р4)"  
@@ -40808,7 +40808,7 @@
    nameRussian="Программа покоя Режим 4"  
    name="Programm fuer innere Ruhe - Kur 4" 
    descriptionRussian="Программа покоя общеукрепляющая программа применяется для глубокого внутреннего расслабления и для стабилизации иммунной системы Показания – состояния беспокойства нервозность – конфликтные стрессовые ситуации в семье школе психологические конфликты со сверстниками учителями родителями – астено-невротический синдром у детей и подростков раздражительность плаксивость эмоциональная лабильность – вегето-сосудистая  дистония пубертатного периода – фобии – психосоматические нарушения у детей и подростков дискинезии желчных путей язвенная болезнь желудка и 12-перстной кишки бронхиальная астма – вегето-висцеральные пароксизмы – нарушения процесса засыпания и сна беспокойный поверхностный сон частые пробуждения кошмарные сновидения снохождение и сноговорение – повышенное количество холестерина триглицеридов и гамма — GT – состояния напряжения плечевого пояса и позвоночника Противопоказаний нет На курс 8 – 10 сеансов которые проводятся один раз в неделю"  
-   description=""  
+   description="Das Restaurations- und Ruheprogramm wird für eine tiefe innere Entspannung und die Stabilisierung des Immunsystems verwendet. Bei folgender Symptomatik kommt dieses Programm infrage: Angstzustände und Nervosität; vermehrte Konflikt- und Stresssituationen in der Familie oder in der Schule, erhöhte Anzahl von psychologischen Konflikten mit Mitschülern, Lehrern und Eltern; Neurasthenie bei Kindern und Jugendlichen, die sich in Reizbarkeit, Weinerlichkeit und emotionaler Labilität äußert; während der Pubertät auftretende vegetative Dystonie; verschiedene Phobien; psychosomatische Störungen bei Kindern und Jugendlichen die sich in Gallenwegdyskinesie, Magengeschwüren, 12-Zwölffingerdarmgeschwüren und Asthma äußern; vegetativ-viszerale Anfälle; Probleme beim Einschlafen und Schlaf wie unruhiger Schlaf, häufige Alpträume, Schlafwandeln und Somniloquie; erhöhter Cholesterin und Triglyzerid; Spannung des Schultergürtels und der Wirbelsäule. Es gibt keine Gegenanzeigen. Der Behandlungskurs besteht aus 8 - 10 Sitzungen, die einmal pro Woche stattfinden."  
    >
        <Program uuid="2a5fd5e4-0d2c-44f1-8b66-6ad70f926916"  
        nameRussian="Программа покоя (Р5)"  
@@ -40822,7 +40822,7 @@
    nameRussian="Программа сна  Режим 4"  
    name="Schlafprogramm - Kur 4" 
    descriptionRussian="Для проведения сеанса необходимо  – исключить прием возбуждающих веществ алкоголь наркотики тяжелая пища – устранить раздражающее влияние искусственного света Программа используется для быстрого успокоения пациента Показания – бессонница – нарушения процесса засыпания и сна беспокойный поверхностный сон частые пробуждения кошмарные сновидения снохождение и сноговорение – все состояния беспокойства которые сопровождаются нарушением сна или не могут быть убраны применением программы покоя"  
-   description=""  
+   description="Folgendes sollte vor der Behandlung beachtet werden: Die Einnahme von erregenden Substanzen wie Alkohol und Drogen sowie von schwerer Nahrung vermeiden; reizende Wirkung des künstlichen Lichts beseitigen. Das Programm wird verwendet, um den Patienten schnell zu beruhigen. Programm wirkt auf folgende Symptomatik: Schlaflosigkeit, Probleme beim Einschlafen und Schlafen, unruhiger Schlaf, häufiges Erwachen, Alpträume, Schlafwandeln und Somniloquie, sowie alle Angstzustände die zu Schlafstörung führen können und die durch die Anwendung eines Ruheprogramms nicht behandelt werden können."  
    >
        <Program uuid="571723de-e2a2-46c7-96cb-726fb1bd99f5"  
        nameRussian="Программа сна (Р6)"  
@@ -40836,7 +40836,7 @@
    nameRussian="Детская программа Режим 4"  
    name="Programm fuer Kinder - Kur 4" 
    descriptionRussian="Детская программа используется для синхронизации ритмов головного мозга для психической стабилизации отягощенного детского подсознания Показания – детские страхи – лимфатический диатез со всеми его последствиями рецидивирующие синуситы бронхиты тонзиллиты и тд – неврозоподобный синдром ночное недержание мочи тики логоневроз – трудности с обучением трудное запоминание снижение памяти – нарушение концентрации внимания – повышенная утомляемость сниженная работоспособность – аллергии снижение активности иммунной системы – в качестве вспомогательного средства при детских нарушениях речи – подросткам если психологически значимые проблемы и различные нарушения эмоционально-волевой сферы как основа их сегодняшнего заболевания лежит в детстве так называемые «трудные дети» агрессивность замкнутость ребенка нарушение поведенческих реакций конфликты со сверстниками учителями родителями – головная боль и головокружение различной этиологии в детском и подростковом возрасте последствия сотрясения головного мозга перенесенные нейроинфекции вегетативно-сосудистая дистония – минимальная мозговая дисфункция Длительность программы 37 минут время на частоту 30 секунд"  
-   description=""  
+   description="Das Kinderprogramm wird fuer die Synchronisation der Gehirnrhythmen und fuer die psychische Stabilisierung des belasteten Kinder-Unterbewusstseins verwendet. Verwendet bei: Kinderaengste - lymphatische Diathese mit all ihren Folgen - rezidivierende Sinusitis, Bronchitis, Mandelentzuendung, usw. - Neurose - naechtliche Harninkontinenz - Stottern - Tics – Lernschwierigkeiten, schwaches Erinnerungsvermoegen und Gedaechtnis - Konzentrationsstoerungen - erhoehte Muedigkeit und verringerte Leistung – Allergien und geschwaechtes Immunsystems – als Hilfsmittel bei Sprachstoerungen bei Kindern – fuer Jugendliche, wenn psychologisch wichtige Probleme und verschiedene Stoerungen der emotionalen und willentlichen Art als die Grundlage ihrer aktuellen Krankheit in der Kindheit liegen, sogenannte schwierige Kinder, Aggression und Verschlossenheit, Verhaltensstoerungen, Konflikte mit Gleichaltrigen, Lehrern und Eltern - Kopfschmerzen und Schwindel verschiedener Aetiologie im Kindes- und Jugendalter - Folgen von Gehirnerschuetterungen sowie von Virusinfektionen des Zentralnervensystems - vegetativen Dystonie – minimale Gehirndysfunktion.  Die Programmdauer betraegt 37 Minuten, bei einer Frequenzdauer von 30 Sekunden."  
    >
        <Program uuid="702155d7-f633-4d64-859d-05607eae82f5"  
        nameRussian="Детская программа (Р7)"  
@@ -40850,7 +40850,7 @@
    nameRussian="Программа стресса 1 Режим 4"  
    name="Programm gegen Stress 1 - Kur 4" 
    descriptionRussian="Предназначена для устранения психических блокад и высвобождения пациента из спирали стресс – болезнь – стресс Показания – состояния психической блокады – конфликтные стрессовые ситуации в семье школе психологические конфликты со сверстниками учителями родителями – состояния беспокойства нервозность – психосоматические нарушения у детей и подростков дискинезия желчных путей язвенная болезнь желудка и 12-перстной кишки бронхиальная астма – ситуационно обусловленные невротические реакции – астено-невротический синдром у детей и подростков раздражительность плаксивость эмоциональная лабильность – неврозоподобный синдром ночное недержание мочи тики логоневроз – детские страхи"  
-   description=""  
+   description="Dieses Programm dient der Beseitigung von mentalen Blockaden zu beseitigen und der Befreiung der Patienten aus der Stress-Erkrankung-Stress-Spirale. Verwendet ei: mentale Blockade - stressige Konfliktsituationen in der Familie und der Schule sowie psychische Konflikte mit Gleichaltrigen, Lehrern und Eltern – Angstzustaende und Nervositaet - psychosomatische Stoerungen bei Kindern und Jugendlichen – Magengeschwuere,  Gallenwegdyskinesie und Zwoelffingerdarmgeschwuere - Asthma bronchiale - situationsbedingte neurotische Reaktionen - Neuroasthenie bei Kindern und Jugendlichen, Reizbarkeit, Weinerlichkeit, emotionale Labilitaet – Neurose – naechtliche Harninkontinenz - Tics - Stottern – Kindheitsaengste."  
    >
        <Program uuid="e1991196-3de9-4490-81d3-a435447fe65a"  
        nameRussian="Программа стресса 1 (Р8)"  
@@ -40864,7 +40864,7 @@
    nameRussian="Программа стресса -2 Режим 4"  
    name="Programm gegen Stress 2 - Kur 4" 
    descriptionRussian="Эта программа оказывает специфическое воздействие на регуляцию иммунологического состояния пациента так как механизмы стресса тесно связаны с иммунной системой Стресс приводит к стойкому сдвигу гормонального баланса и тем самым к постоянному угнетению иммунной системы Следствием являются не только иммуноподавляющие заболевания но и аутоагрессивные заболевания Показания – дегенеративные заболевания связанные с иммунной системой – аллергии различной этиологии – микозы – лимфатический диатез у детей – в профилактических целях для повышения защитных сил в данном случае индукция может проводиться через относительно большие промежутки времени – конфликтные стрессовые ситуации в семье школе психологические конфликты со сверстниками учителями родителями – состояния беспокойства нервозность – психосоматические нарушения у детей и подростков дискинезия желчных путей язвенная болезнь желудка и 12-перстной кишки бронхиальная астма – ситуационно обусловленные невротические реакции – астено-невротический синдром у детей и подростков раздражительность плаксивость эмоциональная лабильность – неврозоподобный синдром ночное недержание мочи тики логоневроз – головная боль и головокружение различной этиологии в детском и подростковом возрасте последствия сотрясения головного мозга перенесенные нейроинфекции вегетативно-сосудистая дистония"  
-   description=""  
+   description="Dieses Programm hat eine spezifische Wirkung auf die Regulation der Immunitaet der Patienten, da die Stressmechanismen eng mit dem Immunsystem verbunden sind. Stress fuehrt zu einer dauerhaften Verschiebung des Hormonhaushaltes und damit zur permanenten Schwaechung des Immunsystems. Das Ergebnis ist nicht nur immunsuppressive Krankheit, sondern auch Autoimmunerkrankungen. Verwendet bei: degenerative Erkrankungen verbunden mit dem Immunsystem - Allergien verschiedener Aetiologie - Mykosen - lymphatische Diathese bei Kindern – Vorsorge um die Abwehrkraefte zu staerken, dies kann in relativ langen Intervallen durchgefuehrt werden – stressige Konfliktsituationen in der Familie und der Schule - psychische Konflikte mit Gleichaltrigen, Lehrern und Eltern - Angstzustaende und Nervositaet - psychosomatische Stoerungen bei Kindern und Jugendlichen – Gallenwegdyskinesie, Magengeschwuere und Zwoelffingerdarmgeschwuere - Asthma - situationsabhaengige neurotische Reaktionen – Neurasthenie bei Kindern und Jugendlichen, Reizbarkeit, Weinerlichkeit, emotionale Labilitaet – Neurose - naechtliche Harninkontinenz - Tics - Kopfschmerzen und Schwindel unterschiedlicher Aetiologie in der Kindheit und Jugend – Folgen der Gehirnerschuetterung  sowie von Virusinfektionen des Zentralnervensystems -vegetativen Dystonie."  
    >
        <Program uuid="11961c2b-16c9-4260-9a5a-f87f27d90aa8"  
        nameRussian="Проргамма стресса-2 (Р9)"  
@@ -40878,7 +40878,7 @@
    nameRussian="Программа стресса -3 Режим 4"  
    name="Programm gegen Stress 3 Kur 4" 
    descriptionRussian="Это основная программа применяемая при лечении нарушений эндокринной регуляции вызванной стрессовой ситуацией Показания – как основная программа при всех заболеваниях связанных с недостаточностью эндокринных желез  – аллергоз –экзема – язва двенадцатиперстной кишки –бронхиальная астма – синусопатия – шизоидные неврозы вплоть до психозов – гипотония – мигрень – первичная аменорея ювенильная – нарушения менструального цикла у девочек-подростков – фимоз – почечнокаменная болезнь – сахарный диабет – панкреатопатии – эндокринные нарушения – гормонально-вегетативный синдром включая нервную анорексию или булимию – половое созревание"  
-   description=""  
+   description="Dies ist das Hauptprogramm bei der Behandlung von Stoerungen endokriner Regulation, die durch Stresssituationen hervorgerufen werden. Dieses Programm wird verwendet als Grundprogramm fuer alle Krankheiten, die mit der Unterfunktion der endokrinen Druesen verbunden sind. Sowie bei Allergose - Ekzem - Zwoelffingerdarmgeschwuer - Asthma - Sinusitis - schizoiden Neurose bis zu Psychose - Hypotonie - Migraene – erste Amenorrhoe bei Jugendlichen  - Menstruationsstoerungen bei Maedchen - Phimose - Nierensteine - Diabetes - Reizdarmsyndrom - endokrine Stoerungen – hormon-vegetatives Syndrom einschließlich Anorexie und Bulimie – Pubertaet."  
    >
        <Program uuid="6d48cbd1-9886-4208-8fb8-c150ebc7a6cf"  
        nameRussian="Программа стресса-3 (Р10)"  
@@ -40892,7 +40892,7 @@
    nameRussian="Программа стресса -4 Режим 4"  
    name="Programm gegen Stress 4 - Kur 4" 
    descriptionRussian="Это базовая программа при всех видах «колющих» болей используется для снятия спазма  Показания – мигрень цефалгии – все виды спазмов – спастические боли в области плеча и затылка – пупочные колики у детей  – все виды «колющих» болей – вегето-висцеральные пароксизмы  Противопоказания – опухоли"  
-   description=""  
+   description="Dieses Grundprogramm wird bei allen Arten von stechenden Schmerzen verwendet, um Kraempfe zu lindern. Verwendet bei: Migraene sowie Kopfschmerzen - alle Arten von Kraempfen - spastische Schmerzen in der Schulter und im Nacken - Nabelkoliken bei Kindern - alle Arten von stechenden Schmerzen - vegetativ-viszerale Anfaelle. Kontraindikationen: Tumore."  
    >
        <Program uuid="3c9259ca-d232-426c-b89e-87d6006ff06c"  
        nameRussian="Программа стресса -4 (Р11)"  
@@ -40906,7 +40906,7 @@
    nameRussian="Программа депрессии -1 Режим 4"  
    name="Programm gegen Depression 1 - Kur 4" 
    descriptionRussian="Предназначена для равномерного «пробуждения» пациента При воздействии глаза пациента открыты  Показания – депрессии без состояний страха – усталость безрадостность разбитость – состояние выздоровления  Противопоказания – маниакальная фаза депрессии с состоянием страха Длительность программы 30 минут время на частоту 30 секунд"  
-   description=""  
+   description="Dieses Programm dient dem einheitlichen ‚Erwachen‘ der Patienten. Bei der Verwendung bleiben die Augen offen. Verwendet bei: Depression ohne Angstzustaende – Ermuedung, Trostlosigkeit und Abgeschlagenheit – Erholungszustand. Kontraindikationen: manische Phase der Depression mit Angstzustaenden. Die Programmdauer betraegt 30 Minuten, bei einer Frequenzdauer von 30 Sekunden."  
    >
        <Program uuid="88cd9fdb-6716-4602-bbff-519cb9a326d1"  
        nameRussian="Программа депрессии -1 (Р12)"  
@@ -40920,7 +40920,7 @@
    nameRussian="Программа депрессии -2 Режим 4"  
    name="Programm gegen Depression 2 - Kur 4" 
    descriptionRussian="Здесь у пациента глаза закрыты Показания – маниакальные фазы депрессии – беспокойство нервозность – фобии состояния страха – конфликтные стрессовые ситуации – «вегетативная дистония» – психосоматические жалобы со стороны сердца и органов кровообращения – вегетативные расстройства ЖКТ также язвенная болезнь – повышенное количество холестерина триглицеридов и гамма - GT – состояния напряжения плечевого пояса и позвоночника Длительность программы 30 минут время на частоту 30 секунд"  
-   description=""  
+   description="Waehrend der Programmdauer halten die Patienten die Augen geschlossen. Verwendet bei:  manische Phasen der Depression – Besorgnis und Nervositaet - Phobien und Angstzustaende - stressige Konfliktsituationen - vegetative Dystonie - psychosomatische Herz- und Kreislaufbeschwerden - vegetative Erkrankungen des Magen-Darm-Trakts und Magengeschwuere - hoher Cholesterin- Triglyzerid- Gamma-Spiegel - GT - Spannungszustaende des Schulterguertels und der Wirbelsaeule. Die Programmdauer betraegt 30 Minuten, bei einer Frequenzdauer von 30 Sekunden."  
    >
        <Program uuid="53dfaeab-4bf0-49d2-91d1-5b19dfaf71f8"  
        nameRussian="Программа депрессии -2 (Р13)"  
@@ -40934,7 +40934,7 @@
    nameRussian="Программа депрессии -3 Режим 4"  
    name="Programm gegen Depression 3 - Kur 4" 
    descriptionRussian="Применяется при лечении нарушений эндокринной регуляции вызванной различными видами депрессий В данном случае важно найти причину заболевания и начать соответствующую терапию При воздействии у пациента глаза закрыты Показания – депрессия менструального периода у подростков – депрессия периода полового созревания у девочек Длительность программы 40 минут время на частоту 30 секунд"  
-   description=""  
+   description="Dieses Programm wird bei der Behandlung von Verletzungen der endokrinen Regulation, die durch verschiedene Arten von Depression verursacht wird, verwendet. In diesem Fall ist es wichtig, die Ursache der Krankheit zu finden und eine geeignete Therapie zu beginnen. Waehrend des Programms halten die Patienten die Augen geschlossen. Verwendet bei: Depression waehrend der Menstruation bei Jugendlichen - Depression waehrend der Pubertaet bei Maedchen. Die Programmdauer betraegt 40 Minuten, bei einer Frequenzdauer von 30 Sekunden."  
    >
        <Program uuid="cdaf60ba-4243-4701-931c-4d6b6ad3a97e"  
        nameRussian="Программа депрессии -3 (Р14)"  
@@ -40948,7 +40948,7 @@
    nameRussian="Церебральная программа Режим 4"  
    name="Programm gegen zerebrale Erkrankungen - Kur 4" 
    descriptionRussian="Благодаря прохождению всех частотных диапазонов организм стимулируется что соответствует церебральному тренингу Показания – активизация интеллектуальной деятельности – трудности с обучением снижение памяти процессов запоминания быстрая утомляемость истощаемость психических процессов – способствует ясности и активности головного мозга – резидуально-органические нарушения – минимальная мозговая дисфункция"  
-   description=""  
+   description="Durch den Ablauf aller Frequenzbereiche wird der Koerper stimuliert, was dem zerebralen Training entspricht. Verwendet bei: Lernschwierigkeiten – verringerte Erinnerungsvermoegen und Gedaechtnisprozessen- schnelle Ermuedung - Abbau mentaler Prozesse – verbleibende Schaeden - minimale Funktionsstoerungen des Gehirns. Wirkung wie folgt: Aktivierung der intellektuellen Aktivitaet - foerdert die Klarheit und Aktivitaet des Gehirns."  
    >
        <Program uuid="3c9acc86-197d-4543-b462-cad6e63e89bb"  
        nameRussian="Церебральная программа (Р15)"  
@@ -40962,7 +40962,7 @@
    nameRussian="Программа обучения Режим 4 "  
    name="Programm fuer besseres Lernen - Kur 4" 
    descriptionRussian="Во время воздействия этой программы пациент чувствует глубокое расслабление которое соответствует высокой степени интеллектуальной готовности Программа синхронизирует ритм головного мозга снимает стрессовые нагрузки у обучаемого позволяет извлечь из подсознания забытые знания Общее время программы – 35 минут Обучающий текст включается по истечении первых десяти минут работы программы Так как глаза должны быть закрыты обучение возможно только аудиоспособом С терапевтическими целями программа проводится 1-2 сеанса в неделю Показания  – слабая обучаемость – обучение иностранным языкам – нарушения концентрации – снижение остроты зрения слуха без органических нарушений – страх перед экзаменами – забывчивость - нарушения координации - нарушение засыпания перед экзаменами школьный стресс - минимальная мозговая дисфункция Необходимо отметить что во время 35-минутного сеанса возможны гипнотические состояния Это обстоятельство предоставляет возможность успешно применять программу обучения при лечении непреодолимых влечений Применять программу обучения можно ежедневно Достаточно прослушать текст 1 – 2 раза Для языковых курсов рекомендуется дополнительно прослушивать текст на следующий день и перед сеансом"  
-   description=""  
+   description="Waehrend des Programms empfinden die Patienten eine tiefe Entspannung, die in hohem Maße geistiger Bereitschaft entspricht. Das Programm synchronisiert den Rhythmus das Gehirns, lindert Stress-Belastungen bei Schuelern, und ermoeglicht es, aus dem Unterbewusstsein vergessenes Wissen zu holen. Die Programmdauer betraegt 35 Minuten. Der Lesetext sollte nach den ersten 10 Minuten des Programms angeschaltet werden. Da die Augen geschlossen werden, koennen nur Hoertexte eingesetzt werden. Zu therapeutischen Zwecken sollte das Programm 1-2 Mal pro Woche verwendet werden. Verwendet bei schlechtem Lernen - Fremdsprachenunterricht - Konzentrationsstoerungen – verringerte Hoer – und Sehfaehigkeit ohne organische Stoerungen - Pruefungsangst - Vergesslichkeit - Koordinationsstoerungen - eine Schlafstoerungen vor Pruefungen sowie Schulstress - minimale Dysfunktion des Gehirns. Beachten Sie bitte, dass waehrend der 35-minuetigen Sitzung es zum hypnotischen Zustand kommen kann. Dieser Umstand bietet die Moeglichkeit, das Programm fuer die Behandlung unueberwindbarer Impulse erfolgreich anzuwenden. Das Programm kann taeglich verwendet werden. Es reicht, dem Text 1-2 Mal zuzuhoeren. Fuer Sprachkurse ist es empfehlenswert, sich den Text zusaetzlich am naechsten Tag und vor der Sitzung anzuhoeren."  
    >
        <Program uuid="f311448c-cb10-412e-ac50-c5182599b6fa"  
        nameRussian="Программа обучения (Р16)"  
@@ -40976,7 +40976,7 @@
    nameRussian="Программа запоминания Режим 4"  
    name="Programm zur Steigerung des Erinnerungsvermoegens - Kur 4" 
    descriptionRussian="Применение программы запоминания оказывает стимулирующее воздействие на глютамины и нейротрансмиттеры в головном мозгу значительно повышает интеллектуальные способности пациента в сочетании с программами P15 и P16 Для этого программы применяются по 5 раз с ежедневным чередованием Показания — активизация творчества — улучшение кровоснабжения головного мозга Длительность программы 35 минут время на частоту 30 секунд"  
-   description=""  
+   description="Die Anwendung des Gedaechtnisprogramms hat eine stimulierende Wirkung auf Glutamine und Neurotransmitter im Gehirn, es verbessert betraechtlich die intellektuellen Faehigkeiten der Patienten in Kombination mit den P15- und P16-Programmen. Deswegen werden die Programme bis zu fuenf Mal verwendet, mit taeglicher Abwechslung. Die Wirkung ist wie folgt: Aktivierung der Kreativitaet, und verbesserte Blutzufuhr zum Gehirn. Die Programmdauer betraegt 35 Minuten, bei einer Frequenzdauer von 30 Sekunden."  
    >
        <Program uuid="181efed9-cc8c-4f59-82fc-b2e743308f91"  
        nameRussian="Программа запоминания (Р17)"  
@@ -40990,7 +40990,7 @@
    nameRussian="Программа сна -2 Режим 4"  
    name="Schlafprogramm 2 - Kur 4" 
    descriptionRussian="Программа сна-2 отличается от Программы сна   тем что после того как частота медленно понизилась до дельта-ритма она сохраняется в этом диапазоне частот до конца сеанса без возвращения в диапазон альфа-ритма как это делается в программе сна чтобы осуществить пробуждение Поэтому эту программу особенно хорошо использовать перед сном когда ребенок устал но не можете уснуть или когда просыпается ночью и долго не засыпает В остальном показания те же что и у программы сна "  
-   description=""  
+   description="Das ‚Schlafprogramm 2‘ unterscheidet sich vom ‚Schlafprogramm‘ dadurch, dass nachdem die Frequenz langsam bis zu Delta-Wellen gesunken ist, sie in diesem Frequenzbereich bis zum Ende der Sitzung bleibt, ohne in den Alpha-Wellen-Bereich zurueckzukehren, wie es im ‚Schlafprogramm‘ zum Erwachen geschieht. Somit wirkt dieses Programm besonders gut vor dem Zubettgehen, wenn das Kind muede ist aber nicht einschlafen kann, oder wenn es nachts aufwacht und lange nicht einschlaeft. Ansonsten ist es mit dem Schlafprogramm identisch."  
    >
        <Program uuid="2d5845d4-0fcf-4d94-a3d3-c6bc57555d7b"  
        nameRussian="Программа сна-2 (Р18)"  
@@ -41002,13 +41002,13 @@
    </Complex>
    <Complex uuid="558c533a-c2aa-4c13-afb4-678b0aea1a5f"  
    nameRussian="Короткий перерыв Режим 4"  
-   name="kurze Pause - Kur 4" 
+   name="eine kurze Pause - Kur 4" 
    descriptionRussian="Программа Короткий перерыв разработана для предоставления «короткой передышки» при работе связанной с высокой степенью стрессовых воздействий длительная умственная деятельность в период подготовки к экзаменам Короткий и глубокий период отдыха содействует развитию спокойного состояния в короткое время Оканчивается программа на энергизирующей частоте которая подготавливает пользователя к возвращению к работе отдохнувшим Программа может быть использована многократно в течение дня Показания – уменьшение усталости – повышение работоспособности – улучшение концентрации сознания Длительность программы 15 минут время на частоту 30 секунд"  
-   description=""  
+   description="Das Programm ‚eine kurze Pause‘ ist als eine ‚kurze Erholungsphase‘ bei einer Taetigkeit die mit einer stressueberladenen Umgebung und hoher geistigen Aktivitaet wie Pruefungsvorbereitung verbunden ist, konzipiert.  Eine kurze aber tiefe Ruhe foerdert in kurzer Zeit einen ruhigen Zustand. Das Programm endet mit einer energiespendenden Frequenz, die den Benutzern ermoeglicht, ausgeruht zur Arbeit zurueckzukehren. Das Programm kann mehrmals am Tag verwendet werden. Die Wirkung ist wie folgt: verringerte Muedigkeit, erhoehte Arbeitsfaehigkeit, verbesserte Konzentrationsfaehigkeit. Die Programmdauer betraegt 15 Minuten, bei einer Frequenzdauer von 30 Sekunden."  
    >
        <Program uuid="be45b731-95ef-40c5-99e6-6fca5eef7341"  
        nameRussian="Короткий перерыв (Р19)"  
-       name="kurze Pause (P19)" 
+       name="eine kurze Pause (P19)" 
        descriptionRussian=""  
        description=""  
        />
@@ -41018,7 +41018,7 @@
    nameRussian="Прояснение разума Режим 4"  
    name="Verstand schaerfen - Kur 4" 
    descriptionRussian="Длительность программы 20 минут время на частоту 30 секунд"  
-   description=""  
+   description="Die Programmdauer betraegt 20 Minuten, bei einer Frequenzdauer von 30 Sekunden."  
    >
        <Program uuid="fbf7f047-8ee0-44c0-83f5-88fcea47f99a"  
        nameRussian="Прояснение разума (Р21)"  
@@ -41032,7 +41032,7 @@
    nameRussian="Волны Шумана Режим 4"  
    name="Schumann-Resonanz-Wellen - Kur 4" 
    descriptionRussian="Человек находится в резонансе с окружающим миром и ему требуются различные сигналы окружающей среды которые сегодня называются «биологическими нормалями» Впервые это было обнаружено во время первых космических полетов с космонавтами на борту Сегодня известно что особенно важное значение имеет одна биологическая нормаль основная  частота шумановских волн 78 Гц  Профессор электрофизики из Мюнхена Шуман в 50-е годы рассчитал резонансные частоты пространства земной оболочки которая образуется поверхностью Земли обладающей достаточно  хорошей электрической  проводимостью  и нижней границей ионосферы Примечательно что гиппокамп  в мозгу всех младенцев и млекопитающих имеет точно такую же частоту Эта область отвечает за внимание и способность к концентрации и играет решающую роль для сна Если отсутствует сигнал окружающей среды составляющий 78 Гц с гармониками до мегагерцевого диапазона то как показали эксперименты в экранированном бункере на добровольцах происходит временная дезориентация появляются головные боли и тд Кратковременная подача шумановских волн в бункер стабилизировала состояние добровольцев на несколько дней Это означает что данная биологическая нормаль может присутствовать не постоянно организм способен запоминать характер действия отдельных частот и продолжает затем генерировать их самостоятельно Цель данной программы имитация волн Шумана Завершается программа альфа-ритмом для энергизации пациента Длительность программы 25 минут время на частоту 30 секунд"  
-   description=""  
+   description="Der Mensch steht in Resonanz mit der Umgebung und er benoetigt unterschiedliche Signale der Umwelt, die heute als ‚biologische Normen‘ bezeichnet werden. Zum ersten Mal wurde dies waehrend des ersten Weltraumfluges entdeck. Heute ist es bekannt, dass die Schumann-Resonanz von 7.83 Hz eine wichtige biologische Norm darstellt. In den 50er Jahren berechnete der Elektroingenieur Winfried Otto Schumann aus Muenchen die Resonanzfrequenzen der ausreichend leitfaehigen Erdoberflaeche und der gut leitfaehigen Ionosphaere darueber. Es ist bemerkenswert, dass der Hippocampus im Gehirn von Saeuglingen und Saeugertiere genau die gleiche Frequenz besitzt. Dieser Bereich ist verantwortlich fuer die Aufmerksamkeit und Konzentrationsfaehigkeit und spielt eine entscheidende Rolle beim Schlafen. Wenn diese Norm in der Umgebung nicht vorliegt, dann – wie Versuche mit Freiwilligen gezeigt haben – kommt es zu einer temporaeren Desorientierung sowie Kopfschmerzen, etc. Der Zustand der Freiwilligen konnte fuer mehrere Tage stabilisiert werden, wenn sie der Schumann-Resonanz kurzfristig ausgesetzt wurden. Dies bedeutet, dass diese biologische Norm nicht staendig vorhanden sein muss, der Organismus ist faehig, die Wirkung der Frequenz zu speichern und dann selbst zu generieren.  Ziel dieses Programms ist die Imitation der Schumann-Resonanz. Alpha-Wellen beenden das Programm, um die Patienten mit Energie zu versorgen. Die Programmdauer betraegt 25 Minuten, bei einer Frequenzdauer von 30 Sekunden."  
    >
        <Program uuid="b1596590-c26a-4a97-b76f-9ac0ac0cb901"  
        nameRussian="Волны Шумана (Р22)"  
@@ -41044,13 +41044,13 @@
    </Complex>
    <Complex uuid="b302b4c4-fb8f-4b81-8833-75c9d59b7d43"  
    nameRussian="Управление состоянием сознания Режим 4"  
-   name="Bewusstseinszustand veraendern - Kur 4" 
+   name="Bewusstseinszustand steuern - Kur 4" 
    descriptionRussian="Эту программу необходимо применять перед применением программы Развитие творческих способностей  и Увеличение ресурсов адаптации 1 в качестве подготовительной процедуры"  
-   description=""  
+   description="Dieses Programm sollte vor der Anwendung der Programme ‚Kreativitaet foerdern‘ und ‚Adaptationsressourcen erhoehen‘ als vorbereitendes Verfahren verwendet werden."  
    >
        <Program uuid="0520a7e4-7e31-4966-a336-a77a9342c888"  
        nameRussian="Управление состоянием сознания (Р23)"  
-       name="Bewusstseinszustand veraendern (P23)" 
+       name="Bewusstseinszustand steuern (P23)" 
        descriptionRussian=""  
        description=""  
        />
@@ -41060,7 +41060,7 @@
    nameRussian="Развитие творческих способностей Режим 4"  
    name="Kreativitaet foerdern - Kur 4" 
    descriptionRussian="Помогает расширить доступ к творческим кладовым подсознания Усиливающий эффект тета-ритма приводит к лучшему решению проблем и задач выработке образов которые могут быть метафорами для творческих решений Расширение возможностей сознания – основная цель данной программы На протяжении всей истории человечества многие творческие знаменитости пользовались искусством мечтать в состоянии близком ко сну для разрешения великих проблем Программа позволяет легче достичь подобного творческого состояния так как тренирует готовность к воображению кодирует образы для лучшего запоминания и обработки их в сознании таким образом чтобы более полно использовать их значение Программа может применяться  ежедневно За полчаса до сеанса необходимо применить программу Управление состояния сознания"  
-   description=""  
+   description="Dieses Programm erleichtert den Zugang zur Kreativitaet im Unterbewusstsein. Die staerkende Wirkung von Theta-Wellen fuehrt zu besseren Problemloesefaehigkeiten, Metaphernverstaendnis, kreativen Loesungsstrategien. Das Hauptziel dieses Programms ist die Staerkung des Bewusstseins. In der gesamten Geschichte der Menschheit genossen viele kreative Persoenlichkeiten die Kunst, in einem schlaefrigen traeumerischen Zustand Loesungen fuer verschiedene Probleme zu finden. Das Programm macht es einfacher, einen solchen kreativen Zustand zu erreichen, indem es Bereitschaft zur Imagination trainiert, Metaphern und Bilder kodiert, so das Erinnerungsvermoegen steigert, und die Verarbeitung und Verwendung dieser foerdert. Das Programm kann taeglich verwendet werden. Eine halbe Stunde vor der Sitzung sollte das Programm 'Bewusstseinszustand steuern' verwendet werden. "  
    >
        <Program uuid="7d021801-f625-47f6-9811-be3f10ec20fd"  
        nameRussian="Развитие творческих способностей (Р24)"  
@@ -41074,7 +41074,7 @@
    nameRussian="Преодоление страха Режим 4"  
    name="aengste ueberwinden - Kur 4" 
    descriptionRussian="Постепенно и спокойно эта программа от сеанса к сеансу помогает пациенту представить воочию и преодолеть страхи фобии и беспокойства Постоянные повторы помогают собрать воедино и преодолеть все эти опасные ситуации Программа адаптирована к таким часто встречающимся трудностям как боязнь публичных выступлений страх перед экзаменами «школьная фобия»  Длительность программы 30 минут время на частоту 30 секунд"  
-   description=""  
+   description="Allmaehlich und unbemerkt hilft dieses Programm von Sitzung zu Sitzung und hilft den Patienten, sich mit eigenen Augen vorzustellen, und eigene Aengste, Phobien und Sorgen zu ueberwinden. Wiederholte Verwendung hilft bei der Zusammenstellung und Ueberwindung all dieser gefaehrlichen Situationen. Das Programm ist an so haeufige Schwierigkeiten wie Redeangst, Pruefungsangst sowie Schulangst zu ueberwinden. Programmdauer betraegt 30 Minuten, bei einer Frequenzdauer von 30 Sekunden."  
    >
        <Program uuid="e941a0bf-4efd-4d91-abe5-36a04ff73362"  
        nameRussian="Преодоление страха (Р28)"  
@@ -41088,7 +41088,7 @@
    nameRussian="Программа обезболивания Режим 4"  
    name="Programm um Schmerzen zu stillen - Kur 4" 
    descriptionRussian="Программа обезболивания помогает более успешно справляться с напряженными головными болями и другими формами дискомфорта используя силу метода «метафорической трансформации боли» Пациент может уменьшить а часто и полностью снять хронические боли и расширить возможности организма к самовыздоровлению Воздействие методом  МЧС повышает уровень эндорфинов вводит в состояние гипноза медитации что позволяет управлять болью Результаты особенно заметны когда боль вызвана психо-физиологическими расстройствами то есть имеет стресс-реактивный характер Многие заболевания связанные с болью в том числе и те которые имеют первично физическую причину способствуют развитию эмоционально-стрессовых расстройств что приводит к развитию «порочного круга» Применение  описываемой программы позволяет разорвать этот круг и существенно ослабить или устранить боль "  
-   description=""  
+   description="Mit der Methode der “metaphorischen Schmerztransformation” ermoeglicht Ihnen dieses Programm besser mit intensiven Kopfschmerzen und anderen Beschwerden fertig zu werden. Es reduziert und oftmals entfernt chronische Schmerzen, und es verbessert die Faehigkeit des Organismus zur Selbstheilung. Des Weiteren, dieses Programm erhoeht das Niveau von Endorphinen fuehrt zum meditativen Zustand, was die Regulation der Schmerzen erst erlaubt. Ergebnisse sind besonders auffaellig, wenn die Schmerzen durch psychophysiologische Stoerungen verursacht werden, d.h. eine Stressreaktion darstellen. Viele Krankheiten die mit Schmerzen verbunden sind, auch diejenigen, die eine primaere physikalische Ursache haben, fuehren zu emotionalen Stressstoerungen, was wiederum zu einem Teufelskreis fuehrt. Mit dem Programm koennen Sie diesen Zyklus durchbrechen und die Schmerzen deutlich reduzieren oder sogar beseitigen. "  
    >
        <Program uuid="839bbca4-528f-47fb-8d33-dc72f2e8c73a"  
        nameRussian="Программа обезболивания (Р29)"  
@@ -41102,7 +41102,7 @@
    nameRussian="Развитие самоуважения Режим 4"  
    name="Selbstwertgefuehl staerken - Kur 4" 
    descriptionRussian="Программа Развития самоуважения позволяет взглянуть на себя глазами того человека которым Вы хотите стать помочь себе прежнему используя свое желание и волю Другой важной особенностью этой программы является то что человек в состоянии выздоровления проникается сочувствием к самому себе устанавливает вновь внутренние взаимосвязи Программа позволяет увидеть себя целостным и нормально действующим человеком Особенно эффективно использование программы у детей подростков робких по характеру стеснительных склонных к заниженной самооценке "  
-   description=""  
+   description="Dieses Programm ermoeglicht es Ihnen, sich aus den Augen der Person, die sie werden wollen, zu betrachten, was sich positiv auf eigene Willensstaerke auswirkt. Eine weitere, wichtige Besonderheit dieses Programms ist es, dass die Patienten an Mitgefuehl fuer sich selbst gewinnen, anstatt sich ueber den eigenen Erholungsprozess zu aergern. Mithilfe des Programms koennen Sie sich als gesunden Mensch wahrnehmen. Besonders positive Wirkung auf schuechterne Kinder und Jugendliche, die zu Selbstzweifel und geringen Selbstwertgefuehl neigen."  
    >
        <Program uuid="453c39e2-6e8f-40d3-8e73-87e8ad7cd505"  
        nameRussian="Развитие Самоуважения (Р30)"  
@@ -41116,7 +41116,7 @@
    nameRussian="Энергизирующая программа Режим 4"  
    name="energiespendendes Programm - Kur 4" 
    descriptionRussian="Энергизирующая программа позволяет осуществить быструю энергизацию организма что особенно важно после утреннего пробуждения или после сильной усталости Отмечается хороший эффект от применения программы в процессе подготовки и сдачи экзаменов детьми и подростками"  
-   description=""  
+   description="Dieses Programm ermoeglicht es Ihnen, den Koerper schnell mit Energie zu versorgen, was besonders wichtig nach einem morgendlichen Erwachen oder nach einer starken Muedigkeit ist. Das Programm wirkt sich u.a. positiv auf den Pruefungsvorbereitungsprozess von Kindern und Jugendlichen aus.  "  
    >
        <Program uuid="7cc0bccc-aae3-4732-b0b0-5bcca5f9f1f8"  
        nameRussian="Энергизирующая программа (Р31)"  
@@ -41130,7 +41130,7 @@
    nameRussian="Спортивная программа Режим 4"  
    name="Sportprogramm - Kur 4" 
    descriptionRussian="Спортивная программа позволяет одновременно расслаблять и тонизировать. Сеанс придает состояние сосредоточения перед началом спортивных соревнований. Длительность программы 15 минут, время на частоту 30 секунд"  
-   description=""  
+   description="Das Sportprogramm ermoeglicht es Ihnen, gleichzeitig zu trainieren und sich zu entspannen. Die Sitzung staerkt die Konzentration vor Beginn von Sportveranstaltungen. Programmdauer betraegt 15 Minuten, bei einer Frequenzdauer von 30 Sekunden."  
    >
        <Program uuid="da88101b-fd0f-4951-b440-22808a77b975"  
        nameRussian="Спортивная программа (Р32)"  
@@ -41144,7 +41144,7 @@
    nameRussian="Событийное регулирование Режим 4"  
    name="Ereignissteuerung - Kur 4" 
    descriptionRussian="Программа используется для регулирования событийной реальности окружающей пациента в тех случаях когда пациент не в состоянии точно определить ту зону или ту область событийной реальности в которой возникают беспокоящие его нарушения Кроме того программа может быть использована при невротических состояниях с неотчётливой неопределённой симптоматикой ощущениях тревоги беспокойства раздражительности усталости не сопровождающимися никакими отчётливыми симптомами За полчаса до сеанса необходимо применить программу Управление состоянием сознания"  
-   description=""  
+   description="Das Programm wird verwendet, um Situationswahrnehmung des Patienten in denen Faellen zu steuern, wenn Patienten nicht in der Lage sind zu identifizieren, was und im welchem Ausmaß sie stoert. Das Programm kann des Weiteren bei neurotischen Zustaenden mit unbekannter Symptomatik, sowie bei Aengstlichkeit, Unbehagen, Reizbarkeit und Erschoepfung aus ungeklaerten Gruenden verwendet werden. Eine halbe Stunde vor der Sitzung sollte das Programm 'Bewusstseinszustand steuern' verwenden werden. "  
    >
        <Program uuid="97df4285-5ace-4436-9729-979116ca9317"  
        nameRussian="Событийное регулирование (Р33)"  
@@ -41158,7 +41158,7 @@
    nameRussian="Увеличение ресурсов адаптации 1 Режим 4"  
    name="Adaptationsressourcen erhoehen 1 - Kur 4" 
    descriptionRussian="Программа предназначена для увеличения ресурсов адаптации если эти ресурсы оказываются  низкими например по результатам ВРТ-тестирования"  
-   description=""  
+   description="Das Programm ist darauf ausgelegt die Anpassungsressourcen zu erhoehen, wenn diese Ressourcen niedrig sind, z.B. gemaeß den Ergebnissen des Resonanztests. "  
    >
        <Program uuid="c3ac5673-e1c0-4e76-abc6-2fb2884103a0"  
        nameRussian="Увеличение ресурсов адаптации 1 (Р35)"  
@@ -41172,7 +41172,7 @@
    nameRussian="Увеличение ресурсов адаптации 2 Режим 4"  
    name="Adaptationsressourcen erhoehen 2 - Kur 4" 
    descriptionRussian="Альтернативная программа программе «Увеличение ресурсов адаптации 1» Используется в случае если предыдущая программа не оказывает должного терапевтического воздействия"  
-   description=""  
+   description="Alternativ-Programm zum Programm 'Adaptationsressourcen erhoehen 1', es wird verwendet wenn das vorherige Programm nicht die geeignete therapeutische Wirkung hat."  
    >
        <Program uuid="23c0bff0-88d4-4536-a56e-181f052f0dc2"  
        nameRussian="Увеличение ресурсов адаптации 2 (Р36)"  
@@ -41184,13 +41184,13 @@
    </Complex>
    <Complex uuid="0fda2db8-aab6-4a26-826f-13a4bc95e690"  
    nameRussian="Увеличение ресурсов нейрогуморальной регуляции Режим 4"  
-   name="Ressourcen der neurohumoralen Regulierung erhoehen - Kur 4" 
+   name="Ressourcen der neurohumoralen Regulation erhoehen - Kur 4" 
    descriptionRussian="Программа предназначена для увеличения ресурсов нейрогуморальной регуляции в том случае если эти ресурсы оказываются низкими например в соответствии с данными ВРТ-тестирования указывающими на нарушения в эндокринной системе"  
-   description=""  
+   description="Das Programm soll die Ressourcen der neurohumoralen Regulation erhoehen, falls diese niedrig sind, z. B. aufgrund von Resonanztests, die auf Stoerungen im Hormonsystem hinweisen."  
    >
        <Program uuid="9035a38c-7e8c-4f2e-b5ff-8d12cba9ae59"  
        nameRussian="Увеличение ресурсов нейрогуморальной регуляции (Р37)"  
-       name="Ressourcen der neurohumoralen Regulierung erhoehen (P37)" 
+       name="Ressourcen der neurohumoralen Regulation erhoehen (P37)" 
        descriptionRussian=""  
        description=""  
        />
@@ -41200,7 +41200,7 @@
    nameRussian="Сексуальная регуляция -1 Режим 4"  
    name="Sexuelle Gesundheit 1 - Kur 4" 
    descriptionRussian="Программа предназначена для увеличения ресурсов сексуальной регуляции в случае ослабления потенции по самым различным с внешней точки зрения причинам"  
-   description=""  
+   description="Das Programm zielt darauf ab, die Ressourcen der sexuellen Regulation im Falle einer Potenzschwaeche, die eine Vielzahl von Gruenden haben, zu erhoehen."  
    >
        <Program uuid="2391f5b8-2e5b-488e-8ed6-f55526cb3010"  
        nameRussian="Сексуальная регуляция - 1 (Р38)"  
@@ -41214,7 +41214,7 @@
    nameRussian="Сексуальная регуляция -2 Режим 4"  
    name="Sexuelle Gesundheit 2- Kur 4" 
    descriptionRussian="Эта программа альтернативна предыдущей и применяется в тех случаях когда та недостаточно эффективна"  
-   description=""  
+   description="Dieses Programm ist eine Alternative zum vorherigen Programm und wird verwendet, wenn es nicht effektiv genug ist."  
    >
        <Program uuid="c955ba48-9056-4241-a33e-f9fd44a564aa"  
        nameRussian="Сексуальная регуляция - 2 (Р39)"  
@@ -41228,7 +41228,7 @@
    nameRussian="Увеличение ресурсов иммунной адаптации -1 Режим 4"  
    name="Ressourcen des Immunsystems erhoehen 1 - Kur 4" 
    descriptionRussian="Программа предназначена для увеличения ресурсов иммунной адаптации в случае снижения иммунитета гипофункции или дисфункции тимуса Применяется например в случаях когда ВРТ-тестирование указывает на лимфатическое отягощение или на истощение иммунной системы"  
-   description=""  
+   description="Das Programm zielt darauf ab, die Immunadaptationsfaehigkeit bei einer verringerten Immunitaet sowie bei Thymusunterfunktion bzw –dysfunktion zu erhoehen. Beispielsweise in Faellen, in denen Vegeto-Resonanz-Tests auf Lymphfunktionsstoerungen oder eine Erschoepfung des Immunsystems hindeuten."  
    >
        <Program uuid="4ed8cb9d-2688-460a-a63d-16ccd9a543dc"  
        nameRussian="Увеличение ресурсов иммунной адаптации – 1 (Р40)"  
@@ -41242,7 +41242,7 @@
    nameRussian="Увеличение ресурсов иммунной системы -2 Режим 4"  
    name="Ressourcen des Immunsystems erhoehen 2 - Kur 4" 
    descriptionRussian="Программа предназначена для увеличения ресурсов иммунной адаптации в случае пониженного иммунного ответа любого происхождения Используется в случае если предыдущая программа не тестируется или не оказывает должного терапевтического воздействия Эта программа может  рассматриваться как  альтернатива программе Увеличение ресурсов иммунной адаптации –1 применяемая прежде всего в тех случаях когда слабое звено иммунной системы неочевидно"  
-   description=""  
+   description="Das Programm wurde entwickelt, um die Ressourcen der Immunadaptation im Falle einer verringerten Immunantwort jeglicher Art zu erhoehen. Es wird angewendet falls die Wirkung des vorherigen Programms nicht getestet wurde oder falls das Programm keine therapeutische Wirkung hat. Dieses Programm kann als eine Alternative zum Programm 'Ressourcen des Immunsystems erhoehen 1' betrachtet werden, welches dann angewendet wird, wenn die Schwaeche des Immunsystems ist nicht einfach erkennbar ist."  
    >
        <Program uuid="b3d5d1b8-002d-4d6b-9c9e-e1725e801b5e"  
        nameRussian="Увеличение ресурсов иммунной адаптации – 2 (Р41)"  
@@ -41256,7 +41256,7 @@
    nameRussian="Сессия для обучения Режим 4"  
    name="Sitzung fuer die Verbesserung des Lernens - Kur 4" 
    descriptionRussian="Во время обучающего процесса"  
-   description=""  
+   description="Waehrend des Lernens"  
    >
        <Program uuid="f2dfff53-3e1b-47cd-8ed8-8ffe61c599bb"  
        nameRussian="Сессия для обучения"  
@@ -41270,7 +41270,7 @@
    nameRussian="Сессия для осознанного сновидения Режим 4"  
    name="Sitzung fuer bewusstes Schlafen - Kur 4" 
    descriptionRussian="Если вы проснулись ночью и хотите провести остаток ночи с пользой."  
-   description=""  
+   description="Wenn Sie nachts aufwachen und den Rest der Nacht genießen wollen"  
    >
        <Program uuid="5146ddfa-9a2a-43f0-8572-5808ebb75716"  
        nameRussian="Сессия для ососзнанного сновидения"  

@@ -315,7 +315,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
         int currentUpdateFile=13;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=0;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentMinorVersion=1;//версия исправлений в пределах мажорной версии currentUpdateFile
         //требуется размещение в папке с dist.jar  файла version.txt с текущей версией типа 4.9.0 . Этот файл в обновление нужно включать!!!
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -388,6 +388,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(()->update12(updateOption))
                                  .thenRun(() -> update_in12(updateOption,updateFixVersion))
                                  .thenRun(() -> update13(updateOption))
+                                 .thenRun(() -> updateIn13(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -409,6 +410,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(()->update12(updateOption))
                                  .thenRun(() -> update_in12(updateOption,updateFixVersion))
                                  .thenRun(() -> update13(updateOption))
+                                 .thenRun(() -> updateIn13(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -429,6 +431,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(()->update12(updateOption))
                                  .thenRun(() -> update_in12(updateOption,updateFixVersion))
                                  .thenRun(() -> update13(updateOption))
+                                 .thenRun(() -> updateIn13(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -448,6 +451,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(()->update12(updateOption))
                                  .thenRun(() -> update_in12(updateOption,updateFixVersion))
                                  .thenRun(() -> update13(updateOption))
+                                 .thenRun(() -> updateIn13(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -467,6 +471,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(()->update12(updateOption))
                                  .thenRun(() -> update_in12(updateOption,updateFixVersion))
                                  .thenRun(() -> update13(updateOption))
+                                 .thenRun(() -> updateIn13(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -485,6 +490,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(()->update12(updateOption))
                                  .thenRun(() -> update_in12(updateOption,updateFixVersion))
                                  .thenRun(() -> update13(updateOption))
+                                 .thenRun(() -> updateIn13(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -502,6 +508,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(()->update12(updateOption))
                                  .thenRun(() -> update_in12(updateOption,updateFixVersion))
                                  .thenRun(() -> update13(updateOption))
+                                 .thenRun(() -> updateIn13(updateOption,updateFixVersion))
                         .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                         .exceptionally(e->{
                             showUpdateErrorAndExit(e.getMessage());
@@ -519,6 +526,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(()->update12(updateOption))
                                  .thenRun(() -> update_in12(updateOption,updateFixVersion))
                                  .thenRun(() -> update13(updateOption))
+                                 .thenRun(() -> updateIn13(updateOption,updateFixVersion))
                                  .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                                  .exceptionally(e->{
                                      showUpdateErrorAndExit(e.getMessage());
@@ -533,6 +541,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(()->update12(updateOption))
                                  .thenRun(() -> update_in12(updateOption, updateFixVersion))
                                  .thenRun(() -> update13(updateOption))
+                                 .thenRun(() -> updateIn13(updateOption,updateFixVersion))
                                  .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                                  .exceptionally(e->{
                                      showUpdateErrorAndExit(e.getMessage());
@@ -549,6 +558,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  .thenRun(()->update12(updateOption))
                                  .thenRun(() -> update_in12(updateOption, updateFixVersion))
                                  .thenRun(() -> update13(updateOption))
+                                 .thenRun(() -> updateIn13(updateOption,updateFixVersion))
                                  .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                                  .exceptionally(e->{
                                      showUpdateErrorAndExit(e.getMessage());
@@ -563,6 +573,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                 CompletableFuture.runAsync(() -> changeDDL())
                                  .thenRun(() -> update_in12(updateOption, updateFixVersion))
                                  .thenRun(() -> update13(updateOption))
+                                 .thenRun(() -> updateIn13(updateOption,updateFixVersion))
                                  .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
                                  .exceptionally(e->{
                                      showUpdateErrorAndExit(e.getMessage());
@@ -571,6 +582,18 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
 
 
                 System.out.println("Update >11.0");
+
+            } else if(getUpdateVersion()==13){
+                CompletableFuture.runAsync(() -> changeDDL())
+                                 .thenRun(() -> updateIn13(updateOption,updateFixVersion))
+                                 .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
+                                 .exceptionally(e->{
+                                     showUpdateErrorAndExit(e.getMessage());
+                                     return null;
+                                 });
+
+
+                System.out.println("Update >12.0");
 
             }
             else {
@@ -1114,6 +1137,30 @@ https://gist.github.com/DemkaAge/8999236
         }
     }
 
+    private void updateIn13(ProgramOptions updateOption, int updateFixVersion){
+        if(updateFixVersion == 0 )updateIn13_1(updateOption);
+    }
+
+    private void updateIn13_1(ProgramOptions updateOption) {
+        System.out.println("Update_13_1");
+        ResourceUtil ru=new ResourceUtil();
+        File de=null;
+        try {
+             de = ru.saveResource(getTmpDir(),"de_transl.xml","/updates/update13/deutsch_tr.xml",true);
+        } catch (IOException e) {
+            wrapException("13_1",e);
+        }
+
+
+        if(de == null ) wrapException("13_1",new Exception());
+
+        LoadLanguageFiles ll=new LoadLanguageFiles();
+        if( ll.parse(Arrays.asList(de),getModel())){
+
+            logger.info("ОБНОВЛЕНИЕ 13_! ЗАВЕРШЕНО.");
+        }
+        else  wrapException("13",new Exception());
+    }
 
     private void update13(ProgramOptions updateOption) {
         System.out.println("Update_13");
