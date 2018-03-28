@@ -315,7 +315,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
         int currentUpdateFile=13;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=1;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentMinorVersion=2;//версия исправлений в пределах мажорной версии currentUpdateFile
         //требуется размещение в папке с dist.jar  файла version.txt с текущей версией типа 4.9.0 . Этот файл в обновление нужно включать!!!
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -1138,7 +1138,11 @@ https://gist.github.com/DemkaAge/8999236
     }
 
     private void updateIn13(ProgramOptions updateOption, int updateFixVersion){
-        if(updateFixVersion == 0 )updateIn13_1(updateOption);
+        if(updateFixVersion == 0 ){
+            updateIn13_1(updateOption);
+            updateIn13_2(updateOption);
+        }
+        else if(updateFixVersion == 1 )updateIn13_2(updateOption);
     }
 
     private void updateIn13_1(ProgramOptions updateOption) {
@@ -1161,6 +1165,19 @@ https://gist.github.com/DemkaAge/8999236
         }
         else  wrapException("13",new Exception());
     }
+
+    private void updateIn13_2(ProgramOptions updateOption) {
+        System.out.println("Update_13_2");
+        try {
+            rootSectionNames("Nauja dažnių bazė", "Sena dažnių bazė", "lt");
+            userSectionName("Naudotojo bazė","lt");
+
+            logger.info("ОБНОВЛЕНИЕ 13_2 ЗАВЕРШЕНО.");
+        } catch (Exception e) {
+            wrapException("13.2",e);
+        }
+    }
+
 
     private void update13(ProgramOptions updateOption) {
         System.out.println("Update_13");
@@ -2303,6 +2320,19 @@ https://gist.github.com/DemkaAge/8999236
             lName.setContent(oldBaseName);
             model.updateLocalString(lName);
         }
+    }
+
+    private void userSectionName(String newName,String langAbbr) throws Exception {
+
+        Section userSection = model.findSection("db31c890-3500-4dee-84f3-8c49a7518112");
+        Strings nameString = userSection.getName();
+        LocalizedString lName = model.getLocalString(nameString, model.getLanguage(langAbbr));
+        if(lName==null) model.addString(nameString,newName,model.getLanguage(langAbbr));
+        else {
+            lName.setContent(newName);
+            model.updateLocalString(lName);
+        }
+
     }
     private void setTranslate(String pathResource,String langAbbr,Map<String,String> transMap) throws Exception {
 

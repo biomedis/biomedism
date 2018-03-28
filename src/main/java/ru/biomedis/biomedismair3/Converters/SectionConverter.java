@@ -21,6 +21,7 @@ public class SectionConverter extends StringConverter<Section>
         {
             if(lang.equals("ru"))return "Выберите раздел";
             else if(lang.equals("de"))return "Wählen Sie die Partition";
+            else if(lang.equals("lt")) return "Pasirinkti skyrių";
             else   return "Choose a section";
         }
         else return val.getNameString();
