@@ -1039,6 +1039,13 @@ public class AppController  extends BaseController {
         else if(isProfileTabSelected()) profileAPI.pasteProfile();
     }
 
+    public static  void pasteInTables_after() {
+        System.out.println("pasteInTables");
+        if(isProgramsTabSelected()) programAPI.pasteTherapyPrograms_after();
+        else if(isComplexesTabSelected()) complexAPI.pasteTherapyComplexes_after();
+        else if(isProfileTabSelected()) profileAPI.pasteProfile_after();
+    }
+
     public static  void copyInTables() {
         System.out.println("copyInTables");
         if(isProgramsTabSelected()) programAPI.copySelectedTherapyProgramsToBuffer();

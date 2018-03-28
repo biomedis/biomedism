@@ -254,14 +254,18 @@ public class ProfileTable {
         weightCol.setSortable(false);
     }
 
-    public void initProfileContextMenu(Runnable onPrintProfile, Runnable cutInTables, Runnable pasteInTables,Runnable deleteInTables) {
+    public void initProfileContextMenu(Runnable onPrintProfile,
+                                       Runnable cutInTables,
+                                       Runnable pasteInTables,
+                                       Runnable deleteInTables,
+                                       Runnable pasteInTables_after) {
         MenuItem mip1 = new MenuItem(this.res.getString("app.ui.duplicate"));
-        MenuItem mip2 =new MenuItem(this.res.getString("app.ui.paste"));
+        MenuItem mip2 =new MenuItem(this.res.getString("app.menu.insert_before"));
         MenuItem mip3 =new MenuItem(this.res.getString("app.cut"));
         MenuItem mip4 =new MenuItem(this.res.getString("app.delete"));
         MenuItem mip5 =new MenuItem(this.res.getString("app.menu.print_profile"));
         MenuItem mip6 =new SeparatorMenuItem();
-        MenuItem mi_insert_botom =new MenuItem(this.res.getString("app.menu.print_profile"));
+        MenuItem mi_insert_botom =new MenuItem(this.res.getString("app.menu.insert_after"));
 
 
         mip5.setOnAction(e->onPrintProfile.run());
@@ -270,11 +274,12 @@ public class ProfileTable {
         mip3.setAccelerator(new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN));
         mip2.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
         mip4.setAccelerator(new KeyCodeCombination(KeyCode.DELETE));
-        profileMenu.getItems().addAll(mip3,mip1,mip2/*,mi_insert_botom*/, mip4,mip6,mip5,translateMenu);
+        profileMenu.getItems().addAll(mip3,mip1,mip2,mi_insert_botom, mip4,mip6,mip5,translateMenu);
         mip1.setOnAction(e->duplicateProfile());
         mip3.setOnAction(e->cutInTables.run());
         mip2.setOnAction(e->pasteInTables.run());
         mip4.setOnAction(e->deleteInTables.run());
+        mi_insert_botom.setOnAction(e->pasteInTables_after.run());
         table.setContextMenu(profileMenu);
         profileMenu.setOnShowing(e->{
             mip2.setDisable(false);
@@ -282,24 +287,38 @@ public class ProfileTable {
             mip4.setDisable(false);
             mip5.setDisable(false);
             mip1.setDisable(true);
+            mi_insert_botom.setDisable(false);
             if(table.getSelectionModel().getSelectedItem()==null) {
                 mip2.setDisable(true);
                 mip3.setDisable(true);
                 mip4.setDisable(true);
                 mip5.setDisable(true);
+                mi_insert_botom.setDisable(true);
             }else {
                 mip1.setDisable(false);
                 mip4.setDisable(false);
                 Clipboard clipboard= Clipboard.getSystemClipboard();
                 if(clipboard.hasContent(PROFILE_CUT_ITEM_ID)){
                     Integer ind = (Integer)clipboard.getContent(PROFILE_CUT_ITEM_INDEX);
-                    if(ind ==null) mip2.setDisable(true);
+                    if(ind ==null) {
+                        mip2.setDisable(true);
+                        mi_insert_botom.setDisable(true);
+                    }
                     else {
-                        if(table.getSelectionModel().getSelectedIndex()==ind)mip2.setDisable(true);
-                        else mip2.setDisable(false);
+                        if(table.getSelectionModel().getSelectedIndex()==ind){
+                            mip2.setDisable(true);
+                            mi_insert_botom.setDisable(false);
+                        }
+                        else {
+                            mip2.setDisable(false);
+                            mi_insert_botom.setDisable(false);
+                        }
                     }
 
-                }else  mip2.setDisable(true);
+                }else  {
+                    mip2.setDisable(true);
+                    mi_insert_botom.setDisable(true);
+                }
             }
 
         });

@@ -17,6 +17,8 @@ public interface ComplexAPI {
 
     void pasteTherapyComplexes();
 
+    void pasteTherapyComplexes_after();
+
     void copySelectedTherapyComplexesToBuffer();
 
     void cutSelectedTherapyComplexesToBuffer();

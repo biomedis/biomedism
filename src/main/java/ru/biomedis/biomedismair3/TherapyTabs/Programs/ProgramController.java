@@ -92,6 +92,7 @@ public class ProgramController extends BaseController implements ProgramAPI{
                 AppController::copyInTables,
                 AppController::pasteInTables,
                 AppController::deleteInTables,
+                AppController::pasteInTables_after,
                 ()->therapyProgramsCopied,
                 ()-> {
                     boolean res = true;
@@ -574,6 +575,12 @@ public class ProgramController extends BaseController implements ProgramAPI{
         else pasteTherapyProgramsByCut();
     }
 
+    @Override
+    public void pasteTherapyPrograms_after() {
+        ProgramTable.getInstance().clearSelection();
+        pasteTherapyPrograms();
+    }
+
     private void pasteTherapyProgramsByCopy(){
         TherapyComplex therapyComplex = ComplexTable.getInstance().getSelectedItem();
         if(therapyComplex==null) return;
@@ -684,14 +691,20 @@ public class ProgramController extends BaseController implements ProgramAPI{
             if(idComplex==null)return;
             else if(idComplex.longValue()==selectedComplex.getId().longValue()){
                 //вставка в текущем комплексе
-                if ( ProgramTable.getInstance().getSelectedItems().isEmpty()) return;
-                if ( ProgramTable.getInstance().getSelectedItems().size()!=1) return;
+                //if ( ProgramTable.getInstance().getSelectedItems().isEmpty()) return;
+                if ( !ProgramTable.getInstance().getSelectedItems().isEmpty())if ( ProgramTable.getInstance().getSelectedItems().size()!=1) return;
 
                 Integer[] indexes = (Integer[]) clipboard.getContent(ProgramTable.PROGRAM_CUT_ITEM_INDEX);
                 if(indexes==null) return;
                 if(indexes.length==0) return;
                 List<Integer> ind = Arrays.stream(indexes).collect(Collectors.toList());
-                int dropIndex =  ProgramTable.getInstance().getSelectedIndex();
+
+                int dropIndex = 0;
+                if(ProgramTable.getInstance().getSelectedItems().size() ==  0){
+                    dropIndex = ProgramTable.getInstance().getAllItems().size()-1;
+                    if(dropIndex < 0) dropIndex = 0;
+                }
+                else dropIndex = ProgramTable.getInstance().getSelectedIndex();
 
                 if(!TablesCommon.isEnablePaste(dropIndex,indexes)) {
                     showWarningDialog(res.getString("app.ui.moving_items"),"",res.getString("app.ui.can_not_move_to_pos"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
@@ -704,6 +717,15 @@ public class ProgramController extends BaseController implements ProgramAPI{
 
 //элементы всегда будут оказываться выше чем индекс по которому вставляли, те визуально вставляются над выбираемым элементом
                 TherapyProgram dropProgram =  ProgramTable.getInstance().getAllItems().get(dropIndex);
+
+                if(ProgramTable.getInstance().getSelectedItems().size() == 0){
+
+                    for (TherapyProgram i : therapyPrograms) {
+                        ProgramTable.getInstance().getAllItems().remove(i);
+                    }
+                    ProgramTable.getInstance().getAllItems().addAll(therapyPrograms);
+                }
+                else
                 if(dropIndex < startIndex){
 
                     for (TherapyProgram i : therapyPrograms) {
@@ -746,6 +768,7 @@ public class ProgramController extends BaseController implements ProgramAPI{
                 int dropIndex =-1;
                 if ( ProgramTable.getInstance().getSelectedItem()!=null)dropIndex = ProgramTable.getInstance().getSelectedIndex();
                 else if(ProgramTable.getInstance().getAllItems().size()==0) dropIndex=0;
+                else if(ProgramTable.getInstance().getSelectedItems().size() ==0) dropIndex = -1;
 
                 List<TherapyProgram> movedTP = ind.stream()
                                                   .map(i->getModel().getTherapyProgram(i))

@@ -12,6 +12,7 @@ public interface ProfileAPI {
     void removeProfile();
     void printProfile();
     void pasteProfile();
+    void pasteProfile_after();
     void cutProfileToBuffer();
     void exportProfile();
     void importProfile();

@@ -227,6 +227,7 @@ public class ComplexTable {
                                           Runnable uploadComplexesToM,
                                           Runnable copyInTables,
                                           Runnable pasteInTables,
+                                          Runnable pasteInTables_after,
                                           Consumer<List<TherapyComplex>> complexesToBiofon,
                                           Supplier<Boolean> toUserBaseMenuItemPredicate) {
 
@@ -235,13 +236,14 @@ public class ComplexTable {
         MenuItem mic3 = new MenuItem(this.res.getString("app.upload_to_dir"));
         MenuItem mic5 = new MenuItem(this.res.getString("app.upload_to_biomedism"));
         MenuItem mic4 =new MenuItem(this.res.getString("app.to_biofon"));
+        MenuItem mi_insert_botom =new MenuItem(this.res.getString("app.menu.insert_after"));
 
         MenuItem mic6=new SeparatorMenuItem();
         MenuItem mic7=new SeparatorMenuItem();
         MenuItem mic8=new SeparatorMenuItem();
 
         MenuItem mic9 = new MenuItem(this.res.getString("app.ui.copy"));
-        MenuItem mic10 =new MenuItem(this.res.getString("app.ui.paste"));
+        MenuItem mic10 =new MenuItem(this.res.getString("app.menu.insert_before"));
         MenuItem mic11 =new MenuItem(this.res.getString("app.cut"));
         MenuItem mic12 =new MenuItem(this.res.getString("app.delete"));
 
@@ -251,7 +253,7 @@ public class ComplexTable {
         mic9.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN));
         mic10.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
         mic12.setAccelerator(new KeyCodeCombination(KeyCode.DELETE));
-
+        mi_insert_botom.setOnAction(e->pasteInTables_after.run());
         mic13.setOnAction(e->onPrintComplex.run());
         mic11.setOnAction(e-> cutInTables.run());
         mic12.setOnAction(e->deleteInTables.run());
@@ -276,6 +278,7 @@ public class ComplexTable {
                 mic11,
                 mic9,
                 mic10,
+                mi_insert_botom,
                 mic12,
                 mic6,
                 mic2,
@@ -296,6 +299,7 @@ public class ComplexTable {
             mic13.setDisable(false);
             mic9.setDisable(false);
             mic10.setDisable(true);
+            mi_insert_botom.setDisable(true);
             translateMenu.setDisable(true);
             Clipboard clipboard =Clipboard.getSystemClipboard();
             if(getSelectedItems().isEmpty()) {
@@ -310,8 +314,12 @@ public class ComplexTable {
                 mic12.setDisable(true);
                 mic13.setDisable(true);
 
+
                 //вставить можно и в пустую таблицу
-                if(clipboard.hasContent(COMPLEX_COPY_ITEM) || clipboard.hasContent(COMPLEX_CUT_ITEM_ID)  )  mic10.setDisable(false);
+                if(clipboard.hasContent(COMPLEX_COPY_ITEM) || clipboard.hasContent(COMPLEX_CUT_ITEM_ID)  ) {
+                    mic10.setDisable(false);
+                    mi_insert_botom.setDisable(false);
+                }
 
             } else {
                 mic9.setDisable(false);
@@ -325,8 +333,14 @@ public class ComplexTable {
 
 
                     if (clipboard.hasContent(COMPLEX_COPY_ITEM)) {
-                        if(table.getSelectionModel().getSelectedIndices().size()==1) mic10.setDisable(false);
-                        else mic10.setDisable(true);
+                        if(table.getSelectionModel().getSelectedIndices().size()==1) {
+                            mic10.setDisable(false);
+                            mi_insert_botom.setDisable(false);
+                        }
+                        else{
+                            mic10.setDisable(true);
+                            mi_insert_botom.setDisable(false);
+                        }
                     }
                     else  if(table.getSelectionModel().getSelectedIndices().size()==1) {
                         mic10.setDisable(true);
@@ -338,9 +352,16 @@ public class ComplexTable {
                                 else if(idProfile.longValue()== ProfileTable.getInstance().getSelectedItem().getId().longValue()){
                                     //вставка в том же профиле
                                     int dropIndex = table.getSelectionModel().getSelectedIndex();
-                                    if(isEnablePaste(dropIndex,ind))mic10.setDisable(false);
+                                    mi_insert_botom.setDisable(false);
+                                    if(isEnablePaste(dropIndex,ind)){
+                                        mic10.setDisable(false);
 
-                                }else   mic10.setDisable(false);//вставка в другом профиле, можно в любое место
+                                    }
+
+                                }else   {
+                                    mic10.setDisable(false);//вставка в другом профиле, можно в любое место
+                                    mi_insert_botom.setDisable(false);
+                                }
                             }
                         }
 
@@ -348,6 +369,7 @@ public class ComplexTable {
 
                 } else {
                     mic10.setDisable(true);
+                    mi_insert_botom.setDisable(true);
                 }
 
 

@@ -119,6 +119,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
                 this::uploadComplexesToM,
                 AppController::copyInTables,
                 AppController::pasteInTables,
+                AppController::pasteInTables_after,
                 this::complexesToBiofon,
                 ()->{
                     boolean res=true;
@@ -1084,6 +1085,12 @@ public class ComplexController extends BaseController implements ComplexAPI{
         else pasteTherapyComplexesByCut();
     }
 
+    @Override
+    public void pasteTherapyComplexes_after() {
+        ComplexTable.getInstance().clearSelection();
+        pasteTherapyComplexes();
+    }
+
 
     private void pasteTherapyComplexesByCopy(){
         Profile profile = ProfileTable.getInstance().getSelectedItem();
@@ -1171,7 +1178,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
     }
     private void pasteTherapyComplexesByCut(){
         //в выбранный индекс вставляется новый элемент а все сдвигаются на 1 индекс  вырезанного индекса
-
+        System.out.println("pasteTherapyComplexesByCut ");
         Clipboard clipboard = Clipboard.getSystemClipboard();
 
         if (!clipboard.hasContent(ComplexTable.COMPLEX_CUT_ITEM_PROFILE)) return;
@@ -1184,14 +1191,19 @@ public class ComplexController extends BaseController implements ComplexAPI{
 
             else if(idProfile.longValue()==selectedProfile.getId().longValue()){
                 //вставка в текущем профиле
-                if ( ComplexTable.getInstance().getSelectedItems().isEmpty()) return;
-                if ( ComplexTable.getInstance().getSelectedItems().size()!=1) return;
+                //if ( ComplexTable.getInstance().getSelectedItems().isEmpty()) return;
+                if(!ComplexTable.getInstance().getSelectedItems().isEmpty())if ( ComplexTable.getInstance().getSelectedItems().size()!=1) return;
 
                 Integer[] indexes = (Integer[]) clipboard.getContent(ComplexTable.COMPLEX_CUT_ITEM_INDEX);
                 if(indexes==null) return;
                 if(indexes.length==0) return;
                 List<Integer> ind = Arrays.stream(indexes).collect(Collectors.toList());
-                int dropIndex = ComplexTable.getInstance().getSelectedIndex();
+                int dropIndex = 0;
+                if(ComplexTable.getInstance().getSelectedItems().size() ==  0){
+                    dropIndex = ComplexTable.getInstance().getAllItems().size()-1;
+                    if(dropIndex < 0) dropIndex = 0;
+                }
+                else dropIndex = ComplexTable.getInstance().getSelectedIndex();
 
                 if(!TablesCommon.isEnablePaste(dropIndex,indexes)) {
                     showWarningDialog(res.getString("app.ui.moving_items"),"",res.getString("app.ui.can_not_move_to_pos"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
@@ -1203,8 +1215,15 @@ public class ComplexController extends BaseController implements ComplexAPI{
                 int lastIndex=ind.get(ind.size()-1);
 
 //элементы всегда будут оказываться выше чем индекс по которому вставляли, те визуально вставляются над выбираемым элементом
+                if(ComplexTable.getInstance().getSelectedItems().size() == 0){
 
-                if(dropIndex < startIndex){
+                    for (TherapyComplex i : therapyComplexes) {
+                        ComplexTable.getInstance().getAllItems().remove(i);
+                    }
+                    ComplexTable.getInstance().getAllItems().addAll(therapyComplexes);
+
+                }
+                else if(dropIndex < startIndex){
 
                     for (TherapyComplex i : therapyComplexes) {
                         ComplexTable.getInstance().getAllItems().remove(i);
@@ -1243,8 +1262,9 @@ public class ComplexController extends BaseController implements ComplexAPI{
                 if(ids.length==0) return;
                 List<Long> ind = Arrays.stream(ids).collect(Collectors.toList());
                 int dropIndex =-1;
-                if (ComplexTable.getInstance().getSelectedItem()!=null)dropIndex = ComplexTable.getInstance().getSelectedIndex();
+                if (ComplexTable.getInstance().getSelectedItems().size() > 0 )dropIndex = ComplexTable.getInstance().getSelectedIndex();
                 else if(ComplexTable.getInstance().getAllItems().size()==0) dropIndex=0;
+                else if(ComplexTable.getInstance().getSelectedItems().size() ==0) dropIndex = -1;
 
                 List<TherapyComplex> movedTP = ind.stream()
                                                   .map(i->getModel().findTherapyComplex(i))

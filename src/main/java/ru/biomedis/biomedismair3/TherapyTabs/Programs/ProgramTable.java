@@ -310,18 +310,21 @@ public class ProgramTable {
                                               Runnable copyInTables,
                                               Runnable pasteInTables,
                                               Runnable deleteInTables,
+                                              Runnable pasteInTables_after,
                                               Supplier<Boolean> therapyProgramsCopied,
                                               Supplier<Boolean> toUserBaseMenuItemPredicate) {
         MenuItem mi1=new MenuItem(res.getString("app.cut"));
         MenuItem mi6=new MenuItem(res.getString("app.ui.edit_file_path"));
         MenuItem mi7=new MenuItem(res.getString("app.ui.copy"));
-        MenuItem mi2=new MenuItem(res.getString("app.paste"));
+        MenuItem mi2=new MenuItem(res.getString("app.menu.insert_before"));
         MenuItem mi16=new MenuItem(res.getString("app.delete"));
+        MenuItem mi_insert_botom =new MenuItem(this.res.getString("app.menu.insert_after"));
 
         mi1.setAccelerator(new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN));
         mi7.setAccelerator(new KeyCodeCombination(KeyCode.C, KeyCombination.CONTROL_DOWN));
         mi2.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
         mi16.setAccelerator(new KeyCodeCombination(KeyCode.DELETE));
+
 
         MenuItem mi3=new SeparatorMenuItem();
         MenuItem mi4=new MenuItem(res.getString("app.to_user_base"));
@@ -336,7 +339,7 @@ public class ProgramTable {
         MenuItem mi15=new SeparatorMenuItem();
         MenuItem mi17=new MenuItem(res.getString("app.copy_freq_and_name"));
 
-
+        mi_insert_botom.setOnAction(e->pasteInTables_after.run());
 
         mi11.setOnAction(e->{
             TherapyProgram selectedItem = getSelectedItem();
@@ -403,6 +406,7 @@ public class ProgramTable {
         programMenu.getItems().addAll(mi1,
                 mi7,
                 mi2,
+                mi_insert_botom,
                 mi16,
                 mi3,
                 mi8,
@@ -460,6 +464,7 @@ public class ProgramTable {
                 mi3.setDisable(true);
                 mi4.setDisable(true);
                 mi5.setDisable(true);
+                mi_insert_botom.setDisable(true);
                 if(getSelectedIndexes().size()==1 && getSelectedItem().isMp3())mi6.setDisable(false);
                 else mi6.setDisable(true);
 
@@ -474,6 +479,7 @@ public class ProgramTable {
 
 
                     if (clipboard.hasContent(PROGRAM_COPY_ITEM)) {
+                        mi_insert_botom.setDisable(false);
                         if(getSelectedIndexes().size()==1) mi2.setDisable(false);
                         else mi2.setDisable(true);
                     }
@@ -482,6 +488,7 @@ public class ProgramTable {
                         Integer[] ind = (Integer[]) clipboard.getContent(PROGRAM_CUT_ITEM_INDEX);
                         if (ind != null) {
                             if (ind.length != 0) {
+                                mi_insert_botom.setDisable(false);
                                 Long idComplex = (Long) clipboard.getContent(PROGRAM_CUT_ITEM_COMPLEX);
                                 if(idComplex==null)mi2.setDisable(true);
                                 else if(idComplex.longValue()== ComplexTable.getInstance().getSelectedItem().getId().longValue()){
@@ -498,6 +505,7 @@ public class ProgramTable {
                 } else {
                     mi2.setDisable(true);
                     mi1.setDisable(false);
+                    mi_insert_botom.setDisable(true);
                 }
 
                 if(getSelectedItem() == null) {

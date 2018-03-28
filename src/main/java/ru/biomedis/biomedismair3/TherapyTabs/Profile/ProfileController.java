@@ -83,7 +83,8 @@ public class ProfileController extends BaseController implements ProfileAPI {
         profileTable.initProfileContextMenu( this::onPrintProfile,
                 AppController::cutInTables,
                 AppController::pasteInTables,
-                AppController::deleteInTables);
+                AppController::deleteInTables,
+                AppController::pasteInTables_after);
 
         btnDeleteProfile.disableProperty().bind(tableProfile.getSelectionModel().selectedItemProperty().isNull());
 
@@ -431,7 +432,10 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
             if (td.isChanged())
             {
-                Profile profile = getModel().createProfile(td.getNewVal());
+                long maxPos = ProfileTable.getInstance().getAllItems().stream().mapToLong(Profile::getPosition).max().orElse(0L);
+                Profile profile = null;
+                if(maxPos!=0) profile = getModel().createProfile(td.getNewVal(), maxPos+1);
+                else profile = getModel().createProfile(td.getNewVal());
 
                 tableProfile.getItems().add(profile);
 
@@ -1526,6 +1530,52 @@ public class ProfileController extends BaseController implements ProfileAPI {
                 }
                 ProfileTable.getInstance().getAllItems().remove(movedProfile);
                 ProfileTable.getInstance().getAllItems().add(dropIndex,movedProfile);
+                Profile tmp;
+                try {
+                    for (int i=0; i<ProfileTable.getInstance().getAllItems().size();i++){
+                        tmp = ProfileTable.getInstance().getAllItems().get(i);
+                        tmp.setPosition(i);
+                        getModel().updateProfile(tmp);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    clipboard.clear();
+                    return;
+                }
+
+
+
+            }
+        }
+
+        clipboard.clear();
+    }
+
+    @Override
+    public void pasteProfile_after() {
+        Profile profile = ProfileTable.getInstance().getSelectedItem();
+        if(profile==null) return;
+
+        int dropIndex = ProfileTable.getInstance().getAllItems().size()-1;
+        if(dropIndex < 0 ) dropIndex =0;
+
+        Clipboard clipboard= Clipboard.getSystemClipboard();
+        if(!clipboard.hasContent(ProfileTable.PROFILE_CUT_ITEM_ID)) return;
+        if(!clipboard.hasContent(ProfileTable.PROFILE_CUT_ITEM_INDEX)) return;
+
+
+        Integer ind = (Integer) clipboard.getContent(ProfileTable.PROFILE_CUT_ITEM_INDEX);
+        if (ind == null) return;
+        else {
+            if (dropIndex == ind) return;
+            else {
+                Profile movedProfile = ProfileTable.getInstance().getAllItems().get(ind);
+                if(movedProfile==null) {
+                    clipboard.clear();
+                    return;
+                }
+                ProfileTable.getInstance().getAllItems().remove(movedProfile);
+                ProfileTable.getInstance().getAllItems().add(movedProfile);
                 Profile tmp;
                 try {
                     for (int i=0; i<ProfileTable.getInstance().getAllItems().size();i++){
