@@ -16,8 +16,7 @@ public class Complex implements Serializable,IEntity,INamed,IDescriptioned {
    private final SimpleObjectProperty<Strings> description=new SimpleObjectProperty<>();
    private final SimpleObjectProperty<Section> section=new SimpleObjectProperty<>();
    private final SimpleBooleanProperty ownerSystem =new SimpleBooleanProperty();
-    private final SimpleStringProperty uuid=new SimpleStringProperty();
-    private final SimpleIntegerProperty timeForFreq = new SimpleIntegerProperty();
+   private final SimpleStringProperty uuid=new SimpleStringProperty();
 
     private final SimpleStringProperty nameString=new SimpleStringProperty("#");
     private final SimpleStringProperty descriptionString=new SimpleStringProperty("#");
@@ -28,17 +27,7 @@ public class Complex implements Serializable,IEntity,INamed,IDescriptioned {
 
     }
 
-    public int getTimeForFreq() {
-        return timeForFreq.get();
-    }
-    @Transient
-    public SimpleIntegerProperty timeForFreqProperty() {
-        return timeForFreq;
-    }
 
-    public void setTimeForFreq(int timeForFreq) {
-        this.timeForFreq.set(timeForFreq);
-    }
 
     public String getUuid() {
         return uuid.get();

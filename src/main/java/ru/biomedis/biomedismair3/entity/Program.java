@@ -1,12 +1,9 @@
 package ru.biomedis.biomedismair3.entity;
 
-import java.io.Serializable;
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleLongProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 
 import javax.persistence.*;
+import java.io.Serializable;
 @Access(AccessType.PROPERTY)
 @Entity
 public class Program implements Serializable,IEntity,INamed,IDescriptioned  {
@@ -23,14 +20,69 @@ public class Program implements Serializable,IEntity,INamed,IDescriptioned  {
     private final SimpleBooleanProperty ownerSystem =new SimpleBooleanProperty();
     private final SimpleLongProperty position=new SimpleLongProperty();
     private final SimpleStringProperty uuid=new SimpleStringProperty();
+    private final SimpleIntegerProperty timeForFreq = new SimpleIntegerProperty();
+    private final SimpleIntegerProperty bundlesLength =new SimpleIntegerProperty();//колличество частот в пачке, для мультичастотного режима. <2 значит пачки отсутствуют
+    private final SimpleBooleanProperty multyFreq=new SimpleBooleanProperty();
+    private final SimpleBooleanProperty locked = new SimpleBooleanProperty();
 
     private final SimpleStringProperty nameString=new SimpleStringProperty("#");
     private final SimpleStringProperty descriptionString=new SimpleStringProperty("#");
-    
+    private final SimpleIntegerProperty pauseAfterProgram=new SimpleIntegerProperty();
 
     public Program() {
 
     }
+
+
+
+    public int getPauseAfterProgram() {
+        return pauseAfterProgram.get();
+    }
+    @Transient
+    public SimpleIntegerProperty pauseAfterProgramProperty() {
+        return pauseAfterProgram;
+    }
+
+    public void setPauseAfterProgram(int pauseAfterProgram) {
+        this.pauseAfterProgram.set(pauseAfterProgram);
+    }
+
+
+    public boolean isLocked() {
+        return locked.get();
+    }
+    @Transient
+    public SimpleBooleanProperty lockedProperty() {
+        return locked;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked.set(locked);
+    }
+
+    public boolean isMultyFreq() {
+        return multyFreq.get();
+    }
+    @Transient
+    public SimpleBooleanProperty multyFreqProperty() {
+        return multyFreq;
+    }
+
+    public void setMultyFreq(boolean multyFreq) {
+        this.multyFreq.set(multyFreq);
+    }
+    public int getTimeForFreq() {
+        return timeForFreq.get();
+    }
+    @Transient
+    public SimpleIntegerProperty timeForFreqProperty() {
+        return timeForFreq;
+    }
+
+    public void setTimeForFreq(int timeForFreq) {
+        this.timeForFreq.set(timeForFreq);
+    }
+
 
     public String getUuid() {
         return uuid.get();

@@ -13,10 +13,8 @@ public class TherapyComplex implements Serializable {
     private final SimpleStringProperty name=new SimpleStringProperty();
     private final SimpleStringProperty description=new SimpleStringProperty();
     private final SimpleObjectProperty<Profile> profile=new SimpleObjectProperty<>();
-    private final SimpleIntegerProperty timeForFrequency=new SimpleIntegerProperty();
 
     private final SimpleBooleanProperty changed=new SimpleBooleanProperty();//маркер генерации файла данных. Если true то требуется регенерация файлов комплекса
-    private final SimpleIntegerProperty bundlesLength =new SimpleIntegerProperty();//колличество частот в пачке, для мультичастотного режима. <2 значит пачки отсутствуют
     private final SimpleStringProperty oname=new SimpleStringProperty();
     private final SimpleLongProperty time=new SimpleLongProperty();
     private final SimpleLongProperty position=new SimpleLongProperty();
@@ -74,19 +72,7 @@ public class TherapyComplex implements Serializable {
         this.changed.set(changed);
     }
 
-    @Basic
-    public int getBundlesLength() {
-        return bundlesLength.get();
-    }
 
-    @Transient
-    public SimpleIntegerProperty bundlesLengthProperty() {
-        return bundlesLength;
-    }
-
-    public void setBundlesLength(int bundlesLength) {
-        this.bundlesLength.set(bundlesLength);
-    }
 
     @Transient
     public SimpleLongProperty idProperty() {
@@ -114,10 +100,7 @@ public class TherapyComplex implements Serializable {
         this.description.set(description);
     }
 
-    @Transient
-    public SimpleIntegerProperty timeForFrequencyProperty() {
-        return timeForFrequency;
-    }
+
 
 
 
@@ -156,14 +139,7 @@ public class TherapyComplex implements Serializable {
         this.id.set(id);
     }
     
-    @Basic
-    public Integer getTimeForFrequency() {
-        return this.timeForFrequency.get();
-    }
 
-    public void setTimeForFrequency(Integer timeForFrequency) {
-        this.timeForFrequency.set(timeForFrequency);
-    }
 
 
 

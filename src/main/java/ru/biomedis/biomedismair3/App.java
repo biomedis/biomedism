@@ -593,6 +593,23 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                                  });
 
 
+
+
+            } else {
+                showUpdateErrorAndExit("Версия обновления и версия программы конфликтуют. " + getUpdateVersion());
+            }
+
+
+            if(getUpdateVersion()==14){
+                CompletableFuture.runAsync(() -> changeDDL2())
+                                 .thenRun(() -> updateIn13(updateOption,updateFixVersion))
+                                 .thenRun(() -> Platform.runLater(() -> UpdateWaiter.close()))
+                                 .exceptionally(e->{
+                                     showUpdateErrorAndExit(e.getMessage());
+                                     return null;
+                                 });
+
+
                 System.out.println("Update >12.0");
 
             }
@@ -1211,6 +1228,11 @@ https://gist.github.com/DemkaAge/8999236
             logger.info("ОБНОВЛЕНИЕ 13 НЕ ЗАВЕРШЕНО.");
 
         }
+    }
+
+    private void update14(ProgramOptions updateOption) {
+        System.out.println("Update_14");
+
     }
     private void checkBiofonProfile() throws Exception {
 

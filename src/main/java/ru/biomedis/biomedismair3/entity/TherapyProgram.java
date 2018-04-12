@@ -1,9 +1,6 @@
 package ru.biomedis.biomedismair3.entity;
 
-import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.property.SimpleLongProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -35,6 +32,11 @@ public class TherapyProgram implements Serializable {
     private final SimpleBooleanProperty multyFreq=new SimpleBooleanProperty();
     private final SimpleStringProperty srcUUID=new SimpleStringProperty();
 
+    private final SimpleIntegerProperty timeForFrequency=new SimpleIntegerProperty();
+    private final SimpleIntegerProperty bundlesLength =new SimpleIntegerProperty();//колличество частот в пачке, для мультичастотного режима. <2 значит пачки отсутствуют
+    private final SimpleBooleanProperty locked = new SimpleBooleanProperty();
+    private final SimpleIntegerProperty pauseAfterProgram=new SimpleIntegerProperty();
+
     private String uuid;
    
    
@@ -42,6 +44,30 @@ public class TherapyProgram implements Serializable {
    private SearchFreqs searchFreqs =new SearchFreqs();
    private SearchName searchName =new SearchName();
 
+
+    public int getPauseAfterProgram() {
+        return pauseAfterProgram.get();
+    }
+    @Transient
+    public SimpleIntegerProperty pauseAfterProgramProperty() {
+        return pauseAfterProgram;
+    }
+
+    public void setPauseAfterProgram(int pauseAfterProgram) {
+        this.pauseAfterProgram.set(pauseAfterProgram);
+    }
+
+    public boolean isLocked() {
+        return locked.get();
+    }
+    @Transient
+    public SimpleBooleanProperty lockedProperty() {
+        return locked;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked.set(locked);
+    }
 
     public String getSrcUUID() {
         return srcUUID.get();
@@ -141,6 +167,34 @@ public class TherapyProgram implements Serializable {
     {
 
 
+    }
+
+    @Basic
+    public Integer getTimeForFrequency() {
+        return this.timeForFrequency.get();
+    }
+
+    public void setTimeForFrequency(Integer timeForFrequency) {
+        this.timeForFrequency.set(timeForFrequency);
+    }
+
+    @Transient
+    public SimpleIntegerProperty timeForFrequencyProperty() {
+        return timeForFrequency;
+    }
+
+    @Basic
+    public int getBundlesLength() {
+        return bundlesLength.get();
+    }
+
+    @Transient
+    public SimpleIntegerProperty bundlesLengthProperty() {
+        return bundlesLength;
+    }
+
+    public void setBundlesLength(int bundlesLength) {
+        this.bundlesLength.set(bundlesLength);
     }
 
     public boolean isMultyFreq() {
