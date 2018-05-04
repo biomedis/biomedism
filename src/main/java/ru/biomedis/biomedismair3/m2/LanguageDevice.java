@@ -29,8 +29,8 @@ public class LanguageDevice {
         langs.put("de",new LanguageDevice(3,"Cp1250","Немецкий","de"));
         langs.put("el",new LanguageDevice(4,"Cp1253","Греческий","el"));
         langs.put("fr",new LanguageDevice(5,"Cp1250","Французский","fr"));
-        langs.put("pl",new LanguageDevice(6,"Cp1250","Польский","pl"));
-        langs.put("it",new LanguageDevice(7,"Cp1250","Итальянский","it"));
+        langs.put("lt",new LanguageDevice(6,"Cp1257","Литовский","lt"));
+
         //langs.put("en",new LanguageDevice(8,"Cp1254","Турецкий","en"));
     }
 
@@ -42,21 +42,24 @@ public class LanguageDevice {
      * @param text
      * @return
      */
-    public static LanguageDevice langByCodePoint(String text){
+    public static LanguageDevice langByCodePoint(String text) {
         long av=0;
         int cp;
         int cnt=0;
+        boolean lt = false;
         for(int i=0;i<text.length();i++){
             cp= text.codePointAt(i);
             //если попали  в общие символы для всех кодировок
             if(cp >= 0 && cp <= 0x0040)continue;
             cnt++;
             av+=cp;
+            if(cp >= 0x0100 && cp <= 0x017f) lt = true;//если есть символы литовского, то сразу его определим
         }
 
         av=Math.round((float)av/(float)cnt);
 
 
+        if(lt)return getDeviceLang("lt");
 
         if(av>=0x0000 && av<=0x02D9)return getDeviceLang("en");
         else  if(av>=0x0400 && av<=0x04ff)return getDeviceLang("ru");

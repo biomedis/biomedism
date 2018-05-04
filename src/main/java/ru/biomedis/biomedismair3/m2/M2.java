@@ -542,6 +542,7 @@ public class M2
 
         for (TherapyComplex tc : mda.findAllTherapyComplexByProfile(profile))
         {
+
             String lancTC = LanguageDevice.langByCodePoint(tc.getName()).getAbbr();
 
             for (TherapyProgram tp : mda.findTherapyPrograms(tc).stream().filter(i->!i.isMp3()).collect(Collectors.toList())) {
