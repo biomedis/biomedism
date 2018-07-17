@@ -242,3 +242,56 @@
     -fx-base: rgb(136, 0, 255);
 
 }
+/*
+#tab1 {
+    -fx-background-color: -fx-outer-border, -fx-text-box-border,rgb(21, 205, 26);
+}
+
+#tab2 {
+    -fx-background-color: -fx-outer-border, -fx-text-box-border,rgb(29, 211, 255);
+}
+
+#tab3 {
+    -fx-background-color: -fx-outer-border, -fx-text-box-border,rgb(241, 192, 1);
+}
+
+#tab5{
+    -fx-background-color: -fx-outer-border, -fx-text-box-border,rgb(128, 34, 255);
+}
+
+#tab4 {
+    -fx-background-color: -fx-outer-border, -fx-text-box-border,rgb(241, 147, 230);
+}
+
+*/
+#tab1  .tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: rgb(18, 141, 23);
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+#tab2  .tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: rgb(20, 140, 170);
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+#tab3  .tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: rgb(81, 23, 162);
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+#tab4  .tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: rgb(173, 137, 1);
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+#tab5  .tab-label {
+    -fx-alignment: CENTER;
+    -fx-text-fill: rgb(169, 3, 33);
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}

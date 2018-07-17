@@ -51,6 +51,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
     @FXML private Button btnUploadm;//закачать на прибор
     @FXML private Button btnDeleteProfile;
     @FXML private Button btnUploadToTrinity;
+    @FXML private Button btnReadTrinity;
     @FXML private TableView<Profile> tableProfile;
     private ProfileTable profileTable;
     private ResourceBundle res;
@@ -160,7 +161,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
        initUploadMenuBtn();//инициализация зависит от наличия свойств устанавливаемых
        btnUploadToTrinity.disableProperty().bind(m2Ready.and(ProfileTable.getInstance().getSelectedItemProperty().isNotNull()).not());
-
+       btnReadTrinity.disableProperty().bind(m2Ready.and(ProfileTable.getInstance().getSelectedItemProperty().isNotNull()).not());
    }
 
     private Path getDevicePath(){return devicePathFunc.get();}
@@ -222,6 +223,9 @@ public class ProfileController extends BaseController implements ProfileAPI {
         uploadM2(ProfileTable.getInstance().getSelectedItem());
     }
 
+    public void readProfileFromTrinity(){
+        App.getAppController().onReadProfileFromTrinity();
+    }
 
     private void initUploadMenuBtn() {
 
