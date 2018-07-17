@@ -10,7 +10,8 @@
             <Button minHeight="24.0" minWidth="24.0" mnemonicParsing="false" onAction="#onSearchProfile" prefHeight="24.0" prefWidth="24.0" styleClass="searchButton" />
             <Button fx:id="btnCreateProfile" mnemonicParsing="false" onAction="#onCreateProfile" text="%ui.main.create_profile" />
             <Button fx:id="btnGenerate" mnemonicParsing="false" onAction="#onGenerate" text="%app.file_generation" />
-            <Button fx:id="btnUploadm" mnemonicParsing="false" text="%app.uppload_" />
+            <Button fx:id="btnUploadm" mnemonicParsing="false" text="%app.uppload_"  onAction="#upploadToTrinity"/>
+            <Button fx:id="btnUploadToTrinity" mnemonicParsing="false" onAction="#removeProfile" text="%ui.main.remove_profile" />
             <Button fx:id="btnDeleteProfile" mnemonicParsing="false" onAction="#removeProfile" text="%ui.main.remove_profile" />
          </children>
          <padding>
