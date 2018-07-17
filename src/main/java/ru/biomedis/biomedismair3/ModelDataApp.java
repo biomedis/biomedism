@@ -582,15 +582,9 @@ public class ModelDataApp {
      */
     public List<Profile> searchProfile(String text)
     {
-        //если добавить критерий по описанию то запрос начинает занимать оооочень много времени, проще сделать их последовательными если надо
-        Query query=emf.createEntityManager().createQuery("Select prof From Profile prof Where prof.name like :txt or prof.name like :txt2 or prof.name like :txt3");
 
-
+        Query query=emf.createEntityManager().createQuery("Select prof From Profile prof Where lower(prof.name) like lower(:txt)");
         query.setParameter("txt", "%"+text+"%");
-        query.setParameter("txt2", "%"+text.substring(0, 1).toUpperCase() + text.substring(1)+"%");
-        query.setParameter("txt3", "%" + text.toLowerCase() + "%");
-
-
 
         return query.getResultList();
 
@@ -2794,12 +2788,11 @@ public class ModelDataApp {
     public List<Section> searchSectionInAllBase(String text,Language lang)
     {
             //если добавить критерий по описанию то запрос начинает занимать оооочень много времени, проще сделать их последовательными если надо
-        Query query=emf.createEntityManager().createQuery("Select sec From Section sec INNER JOIN LocalizedString s ON sec.name=s.strings and (s.content like :txt or s.content like :txt2 or s.content like :txt3) INNER JOIN Language l ON (l=:lang and s.language=l) or (l=:user_lang and s.language=l)");
+        Query query=emf.createEntityManager().createQuery("Select sec From Section sec INNER JOIN LocalizedString s ON sec.name=s.strings and (lower(s.content) like lower(:txt)) INNER JOIN Language l ON (l=:lang and s.language=l) or (l=:user_lang and s.language=l)");
 
         query.setParameter("user_lang", getUserLanguage());
         query.setParameter("txt", "%"+text+"%");
-        query.setParameter("txt2", "%"+text.substring(0, 1).toUpperCase() + text.substring(1)+"%");
-        query.setParameter("txt3", "%" + text.toLowerCase() + "%");
+
 
         query.setParameter("lang", lang);
 
@@ -2810,12 +2803,11 @@ public class ModelDataApp {
     public List<Program> searchProgramInAllBase(String text,Language lang)
     {
         //если добавить критерий по описанию то запрос начинает занимать оооочень много времени, проще сделать их последовательными если надо
-        Query query=emf.createEntityManager().createQuery("Select sec From Program sec INNER JOIN LocalizedString s ON sec.name=s.strings and (s.content like :txt or s.content like :txt2 or s.content like :txt3) INNER JOIN Language l ON (l=:lang and s.language=l) or (l=:user_lang and s.language=l)");
+        Query query=emf.createEntityManager().createQuery("Select sec From Program sec INNER JOIN LocalizedString s ON sec.name=s.strings and (lower(s.content) like lower(:txt)) INNER JOIN Language l ON (l=:lang and s.language=l) or (l=:user_lang and s.language=l)");
 
         query.setParameter("user_lang", getUserLanguage());
         query.setParameter("txt", "%"+text+"%");
-        query.setParameter("txt2", "%"+text.substring(0, 1).toUpperCase() + text.substring(1)+"%");
-        query.setParameter("txt3", "%" + text.toLowerCase() + "%");
+
         query.setParameter("lang", lang);
 
         return query.getResultList();
@@ -2824,12 +2816,11 @@ public class ModelDataApp {
     public List<Complex> searchComplexInAllBase(String text,Language lang)
     {
         //если добавить критерий по описанию то запрос начинает занимать оооочень много времени, проще сделать их последовательными если надо
-        Query query=emf.createEntityManager().createQuery("Select sec From Complex sec INNER JOIN LocalizedString s ON sec.name=s.strings and (s.content like :txt or s.content like :txt2 or s.content like :txt3) INNER JOIN Language l ON (l=:lang and s.language=l) or (l=:user_lang and s.language=l)");
+        Query query=emf.createEntityManager().createQuery("Select sec From Complex sec INNER JOIN LocalizedString s ON sec.name=s.strings and (lower(s.content) like lower(:txt)) INNER JOIN Language l ON (l=:lang and s.language=l) or (l=:user_lang and s.language=l)");
 
         query.setParameter("user_lang", getUserLanguage());
         query.setParameter("txt", "%"+text+"%");
-        query.setParameter("txt2", "%"+text.substring(0, 1).toUpperCase() + text.substring(1)+"%");
-        query.setParameter("txt3", "%" + text.toLowerCase() + "%");
+
         query.setParameter("lang", lang);
 
         return query.getResultList();
@@ -2840,11 +2831,10 @@ public class ModelDataApp {
     public List<Section> searchSectionInParent(String text,Language lang,Section parent)
     {
         //если добавить критерий по описанию то запрос начинает занимать оооочень много времени, проще сделать их последовательными если надо
-        Query query=emf.createEntityManager().createQuery("Select sec From Section sec INNER JOIN LocalizedString s ON sec.name=s.strings and (s.content like :txt or s.content like :txt2 or s.content like :txt3) INNER JOIN Language l ON  (l=:lang and s.language=l) or (l=:user_lang and s.language=l) where sec.parent.id=:parent");
+        Query query=emf.createEntityManager().createQuery("Select sec From Section sec INNER JOIN LocalizedString s ON sec.name=s.strings and (lower(s.content) like lower(:txt)) INNER JOIN Language l ON  (l=:lang and s.language=l) or (l=:user_lang and s.language=l) where sec.parent.id=:parent");
         query.setParameter("user_lang", getUserLanguage());
-        query.setParameter("parent", parent.getId()); query.setParameter("txt", "%"+text+"%");
-        query.setParameter("txt2", "%"+text.substring(0, 1).toUpperCase() + text.substring(1)+"%");
-        query.setParameter("txt3", "%" + text.toLowerCase() + "%"); query.setParameter("txt", "%"+text+"%");
+        query.setParameter("parent", parent.getId());
+        query.setParameter("txt", "%"+text+"%");
         query.setParameter("lang", lang);
 
         return query.getResultList();
@@ -2854,13 +2844,12 @@ public class ModelDataApp {
     public List<Program> searchProgramInParent(String text,Language lang,Section parent)
     {
         //если добавить критерий по описанию то запрос начинает занимать оооочень много времени, проще сделать их последовательными если надо
-        Query query=emf.createEntityManager().createQuery("Select sec From Program sec INNER JOIN LocalizedString s ON sec.name=s.strings and (s.content like :txt or s.content like :txt2 or s.content like :txt3) INNER JOIN Language l ON   (l=:lang and s.language=l) or (l=:user_lang and s.language=l)  where sec.section.id=:parent");
+        Query query=emf.createEntityManager().createQuery("Select sec From Program sec INNER JOIN LocalizedString s ON sec.name=s.strings and (lower(s.content) like lower(:txt)) INNER JOIN Language l ON   (l=:lang and s.language=l) or (l=:user_lang and s.language=l)  where sec.section.id=:parent");
 
         query.setParameter("user_lang", getUserLanguage());
         query.setParameter("parent", parent.getId());
         query.setParameter("txt", "%"+text+"%");
-        query.setParameter("txt2", "%"+text.substring(0, 1).toUpperCase() + text.substring(1)+"%");
-        query.setParameter("txt3", "%" + text.toLowerCase() + "%");
+
         query.setParameter("lang", lang);
 
         return query.getResultList();
@@ -2869,13 +2858,12 @@ public class ModelDataApp {
     public List<Complex> searchComplexInParent(String text,Language lang,Section parent)
     {
         //если добавить критерий по описанию то запрос начинает занимать оооочень много времени, проще сделать их последовательными если надо
-        Query query=emf.createEntityManager().createQuery("Select sec From Complex sec INNER JOIN LocalizedString s ON sec.name=s.strings and (s.content like :txt or s.content like :txt2 or s.content like :txt3) INNER JOIN Language l ON   (l=:lang and s.language=l) or (l=:user_lang and s.language=l)   where sec.section.id=:parent");
+        Query query=emf.createEntityManager().createQuery("Select sec From Complex sec INNER JOIN LocalizedString s ON sec.name=s.strings and (lower(s.content) like lower(:txt)) INNER JOIN Language l ON   (l=:lang and s.language=l) or (l=:user_lang and s.language=l)   where sec.section.id=:parent");
 
         query.setParameter("user_lang", getUserLanguage());
         query.setParameter("parent", parent.getId());
         query.setParameter("txt", "%"+text+"%");
-        query.setParameter("txt2", "%"+text.substring(0, 1).toUpperCase() + text.substring(1)+"%");
-        query.setParameter("txt3", "%" + text.toLowerCase() + "%");
+
         query.setParameter("lang", lang);
 
         return query.getResultList();
@@ -2884,13 +2872,12 @@ public class ModelDataApp {
     public List<Program> searchProgramInComplex(String text,Language lang,Complex parent)
     {
         //если добавить критерий по описанию то запрос начинает занимать оооочень много времени, проще сделать их последовательными если надо
-        Query query=emf.createEntityManager().createQuery("Select sec From Program sec INNER JOIN LocalizedString s ON sec.name=s.strings and (s.content like :txt or s.content like :txt2 or s.content like :txt3) INNER JOIN Language l ON   (l=:lang and s.language=l) or (l=:user_lang and s.language=l)  where sec.complex.id=:parent");
+        Query query=emf.createEntityManager().createQuery("Select sec From Program sec INNER JOIN LocalizedString s ON sec.name=s.strings and (lower(s.content) like lower(:txt)) INNER JOIN Language l ON   (l=:lang and s.language=l) or (l=:user_lang and s.language=l)  where sec.complex.id=:parent");
 
         query.setParameter("user_lang", getUserLanguage());
         query.setParameter("parent", parent.getId());
         query.setParameter("txt", "%"+text+"%");
-        query.setParameter("txt2", "%"+text.substring(0, 1).toUpperCase() + text.substring(1)+"%");
-        query.setParameter("txt3", "%" + text.toLowerCase() + "%");
+
         query.setParameter("lang", lang);
 
         return query.getResultList();
