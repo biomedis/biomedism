@@ -2096,13 +2096,14 @@ public class ProfileController extends BaseController implements ProfileAPI {
     }
 
 
+    private Calendar calendar = Calendar.getInstance();
     @Override
     public void setLastChangeProfile(long profileID){
         Optional<Profile> first = profileTable.getAllItems()
                                               .stream()
                                               .filter(p -> p.getId() == profileID)
                                               .findFirst();
-        first.ifPresent(profile -> profile.setLastChange(Calendar.getInstance().getTimeInMillis()));
+        first.ifPresent(profile -> profile.setLastChange(calendar.getTimeInMillis()));
     }
 
 
