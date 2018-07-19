@@ -6,9 +6,11 @@ import javafx.beans.property.SimpleStringProperty;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Calendar;
+
 @Access(AccessType.PROPERTY)
 @Entity
-public class Profile implements Serializable {
+public class Profile implements INamed, Serializable {
   private static final long serialVersionUID = 1L;
   
     private final SimpleLongProperty id=new SimpleLongProperty();  
@@ -20,6 +22,8 @@ public class Profile implements Serializable {
     private final SimpleLongProperty lastChange=new SimpleLongProperty();
     // профиля
    private String uuid;
+
+   private static Calendar cal= Calendar.getInstance();
   
    
 
@@ -92,10 +96,8 @@ public class Profile implements Serializable {
     public void setId(Long id) {
         this.id.set(id);
     }
-    
-    
 
-    
+
     @Basic
     public String getName() {
         return this.name.get();
@@ -121,5 +123,28 @@ public class Profile implements Serializable {
     @Transient
     public void setTime(long time) {
         this.time.set(time);
+    }
+
+
+    // Для реализации сортировки имени, тк используется уже готовый INamedComparator !!!, что требует реализации INamed
+    @Transient
+    @Override
+    public void setNameString(String val) {
+        setName(val);
+    }
+    @Transient
+    @Override
+    public String getNameString() {
+        return getName();
+    }
+    @Transient
+    @Override
+    public SimpleStringProperty nameStringProperty() {
+        return nameProperty();
+    }
+
+    @Transient
+    public void setNowChanged(){
+        setLastChange(cal.getTimeInMillis());
     }
 }

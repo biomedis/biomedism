@@ -450,13 +450,14 @@ public class ProfileController extends BaseController implements ProfileAPI {
                 if(maxPos!=0) profile = getModel().createProfile(td.getNewVal(), maxPos+1);
                 else profile = getModel().createProfile(td.getNewVal());
 
-                tableProfile.getItems().add(profile);
+                profileTable.getAllItems().add(profile);
 
                 int i = tableProfile.getItems().indexOf(profile);
                 tableProfile.requestFocus();
-                tableProfile.getSelectionModel().select(i);
-                tableProfile.scrollTo(i);
-                tableProfile.getFocusModel().focus(i);
+                profileTable.select(i);
+                profileTable.scrollTo(i);
+                profileTable.setItemFocus(i);
+
 
             }
 
@@ -2092,6 +2093,16 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
         });
         return  true;
+    }
+
+
+    @Override
+    public void setLastChangeProfile(long profileID){
+        Optional<Profile> first = profileTable.getAllItems()
+                                              .stream()
+                                              .filter(p -> p.getId() == profileID)
+                                              .findFirst();
+        first.ifPresent(profile -> profile.setLastChange(Calendar.getInstance().getTimeInMillis()));
     }
 
 

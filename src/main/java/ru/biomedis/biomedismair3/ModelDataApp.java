@@ -6,6 +6,7 @@
 package ru.biomedis.biomedismair3;
 
 import com.mpatric.mp3agic.Mp3File;
+import javafx.application.Platform;
 import ru.biomedis.biomedismair3.JPAControllers.*;
 import ru.biomedis.biomedismair3.JPAControllers.exceptions.NonexistentEntityException;
 import ru.biomedis.biomedismair3.entity.*;
@@ -23,7 +24,17 @@ import static ru.biomedis.biomedismair3.Log.logger;
  * @author Anama
  */
 public class ModelDataApp {
-//TODO можно сделать клинер который раз в месяц будет чистить базу от битых строк или др висячих объектов. Если их потеряли в пррощессе удаления
+
+    private IInProfileChanged onInProfileChanged;
+    public interface IInProfileChanged{
+         void change( long profileID);
+    }
+
+    public void setInProfileChanged(IInProfileChanged listener){
+        onInProfileChanged = listener;
+    }
+
+
     private final EntityManagerFactory emf;
     private final ComplexJpaController complexDAO;
     private final ProgramJpaController programDAO;
@@ -1781,6 +1792,8 @@ public class ModelDataApp {
             tc.setPosition(tc.getId());
             updateTherapyComplex(tc);
         }
+
+        Platform.runLater(()->onInProfileChanged.change(profile.getId()));
         return tc;
     }
 
@@ -1823,6 +1836,8 @@ public class ModelDataApp {
               tc.setPosition(tc.getId());
               updateTherapyComplex(tc);
           }
+
+          Platform.runLater(()->onInProfileChanged.change(profile.getId()));
         return tc;
       }
 
@@ -1931,6 +1946,8 @@ public class ModelDataApp {
             tc.setPosition(tc.getId());
             updateTherapyComplex(tc);
         }
+
+        Platform.runLater(()->onInProfileChanged.change(profile.getId()));
         return tc;
     }
 
@@ -2188,16 +2205,20 @@ public class ModelDataApp {
           for(TherapyProgram itm:findTherapyProgram) removeTherapyProgram(itm);
           
             therapyComplexDAO.destroy(th.getId());
+            Platform.runLater(()->onInProfileChanged.change(th.getProfile().getId()));
         } catch (Exception ex) {
             Log.logger.error("",ex);
             throw new Exception("Ошибка удаления терапевтического комплекса",ex);
         }
+
+
           
           
       }
       public void updateTherapyComplex(TherapyComplex cm) throws Exception
       {
-      therapyComplexDAO.edit(cm);
+          therapyComplexDAO.edit(cm);
+          Platform.runLater(()->onInProfileChanged.change(cm.getProfile().getId()));
       }
 
        public List<TherapyComplex> findAllTherapyComplexByProfile(Profile profile)
@@ -2246,6 +2267,8 @@ public class ModelDataApp {
             tc=null;
             throw new Exception("Ошибка копирования терапевтического комплекса",e);
         }
+
+        Platform.runLater(()->onInProfileChanged.change(profile.getId()));
         return therapyComplex;
 
     }
@@ -2273,6 +2296,7 @@ public class ModelDataApp {
 
                throw new Exception("Ошибка копирования терапевтическогй программы",e);
            }
+
            return therapyProgram;
        }
 
@@ -2294,6 +2318,8 @@ public class ModelDataApp {
 
                throw new Exception("Ошибка копирования терапевтическогй программы",e);
            }
+
+
            return therapyProgram;
 
        }
@@ -2331,6 +2357,8 @@ public class ModelDataApp {
             tc=null;
             throw new Exception("Ошибка создания терапевтической программы",e);
         }
+
+        Platform.runLater(()->onInProfileChanged.change(therapyComplex.getProfile().getId()));
         return tc;
     }
 
@@ -2377,6 +2405,8 @@ public class ModelDataApp {
             tc=null;
             throw new Exception("Ошибка создания терапевтической программы",e);
         }
+
+        Platform.runLater(()->onInProfileChanged.change(therapyComplex.getProfile().getId()));
         return tc;
     }
     /**
@@ -2409,19 +2439,22 @@ public class ModelDataApp {
 
 
         }catch(Exception e){ Log.logger.error("",e);tc=null;throw new Exception("Ошибка создания терапевтической программы",e); }
+
+        Platform.runLater(()->onInProfileChanged.change(therapyComplex.getProfile().getId()));
         return tc;
     }
 
       public void removeTherapyProgram(TherapyProgram th) throws NonexistentEntityException
       {
           therapyProgramDAO.destroy(th.getId());
-          
+          Platform.runLater(()->onInProfileChanged.change(th.getTherapyComplex().getProfile().getId()));
       }
 
 
       public void updateTherapyProgram(TherapyProgram prg) throws Exception
       {
           therapyProgramDAO.edit(prg);
+          Platform.runLater(()->onInProfileChanged.change(prg.getTherapyComplex().getProfile().getId()));
       }
 
 

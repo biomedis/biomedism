@@ -1,29 +1,34 @@
 package ru.biomedis.biomedismair3.TherapyTabs.Profile;
 
+import javafx.beans.Observable;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.event.ActionEvent;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.input.*;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
 import javafx.stage.Modality;
-import ru.biomedis.biomedismair3.App;
-import ru.biomedis.biomedismair3.BaseController;
-import ru.biomedis.biomedismair3.Log;
-import ru.biomedis.biomedismair3.ModelDataApp;
+import ru.biomedis.biomedismair3.*;
 import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.utils.Date.DateUtil;
 
 import java.io.File;
+import java.text.Collator;
 import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
 import static ru.biomedis.biomedismair3.BaseController.getApp;
-import static ru.biomedis.biomedismair3.Log.logger;
 
 public class ProfileTable {
     private  ResourceBundle res;
@@ -34,6 +39,12 @@ public class ProfileTable {
     public static  final DataFormat PROFILE_CUT_ITEM_INDEX =new DataFormat("biomedis/cut_profile_item_index");
     public static  DataFormat PROFILE_CUT_ITEM_ID=new DataFormat("biomedis/cut_profile_item_id");
     private Menu translateMenu = new Menu();
+
+    private ObservableList<Profile> masterData = FXCollections.observableArrayList(p -> new Observable[] {p.nameProperty(), p.lastChangeProperty()});
+    private FilteredList<Profile> filteredData;
+    private SortedList<Profile> sortedData;
+    private INamedComparator comparator;
+
 
     public static ProfileTable init(TableView<Profile> tableProfile, ResourceBundle res){
 
@@ -143,31 +154,52 @@ public class ProfileTable {
         nameCol.setOnEditCommit(event ->
         {
 
-            if (!event.getNewValue().equals(event.getOldValue())) {
+//            if (!event.getNewValue().equals(event.getOldValue())) {
+//
+//                String s = event.getNewValue();
+//                if (s.length() == 0) {
+//                    event.getRowValue().setName(event.getOldValue());
+//                    Profile p = event.getRowValue();
+//                    int i = table.getItems().indexOf(event.getRowValue());
+//                    table.getItems().set(i, null);
+//                    table.getItems().set(i, p);
+//                    p = null;
+//                    table.getSelectionModel().select(i);
+//                    return;
+//                }
+//                event.getRowValue().setName(s);
+//                try {
+//                    getModel().updateProfile(event.getRowValue());
+//                    Profile p = event.getRowValue();
+//                    int i = table.getItems().indexOf(event.getRowValue());
+//                    table.getItems().set(i, null);
+//                    table.getItems().set(i, p);
+//                    table.getSelectionModel().select(i);
+//                    p = null;
+//
+//                } catch (Exception e) {
+//                    logger.error("",e);
+//                }
+//
+//
+//            }
 
+
+            if (!event.getNewValue().equals(event.getOldValue())) {
+                Profile profile = event.getRowValue();
                 String s = event.getNewValue();
                 if (s.length() == 0) {
-                    event.getRowValue().setName(event.getOldValue());
-                    Profile p = event.getRowValue();
-                    int i = table.getItems().indexOf(event.getRowValue());
-                    table.getItems().set(i, null);
-                    table.getItems().set(i, p);
-                    p = null;
-                    table.getSelectionModel().select(i);
+                    profile.setName(event.getOldValue());
                     return;
                 }
-                event.getRowValue().setName(s);
+
+                profile.setName(s);
+                profile.setNowChanged();
                 try {
-                    getModel().updateProfile(event.getRowValue());
-                    Profile p = event.getRowValue();
-                    int i = table.getItems().indexOf(event.getRowValue());
-                    table.getItems().set(i, null);
-                    table.getItems().set(i, p);
-                    table.getSelectionModel().select(i);
-                    p = null;
+                    getModel().updateProfile(profile);
 
                 } catch (Exception e) {
-                    logger.error("",e);
+                    Log.logger.error("",e);
                 }
 
 
@@ -248,10 +280,7 @@ public class ProfileTable {
         table.placeholderProperty().setValue(new Label(res.getString("app.table.profile_not_avaliable")));
         table.setEditable(true);
 
-        table.getItems().addAll(getModel().findAllProfiles()
-                                          .stream()
-                                          .filter(i->!i.getName().equals(App.BIOFON_PROFILE_NAME))
-                                          .collect(Collectors.toList()));
+
 
         lastChangeCol.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
         //numProfileCol.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
@@ -268,6 +297,22 @@ public class ProfileTable {
         nameCol.setSortable(false);
         timeCol.setSortable(false);
         weightCol.setSortable(false);
+
+
+
+        //инициализация сортирующей обертки над masterData. Все изменения в  masterData сразу срабатывают на sortedData
+
+        sortedData = new SortedList<>(masterData);
+        //Не совсем идеально, тк если профили будут на разных языках, то сортировка корректно будет работать только на языке программы
+        comparator = new INamedComparator(Collator.getInstance(new Locale(getModel().getProgramLanguage().getAbbr())));
+        sortedData.setComparator((o1, o2) -> comparator.compare(o1, o2));
+
+        table.setItems(sortedData);
+
+        masterData.addAll(getModel().findAllProfiles()
+                                          .stream()
+                                          .filter(i->!i.getName().equals(App.BIOFON_PROFILE_NAME))
+                                          .collect(Collectors.toList()));
     }
 
     public void initProfileContextMenu(Runnable onPrintProfile,
@@ -365,7 +410,7 @@ public class ProfileTable {
     public Integer getSelectedIndex(){return table.getSelectionModel().getSelectedIndex();}
 
     public ObservableList<Profile> getAllItems(){
-        return table.getItems();
+        return masterData;
     }
 
     public void clearSelection(){
@@ -395,7 +440,7 @@ public class ProfileTable {
      * @return
      */
     public boolean isTextEdited(){
-        return  table.getEditingCell()==null?false:true;
+        return table.getEditingCell() != null;
     }
 
     public ReadOnlyObjectProperty<Profile> getSelectedItemProperty(){

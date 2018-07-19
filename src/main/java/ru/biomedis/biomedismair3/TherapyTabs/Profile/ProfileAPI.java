@@ -17,4 +17,6 @@ public interface ProfileAPI {
     void exportProfile();
     void importProfile();
     void loadProfileDir();
+
+    void setLastChangeProfile(long profileID);
 }

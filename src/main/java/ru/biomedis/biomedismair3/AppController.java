@@ -261,6 +261,13 @@ public class AppController  extends BaseController {
 
 
 
+        getModel().setInProfileChanged(this::onLastChangeProfiles);
+    }
+
+    //private Map<Long, Long> changedProfiles = new HashMap<>();
+
+    private void onLastChangeProfiles(long profile){
+        profileAPI.setLastChangeProfile(profile);
     }
 
     private void initBiofonImage(){
