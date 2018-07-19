@@ -570,7 +570,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
         {
 
             try {
-                TherapyComplex therapyComplex = getModel().createTherapyComplex("", ProfileTable.getInstance().getSelectedItem(), data.getNewName(), data.getNewDescription(), 300,3);
+                TherapyComplex therapyComplex = getModel().createTherapyComplex("", ProfileTable.getInstance().getSelectedItem(), data.getNewName(), data.getNewDescription(), 180,3);
 
                 tableComplex.getItems().add(therapyComplex);
 

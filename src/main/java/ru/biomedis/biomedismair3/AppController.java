@@ -68,7 +68,7 @@ import static ru.biomedis.biomedismair3.Log.logger;
 
 public class AppController  extends BaseController {
 
-    public static final int MAX_BUNDLES=15;
+    public static final int MAX_BUNDLES=10;
     @FXML private ImageView deviceIcon;//иконка устройства
     @FXML private ProgressBar diskSpaceBar;//прогресс бар занятого места на диске прибора
     @FXML private MenuItem menuExportProfile;
