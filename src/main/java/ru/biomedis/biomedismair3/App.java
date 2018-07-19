@@ -315,7 +315,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
         int currentUpdateFile=13;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=2;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentMinorVersion=3;//версия исправлений в пределах мажорной версии currentUpdateFile
         //требуется размещение в папке с dist.jar  файла version.txt с текущей версией типа 4.9.0 . Этот файл в обновление нужно включать!!!
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -1141,8 +1141,17 @@ https://gist.github.com/DemkaAge/8999236
         if(updateFixVersion == 0 ){
             updateIn13_1(updateOption);
             updateIn13_2(updateOption);
+            updateIn13_3(updateOption);
         }
-        else if(updateFixVersion == 1 )updateIn13_2(updateOption);
+        else if(updateFixVersion == 1 ){
+            updateIn13_2(updateOption);
+            updateIn13_3(updateOption);
+        }else  updateIn13_3(updateOption);
+    }
+
+    private void updateIn13_3(ProgramOptions updateOption) {
+        System.out.println("Update_13_1");
+
     }
 
     private void updateIn13_1(ProgramOptions updateOption) {
@@ -2236,6 +2245,59 @@ https://gist.github.com/DemkaAge/8999236
             }
         }
         reopenPersistentContext();
+
+        boolean lastChange = false;
+        try
+        {
+            logger.info("Проверка наличия столбца LASTCHANGE  в PROFILE ");
+            emf.createEntityManager().createNativeQuery("SELECT `LASTCHANGE` FROM PROFILE LIMIT 1").getResultList();
+            logger.info("Столбец  LASTCHANGE  найден.");
+
+        }catch (Exception e){
+            logger.info("Столбец  LASTCHANGE не найден.");
+            logger.info("Создается  столбец LASTCHANGE  в PROFILE ");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            try{
+                em.createNativeQuery("ALTER TABLE PROFILE ADD `LASTCHANGE` BIGINT(19) DEFAULT 1").executeUpdate();
+                em.getTransaction().commit();
+                logger.info("Столбец  LASTCHANGE создан.");
+                lastChange =true;
+
+            }catch (Exception ex){
+                logger.error("ошибка обновления ALTER TABLE PROFILE ADD `LASTCHANGE` BIGINT(19) DEFAULT 1",ex);
+                wrapException("6",ex);
+            }finally {
+                if(em!=null) em.close();
+            }
+
+
+        }
+
+        reopenPersistentContext();
+        try {
+            if(lastChange){
+                //установить время на текущее со сдвигом в 1 сек согласно позициям
+                Calendar cal  = Calendar.getInstance();
+                long currentTime = cal.getTimeInMillis();
+                List<Profile> allProfiles = getModel().findAllProfiles();
+                int allProfilesLen = allProfiles.size();
+
+                for (Profile profile : allProfiles) {
+                    profile.setLastChange(currentTime + allProfilesLen*1000);
+
+                        getModel().updateProfile(profile);
+
+                    allProfilesLen--;
+                }
+
+            }
+        } catch (Exception e) {
+            wrapException("6",e);
+            logger.error("ошибка обновления `LASTCHANGE`, не удалось обновить профили",e);
+            e.printStackTrace();
+        }
+
 
     }
 

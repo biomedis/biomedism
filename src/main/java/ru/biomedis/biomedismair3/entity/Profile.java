@@ -17,12 +17,26 @@ public class Profile implements Serializable {
     private final SimpleLongProperty time=new SimpleLongProperty();
     private final  SimpleIntegerProperty profileWeight=new SimpleIntegerProperty();//объем файлов
     private final SimpleLongProperty position=new SimpleLongProperty();
+    private final SimpleLongProperty lastChange=new SimpleLongProperty();
     // профиля
    private String uuid;
   
    
 
     public Profile() {  }
+
+    public long getLastChange() {
+        return lastChange.get();
+    }
+
+    @Transient
+    public SimpleLongProperty lastChangeProperty() {
+        return lastChange;
+    }
+
+    public void setLastChange(long lastChange) {
+        this.lastChange.set(lastChange);
+    }
 
     public long getPosition() {
         return position.get();

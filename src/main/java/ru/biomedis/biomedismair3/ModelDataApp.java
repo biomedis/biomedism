@@ -495,6 +495,7 @@ public class ModelDataApp {
             profile.setName(name);
             profile.setUuid(UUID.randomUUID().toString());
             this.profileDAO.create(profile);
+            profile.setLastChange(Calendar.getInstance().getTimeInMillis());
 
         } catch (Exception ex) {
             Log.logger.error("",ex);
@@ -521,6 +522,7 @@ public class ModelDataApp {
             profile.setPosition(position);
             profile.setName(name);
             profile.setUuid(UUID.randomUUID().toString());
+            profile.setLastChange(Calendar.getInstance().getTimeInMillis());
             this.profileDAO.create(profile);
 
         } catch (Exception ex) {
@@ -562,7 +564,7 @@ public class ModelDataApp {
     
     public List<Profile> findAllProfiles()
     {
-        Query query = emf.createEntityManager().createQuery("Select p From Profile p   order by p.position asc");
+        Query query = emf.createEntityManager().createQuery("Select p From Profile p   order by p.name asc");
 
         return query.getResultList();
     }
@@ -570,7 +572,7 @@ public class ModelDataApp {
     public Profile getLastProfile()
     {
 
-        Query query = emf.createEntityManager().createQuery("Select p From Profile p   order by p.id desc");
+        Query query = emf.createEntityManager().createQuery("Select p From Profile p   order by p.lastChange desc");
         query.setMaxResults(1);
         return (Profile)query.getSingleResult();
     }

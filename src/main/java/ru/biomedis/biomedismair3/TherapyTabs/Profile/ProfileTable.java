@@ -2,7 +2,6 @@ package ru.biomedis.biomedismair3.TherapyTabs.Profile;
 
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -134,8 +133,8 @@ public class ProfileTable {
     private void initTable(){
         initTranslateMenu();
         //номер по порядку
-        TableColumn<Profile,Number> numProfileCol =new TableColumn<>("№");
-        numProfileCol.setCellValueFactory(param -> new SimpleIntegerProperty(param.getTableView().getItems().indexOf(param.getValue())+1));
+       // TableColumn<Profile,Number> numProfileCol =new TableColumn<>("№");
+        //numProfileCol.setCellValueFactory(param -> new SimpleIntegerProperty(param.getTableView().getItems().indexOf(param.getValue())+1));
 
         //имя профиля
         TableColumn<Profile,String> nameCol=new TableColumn<>(res.getString("app.table.profile_name"));
@@ -225,10 +224,27 @@ public class ProfileTable {
             return property;
         });
 
+        //общая длительность, зависит от количества комплексов, програм их частот и мультичастотного режима, также времени на частоту
+        TableColumn<Profile,String> lastChangeCol=new TableColumn<>("Последнее изменение");
+        lastChangeCol.setCellValueFactory(param -> {
+            SimpleStringProperty property = new SimpleStringProperty();
+            property.bind(new StringBinding() {
+                {
+                    super.bind(param.getValue().lastChangeProperty());//для инициализации расчета
+                }
+
+                @Override
+                protected String computeValue() {
+                    return DateUtil.timeStampToStringDateTime(param.getValue().getLastChange(), false);
+                }
+            });
+            return property;
+        });
+
         timeCol.setStyle( "-fx-alignment: CENTER;");
-        numProfileCol.setStyle( "-fx-alignment: CENTER;");
+        lastChangeCol.setStyle( "-fx-alignment: CENTER;");
         weightCol.setStyle( "-fx-alignment: CENTER;");
-        table.getColumns().addAll(numProfileCol, nameCol, timeCol, weightCol);
+        table.getColumns().addAll(lastChangeCol , nameCol, timeCol, weightCol);
         table.placeholderProperty().setValue(new Label(res.getString("app.table.profile_not_avaliable")));
         table.setEditable(true);
 
@@ -237,18 +253,18 @@ public class ProfileTable {
                                           .filter(i->!i.getName().equals(App.BIOFON_PROFILE_NAME))
                                           .collect(Collectors.toList()));
 
-
-        numProfileCol.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
-        nameCol.prefWidthProperty().bind(table.widthProperty().multiply(0.50));
-        timeCol.prefWidthProperty().bind(table.widthProperty().multiply(0.25));
+        lastChangeCol.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
+        //numProfileCol.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
+        nameCol.prefWidthProperty().bind(table.widthProperty().multiply(0.55));
+        timeCol.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
         weightCol.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
 
         weightCol.setEditable(false);
-        numProfileCol.setEditable(false);
+        lastChangeCol.setEditable(false);
         nameCol.setEditable(true);
         timeCol.setEditable(false);
 
-        numProfileCol.setSortable(false);
+        lastChangeCol.setSortable(false);
         nameCol.setSortable(false);
         timeCol.setSortable(false);
         weightCol.setSortable(false);
@@ -271,10 +287,10 @@ public class ProfileTable {
         mip5.setOnAction(e->onPrintProfile.run());
 
 
-        mip3.setAccelerator(new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN));
-        mip2.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
+        //mip3.setAccelerator(new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN));
+        //mip2.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
         mip4.setAccelerator(new KeyCodeCombination(KeyCode.DELETE));
-        profileMenu.getItems().addAll(mip3,mip1,mip2,mi_insert_botom, mip4,mip6,mip5,translateMenu);
+        profileMenu.getItems().addAll(mip1, mip4,mip6,mip5,translateMenu);
         mip1.setOnAction(e->duplicateProfile());
         mip3.setOnAction(e->cutInTables.run());
         mip2.setOnAction(e->pasteInTables.run());
@@ -327,8 +343,9 @@ public class ProfileTable {
     private void duplicateProfile() {
         try {
             Profile p = getModel().duplicateProfile(getSelectedItem());
-
-            getAllItems().add(p);
+            int index = getAllItems().indexOf(getSelectedItem());
+            if(index < getAllItems().size()-1) getAllItems().add(index+1, p);
+            else getAllItems().add(p);
             select(p);
             scrollTo(p);
 
