@@ -127,7 +127,8 @@ public class LanguageDevice {
      * @return
      */
     public static LanguageDevice getDeviceLang(String abbr){
-         return langs.get(abbr);
+        LanguageDevice languageDevice = langs.get(abbr);
+        return languageDevice==null? langs.get("en"): languageDevice;
 
     }
 
