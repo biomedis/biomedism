@@ -256,7 +256,10 @@ public class AppController  extends BaseController {
         menuExportProfile.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
         menuExportTherapyComplex.disableProperty().bind(ComplexTable.getInstance().getSelectedItemProperty().isNull());
         menuImportTherapyComplex.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
+
         trinityInfo.disableProperty().bind(m2Connected.not());
+
+
         /***************/
 
 
@@ -410,10 +413,6 @@ public class AppController  extends BaseController {
                 therapyTabPane.getSelectionModel().select(1);//выберем таб с комплексами
                 ComplexTable.getInstance().select(ComplexTable.getInstance().getAllItems().size() - 1);
                 profileAPI.updateProfileTime(ProfileTable.getInstance().getSelectedItem());
-
-                //если есть программы  к перенесенном комплексе то можно разрешить генерацию
-                if(getModel().countTherapyPrograms(th)>0)profileAPI.enableGenerateBtn();
-                else profileAPI.disableGenerateBtn();
                 th = null;
             } catch (Exception e) {
                 logger.error("",e);
@@ -481,7 +480,7 @@ public class AppController  extends BaseController {
                     ProgramTable.getInstance().scrollTo(ProgramTable.getInstance().getAllItems().size() - 1);
                 });
 
-                profileAPI.enableGenerateBtn();
+
                 therapyProgram = null;
             } catch (Exception e) {
 
@@ -1105,7 +1104,7 @@ if(!retString.equals(option) && !retString.isEmpty())
         //очищение файлов lib для пересканирования
 if(!getConnectedDevice())return;
 
-        profileAPI.disableGenerateBtn();
+
 
 
         Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.serv_1"), res.getString("app.serv_2"), res.getString("app.serv_3"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
@@ -1136,14 +1135,14 @@ if(!getConnectedDevice())return;
             getProgressAPI().setProgressIndicator(1.0, res.getString("app.serv_5"));
 
             getProgressAPI().hideProgressIndicator(true);
-            profileAPI.enableGenerateBtn();
+
 
         });
 
         task.setOnFailed(event -> {
             getProgressAPI().setProgressIndicator(res.getString("app.serv_6"));
             getProgressAPI().hideProgressIndicator(true);
-            profileAPI.enableGenerateBtn();
+
         });
 
         Thread threadTask=new Thread(task);
@@ -1215,7 +1214,7 @@ if(!getConnectedDevice())return;
                 ComplexTable.getInstance().getAllItems().addAll(lastTherapyComplexes);
 
             }
-            profileAPI.enableGenerateBtn();
+
 
         });
     }

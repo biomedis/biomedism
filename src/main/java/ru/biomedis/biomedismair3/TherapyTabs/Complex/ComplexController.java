@@ -246,7 +246,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
                         item.setBundlesLength(Integer.parseInt(bundlesSpinner.getValue()));
                         item.setChanged(true);
                         getModel().updateTherapyComplex(item);
-                        profileAPI.enableGenerateBtn();
+
                     }
                     updateComplexsTime(items, true);
                 } catch (Exception var8) {
@@ -302,7 +302,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
                         item.setTimeForFrequency((int)(this.timeToFreqSpinner.getValue()*60));
                         item.setChanged(true);
                         this.getModel().updateTherapyComplex(item);
-                        profileAPI.enableGenerateBtn();
+
                     }
 
                     this.updateComplexsTime(items, true);
@@ -1627,7 +1627,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
                             else getModel().createTherapyProgram(entry.getValue().getSrcUUID(),th,entry.getValue().getName(),"",entry.getValue().getFreqs(),entry.getValue().isMulty());
 
                         }
-                        profileAPI.enableGenerateBtn();
+
                     }
 
                 }

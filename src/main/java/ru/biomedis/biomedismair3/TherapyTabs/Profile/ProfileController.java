@@ -47,7 +47,7 @@ import static ru.biomedis.biomedismair3.Log.logger;
 
 public class ProfileController extends BaseController implements ProfileAPI {
     private static final int MAX_BUNDLES = AppController.MAX_BUNDLES;
-    @FXML private Button btnGenerate;
+
     @FXML private Button btnUploadm;//закачать на прибор
     @FXML private Button btnDeleteProfile;
     @FXML private Button btnUploadToTrinity;
@@ -80,7 +80,6 @@ public class ProfileController extends BaseController implements ProfileAPI {
         res = resources;
         leftAPI = getLeftAPI();
         complexAPI =getComplexAPI();
-        btnGenerate.setDisable(true);
         profileTable = initProfileTable();
         profileTable.initProfileContextMenu( this::onPrintProfile,
                 AppController::cutInTables,
@@ -205,11 +204,6 @@ public class ProfileController extends BaseController implements ProfileAPI {
                 }
                 ComplexTable.getInstance().getAllItems().addAll(therapyComplexes);
 
-
-                if(newValue!=null){
-                    if(getModel().isNeedGenerateFilesInProfile(newValue)) enableGenerateBtn();
-                    else disableGenerateBtn();
-                }
             }
 
         });
@@ -357,14 +351,14 @@ public class ProfileController extends BaseController implements ProfileAPI {
     private void initUploadToDirDisabledPolicy(MenuItem btnUploadDir) {
         btnUploadDir.disableProperty().bind(new BooleanBinding() {
             {
-                super.bind(tableProfile.getSelectionModel().selectedItemProperty(),checkUppload, btnGenerate.disabledProperty());//подключение устройств или выключение вызывает проверку computeValue() также если появиться необходимость генерации или мы переключаем профиль(если вдруг выбор пустой стал)
+                super.bind(tableProfile.getSelectionModel().selectedItemProperty(),checkUppload);//подключение устройств или выключение вызывает проверку computeValue() также если появиться необходимость генерации или мы переключаем профиль(если вдруг выбор пустой стал)
             }
 
             @Override
             protected boolean computeValue() {
 
                 boolean res=false;
-                if(btnGenerate.isDisable())  if(tableProfile.getSelectionModel().getSelectedItem()!=null)res = !getModel().isNeedGenerateFilesInProfile(tableProfile.getSelectionModel().getSelectedItem());
+                if(tableProfile.getSelectionModel().getSelectedItem()!=null)res = !getModel().isNeedGenerateFilesInProfile(tableProfile.getSelectionModel().getSelectedItem());
 
 
                 //если устройство подключено, выбран профиль и не активна кнопка генерации, то можно совершить загрузку в устройство
@@ -377,14 +371,14 @@ public class ProfileController extends BaseController implements ProfileAPI {
     private void initButtonUploadDisabledPolicy(MenuItem btnUpload) {
         btnUpload.disableProperty().bind(new BooleanBinding() {
             {
-                super.bind(tableProfile.getSelectionModel().selectedItemProperty(), connectedDeviceProperty(),checkUppload, btnGenerate.disabledProperty());//подключение устройств или выключение вызывает проверку computeValue() также если появиться необходимость генерации или мы переключаем профиль(если вдруг выбор пустой стал)
+                super.bind(tableProfile.getSelectionModel().selectedItemProperty(), connectedDeviceProperty(),checkUppload);//подключение устройств или выключение вызывает проверку computeValue() также если появиться необходимость генерации или мы переключаем профиль(если вдруг выбор пустой стал)
             }
 
             @Override
             protected boolean computeValue() {
 
                 boolean res=false;
-                if(btnGenerate.isDisable())  if(tableProfile.getSelectionModel().getSelectedItem()!=null)res = !getModel().isNeedGenerateFilesInProfile(tableProfile.getSelectionModel().getSelectedItem());
+                if(tableProfile.getSelectionModel().getSelectedItem()!=null)res = !getModel().isNeedGenerateFilesInProfile(tableProfile.getSelectionModel().getSelectedItem());
 
 
 
@@ -483,8 +477,8 @@ public class ProfileController extends BaseController implements ProfileAPI {
         if(m2Ready.get()){
             showWarningDialog(res.getString("app.ui.attention"),"",res.getString("trinity.warn"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
         }
-        if(tableProfile.getSelectionModel().getSelectedItem()==null){btnGenerate.setDisable(true);return;}
-        if(!getModel().isNeedGenerateFilesInProfile(tableProfile.getSelectionModel().getSelectedItem())) {btnGenerate.setDisable(true);return;}
+        if(tableProfile.getSelectionModel().getSelectedItem()==null)return;
+        if(!getModel().isNeedGenerateFilesInProfile(tableProfile.getSelectionModel().getSelectedItem())) return;
 
         try {
 
@@ -538,7 +532,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
 
 
-            btnGenerate.setDisable(true);
+
         } catch (Exception e) {
             logger.error("",e);
             showExceptionDialog(res.getString("app.title82"), "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
@@ -1479,15 +1473,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
 
     /*** API **/
-    @Override
-    public void disableGenerateBtn() {
-        btnGenerate.setDisable(true);
-    }
 
-    @Override
-    public void enableGenerateBtn() {
-        btnGenerate.setDisable(false);
-    }
     /**
      * перерсчтет времени на профиль. Профиль инстанс из таблицы.
      * @param p
@@ -1788,7 +1774,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
             {
                 getProgressAPI().setProgressIndicator(1.0, res.getString("app.title44"));
                 ProfileTable.getInstance().getAllItems().add(getModel().getLastProfile());
-                enableGenerateBtn();
+
             }
             else getProgressAPI().setProgressIndicator(res.getString("app.title45"));
             getProgressAPI().hideProgressIndicator(true);
@@ -2018,7 +2004,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
                     }
                 }
 
-                enableGenerateBtn();
+
             } catch (Exception e) {
                 logger.error("",e);
                 showExceptionDialog("Ошибка сохраниения данных в базе","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
@@ -2070,7 +2056,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
                     }
                 }
-                enableGenerateBtn();
+
 
             } catch (Exception e) {
                 logger.error("",e);
