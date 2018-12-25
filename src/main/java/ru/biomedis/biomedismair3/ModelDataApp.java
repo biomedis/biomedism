@@ -97,7 +97,7 @@ public class ModelDataApp {
             findAllLanguage.add(createLanguage("user", "Язык ввода пользователя"));
             findAllLanguage.add(createLanguage("hr", "хорватский"));
             findAllLanguage.add(createLanguage("zh", "китайский"));
-            findAllLanguage.add(createLanguage("ro", "румынский"));
+            findAllLanguage.add(createLanguage("ro", "Limba română",true));
             findAllLanguage.add(createLanguage("ca", "каталанский"));
             findAllLanguage.add(createLanguage("rm", "ретороманский"));
             findAllLanguage.add(createLanguage("vi", "вьетнамский"));

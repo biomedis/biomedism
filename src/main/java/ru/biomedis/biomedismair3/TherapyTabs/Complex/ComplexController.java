@@ -56,7 +56,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
     @FXML private Button  btnCreateTherapy;
     @FXML private Button btnDeleteTherapy;
     @FXML private Spinner<Double> timeToFreqSpinner;
-
+    @FXML private Button  btnReadTherapy;
     @FXML private HBox spinnerPan;
     @FXML private VBox spinnerBtnPan;
     @FXML private Button  btnOkSpinner;
@@ -133,6 +133,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
 
                 });
         initUploadComplexesContextMenu();
+        initReadMenu();
         initComplexSelectedListener();
         initComplexSpinnerTimeForFreq();
         initComplexBundlesLength();
@@ -590,6 +591,32 @@ public class ComplexController extends BaseController implements ComplexAPI{
 
 
 
+    }
+
+    private ContextMenu readMenu = new ContextMenu();
+    private void initReadMenu(){
+
+
+
+        MenuItem downM=new MenuItem("Из прибора 'Biomedis M'");
+        downM.setDisable(true);
+       // downM.setOnAction(event -> uploadInDir());
+
+        MenuItem downDir=new MenuItem("Из папки");
+        downDir.setDisable(true);
+        //downDir.setOnAction(event -> uploadInDir());
+
+        MenuItem importFromFile = new MenuItem("Импорт из файла");
+        importFromFile.setDisable(true);
+        //importFromFile.setOnAction(event -> uploadInDir());
+
+        readMenu.getItems().addAll(downM, downDir, importFromFile);
+
+    }
+
+    public void onReadTherapyComplexes(){
+        if(!readMenu.isShowing()) readMenu.show(btnReadTherapy, Side.BOTTOM, 0, 0);
+        else readMenu.hide();
     }
 
     private void uploadComplexesToDir(){

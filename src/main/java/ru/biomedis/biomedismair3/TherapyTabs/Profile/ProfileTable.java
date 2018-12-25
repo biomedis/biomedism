@@ -3,6 +3,7 @@ package ru.biomedis.biomedismair3.TherapyTabs.Profile;
 import javafx.beans.Observable;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -144,8 +145,8 @@ public class ProfileTable {
     private void initTable(){
         initTranslateMenu();
         //номер по порядку
-       // TableColumn<Profile,Number> numProfileCol =new TableColumn<>("№");
-        //numProfileCol.setCellValueFactory(param -> new SimpleIntegerProperty(param.getTableView().getItems().indexOf(param.getValue())+1));
+        TableColumn<Profile,Number> numProfileCol =new TableColumn<>("№");
+        numProfileCol.setCellValueFactory(param -> new SimpleIntegerProperty(param.getTableView().getItems().indexOf(param.getValue())+1));
 
         //имя профиля
         TableColumn<Profile,String> nameCol=new TableColumn<>(res.getString("app.table.profile_name"));
@@ -276,18 +277,19 @@ public class ProfileTable {
         timeCol.setStyle( "-fx-alignment: CENTER;");
         lastChangeCol.setStyle( "-fx-alignment: CENTER;");
         weightCol.setStyle( "-fx-alignment: CENTER;");
-        table.getColumns().addAll(lastChangeCol , nameCol, timeCol, weightCol);
+        table.getColumns().addAll(numProfileCol, nameCol,lastChangeCol, timeCol, weightCol);
         table.placeholderProperty().setValue(new Label(res.getString("app.table.profile_not_avaliable")));
         table.setEditable(true);
 
 
 
         lastChangeCol.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
-        //numProfileCol.prefWidthProperty().bind(table.widthProperty().multiply(0.1));
-        nameCol.prefWidthProperty().bind(table.widthProperty().multiply(0.55));
-        timeCol.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
-        weightCol.prefWidthProperty().bind(table.widthProperty().multiply(0.15));
+        numProfileCol.prefWidthProperty().bind(table.widthProperty().multiply(0.05));
+        nameCol.prefWidthProperty().bind(table.widthProperty().multiply(0.56));
+        timeCol.prefWidthProperty().bind(table.widthProperty().multiply(0.12));
+        weightCol.prefWidthProperty().bind(table.widthProperty().multiply(0.12));
 
+        numProfileCol.setEditable(false);
         weightCol.setEditable(false);
         lastChangeCol.setEditable(false);
         nameCol.setEditable(true);
@@ -297,7 +299,7 @@ public class ProfileTable {
         nameCol.setSortable(false);
         timeCol.setSortable(false);
         weightCol.setSortable(false);
-
+        numProfileCol.setSortable(false);
 
 
         //инициализация сортирующей обертки над masterData. Все изменения в  masterData сразу срабатывают на sortedData

@@ -50,12 +50,12 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
     @FXML private Button btnUploadm;//закачать на прибор
     @FXML private Button btnDeleteProfile;
-    @FXML private Button btnUploadToTrinity;
-    @FXML private Button btnReadTrinity;
+    @FXML private Button btnRead;
     @FXML private TableView<Profile> tableProfile;
     private ProfileTable profileTable;
     private ResourceBundle res;
     private ContextMenu uploadMenu=new ContextMenu();
+    private ContextMenu readMenu=new ContextMenu();
     private SimpleBooleanProperty checkUppload=new SimpleBooleanProperty(false);
     private TabPane therapyTabPane;
     private SimpleBooleanProperty m2Ready;
@@ -137,6 +137,10 @@ public class ProfileController extends BaseController implements ProfileAPI {
         });
     }
 
+    public void readProfile(){}
+
+
+
     private  SimpleBooleanProperty connectedDeviceProperty() {
         return connectedDevice;
     }
@@ -159,9 +163,11 @@ public class ProfileController extends BaseController implements ProfileAPI {
        this.m2Ready=m2Ready;
 
        initUploadMenuBtn();//инициализация зависит от наличия свойств устанавливаемых
-       btnUploadToTrinity.disableProperty().bind(m2Ready.and(ProfileTable.getInstance().getSelectedItemProperty().isNotNull()).not());
-       btnReadTrinity.disableProperty().bind(m2Ready.and(ProfileTable.getInstance().getSelectedItemProperty().isNotNull()).not());
+       initReadMenuBtn();
    }
+
+
+
 
     private Path getDevicePath(){return devicePathFunc.get();}
 
@@ -221,6 +227,36 @@ public class ProfileController extends BaseController implements ProfileAPI {
         App.getAppController().onReadProfileFromTrinity();
     }
 
+    private void initReadMenuBtn() {
+
+
+        MenuItem downTrin=new MenuItem("Из прибора 'Trinity'");
+        downTrin.setDisable(true);
+        downTrin.setOnAction(event -> uploadInDir());
+
+        MenuItem downM=new MenuItem("Из прибора 'Biomedis M'");
+        downM.setDisable(true);
+        downM.setOnAction(event -> uploadInDir());
+
+        MenuItem downDir=new MenuItem("Из папки");
+        downDir.setDisable(true);
+        downDir.setOnAction(event -> uploadInDir());
+
+        MenuItem importFromFile = new MenuItem("Импорт из файла");
+        importFromFile.setDisable(true);
+        importFromFile.setOnAction(event -> uploadInDir());
+
+        readMenu.getItems().addAll(downTrin, downM, downDir, importFromFile);
+        btnRead.setOnAction(event4 ->
+        {
+
+            if(!readMenu.isShowing()) readMenu.show(btnRead, Side.BOTTOM, 0, 0);
+            else readMenu.hide();
+
+        });
+    }
+
+
     private void initUploadMenuBtn() {
 
         MenuItem btnUploadDir=new MenuItem(res.getString("app.upload_to_dir"));
@@ -237,7 +273,11 @@ public class ProfileController extends BaseController implements ProfileAPI {
         btnUpload.setOnAction(event -> onUploadProfile());
         initButtonUploadDisabledPolicy(btnUpload);
 
-        uploadMenu.getItems().addAll(btnUploadDir,btnUpload, btnUploadM2);
+        MenuItem exportToFile=new MenuItem("Экспорт в файл");
+        exportToFile.setDisable(true);
+        exportToFile.setOnAction(event -> onUploadProfile());
+
+        uploadMenu.getItems().addAll(btnUploadM2, btnUpload, btnUploadDir, exportToFile);
         btnUploadm.setOnAction(event4 ->
         {
 
