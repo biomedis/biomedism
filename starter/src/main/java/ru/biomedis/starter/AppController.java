@@ -39,7 +39,7 @@ public class AppController extends BaseController {
     @FXML private ProgressBar updateIndicator;
     @FXML private Hyperlink linkMain;
     @FXML private Hyperlink linkArticles;
-    @FXML private Hyperlink linkForum;
+
     @FXML private Hyperlink linkVideo;
     @FXML private Hyperlink linkEducation;
     @FXML private Hyperlink linkVideoM;
@@ -301,7 +301,6 @@ public class AppController extends BaseController {
     private enum LINKS{
         MAIN,
         ARTICLES,
-        FORUM,
         VIDEO,
         EDUCATION,
         VIDEO_M,
@@ -323,7 +322,6 @@ public class AppController extends BaseController {
     private void initLinksAction(){
         linkMain.setOnAction(linkAction(LINKS.MAIN));
         linkArticles.setOnAction(linkAction(LINKS.ARTICLES));
-        linkForum.setOnAction(linkAction(LINKS.FORUM));
         linkVideo.setOnAction(linkAction(LINKS.VIDEO));
         linkEducation.setOnAction(linkAction(LINKS.EDUCATION));
         linkVideoM.setOnAction(linkAction(LINKS.VIDEO_M));
@@ -334,11 +332,11 @@ public class AppController extends BaseController {
         if(!isRussianLocale()){
             linkMain.setText("Biomedis company website");
             linkArticles.setText("Articles");
-            linkForum.setText("Forum");
             linkContacts.setText("Contacts");
-            linkVideo.setVisible(false);
-            linkEducation.setVisible(false);
-            linkVideoM.setVisible(false);
+            linkEducation.setText("Education");
+            linkVideo.setText("Videos");
+            linkVideoM.setText("Video tutorials 'Trinity'");
+
         }
     }
 
@@ -346,21 +344,19 @@ public class AppController extends BaseController {
     private void initLinksURL(){
 
         if(isRussianLocale()) {
-            links.put(LINKS.MAIN, "http://biomedis.ru");
+            links.put(LINKS.MAIN, "http://biomedis.life");
             links.put(LINKS.ARTICLES, "http://biomedis.ru/allarticle.php");
-            links.put(LINKS.FORUM, "http://http://forum.biomedis.ru/");
             links.put(LINKS.VIDEO, "https://www.youtube.com/user/BiomedisRu");
-            links.put(LINKS.EDUCATION, "http://biomedis.ru/education.php");
-            links.put(LINKS.VIDEO_M, "http://biomedis.ru/biomedis_m_new_videouroki_2.php");
-            links.put(LINKS.CONTACTS, "http://www.biomedis.ru/contact_office.php");
+            links.put(LINKS.EDUCATION, "https://www.biomedis.life/education.php");
+            links.put(LINKS.VIDEO_M, "https://www.youtube.com/watch?v=cjneDSk-Vo8&list=PLhtxItJSvMn27NeC_VlrwsIu3C1YebdRs");
+            links.put(LINKS.CONTACTS, "https://www.biomedis.life/contact.php");
         }else {
-            links.put(LINKS.MAIN, "http://biomedis.ru/en/");
+            links.put(LINKS.MAIN, "http://biomedis.life/en/");
             links.put(LINKS.ARTICLES, "http://biomedis.ru/en/allarticle.php");
-            links.put(LINKS.FORUM, "http://forum.biomedis.ru/");
             links.put(LINKS.VIDEO, "http://biomedis.ru/en/");
-            links.put(LINKS.EDUCATION, "http://biomedis.ru/en/");
-            links.put(LINKS.VIDEO_M, "http://biomedis.ru/en/");
-            links.put(LINKS.CONTACTS, "http://www.biomedis.ru/en/contact.php");
+            links.put(LINKS.EDUCATION, "https://www.biomedis.life/education.php/en/");
+            links.put(LINKS.VIDEO_M, "https://www.youtube.com/playlist?list=PLhtxItJSvMn1CRxxAN13fxLERDFc1q7cQ");
+            links.put(LINKS.CONTACTS, "https://www.biomedis.life/en/contact.php");
         }
     }
 

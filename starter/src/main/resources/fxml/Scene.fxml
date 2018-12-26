@@ -89,9 +89,8 @@
                <children>
                   <Hyperlink fx:id="linkMain" text="Сайт компании Biomedis" />
                   <Hyperlink fx:id="linkArticles" text="Статьи" />
-                  <Hyperlink fx:id="linkForum" text="Форум" />
                   <Hyperlink fx:id="linkContacts" text="Контакты" />
-                  <Hyperlink fx:id="linkVideoM" text="Видеоуроки BiomedisM" />
+                  <Hyperlink fx:id="linkVideoM" text="Видеоуроки 'Trinity'" />
                   <Hyperlink fx:id="linkVideo" text="Видео" />
                   <Hyperlink fx:id="linkEducation" text="Обучение" />
                </children></HBox>

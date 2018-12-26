@@ -415,18 +415,20 @@ public class ComplexController extends BaseController implements ComplexAPI{
 
     }
     private void initUploadComplexesContextMenu() {
-        MenuItem mic3_ = new MenuItem(this.res.getString("app.upload_to_dir"));
-        MenuItem mic5_ = new MenuItem(this.res.getString("app.upload_to_biomedism"));
-        MenuItem mic6_ = new MenuItem(this.res.getString("app.export_to_file"));
-        mic3_.setOnAction(event -> uploadComplexesToDir());
-        mic5_.setOnAction(event -> uploadComplexesToM());
+        MenuItem toDirMI = new MenuItem(this.res.getString("app.upload_to_dir"));
+        MenuItem toMMI = new MenuItem(this.res.getString("app.upload_to_biomedism"));
+        MenuItem toFileMI = new MenuItem(this.res.getString("app.export_to_file"));
+
+        toDirMI.setOnAction(event -> uploadComplexesToDir());
+        toMMI.setOnAction(event -> uploadComplexesToM());
+
         uploadComplexesMenu.setOnShowing(event -> {
-            mic3_.setDisable(false);
-            mic5_.setDisable(false);
+            toDirMI.setDisable(false);
+            toMMI.setDisable(false);
             if(this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
 
-                mic3_.setDisable(true);
-                mic5_.setDisable(true);
+                toDirMI.setDisable(true);
+                toMMI.setDisable(true);
             } else{
                 Iterator tag = this.tableComplex.getSelectionModel().getSelectedItems().iterator();
 
@@ -435,18 +437,18 @@ public class ComplexController extends BaseController implements ComplexAPI{
 
 
                     if( therapyComplex.isChanged() || this.getModel().hasNeedGenerateProgramInComplex(therapyComplex) ) {
-                        mic3_.setDisable(true);
-                        mic5_.setDisable(true);
+                        toDirMI.setDisable(true);
+                        toMMI.setDisable(true);
                         break;
                     }
                 }
-                if(getDevicePath()!=null && !mic5_.isDisable() )   mic5_.setDisable(false);
-                else  mic5_.setDisable(true);
+                if(getDevicePath()!=null && !toMMI.isDisable() )   toMMI.setDisable(false);
+                else  toMMI.setDisable(true);
             }
         });
 
 
-        uploadComplexesMenu.getItems().addAll(new MenuItem[]{ mic5_, mic3_,mic6_ });
+        uploadComplexesMenu.getItems().addAll(new MenuItem[]{ toMMI, toDirMI,toFileMI });
         uploadComplexesBtn.setOnAction(event ->
                 {
                     if(!uploadComplexesMenu.isShowing()) uploadComplexesMenu.show(uploadComplexesBtn, Side.BOTTOM, 0, 0);
