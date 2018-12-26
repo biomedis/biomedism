@@ -401,6 +401,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
     private void initUploadComplexesContextMenu() {
         MenuItem mic3_ = new MenuItem(this.res.getString("app.upload_to_dir"));
         MenuItem mic5_ = new MenuItem(this.res.getString("app.upload_to_biomedism"));
+        MenuItem mic6_ = new MenuItem(this.res.getString("app.export_to_file"));
         mic3_.setOnAction(event -> uploadComplexesToDir());
         mic5_.setOnAction(event -> uploadComplexesToM());
         uploadComplexesMenu.setOnShowing(event -> {
@@ -429,7 +430,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
         });
 
 
-        uploadComplexesMenu.getItems().addAll(new MenuItem[]{ mic3_, mic5_});
+        uploadComplexesMenu.getItems().addAll(new MenuItem[]{ mic5_, mic3_,mic6_ });
         uploadComplexesBtn.setOnAction(event ->
                 {
                     if(!uploadComplexesMenu.isShowing()) uploadComplexesMenu.show(uploadComplexesBtn, Side.BOTTOM, 0, 0);
@@ -598,15 +599,15 @@ public class ComplexController extends BaseController implements ComplexAPI{
 
 
 
-        MenuItem downM=new MenuItem("Из прибора 'Biomedis M'");
+        MenuItem downM=new MenuItem(res.getString("app.menu.import_from_m_device"));
         downM.setDisable(true);
        // downM.setOnAction(event -> uploadInDir());
 
-        MenuItem downDir=new MenuItem("Из папки");
+        MenuItem downDir=new MenuItem(res.getString("app.import_from_dir"));
         downDir.setDisable(true);
         //downDir.setOnAction(event -> uploadInDir());
 
-        MenuItem importFromFile = new MenuItem("Импорт из файла");
+        MenuItem importFromFile = new MenuItem(res.getString("app.from_file"));
         importFromFile.setDisable(true);
         //importFromFile.setOnAction(event -> uploadInDir());
 

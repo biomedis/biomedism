@@ -230,19 +230,19 @@ public class ProfileController extends BaseController implements ProfileAPI {
     private void initReadMenuBtn() {
 
 
-        MenuItem downTrin=new MenuItem("Из прибора 'Trinity'");
+        MenuItem downTrin=new MenuItem(res.getString("app.menu.import_from_trinity_device"));
         downTrin.setDisable(true);
         downTrin.setOnAction(event -> uploadInDir());
 
-        MenuItem downM=new MenuItem("Из прибора 'Biomedis M'");
+        MenuItem downM=new MenuItem(res.getString("app.menu.import_from_m_device"));
         downM.setDisable(true);
         downM.setOnAction(event -> uploadInDir());
 
-        MenuItem downDir=new MenuItem("Из папки");
+        MenuItem downDir=new MenuItem(res.getString("app.import_from_dir"));
         downDir.setDisable(true);
         downDir.setOnAction(event -> uploadInDir());
 
-        MenuItem importFromFile = new MenuItem("Импорт из файла");
+        MenuItem importFromFile = new MenuItem(res.getString("app.from_file"));
         importFromFile.setDisable(true);
         importFromFile.setOnAction(event -> uploadInDir());
 
@@ -259,21 +259,21 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
     private void initUploadMenuBtn() {
 
-        MenuItem btnUploadDir=new MenuItem(res.getString("app.upload_to_dir"));
+        MenuItem btnUploadDir=new MenuItem(res.getString("app.into_dir"));
         btnUploadDir.setDisable(true);
         btnUploadDir.setOnAction(event -> uploadInDir());
         initUploadToDirDisabledPolicy(btnUploadDir);
 
-        MenuItem btnUploadM2=new MenuItem(res.getString("app.ui.record_on_trinity"));
+        MenuItem btnUploadM2=new MenuItem(res.getString("app.into_trinity_device"));
         btnUploadM2.setOnAction(event -> upploadToTrinity());
         btnUploadM2.disableProperty().bind(m2Ready.and(ProfileTable.getInstance().getSelectedItemProperty().isNotNull()).not());
 
-        MenuItem btnUpload=new MenuItem(res.getString("app.uppload"));
+        MenuItem btnUpload=new MenuItem(res.getString("app.into_m"));
         btnUpload.setDisable(true);
         btnUpload.setOnAction(event -> onUploadProfile());
         initButtonUploadDisabledPolicy(btnUpload);
 
-        MenuItem exportToFile=new MenuItem("Экспорт в файл");
+        MenuItem exportToFile=new MenuItem(res.getString("app.export_to_file"));
         exportToFile.setDisable(true);
         exportToFile.setOnAction(event -> onUploadProfile());
 
