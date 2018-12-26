@@ -103,7 +103,7 @@ public class AppController  extends BaseController {
 
     private Path devicePath=null;//путь ку устройству или NULL если что-то не так
     private String fsDeviceName="";
-    private SimpleBooleanProperty connectedDevice =new SimpleBooleanProperty(false);//подключено ли устройство
+    private SimpleBooleanProperty connectedDevice =new SimpleBooleanProperty(false);//подключено ли устройство biomedis-m
 
     private static TabPane _therapyTabPane;
 
@@ -528,6 +528,7 @@ public class AppController  extends BaseController {
         ComplexController cc = (ComplexController)replaceContent("/fxml/ComplexTab.fxml", complexLayout);
         cc.setTherapyTabPane(therapyTabPane);
         cc.setDevicePathMethod(()->devicePath);
+        cc.setDevicesProperties(m2Ready, connectedDevice, m2Connected);
         return cc;
        } catch (Exception e) {
            e.printStackTrace();

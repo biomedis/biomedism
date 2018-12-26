@@ -3,6 +3,7 @@ package ru.biomedis.biomedismair3.TherapyTabs.Complex;
 import com.mpatric.mp3agic.Mp3File;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -73,6 +74,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
     @FXML Button   uploadComplexesBtn;
 
     private ContextMenu uploadComplexesMenu=new ContextMenu();
+    private ContextMenu readMenu = new ContextMenu();
 
     private ComplexTable complexTable;
     private List<TherapyComplex> therapyComplexesClipboard=new ArrayList<>();
@@ -82,6 +84,20 @@ public class ComplexController extends BaseController implements ComplexAPI{
     private Image imageDone;
     private Image imageCancel;
     private TabPane therapyTabPane;
+
+    private SimpleBooleanProperty m2Ready;//trinity
+    private SimpleBooleanProperty m2Connected;//trinity
+    private SimpleBooleanProperty connectedDevice;//biomedism
+
+
+    public void setDevicesProperties(SimpleBooleanProperty m2Ready, SimpleBooleanProperty connectedDeviceProperty, SimpleBooleanProperty m2Connected){
+        if( this.m2Ready!=null) return;
+        this.connectedDevice =connectedDeviceProperty;
+        this.m2Connected=m2Connected;
+        this.m2Ready=m2Ready;
+        initUploadComplexesContextMenu();
+        initReadMenu();
+    }
 
     @Override
     protected void onCompletedInitialise() {
@@ -132,8 +148,8 @@ public class ComplexController extends BaseController implements ComplexAPI{
                     return res;
 
                 });
-        initUploadComplexesContextMenu();
-        initReadMenu();
+
+
         initComplexSelectedListener();
         initComplexSpinnerTimeForFreq();
         initComplexBundlesLength();
@@ -594,21 +610,19 @@ public class ComplexController extends BaseController implements ComplexAPI{
 
     }
 
-    private ContextMenu readMenu = new ContextMenu();
+
     private void initReadMenu(){
-
-
-
         MenuItem downM=new MenuItem(res.getString("app.menu.import_from_m_device"));
         downM.setDisable(true);
        // downM.setOnAction(event -> uploadInDir());
+        downM.disableProperty().bind(connectedDevice.not());
 
         MenuItem downDir=new MenuItem(res.getString("app.import_from_dir"));
-        downDir.setDisable(true);
+        downDir.setDisable(false);
         //downDir.setOnAction(event -> uploadInDir());
 
         MenuItem importFromFile = new MenuItem(res.getString("app.from_file"));
-        importFromFile.setDisable(true);
+        importFromFile.setDisable(false);
         //importFromFile.setOnAction(event -> uploadInDir());
 
         readMenu.getItems().addAll(downM, downDir, importFromFile);

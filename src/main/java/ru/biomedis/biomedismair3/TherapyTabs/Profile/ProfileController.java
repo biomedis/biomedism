@@ -58,9 +58,9 @@ public class ProfileController extends BaseController implements ProfileAPI {
     private ContextMenu readMenu=new ContextMenu();
     private SimpleBooleanProperty checkUppload=new SimpleBooleanProperty(false);
     private TabPane therapyTabPane;
-    private SimpleBooleanProperty m2Ready;
-    private SimpleBooleanProperty m2Connected;
-    private SimpleBooleanProperty connectedDevice;
+    private SimpleBooleanProperty m2Ready;//trinity
+    private SimpleBooleanProperty m2Connected;//trinity
+    private SimpleBooleanProperty connectedDevice;//biomedism
 
     private LeftPanelAPI leftAPI;
     private ComplexAPI complexAPI;
@@ -233,17 +233,19 @@ public class ProfileController extends BaseController implements ProfileAPI {
         MenuItem downTrin=new MenuItem(res.getString("app.menu.import_from_trinity_device"));
         downTrin.setDisable(true);
         downTrin.setOnAction(event -> uploadInDir());
+        downTrin.disableProperty().bind(m2Ready.not());
 
         MenuItem downM=new MenuItem(res.getString("app.menu.import_from_m_device"));
         downM.setDisable(true);
         downM.setOnAction(event -> uploadInDir());
+        downM.disableProperty().bind(connectedDeviceProperty().not());
 
         MenuItem downDir=new MenuItem(res.getString("app.import_from_dir"));
-        downDir.setDisable(true);
+        downDir.setDisable(false);
         downDir.setOnAction(event -> uploadInDir());
 
         MenuItem importFromFile = new MenuItem(res.getString("app.from_file"));
-        importFromFile.setDisable(true);
+        importFromFile.setDisable(false);
         importFromFile.setOnAction(event -> uploadInDir());
 
         readMenu.getItems().addAll(downTrin, downM, downDir, importFromFile);
@@ -258,7 +260,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
 
     private void initUploadMenuBtn() {
-
+        //TODO: необходим диалог с предупреждением перезаписи профиля
         MenuItem btnUploadDir=new MenuItem(res.getString("app.into_dir"));
         btnUploadDir.setDisable(true);
         btnUploadDir.setOnAction(event -> uploadInDir());
@@ -276,6 +278,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
         MenuItem exportToFile=new MenuItem(res.getString("app.export_to_file"));
         exportToFile.setDisable(true);
         exportToFile.setOnAction(event -> onUploadProfile());
+        exportToFile.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
 
         uploadMenu.getItems().addAll(btnUploadM2, btnUpload, btnUploadDir, exportToFile);
         btnUploadm.setOnAction(event4 ->
