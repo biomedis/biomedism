@@ -295,10 +295,10 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
     private void uploadM2(Profile profile) {
 
-        Optional<ButtonType> ok_no = showInfoConfirmDialog(res.getString("app.upload_profile"), res.getString("app.rewriting_profile_question"), res.getString("app.rewrite_profile_question2"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
+        Optional<ButtonType> ok_no = showConfirmationDialog(res.getString("app.upload_profile"), res.getString("app.rewriting_profile_question"), res.getString("app.rewrite_profile_question2"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
 
         if(ok_no.isPresent()){
-            if(ok_no.get()!=ButtonType.YES) return;
+            if(ok_no.get()!=okButtonType) return;
 
         }else return;
 
@@ -880,12 +880,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
         }
 
 
-        Optional<ButtonType> ok_no = showInfoConfirmDialog(res.getString("app.upload_profile"), res.getString("app.rewriting_profile_question"), res.getString("app.rewrite_profile_question2"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
 
-        if(ok_no.isPresent()){
-            if(ok_no.get()!=ButtonType.YES) return;
-
-        }else return;
 
         //проверим нет ли мп3 с неверными путями
         List<TherapyProgram> failedMp3=new ArrayList<>();
