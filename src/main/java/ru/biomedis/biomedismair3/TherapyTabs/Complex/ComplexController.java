@@ -421,6 +421,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
 
         toDirMI.setOnAction(event -> uploadComplexesToDir());
         toMMI.setOnAction(event -> uploadComplexesToM());
+        toFileMI.setOnAction(event -> exportTherapyComplexes(complexTable.getSelectedItems()));
 
         uploadComplexesMenu.setOnShowing(event -> {
             toDirMI.setDisable(false);
@@ -616,16 +617,16 @@ public class ComplexController extends BaseController implements ComplexAPI{
     private void initReadMenu(){
         MenuItem downM=new MenuItem(res.getString("app.menu.import_from_m_device"));
         downM.setDisable(true);
-       // downM.setOnAction(event -> uploadInDir());
+        downM.setOnAction(event ->  importComplexesFromBiomedisM());
         downM.disableProperty().bind(connectedDevice.not());
 
         MenuItem downDir=new MenuItem(res.getString("app.import_from_dir"));
         downDir.setDisable(false);
-        //downDir.setOnAction(event -> uploadInDir());
+        downDir.setOnAction(event -> importComplexFromDir());
 
         MenuItem importFromFile = new MenuItem(res.getString("app.from_file"));
         importFromFile.setDisable(false);
-        //importFromFile.setOnAction(event -> uploadInDir());
+        importFromFile.setOnAction(event -> App.getAppController().onImportTherapyComplex());
 
         readMenu.getItems().addAll(downM, downDir, importFromFile);
 
@@ -1569,15 +1570,14 @@ public class ComplexController extends BaseController implements ComplexAPI{
         threadTask.start();
     }
 
-    /**
-     * Импорт терап.комплексов из папки
-     */
-    @Override
-    public void importComplexFromDir()
-    {
-        DirectoryChooser dirChooser =new DirectoryChooser();
-        dirChooser.setTitle(res.getString("app.menu.read_complex_from_dir"));
-        File dir= dirChooser.showDialog(getApp().getMainWindow());
+
+    private void importComplexesFromBiomedisM(){
+        File dir = getDevicePath().toFile();
+        if(dir==null)return;
+    }
+
+    private void importComplexFromDir(File dir){
+
         if(dir==null)return;
 
         Task<Boolean> task=null;
@@ -1628,6 +1628,21 @@ public class ComplexController extends BaseController implements ComplexAPI{
         Waiter.openLayer(getApp().getMainWindow(),false);
         threadTask.start();
         Waiter.show();
+    }
+
+
+    /**
+     * Импорт терап.комплексов из папки
+     */
+    @Override
+    public void importComplexFromDir()
+    {
+        DirectoryChooser dirChooser =new DirectoryChooser();
+        dirChooser.setTitle(res.getString("app.menu.read_complex_from_dir"));
+        File dir= dirChooser.showDialog(getApp().getMainWindow());
+        if(dir==null)return;
+
+        importComplexFromDir(dir);
     }
 
     /**

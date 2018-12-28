@@ -79,7 +79,7 @@ public class AppController  extends BaseController {
     @FXML private MenuItem trinityInfo;
     @FXML private MenuItem printProfileMenu;
     @FXML private MenuItem printComplexMenu;
-    @FXML private MenuItem menuImportComplex;
+    //@FXML private MenuItem menuImportComplex;
     @FXML private MenuItem   menuImportComplexToBase;
     @FXML private MenuItem   dataPathMenuItem;
     @FXML private TabPane therapyTabPane;
@@ -252,7 +252,7 @@ public class AppController  extends BaseController {
 
         printProfileMenu.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
         printComplexMenu.disableProperty().bind(ComplexTable.getInstance().getSelectedItemProperty().isNull());
-        menuImportComplex.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
+        //menuImportComplex.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
         menuExportProfile.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
         menuExportTherapyComplex.disableProperty().bind(ComplexTable.getInstance().getSelectedItemProperty().isNull());
         menuImportTherapyComplex.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());

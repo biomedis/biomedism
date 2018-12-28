@@ -73,7 +73,6 @@
                         </Menu>
                     </items>
                   </Menu>
-                  <MenuItem fx:id="menuImportComplex" mnemonicParsing="false" onAction="#onImportComplex" text="%app.menu.read_complex_from_dir" />
                   <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem fx:id="trinityInfo" mnemonicParsing="false" onAction="#onTrinityInfo" text="%trinity.info" />
                   <MenuItem fx:id="clearTrinityItem" mnemonicParsing="false" onAction="#onClearTrinity" text="%app.menu.clear_trinity" />
