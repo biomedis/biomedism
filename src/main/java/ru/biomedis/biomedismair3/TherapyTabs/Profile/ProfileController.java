@@ -260,7 +260,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
 
     private void initUploadMenuBtn() {
-        //TODO: необходим диалог с предупреждением перезаписи профиля
+
         MenuItem btnUploadDir=new MenuItem(res.getString("app.into_dir"));
         btnUploadDir.setDisable(true);
         btnUploadDir.setOnAction(event -> uploadInDir());
@@ -272,12 +272,12 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
         MenuItem btnUpload=new MenuItem(res.getString("app.into_m"));
         btnUpload.setDisable(true);
-        btnUpload.setOnAction(event -> onUploadProfile());
+        btnUpload.setOnAction(event -> onUploadProfileToM());
         initButtonUploadDisabledPolicy(btnUpload);
 
         MenuItem exportToFile=new MenuItem(res.getString("app.export_to_file"));
         exportToFile.setDisable(true);
-        exportToFile.setOnAction(event -> onUploadProfile());
+        exportToFile.setOnAction(event -> exportProfile());
         exportToFile.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
 
         uploadMenu.getItems().addAll(btnUploadM2, btnUpload, btnUploadDir, exportToFile);
@@ -294,6 +294,13 @@ public class ProfileController extends BaseController implements ProfileAPI {
     }
 
     private void uploadM2(Profile profile) {
+
+        Optional<ButtonType> ok_no = showInfoConfirmDialog(res.getString("app.upload_profile"), res.getString("app.rewriting_profile_question"), res.getString("app.rewrite_profile_question2"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+        if(ok_no.isPresent()){
+            if(ok_no.get()!=ButtonType.YES) return;
+
+        }else return;
 
         //проверка установленных пачек частот и если есть отличные от 3, то нужно указать, на это
         long  cnt=getModel().findAllTherapyComplexByProfile(profile).stream().filter(c->c.getBundlesLength()!= M2Complex.BUNDLES_LENGTH).count();
@@ -846,10 +853,10 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
 
     /**
-     * Загрузка профиля в папку или на устройство
+     * Загрузка профиля  на устройство М
      *
      */
-    public void onUploadProfile()
+    public void onUploadProfileToM()
     {
         //проверим что действительно все файлы сгенерированны.
         //проверим что прибор подключен
@@ -871,6 +878,14 @@ public class ProfileController extends BaseController implements ProfileAPI {
             showErrorDialog(res.getString("app.title87"),"",res.getString("app.title98"),getApp().getMainWindow(),Modality.WINDOW_MODAL);
             return;
         }
+
+
+        Optional<ButtonType> ok_no = showInfoConfirmDialog(res.getString("app.upload_profile"), res.getString("app.rewriting_profile_question"), res.getString("app.rewrite_profile_question2"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+        if(ok_no.isPresent()){
+            if(ok_no.get()!=ButtonType.YES) return;
+
+        }else return;
 
         //проверим нет ли мп3 с неверными путями
         List<TherapyProgram> failedMp3=new ArrayList<>();
