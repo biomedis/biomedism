@@ -232,21 +232,21 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
         MenuItem downTrin=new MenuItem(res.getString("app.menu.import_from_trinity_device"));
         downTrin.setDisable(true);
-        downTrin.setOnAction(event -> uploadInDir());
+        downTrin.setOnAction(event -> readProfileFromTrinity());
         downTrin.disableProperty().bind(m2Ready.not());
 
         MenuItem downM=new MenuItem(res.getString("app.menu.import_from_m_device"));
         downM.setDisable(true);
-        downM.setOnAction(event -> uploadInDir());
+        downM.setOnAction(event -> loadProfileFromBiomedisM());
         downM.disableProperty().bind(connectedDeviceProperty().not());
 
         MenuItem downDir=new MenuItem(res.getString("app.import_from_dir"));
         downDir.setDisable(false);
-        downDir.setOnAction(event -> uploadInDir());
+        downDir.setOnAction(event -> loadProfileDir());
 
         MenuItem importFromFile = new MenuItem(res.getString("app.from_file"));
         importFromFile.setDisable(false);
-        importFromFile.setOnAction(event -> uploadInDir());
+        importFromFile.setOnAction(event -> importProfile());
 
         readMenu.getItems().addAll(downTrin, downM, downDir, importFromFile);
         btnRead.setOnAction(event4 ->
@@ -1836,20 +1836,12 @@ public class ProfileController extends BaseController implements ProfileAPI {
     }
 
 
-    /**
-     * Загрузжает профиль из папки
-     */
-    @Override
-    public void loadProfileDir()
-    {
 
-        DirectoryChooser dirChooser =new DirectoryChooser();
-        dirChooser.setTitle(res.getString("app.menu.read_profile_from_dir"));
-
-        // fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
-
-        File dir= dirChooser.showDialog(getApp().getMainWindow());
-        if(dir==null)return;
+    private void loadFromDrectory(File dir){
+        if(dir==null){
+            showExceptionDialog("Ошибка чтения выбранной директории","","",new NullPointerException(),getApp().getMainWindow(),Modality.WINDOW_MODAL);
+            return;
+        }
 
         Task<Boolean> task=null;
         boolean profileType=false;
@@ -1920,6 +1912,36 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
         threadTask.start();
         Waiter.show();
+    }
+
+    /**
+     * Загрузжает профиль из M
+     */
+
+    private void loadProfileFromBiomedisM()
+    {
+        File dir= getDevicePath().toFile();
+        loadFromDrectory(dir);
+    }
+
+
+    /**
+     * Загрузжает профиль из папки
+     */
+    @Override
+    public void loadProfileDir()
+    {
+
+        DirectoryChooser dirChooser =new DirectoryChooser();
+        dirChooser.setTitle(res.getString("app.menu.read_profile_from_dir"));
+
+        // fileChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+
+
+        File dir= dirChooser.showDialog(getApp().getMainWindow());
+
+        if(dir == null) return;//отмена действия, не хотим ничего загружать
+        loadFromDrectory(dir);
     }
 
     /**

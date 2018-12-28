@@ -96,7 +96,7 @@ public class AppController  extends BaseController {
     private @FXML MenuItem clearTrinityItem;
     @FXML private  Menu menuImport;
     @FXML private  HBox topPane;
-    @FXML private MenuItem readFromTrinityMenu;
+    //@FXML private MenuItem readFromTrinityMenu;
 
     @FXML private ImageView deviceTrinityIcon;
     @FXML private ImageView deviceBiofonIcon;
@@ -239,7 +239,7 @@ public class AppController  extends BaseController {
         initSectionTreeActionListener();
 
         initUSBDetectionM2();
-        initTrinityReadingMenuItemDisabledPolicy();
+        //initTrinityReadingMenuItemDisabledPolicy();
         initM2UI();
 
         initMenuImport();
@@ -557,9 +557,7 @@ public class AppController  extends BaseController {
         return  (BiofonTabController) replaceContent("/fxml/BiofonTab.fxml",biofonTabContent);
     }
 
-    private void initTrinityReadingMenuItemDisabledPolicy() {
-        readFromTrinityMenu.disableProperty().bind(m2Ready.not());
-    }
+
 
     private void initM2UI() {
         tab5.disableProperty().bind(m2Ready.not());
@@ -996,7 +994,7 @@ public class AppController  extends BaseController {
                     m2Connected.set(true);
                     m2Ready.setValue(true);
                     m2ui.setContent(new M2BinaryFile());
-                    readFromTrinityMenu.setVisible(false);
+
                 }));
 
             }else {
@@ -1005,7 +1003,7 @@ public class AppController  extends BaseController {
                     m2Connected.set(true);
                     m2Ready.setValue(true);
                     m2ui.setContent(m2bf);
-                    readFromTrinityMenu.setVisible(true);
+
                 });
             }
         }
