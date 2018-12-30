@@ -1572,8 +1572,12 @@ public class ComplexController extends BaseController implements ComplexAPI{
 
 
     private void importComplexesFromBiomedisM(){
-        File dir = getDevicePath().toFile();
+        DirectoryChooser dirChooser =new DirectoryChooser();
+        dirChooser.setTitle(res.getString("app.menu.read_complex_from_dir"));
+        dirChooser.setInitialDirectory( getDevicePath().toFile());
+        File dir= dirChooser.showDialog(getApp().getMainWindow());
         if(dir==null)return;
+        importComplexFromDir(dir);
     }
 
     private void importComplexFromDir(File dir){

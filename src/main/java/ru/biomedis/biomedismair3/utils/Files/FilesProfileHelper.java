@@ -54,7 +54,7 @@ public class FilesProfileHelper
 
 
 
-        File[] listFiles = diskPath.listFiles(dir -> dir.isDirectory());
+        File[] listFiles = diskPath.listFiles(dir -> dir.isDirectory() && dir.canWrite());//директории + дб.доступны для записи
 
         List<File> files = Arrays.stream(listFiles).sorted((f1, f2) -> {
 
@@ -324,7 +324,7 @@ public class FilesProfileHelper
 
     private static boolean recursiveDeleteHelper(File path)
     {
-
+        if(!path.canWrite()) return true;//не будем стирать защищенные дирекстории
         // до конца рекурсивного цикла
         if (!path.exists())
             return false;
@@ -343,6 +343,7 @@ public class FilesProfileHelper
 
     private static boolean recursiveDeleteHelper(File path,String excludeNameInRoot,int tier)
     {
+        if(!path.canWrite()) return true;//не будем стирать защищенные дирекстории
 
         // до конца рекурсивного цикла
         if (!path.exists())
