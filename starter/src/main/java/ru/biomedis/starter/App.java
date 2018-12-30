@@ -16,6 +16,7 @@ import javax.persistence.Persistence;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -284,6 +285,28 @@ public class App extends Application {
     }
 
 
+    private String generateJVMOptions(){
+
+        int mb = 1024*1024;
+        int gb = 1024*1024*1024;
+        /* PHYSICAL MEMORY USAGE */
+        System.out.println("\n**** Sizes in Mega Bytes ****\n");
+        com.sun.management.OperatingSystemMXBean operatingSystemMXBean = (com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        //RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+        //operatingSystemMXBean = (com.sun.management.OperatingSystemMXBean) ManagementFactory.getOperatingSystemMXBean();
+        com.sun.management.OperatingSystemMXBean os = (com.sun.management.OperatingSystemMXBean)
+                java.lang.management.ManagementFactory.getOperatingSystemMXBean();
+        long physicalMemorySize = os.getTotalPhysicalMemorySize();
+        System.out.println("PHYSICAL MEMORY DETAILS \n");
+        System.out.println("total physical memory : " + physicalMemorySize / mb + "MB ");
+        long physicalfreeMemorySize = os.getFreePhysicalMemorySize();
+        System.out.println("total free physical memory : " + physicalfreeMemorySize / mb + "MB");
+        /* DISC SPACE DETAILS */
+
+        return "-Xms350m -Xmx1024m  -XX:+OptimizeStringConcat -XX:+UseStringCache";
+
+    }
+
     protected void startMainApp(){
 
         closePersisenceContext();
@@ -314,6 +337,7 @@ public class App extends Application {
 
             }else return;
             command.add(exec);
+            command.add(generateJVMOptions());
             command.add("-Dstarter.version="+getStarterVersion().toString());
             command.add("-jar");
             command.add(new File(currentJar.getParentFile(),"dist.jar").getAbsolutePath());
