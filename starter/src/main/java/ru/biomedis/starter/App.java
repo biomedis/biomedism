@@ -303,7 +303,7 @@ public class App extends Application {
         System.out.println("total free physical memory : " + physicalfreeMemorySize / mb + "MB");
         /* DISC SPACE DETAILS */
 
-        return "-Xms350m -Xmx1024m  -XX:+OptimizeStringConcat -XX:+UseStringCache";
+        return "-Xms350m -Xmx1024m";
 
     }
 
@@ -337,12 +337,14 @@ public class App extends Application {
 
             }else return;
             command.add(exec);
-            command.add(generateJVMOptions());
+            //command.add(generateJVMOptions());
+            command.add("-Xms400m");
+            command.add("-Xmx1024m");
             command.add("-Dstarter.version="+getStarterVersion().toString());
             command.add("-jar");
             command.add(new File(currentJar.getParentFile(),"dist.jar").getAbsolutePath());
 
-
+            command.forEach(s -> System.out.println(" "+s));
             final ProcessBuilder builder = new ProcessBuilder(command);
             builder.start();
             System.out.println("startProgram"+builder.toString());
