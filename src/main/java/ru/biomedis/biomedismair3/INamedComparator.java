@@ -21,6 +21,9 @@ public class INamedComparator implements Comparator<INamed>
     @Override
     public int compare(INamed o1, INamed o2)
     {
+        if(o1==null && o2==null) return 0;
+        if(o1 ==null) return -1;
+        else if(o2==null) return 1;
         return collator.compare(o1.getNameString(),o2.getNameString());
     }
 
