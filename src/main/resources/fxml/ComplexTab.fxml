@@ -13,7 +13,7 @@
       <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
          <children>
             <Button fx:id="btnCreateTherapy" mnemonicParsing="false" onAction="#onCreateComplex" text="%ui.main.create_complex" />
-            <Button fx:id="btnReadTherapy" mnemonicParsing="false" onAction="#onReadTherapyComplexes" text="Прочитать комплексы из" />
+            <Button fx:id="btnReadTherapy" mnemonicParsing="false" onAction="#onReadTherapyComplexes" text="%app.read_complexes_from" />
             <Button fx:id="generationComplexesBtn" mnemonicParsing="false" text="%app.ui_comlexes_generation" />
 
             <Button fx:id="uploadComplexesBtn" mnemonicParsing="false" text="%app.ui.upload_complexex" />

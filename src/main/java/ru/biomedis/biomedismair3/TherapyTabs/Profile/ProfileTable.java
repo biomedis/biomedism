@@ -258,7 +258,7 @@ public class ProfileTable {
         });
 
         //общая длительность, зависит от количества комплексов, програм их частот и мультичастотного режима, также времени на частоту
-        TableColumn<Profile,String> lastChangeCol=new TableColumn<>("Последнее изменение");
+        TableColumn<Profile,String> lastChangeCol=new TableColumn<>(res.getString("app.last_change"));
         lastChangeCol.setCellValueFactory(param -> {
             SimpleStringProperty property = new SimpleStringProperty();
             property.bind(new StringBinding() {
