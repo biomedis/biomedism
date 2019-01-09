@@ -717,7 +717,8 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
 
 
-        tableProfile.getSelectionModel().getSelectedItem().setProfileWeight(tableProfile.getSelectionModel().getSelectedItem().getProfileWeight()+1);//пересчет веса инициализируем
+       // tableProfile.getSelectionModel().getSelectedItem().setProfileWeight(tableProfile.getSelectionModel().getSelectedItem().getProfileWeight()+1);//пересчет веса инициализируем
+        updateProfileWeight(tableProfile.getSelectionModel().getSelectedItem());
         checkUpploadBtn();
 
 
@@ -1382,9 +1383,20 @@ public class ProfileController extends BaseController implements ProfileAPI {
                     @Override
                     protected Boolean call() throws Exception {
 
-                        rp.setUpdateHandler((progress, total) -> updateProgress(progress, total));
+                        rp.setUpdateHandler((progress, total) -> updateProgress(progress, total+1));
                         rp.setFailHandler(failMessage -> failed());
-                        return rp.remove();
+
+                        boolean remove = rp.remove();
+                        //обновим значения в любом случае, тк часть файлов могла удалиться, а часть остаться
+                            try{
+                                for (Profile profile : getModel().findAllProfiles()) {
+                                    updateProfileWeight(profile);
+                                }
+                            }catch (Exception e){
+                                logger.error("",e);
+                            }
+
+                            return remove;
 
                     }
                 };
@@ -1527,13 +1539,34 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
     /*** API **/
 
+    @Override
+    public void updateProfileWeight(Profile p) {
+        if(p==null) return;
+        p.setProfileWeight(getApp().calcProfileFilesWeight(p));
+        try {
+        getModel().updateProfile(p);
+        } catch (Exception e) {
+            Log.logger.error("",e);
+            showExceptionDialog("Обновление объема файлов профиля","","Ошибка обновления", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+        }
+    }
+
     /**
      * перерсчтет времени на профиль. Профиль инстанс из таблицы.
      * @param p
      */
     @Override
     public void updateProfileTime(Profile p) {
-        p.setTime(p.getTime() + 1);
+
+        try {
+            getModel().updateTimeProfile(p);
+        } catch (Exception e) {
+            Log.logger.error("",e);
+            showExceptionDialog("Обновление времени профиля","","Ошибка обновления", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
+        }
+
+        //проперти автоматически измеяется в updateTimeProfile
+        //p.setTime(p.getTime() + 1);
     }
     /**
      * Изменяет состояние кнопки загрузки в прибор. Стоит проверить при изменении состояния устройства и изменеии состояния кнопки загрузки

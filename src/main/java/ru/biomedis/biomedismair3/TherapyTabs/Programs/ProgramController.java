@@ -273,7 +273,7 @@ public class ProgramController extends BaseController implements ProgramAPI{
 
                 complexAPI.updateComplexTime(therapyComplex, true);
                 tableProgram.getSelectionModel().clearSelection();
-
+                profileAPI.updateProfileWeight(ProfileTable.getInstance().getSelectedItem());
             } catch (Exception e) {
                 logger.error("",e);
 
@@ -325,8 +325,8 @@ public class ProgramController extends BaseController implements ProgramAPI{
             tableProgram.scrollTo(i);
 
             complexAPI.updateComplexTime(ComplexTable.getInstance().getSelectedItem(), true);
-            ProfileTable.getInstance().getSelectedItem().setProfileWeight( ProfileTable.getInstance().getSelectedItem().getProfileWeight()+1);
-
+           // ProfileTable.getInstance().getSelectedItem().setProfileWeight( ProfileTable.getInstance().getSelectedItem().getProfileWeight()+1);
+            profileAPI.updateProfileWeight(ProfileTable.getInstance().getSelectedItem());
 
 
 
@@ -494,6 +494,7 @@ public class ProgramController extends BaseController implements ProgramAPI{
         {
 
             getModel().updateTherapyProgram(item);
+            profileAPI.updateProfileWeight(ProfileTable.getInstance().getSelectedItem());
         } catch (Exception e)
         {
             logger.error("Ошибка обновления TherapyProgram",e);

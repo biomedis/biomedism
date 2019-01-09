@@ -18,4 +18,5 @@ public interface ProfileAPI {
     void loadProfileDir();
 
     void setLastChangeProfile(long profileID);
+    void updateProfileWeight(Profile p);
 }

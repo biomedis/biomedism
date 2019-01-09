@@ -22,7 +22,6 @@ import ru.biomedis.biomedismair3.*;
 import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.utils.Date.DateUtil;
 
-import java.io.File;
 import java.text.Collator;
 import java.util.List;
 import java.util.Locale;
@@ -219,7 +218,7 @@ public class ProfileTable {
 
                 @Override
                 protected String computeValue() {
-                    return DateUtil.convertSecondsToHMmSs(getModel().getTimeProfile(param.getValue()));
+                    return DateUtil.convertSecondsToHMmSs(param.getValue().getTime());//время обновляется в profileController  в updateProfileTime(Profile p)
                 }
             });
             return property;
@@ -236,20 +235,7 @@ public class ProfileTable {
 
                 @Override
                 protected String computeValue() {
-
-                    File f = null;
-                    double summ = 0;
-                    if(getModel().isNeedGenerateFilesInProfile(param.getValue())) return "";
-                    for (Long v : getModel().getProfileFiles(param.getValue())) {
-
-                        f = new File(getApp().getDataDir(), v + ".dat");
-                        if (f.exists()) summ += f.length() ;
-                    }
-                    for (String v : getModel().mp3ProgramPathsInProfile(param.getValue())) {
-
-                        f = new File(v);
-                        if (f.exists()) summ += f.length();
-                    }
+                    double summ = param.getValue().getProfileWeight();
                     summ = (double)summ / 1048576;
                     return Math.ceil(summ) + " Mb";
                 }

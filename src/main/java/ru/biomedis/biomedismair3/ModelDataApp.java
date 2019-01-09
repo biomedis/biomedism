@@ -2101,6 +2101,15 @@ public class ModelDataApp {
        return findAllTherapyComplexByProfile(p).stream().mapToInt(value -> getTimeTherapyComplex(value)).sum();
     }
 
+    public long updateTimeProfile(Profile profile) throws Exception {
+        int time = getTimeProfile(profile);
+        profile.setTime(time);
+        updateProfile(profile);
+        return time;
+    }
+
+
+
 
     public long countTherapyPrograms(Profile p)
     {

@@ -1,6 +1,5 @@
 package ru.biomedis.biomedismair3.entity;
 
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -17,7 +16,7 @@ public class Profile implements INamed, Serializable {
     private final SimpleStringProperty name=new SimpleStringProperty();
 
     private final SimpleLongProperty time=new SimpleLongProperty();
-    private final  SimpleIntegerProperty profileWeight=new SimpleIntegerProperty();//объем файлов
+    private final  SimpleLongProperty profileWeight=new SimpleLongProperty();//объем файлов
     private final SimpleLongProperty position=new SimpleLongProperty();
     private final SimpleLongProperty lastChange=new SimpleLongProperty();
     // профиля
@@ -63,16 +62,16 @@ public class Profile implements INamed, Serializable {
         this.uuid = uuid;
     }
 
-    @Transient
-    public int getProfileWeight() {
+
+    public long getProfileWeight() {
         return profileWeight.get();
     }
     @Transient
-    public SimpleIntegerProperty profileWeightProperty() {
+    public SimpleLongProperty profileWeightProperty() {
         return profileWeight;
     }
-    @Transient
-    public void setProfileWeight(int profileWeight) {
+
+    public void setProfileWeight(long profileWeight) {
         this.profileWeight.set(profileWeight);
     }
 
@@ -112,15 +111,16 @@ public class Profile implements INamed, Serializable {
      * Время профиля, в секундах
      * @return
      */
-    @Transient
+
     public long getTime() {
         return time.get();
     }
+
     @Transient
     public SimpleLongProperty timeProperty() {
         return time;
     }
-    @Transient
+
     public void setTime(long time) {
         this.time.set(time);
     }

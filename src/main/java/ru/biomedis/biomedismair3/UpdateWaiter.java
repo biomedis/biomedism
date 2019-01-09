@@ -1,8 +1,9 @@
 package ru.biomedis.biomedismair3;
 
-import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -25,10 +26,11 @@ public class UpdateWaiter
         dlg.initOwner(null);
         dlg.initModality(Modality.APPLICATION_MODAL);
 
-        Group group=new Group();
+        VBox group=new VBox();
         ProgressIndicator pi=new ProgressIndicator();
         pi.setProgress(-1);
         group.getChildren().add(pi);
+        group.getChildren().add(new Label("Updating! Please wait."));
 
         Scene scene = new Scene(group);
 

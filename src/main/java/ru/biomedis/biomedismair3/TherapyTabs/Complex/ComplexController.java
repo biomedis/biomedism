@@ -951,7 +951,8 @@ public class ComplexController extends BaseController implements ComplexAPI{
                                 Profile profile =  ProfileTable.getInstance().getSelectedItem();
                                 ProfileTable.getInstance().clearSelection();
                                 ProfileTable.getInstance().select(profile);
-                                ProfileTable.getInstance().getSelectedItem().setProfileWeight( ProfileTable.getInstance().getSelectedItem().getProfileWeight() + 1);
+                                //ProfileTable.getInstance().getSelectedItem().setProfileWeight( ProfileTable.getInstance().getSelectedItem().getProfileWeight() + 1);
+                                profileAPI.updateProfileWeight(ProfileTable.getInstance().getSelectedItem());
                                 profileAPI.checkUpploadBtn();
 
 

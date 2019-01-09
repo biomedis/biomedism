@@ -315,7 +315,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
         int currentUpdateFile=14;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=1;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentMinorVersion=2;//версия исправлений в пределах мажорной версии currentUpdateFile
         //требуется размещение в папке с dist.jar  файла version.txt с текущей версией типа 4.9.0 . Этот файл в обновление нужно включать!!!
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -851,11 +851,18 @@ https://gist.github.com/DemkaAge/8999236
     private void updateIn14(ProgramOptions updateOption, int updateFixVersion) {
         if(updateFixVersion == 0){
             updateIn14_1(updateOption);
+            updateIn14_2(updateOption);
+        }else if(updateFixVersion == 1){
+            updateIn14_2(updateOption);
         }
 
     }
 
     private void updateIn14_1(ProgramOptions updateOption) {
+
+    }
+
+    private void updateIn14_2(ProgramOptions updateOption) {
 
     }
 
@@ -2401,6 +2408,110 @@ https://gist.github.com/DemkaAge/8999236
         }
 
 
+        reopenPersistentContext();
+        boolean timeAddToProfile = false;
+        try
+        {
+            logger.info("Проверка наличия столбца TIME  в PROFILE ");
+            emf.createEntityManager().createNativeQuery("SELECT `TIME` FROM PROFILE LIMIT 1").getResultList();
+            logger.info("Столбец  TIME  найден.");
+
+        }catch (Exception e){
+            logger.info("Столбец  TIME не найден.");
+            logger.info("Создается  столбец TIME  в PROFILE ");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            try{
+                em.createNativeQuery("ALTER TABLE PROFILE ADD `TIME` BIGINT(19) DEFAULT 0").executeUpdate();
+                em.getTransaction().commit();
+                logger.info("Столбец  TIME создан.");
+                timeAddToProfile=true;
+            }catch (Exception ex){
+                logger.error("ошибка обновления ALTER TABLE PROFILE ADD `TIME` BIGINT(19) DEFAULT 1",ex);
+                wrapException("14",ex);
+            }finally {
+                if(em!=null) em.close();
+            }
+
+
+        }
+
+
+        reopenPersistentContext();
+        boolean weightAddToProfile = false;
+        try
+        {
+            logger.info("Проверка наличия столбца PROFILEWEIGHT  в PROFILE ");
+            emf.createEntityManager().createNativeQuery("SELECT `PROFILEWEIGHT` FROM PROFILE LIMIT 1").getResultList();
+            logger.info("Столбец  PROFILEWEIGHT  найден.");
+
+        }catch (Exception e){
+            logger.info("Столбец  PROFILEWEIGHT не найден.");
+            logger.info("Создается  столбец PROFILEWEIGHT  в PROFILE ");
+            EntityManager em = emf.createEntityManager();
+            em.getTransaction().begin();
+            try{
+                em.createNativeQuery("ALTER TABLE PROFILE ADD `PROFILEWEIGHT` BIGINT(19) DEFAULT 0").executeUpdate();
+                em.getTransaction().commit();
+                logger.info("Столбец  PROFILEWEIGHT создан.");
+                weightAddToProfile=true;
+            }catch (Exception ex){
+                logger.error("ошибка обновления ALTER TABLE PROFILE ADD `PROFILEWEIGHT` BIGINT(19) DEFAULT 1",ex);
+                wrapException("14",ex);
+            }finally {
+                if(em!=null) em.close();
+            }
+
+
+        }
+
+        reopenPersistentContext();
+
+
+        //обновить все профили, подсчитав их время.
+        if(timeAddToProfile){
+            try{
+                for (Profile profile : model.findAllProfiles()) {
+                    model.updateTimeProfile(profile);
+                }
+            }catch (Exception e){
+                logger.error("ошибка обновления времени профилей",e);
+                wrapException("14",e);
+            }
+
+
+        }
+
+//обновить все профили, подсчитав их время.
+        if( weightAddToProfile){
+            try{
+                for (Profile profile : model.findAllProfiles()) {
+
+                    profile.setProfileWeight(calcProfileFilesWeight(profile));
+                    model.updateProfile(profile);
+                }
+            }catch (Exception e){
+                logger.error("ошибка обновления размера файлов профилей",e);
+                wrapException("14",e);
+            }
+
+
+        }
+    }
+
+    public long calcProfileFilesWeight(Profile profile){
+        File f = null;
+        long summ = 0;
+        for (Long v : getModel().getProfileFiles(profile)) {
+            f = new File(getDataDir(), v + ".dat");
+            if (f.exists()) summ += f.length() ;
+        }
+        for (String v : getModel().mp3ProgramPathsInProfile(profile)) {
+
+            f = new File(v);
+            if (f.exists()) summ += f.length();
+        }
+        return summ;
     }
 
     private void setTimeForFreqToCompex(String uuid,int time) throws Exception {
