@@ -315,7 +315,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
         int currentUpdateFile=14;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=2;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentMinorVersion=3;//версия исправлений в пределах мажорной версии currentUpdateFile
         //требуется размещение в папке с dist.jar  файла version.txt с текущей версией типа 4.9.0 . Этот файл в обновление нужно включать!!!
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -629,7 +629,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
                         });
 
 
-                System.out.println("Update >12.0");
+                System.out.println("Update >14.0");
 
             }
             else {
@@ -854,6 +854,8 @@ https://gist.github.com/DemkaAge/8999236
             updateIn14_2(updateOption);
         }else if(updateFixVersion == 1){
             updateIn14_2(updateOption);
+        }else if(updateFixVersion == 2){
+            updateIn14_3(updateOption);
         }
 
     }
@@ -865,7 +867,35 @@ https://gist.github.com/DemkaAge/8999236
     private void updateIn14_2(ProgramOptions updateOption) {
 
     }
+    private void updateIn14_3(ProgramOptions updateOption) {
+        logger.info("ОБНОВЛЕНИЕ 14.3");
 
+        File base_translate=null;
+        try {
+            ResourceUtil ru=new ResourceUtil();
+            base_translate = ru.saveResource(getTmpDir(),"ro_translanion.xml","/updates/update14/roman2.xml",true);
+
+            if(base_translate==null) throw new Exception();
+
+            LoadLanguageFiles ll=new LoadLanguageFiles();
+            if( ll.parse(Arrays.asList(base_translate),getModel())){
+
+                logger.info("ОБНОВЛЕНИЕ 14.3 ЗАВЕРШЕНО.");
+
+
+            }
+            else  wrapException("14.3",new Exception());
+
+        } catch (IOException e) {
+            wrapException("14.3",e);
+            logger.info("ОБНОВЛЕНИЕ 14.3 НЕ ЗАВЕРШЕНО.");
+
+        } catch (Exception e) {
+            wrapException("14.3",e);
+            logger.info("ОБНОВЛЕНИЕ 14.3 НЕ ЗАВЕРШЕНО.");
+
+        }
+    }
     private void update14(ProgramOptions updateOption) {
 
         logger.info("ОБНОВЛЕНИЕ 14");
@@ -2126,11 +2156,12 @@ https://gist.github.com/DemkaAge/8999236
 
 
     }
+
     private void changeDDL(){
         try
         {
             logger.info("Проверка наличия столбца MULTYFREQ  в THERAPYPROGRAM ");
-             emf.createEntityManager().createNativeQuery("SELECT MULTYFREQ FROM THERAPYPROGRAM LIMIT 1").getResultList();
+            emf.createEntityManager().createNativeQuery("SELECT MULTYFREQ FROM THERAPYPROGRAM LIMIT 1").getResultList();
             logger.info("Столбец  MULTYFREQ  найден.");
         }catch (Exception e){
             Log.logger.error("Поиск столбца", e);
@@ -2242,41 +2273,10 @@ https://gist.github.com/DemkaAge/8999236
         }
 
         reopenPersistentContext();
-
-        try {
-            long pos;
-            if(!tpPosFinded) {
-                for (TherapyComplex tc : getModel().findAllTherapyComplexes()) {
-
-                    pos = tc.getId();
-                    tc.setPosition(pos);
-                    getModel().updateTherapyComplex(tc);
-
-                }
-                logger.info("Столбец  POSITION TherapyComplex обновлен.");
-            }
-            if(!profPosFinded) {
-                for (Profile profile : getModel().findAllProfiles()) {
-
-                    pos = profile.getId();
-                    profile.setPosition(pos);
-                    getModel().updateProfile(profile);
-
-                }
-                logger.info("Столбец  POSITION Profile обновлен.");
-            }
-
-        }catch (Exception e){
-            logger.error("ошибка обновления POSITION",e);
-            wrapException("6",e);
-        }
-
-
-        reopenPersistentContext();
         try
         {
             logger.info("Проверка наличия столбца TIMEFORFREQ  в COMPLEX ");
-             emf.createEntityManager().createNativeQuery("SELECT `TIMEFORFREQ` FROM COMPLEX LIMIT 1").getResultList();
+            emf.createEntityManager().createNativeQuery("SELECT `TIMEFORFREQ` FROM COMPLEX LIMIT 1").getResultList();
             logger.info("Столбец  TIMEFORFREQ  найден.");
 
         }catch (Exception e) {
@@ -2382,32 +2382,6 @@ https://gist.github.com/DemkaAge/8999236
 
 
         }
-
-        reopenPersistentContext();
-        try {
-            if(lastChange){
-                //установить время на текущее со сдвигом в 1 сек согласно позициям
-                Calendar cal  = Calendar.getInstance();
-                long currentTime = cal.getTimeInMillis();
-                List<Profile> allProfiles = getModel().findAllProfiles();
-                int allProfilesLen = allProfiles.size();
-
-                for (Profile profile : allProfiles) {
-                    profile.setLastChange(currentTime + allProfilesLen*1000);
-
-                        getModel().updateProfile(profile);
-
-                    allProfilesLen--;
-                }
-
-            }
-        } catch (Exception e) {
-            wrapException("6",e);
-            logger.error("ошибка обновления `LASTCHANGE`, не удалось обновить профили",e);
-            e.printStackTrace();
-        }
-
-
         reopenPersistentContext();
         boolean timeAddToProfile = false;
         try
@@ -2465,7 +2439,66 @@ https://gist.github.com/DemkaAge/8999236
 
         }
 
+        ///////////apdateactions должны быть в конце иначе будут при дальнейших обновлениях ошибка - типа не найден стоблец, тк модель последняя, а структура базы нет.
+
+
+
+        try {
+            long pos;
+            if(!tpPosFinded) {
+                for (TherapyComplex tc : getModel().findAllTherapyComplexes()) {
+
+                    pos = tc.getId();
+                    tc.setPosition(pos);
+                    getModel().updateTherapyComplex(tc);
+
+                }
+                logger.info("Столбец  POSITION TherapyComplex обновлен.");
+            }
+            if(!profPosFinded) {
+                for (Profile profile : getModel().findAllProfiles()) {
+
+                    pos = profile.getId();
+                    profile.setPosition(pos);
+                    getModel().updateProfile(profile);
+
+                }
+                logger.info("Столбец  POSITION Profile обновлен.");
+            }
+
+        }catch (Exception e){
+            logger.error("ошибка обновления POSITION",e);
+            wrapException("6",e);
+        }
+
+
+
+
         reopenPersistentContext();
+        try {
+            if(lastChange){
+                //установить время на текущее со сдвигом в 1 сек согласно позициям
+                Calendar cal  = Calendar.getInstance();
+                long currentTime = cal.getTimeInMillis();
+                List<Profile> allProfiles = getModel().findAllProfiles();
+                int allProfilesLen = allProfiles.size();
+
+                for (Profile profile : allProfiles) {
+                    profile.setLastChange(currentTime + allProfilesLen*1000);
+
+                    getModel().updateProfile(profile);
+
+                    allProfilesLen--;
+                }
+
+            }
+        } catch (Exception e) {
+            wrapException("6",e);
+            logger.error("ошибка обновления `LASTCHANGE`, не удалось обновить профили",e);
+            e.printStackTrace();
+        }
+
+
 
 
         //обновить все профили, подсчитав их время.
@@ -2497,7 +2530,10 @@ https://gist.github.com/DemkaAge/8999236
 
 
         }
+
     }
+
+
 
     public long calcProfileFilesWeight(Profile profile){
         File f = null;

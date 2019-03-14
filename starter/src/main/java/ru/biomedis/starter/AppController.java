@@ -143,6 +143,7 @@ public class AppController extends BaseController {
     private void initInfoStrings() {
 
         antivirInfo.setGraphic(new ImageView(new Image(AppController.class.getResource("/images/warn.png").toExternalForm())));
+        if(!OSValidator.isWindows())antivirInfo.setVisible(false);
     }
 
     private void trinityUtilInit() {
