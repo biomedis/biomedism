@@ -914,25 +914,34 @@ private enum LoadIndicatorType{RED,GREEN}
 
             int pID=entry.getKey();
             TherapyProgram therapyProgram = mda.getTherapyProgram(pID);
-            if(therapyProgram==null){
 
-                tp.setName(resource.getString("ui.program")+"-"+position);
-                StringBuilder strb=new StringBuilder();
-                for (BiofonProgram bp : entry.getValue()) {
+            tp.setName(resource.getString("ui.program")+"-"+position);
+            StringBuilder strb=new StringBuilder();
+            for (BiofonProgram bp : entry.getValue()) {
 
-                    strb.append(bp.getFrequencies().stream().map(i->i.toString()).collect(Collectors.joining("; ")));
-                    if(entry.getValue().indexOf(bp) != entry.getValue().size()-1)strb.append("; ");
-
-                }
-
-                tp.setFrequencies(strb.toString());
+                strb.append(bp.getFrequencies().stream()
+                    .map(i->{
+                       String r =  String.format("%.2f", i).replace(",",".");
+                       if(!r.contains(".")) r+=".0";
+                        return r.replaceAll("\\.?0+$","");
+                    })
+                    .collect(Collectors.joining("; ")));
+                if(entry.getValue().indexOf(bp) != entry.getValue().size()-1)strb.append("; ");
 
             }
-            else {
-                tp.setName(therapyProgram.getName());
 
-                tp.setFrequencies(therapyProgram.getFrequencies());
-                tp.setId(therapyProgram.getId());
+            tp.setFrequencies(strb.toString());
+
+            if(therapyProgram!=null) {
+
+                String fromDeviceFreqs = tp.getFrequencies().replace(" ","").replace(",",".");
+                String fromProgFreqs = therapyProgram.getFrequencies().replace(" ","").replace(",",".");
+
+                if(fromDeviceFreqs.equals(fromProgFreqs)){
+                    tp.setName(therapyProgram.getName());
+                    tp.setId(therapyProgram.getId());
+                }
+
             }
             tp.setTherapyComplex(tc);
 

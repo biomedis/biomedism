@@ -92,7 +92,7 @@ public class BiofonProgram {
      */
     private static double freqFromDeviceFormat(int freq) {
         double f = freq / FREQ_FORMAT_COEFF;
-        return new BigDecimal(f).setScale(FREQ_PRECISE, RoundingMode.UP).doubleValue();
+        return new BigDecimal(f).setScale(3, RoundingMode.UP).doubleValue();
 
     }
 

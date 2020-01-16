@@ -9,9 +9,6 @@ import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.anantacreative.updater.Version;
-import ru.biomedis.biomedismair3.DBImport.AddonsDBImport;
-import ru.biomedis.biomedismair3.DBImport.NewDBImport;
-import ru.biomedis.biomedismair3.DBImport.OldDBImport;
 import ru.biomedis.biomedismair3.Tests.TestsFramework.TestsManager;
 import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadLanguageFiles;
 import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadUUIDs;
@@ -101,7 +98,7 @@ public class App extends Application {
 
     public ResourceBundle getResources(){return strings;}
       private final boolean test=false;//указывает что будут проводиться интеграционные тесты. Соответсвенно будет подключена другая БД и запущенны тесты
-      private final boolean importDB=false;//импорт базы данных, легаси не использовать!!!
+     // private final boolean importDB=false;//импорт базы данных, легаси не использовать!!!
       private final boolean updateBaseMenuVisible =false;//показ пункта обновления базы частот
 
     public boolean isUpdateBaseMenuVisible() {
@@ -315,7 +312,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
         int currentUpdateFile=14;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=4;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentMinorVersion=5;//версия исправлений в пределах мажорной версии currentUpdateFile
         //требуется размещение в папке с dist.jar  файла version.txt с текущей версией типа 4.9.0 . Этот файл в обновление нужно включать!!!
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -832,20 +829,20 @@ https://gist.github.com/DemkaAge/8999236
             TestsManager mdat=new TestsManager(this,"ru.biomedis.biomedismair3.Tests");
             mdat.runAllTests();
         }
-        if(importDB)
-        {
-
-
-            System.out.println("\n\n");
-            NewDBImport dbImport1=new NewDBImport(getModel());
-            if(dbImport1.execute()==false){System.out.println("Ошибка импорта новой базы"); return;}
-
-            OldDBImport dbImport=new OldDBImport(getModel());
-            if(dbImport.importDB()==false){System.out.println("Ошибка импорта старой базы"); return;}
-
-            AddonsDBImport addon=new AddonsDBImport(getModel());
-            if(addon.execute()==false){System.out.println("Ошибка импорта аддонов"); return;}
-        }
+//        if(importDB)
+//        {
+//
+//
+//            System.out.println("\n\n");
+//            NewDBImport dbImport1=new NewDBImport(getModel());
+//            if(dbImport1.execute()==false){System.out.println("Ошибка импорта новой базы"); return;}
+//
+//            OldDBImport dbImport=new OldDBImport(getModel());
+//            if(dbImport.importDB()==false){System.out.println("Ошибка импорта старой базы"); return;}
+//
+//            AddonsDBImport addon=new AddonsDBImport(getModel());
+//            if(addon.execute()==false){System.out.println("Ошибка импорта аддонов"); return;}
+//        }
     }
 
     private void updateIn14(ProgramOptions updateOption, int updateFixVersion) {
@@ -853,19 +850,33 @@ https://gist.github.com/DemkaAge/8999236
             updateIn14_1(updateOption);
             updateIn14_2(updateOption);
             updateIn14_3(updateOption);
+          updateIn14_4(updateOption);
+          updateIn14_5(updateOption);
         }else if(updateFixVersion == 1){
             updateIn14_2(updateOption);
             updateIn14_3(updateOption);
+           updateIn14_4(updateOption);
+          updateIn14_5(updateOption);
         }else if(updateFixVersion == 2){
             updateIn14_3(updateOption);
             updateIn14_4(updateOption);
+          updateIn14_5(updateOption);
         }else if(updateFixVersion == 3){
             updateIn14_4(updateOption);
+            updateIn14_5(updateOption);
+
+        }
+        else if(updateFixVersion == 4){
+          updateIn14_5(updateOption);
         }
 
     }
+
+  private void updateIn14_5(ProgramOptions updateOption) {
+
+  }
     private void updateIn14_4(ProgramOptions updateOption) {
-        updateIn13_1(updateOption);
+
     }
     private void updateIn14_1(ProgramOptions updateOption) {
 
