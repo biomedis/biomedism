@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class NewsProvider {
-    private  static String host = "biomedis.ru";
+    private  static String host = "biomedis.life";
     private static int port = 80;
     private static String ru_news="/doc/b_mair/apinews.php";
     private static String en_news="/doc/b_mair/apinewseng.php";

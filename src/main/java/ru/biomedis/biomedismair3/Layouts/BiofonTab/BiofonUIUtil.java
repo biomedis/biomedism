@@ -901,7 +901,7 @@ private enum LoadIndicatorType{RED,GREEN}
             compileList.get(biofonProgram.getProgramID()).add(biofonProgram);
 
         }
-
+        //у нас есть программы с одинаковыми id, подряд. Они эмулируют пачки частот на приборе. необходимо из них составить одну.
 
         long position=0;
         for (Map.Entry<Integer, List<BiofonProgram>> entry : compileList.entrySet()) {
@@ -912,7 +912,7 @@ private enum LoadIndicatorType{RED,GREEN}
 
 
 
-            int pID=entry.getKey();
+            long pID=entry.getKey();
             TherapyProgram therapyProgram = mda.getTherapyProgram(pID);
 
             tp.setName(resource.getString("ui.program")+"-"+position);
@@ -935,17 +935,16 @@ private enum LoadIndicatorType{RED,GREEN}
             if(therapyProgram!=null) {
 
                 String fromDeviceFreqs = tp.getFrequencies().replace(" ","").replace(",",".");
-                String fromProgFreqs = therapyProgram.getFrequencies().replace(" ","").replace(",",".");
+                String fromProgFreqs = therapyProgram.getFrequencies().replace(" ","").replace(",",".");//.replaceAll("\\.?0+$","");
 
                 if(fromDeviceFreqs.equals(fromProgFreqs)){
                     tp.setName(therapyProgram.getName());
-                    tp.setId(therapyProgram.getId());
                 }
 
             }
             tp.setTherapyComplex(tc);
 
-
+            tp.setId(pID);
             res.add(tp);
 
             position++;

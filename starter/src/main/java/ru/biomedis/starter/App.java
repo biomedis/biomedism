@@ -139,7 +139,7 @@ public class App extends Application {
     public void start(Stage stage) throws Exception {
 
         mainWindow=stage;
-        starterVersion = new Version(1,2,4);
+        starterVersion = new Version(1,2,6);
 
         openPersisenceContext();//откроем контекст работы с БД
 
