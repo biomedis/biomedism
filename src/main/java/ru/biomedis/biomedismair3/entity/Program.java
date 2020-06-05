@@ -178,4 +178,15 @@ public class Program implements Serializable,IEntity,INamed,IDescriptioned  {
     public void setFrequencies(String frequencies) {
         this.frequencies .set(frequencies);
     }
+
+  @Override
+  public String toString() {
+    return "Program{\n" +
+        "id=" + id.get() +
+        ",\n frequencies=" + frequencies.get() +
+        ",\n uuid=" + uuid.get().toString() +
+        ",\n nameString=" + nameString.get() +
+        ",\n descriptionString=" + descriptionString.get() +
+        "\n}";
+  }
 }

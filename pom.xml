@@ -57,8 +57,7 @@
                             <goal>java</goal>
                         </goals>
                         <configuration>
-                            <commandlineArgs>  -encoding=UTF-8 -Dstarter_version=1.0.0</commandlineArgs>
-
+                            <commandlineArgs>  -encoding=UTF-8 -Dstarter_version=1.0.0 -Ddevelop=true</commandlineArgs>
                         </configuration>
                     </execution>
                 </executions>

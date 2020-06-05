@@ -99,7 +99,7 @@ public class App extends Application {
     public ResourceBundle getResources(){return strings;}
       private final boolean test=false;//указывает что будут проводиться интеграционные тесты. Соответсвенно будет подключена другая БД и запущенны тесты
      // private final boolean importDB=false;//импорт базы данных, легаси не использовать!!!
-      private final boolean updateBaseMenuVisible =false;//показ пункта обновления базы частот
+      private  boolean updateBaseMenuVisible =false;//показ пункта обновления базы частот
 
     public boolean isUpdateBaseMenuVisible() {
         return updateBaseMenuVisible;
@@ -246,17 +246,29 @@ public class App extends Application {
         this.needExit = needExit;
     }
 
-    @Override
+    private boolean developed;
+
+  /**
+   * Режим разработчика
+   * Необходимо передать в аргументах командной строки develop=true
+   * @return
+   */
+  public boolean isDeveloped() {
+    return developed;
+  }
+
+  @Override
     public void start(Stage stage) throws Exception {
 
 
         Log.logger.info("Старт программы");
 
 
+      String develop = System.getProperty("develop");
+      developed = Boolean.parseBoolean(develop);
+      updateBaseMenuVisible = developed;
 
-
-
-         mainWindow=stage;
+      mainWindow=stage;
 
 
             openPersisenceContext();//откроем контекст работы с БД

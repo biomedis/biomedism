@@ -153,5 +153,14 @@ public class Section implements Serializable,IEntity,INamed,IDescriptioned {
         this.description.set(description);
     }
 
-
+  @Override
+  public String toString() {
+    return "Section{\n" +
+        "id=" + id.get() +
+        ",\n uuid=" + uuid.get().toString() +
+        ",\n tag=" + tag.get() +
+        ",\n nameString=" + nameString.get() +
+        ",\n descriptionString=" + descriptionString.get() +
+        "\n}";
+  }
 }

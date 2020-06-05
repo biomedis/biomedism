@@ -148,6 +148,15 @@ public class Complex implements Serializable,IEntity,INamed,IDescriptioned {
     public void setSection(Section section) {
         this.section.set(section);
     }
-    
-  
+
+  @Override
+  public String toString() {
+    return "Complex{\n" +
+        "id=" + id.get() +
+        ",\n uuid=" + uuid.get().toString() +
+        ",\n timeForFreq=" + timeForFreq.get() +
+        ",\n nameString=" + nameString.get() +
+        ",\n descriptionString=" + descriptionString.get() +
+        "\n}";
+  }
 }

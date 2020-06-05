@@ -65,6 +65,8 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
     private ResourceBundle res;
     private TreeActionListener treeActionListener;
 
+    private ContextMenu developerMenu = new ContextMenu();
+
 
 
     @Override
@@ -93,6 +95,20 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
         initBaseCombo();
         initSectionCombo();
         initSectionTree();
+        if(getApp().isDeveloped())initDeveloperContextMenu();
+
+
+    }
+
+    private void initDeveloperContextMenu() {
+        MenuItem itemShowInfo = new MenuItem("Показать информацию");
+        itemShowInfo.setOnAction(event -> {
+            INamed item = selectedSectionTreeItem();
+
+            System.out.println(item);
+        });
+        developerMenu.getItems().addAll(itemShowInfo);
+        sectionTree.setContextMenu(developerMenu);
 
 
     }
