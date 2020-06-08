@@ -46,6 +46,7 @@ import ru.biomedis.biomedismair3.UserUtils.Import.ImportUserBase;
 import ru.biomedis.biomedismair3.entity.*;
 import ru.biomedis.biomedismair3.m2.M2;
 import ru.biomedis.biomedismair3.m2.M2BinaryFile;
+import ru.biomedis.biomedismair3.social.social_panel.SocialPanelAPI;
 import ru.biomedis.biomedismair3.utils.Date.DateUtil;
 import ru.biomedis.biomedismair3.utils.Disk.DiskDetector;
 import ru.biomedis.biomedismair3.utils.Disk.DiskSpaceData;
@@ -101,6 +102,8 @@ public class AppController  extends BaseController {
     @FXML private ImageView deviceTrinityIcon;
     @FXML private ImageView deviceBiofonIcon;
 
+    @FXML private HBox topPanel;
+
     private Path devicePath=null;//путь ку устройству или NULL если что-то не так
     private String fsDeviceName="";
     private SimpleBooleanProperty connectedDevice =new SimpleBooleanProperty(false);//подключено ли устройство biomedis-m
@@ -138,6 +141,7 @@ public class AppController  extends BaseController {
     private static  ComplexAPI complexAPI;
     private static  ProgressAPI progressAPI;
     private static  ProgramAPI programAPI;
+    private static SocialPanelAPI socialPanelAPI;
 
     private DropShadow borderGlow;
 
@@ -168,6 +172,9 @@ public class AppController  extends BaseController {
         return programAPI;
     }
 
+    public static SocialPanelAPI getSocialPanelAPI() {
+        return socialPanelAPI;
+    }
 
     synchronized   public boolean isStopGCthread() {
         return stopGCthread;
@@ -228,6 +235,7 @@ public class AppController  extends BaseController {
         complexAPI = initComplexTab();
         programAPI = initProgramTab();
         biofonUIUtil = initBiofon();
+        socialPanelAPI = initSocialPanel();
 
 
         initBiofonImage();
@@ -265,6 +273,16 @@ public class AppController  extends BaseController {
 
 
         getModel().setInProfileChanged(this::onLastChangeProfiles);
+    }
+
+    private SocialPanelAPI initSocialPanel() {
+
+        try{
+            return (SocialPanelAPI) addContentHBox("/fxml/SocialPanel.fxml",topPanel);
+        }catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Ошибка инициализации верхней социальной панели ",e);
+        }
     }
 
     //private Map<Long, Long> changedProfiles = new HashMap<>();

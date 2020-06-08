@@ -295,3 +295,10 @@
     -fx-font-size: 12px;
     -fx-font-weight: bold;
 }
+
+.SyncBtn {
+    -fx-background-image: url("../images/sync.png");
+    -fx-background-size: 24 24;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position:center;
+}

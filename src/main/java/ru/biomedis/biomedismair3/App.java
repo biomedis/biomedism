@@ -14,6 +14,7 @@ import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadLanguageFiles;
 import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadUUIDs;
 import ru.biomedis.biomedismair3.UserUtils.Import.ImportUserBase;
 import ru.biomedis.biomedismair3.entity.*;
+import ru.biomedis.biomedismair3.social.remote_client.SocialClient;
 import ru.biomedis.biomedismair3.utils.Files.ResourceUtil;
 import ru.biomedis.biomedismair3.utils.USB.USBHelper;
 import ru.biomedis.biomedismair3.utils.UTF8Control;
@@ -51,9 +52,16 @@ public class App extends Application {
       private Version version;
       private static  AppController  controller;
       private int updateFixVersion;//значение в базе
+      private final String socialAPIURL = "https://social.biomedis.life";
 
 
-    /**
+  private String getSocialAPIURL() {
+
+    return (isDeveloped() || isIDEStarted())?"http://localhost:8080":socialAPIURL;
+
+  }
+
+  /**
      * текущая реальная версия после применения обновлений
      * @return
      */
@@ -251,10 +259,17 @@ public class App extends Application {
   /**
    * Режим разработчика
    * Необходимо передать в аргументах командной строки develop=true
+   * exec:java -Ddevelop=true
    * @return
    */
   public boolean isDeveloped() {
     return developed;
+  }
+
+  private boolean isIDEStarted() {
+    File innerDataDir = App.getInnerDataDir_();
+    File rootDir = new File(innerDataDir, "../");
+    return rootDir.listFiles((dir, name) -> name.equals("pom.xml")).length == 1;
   }
 
   @Override
@@ -725,8 +740,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
             //System.out.println("Язык - по умолчанию");
         }
 
-
-
+    SocialClient.init(getSocialAPIURL());
 
         //загрузим перевод интерфейса на выбранный язык!
         this.strings= ResourceBundle.getBundle("bundles.strings", new UTF8Control());

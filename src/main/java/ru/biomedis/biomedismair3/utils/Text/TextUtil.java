@@ -150,4 +150,13 @@ public class TextUtil
     public static boolean match(String src,String regex) {
         return Pattern.compile(regex,Pattern.UNICODE_CHARACTER_CLASS).matcher(src).matches();
     }
+
+    public static String addPath(String basePath, String addedPath){
+       StringBuilder strb = new StringBuilder(basePath);
+        if(basePath.endsWith("/") && addedPath.startsWith("/")) strb.append(addedPath.substring(1));
+        else  if(basePath.endsWith("/") && !addedPath.startsWith("/")) strb.append(addedPath);
+        else  if(!basePath.endsWith("/") && addedPath.startsWith("/")) strb.append(addedPath);
+        else  if(!basePath.endsWith("/") && !addedPath.startsWith("/")) strb.append("/").append(addedPath);
+        return strb.toString();
+    }
 }
