@@ -740,7 +740,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
             //System.out.println("Язык - по умолчанию");
         }
 
-    SocialClient.init(getSocialAPIURL());
+    SocialClient.init(getSocialAPIURL(), getModel());
 
         //загрузим перевод интерфейса на выбранный язык!
         this.strings= ResourceBundle.getBundle("bundles.strings", new UTF8Control());

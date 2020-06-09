@@ -6,6 +6,8 @@
 package ru.biomedis.biomedismair3;
 
 import com.mpatric.mp3agic.Mp3File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import javafx.application.Platform;
 import ru.biomedis.biomedismair3.JPAControllers.*;
 import ru.biomedis.biomedismair3.JPAControllers.exceptions.NonexistentEntityException;
@@ -15,6 +17,8 @@ import javax.persistence.*;
 import java.io.File;
 import java.text.Collator;
 import java.util.*;
+import ru.biomedis.biomedismair3.social.remote_client.TokenRepository;
+import ru.biomedis.biomedismair3.social.remote_client.dto.Token;
 
 import static ru.biomedis.biomedismair3.Log.logger;
 
@@ -23,7 +27,7 @@ import static ru.biomedis.biomedismair3.Log.logger;
  *
  * @author Anama
  */
-public class ModelDataApp {
+public class ModelDataApp implements TokenRepository {
 
     private IInProfileChanged onInProfileChanged;
     public interface IInProfileChanged{
@@ -487,8 +491,80 @@ public class ModelDataApp {
 
     }
     /*************/
-    
-    
+
+
+    @Override
+    public Optional<Token> getToken(){
+        Query query=emf.createEntityManager()
+            .createQuery("Select o From ProgramOptions o Where o.name in ('token','refresh_token','expired_token')" );
+        List<ProgramOptions> opts = query.getResultList();
+        if(opts.isEmpty()) {
+            clearToken();
+            return Optional.empty();
+        }
+        Token token = new Token();
+        for (ProgramOptions opt: opts){
+            if(opt.getValue().isEmpty()) return Optional.empty();
+            switch (opt.getName()) {
+                case "token":
+                    token.setAccessToken(opt.getValue());
+                    break;
+                case "refresh_token":
+                    token.setRefreshToken(opt.getValue());
+                    break;
+                case "expired_token":
+                    try {
+                        token.setExpired(tokenExpiredDateFormat.parse(opt.getValue()));
+                    } catch (ParseException e) {
+                        throw  new RuntimeException(e);
+                    }
+                    break;
+            }
+        }
+        return Optional.of(token);
+    }
+
+    private SimpleDateFormat tokenExpiredDateFormat = new SimpleDateFormat("yyyy_MM_dd:HH:mm:ss");
+
+    @Override
+    public void saveToken(Token token){
+        try {
+            updateOption("token",token.getAccessToken());
+        } catch (Exception e) {
+            createOption("token",token.getAccessToken());
+        }
+        try {
+            updateOption("refresh_token",token.getRefreshToken());
+        } catch (Exception e) {
+            createOption("refresh_token",token.getRefreshToken());
+        }
+        try {
+            updateOption("expired_token",tokenExpiredDateFormat.format(token.getExpired()));
+        } catch (Exception e) {
+            createOption("expired_token",tokenExpiredDateFormat.format(token.getExpired()));
+        }
+
+    }
+
+    @Override
+    public void clearToken(){
+        try {
+            updateOption("token","");
+        } catch (Exception e) {
+            createOption("token","");
+        }
+        try {
+            updateOption("refresh_token","");
+        } catch (Exception e) {
+            createOption("refresh_token","");
+        }
+        try {
+            updateOption("expired_token","");
+        } catch (Exception e) {
+            createOption("expired_token","");
+        }
+
+    }
     
     
     
@@ -3073,4 +3149,3 @@ public class ModelDataApp {
 
  
 
-   

@@ -6,7 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import ru.biomedis.biomedismair3.BaseController;
-import ru.biomedis.biomedismair3.social.remote_client.LoginClient;
+
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Credentials;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Token;
@@ -18,7 +18,7 @@ public class SocialPanelController extends BaseController implements SocialPanel
  @FXML
  private Button logIn;
 
- private LoginClient client;
+ private SocialClient client;
 
 
 
@@ -35,12 +35,12 @@ public class SocialPanelController extends BaseController implements SocialPanel
   @Override
   public void initialize(URL location, ResourceBundle resources) {
     res = resources;
-    client = SocialClient.INSTANCE.getLoginClient();
+    client = SocialClient.INSTANCE;
     logIn.setOnAction(this::login);
   }
 
   private  void login(ActionEvent event) {
-    Token token = client.getToken(new Credentials("lightway821@gmail.com", "123123"));
-    System.out.println(token);
+    client.login("lightway821@gmail.com", "123123");
+    System.out.println(client.getToken());
   }
 }
