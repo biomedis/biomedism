@@ -1,5 +1,6 @@
 package ru.biomedis.biomedismair3.social.remote_client;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Credentials;
@@ -10,8 +11,10 @@ class TokenHolder {
 
   private LoginClient loginClient;
   private final TokenRepository tokenRepository;
-  private Token token;
-  private Supplier<Credentials> inputCredentialAction;
+  private Optional<Token> token;
+  private Supplier<Optional<Credentials>> inputCredentialAction;
+  private ConfirmEmailAction performConfirmEmailAction;
+  private Consumer<Exception> preformErrorInfoAction;
 
 
   public TokenHolder(LoginClient loginClient, TokenRepository tokenRepository) {
@@ -20,53 +23,180 @@ class TokenHolder {
     this.tokenRepository = tokenRepository;
   }
 
-  public void setInputCredentialAction(Supplier<Credentials> inputCredentialAction) {
+  public void setInputCredentialAction(Supplier<Optional<Credentials>> inputCredentialAction) {
     this.inputCredentialAction = inputCredentialAction;
   }
 
-  //должен запрашивать автоматически обновление токена.
-  public String getToken() {
-    //проверить наличние токена здесь, если нет, то в базе.
-    // если в базе нет, то запросить логин, после чего вернуть токен, сохранив его в базе
+  public void setPerformConfirmEmailAction(ConfirmEmailAction performConfirmEmailAction) {
+    this.performConfirmEmailAction = performConfirmEmailAction;
+  }
 
-    //если в базе есть, то получить его, сохранить тут, проверить время экспирации и если нужно запросить новый по рефреш-токену,
-    //если все ок, сохранить в базе, здесь и вернуть его.
+  public void setPreformErrorInfoAction(
+      Consumer<Exception> preformErrorInfoAction) {
+    this.preformErrorInfoAction = preformErrorInfoAction;
+  }
 
-    //Если есть токен тут, то проверить дату экспирации, и, если нужно, запросить новый по рефреш-токену,
-    //если все ок, сохранить в базе, здесь и вернуть его.
+  /**
+   * должен запрашивать автоматически обновление токена.
+   */
+  //TODO вопрос - при получении нового токена старый на сервере остается в базе? Проблема актуальна, если старый просрали.
+  public void processToken() throws BreakByUserException, ServerProblemException {
 
-    //на сервере при получении ии рефреше настроить возвращаемые ошибки,
-    // чтобы их распознать - при не верных креденшеналах, вывести диалог, но его можно закрыть
-    //если почта не валидирована, то вывести окно валидации почты
+    if(token.isPresent()) {
+       processTokenIfExpired(token.get());
+    }else {
+      token = tokenRepository.getToken();
+      if(token.isPresent()){
+         processTokenIfExpired(token.get());
+      }else {
+         processTokenIfNeedLogin();
+      }
+    }
+  }
 
-    return "";
+  public String getToken(){
+    return token.map(Token::getAccessToken).orElse("EMPTY_TOKEN");
+  }
+
+  /**
+   * Запрашиваетлогин и пароль, пробует получить токен,
+   * запросит подтверждение почты если нужно.
+   * Будет повторяться если логин кинет BadCredentials
+   * @return
+   * @throws BreakByUserException
+   * @throws ServerProblemException
+   */
+  private String processTokenIfNeedLogin()
+      throws BreakByUserException, ServerProblemException {
+    Optional<Credentials> credentials = performInputCredential();
+    if(!credentials.isPresent()) throw new BreakByUserException("Прервано пользователем");
+    boolean retry = true;
+   while (retry){
+     try {
+       token = Optional.of(login(credentials.get()));
+       retry = false;
+     }catch (BadCredentials e){
+     }
+   }
+
+    return token.get().getAccessToken();
+  }
+
+
+  private String processTokenIfExpired(Token token)
+      throws ServerProblemException, BreakByUserException {
+
+    if(token.isExpired()){
+      try{
+        this.token = Optional.of(loginClient.refreshToken(token.getRefreshToken()));
+        tokenRepository.saveToken(token);
+        return token.getAccessToken();
+      }catch (Exception e){
+        if(e instanceof ApiError) {
+          ApiError ex = (ApiError) e;
+          if(ex.getStatusCode()==400){
+            //не верный токен обновления.
+            return processTokenIfNeedLogin();
+          } else  throw new ServerProblemException(e);
+        } else  throw new ServerProblemException(e);
+
+      }
+    }else {
+      return token.getAccessToken();
+    }
   }
 
   /**
    * Очистит токен, при следующим получении заставит ввести логин и пароль.
    */
   public void resetToken(){
-    token = null;
-    resetTokenInBase();
+    token = Optional.empty();
+    tokenRepository.clearToken();
   }
 
-  //обработка ошибок
-  public void login(String email, String password) {
-    token = loginClient.getToken(new Credentials(email, password));
+
+  private Token login(Credentials credentials)
+      throws BreakByUserException, ServerProblemException, BadCredentials {
+    Token token;
+    try {
+      token = loginClient.getToken(credentials);
+      tokenRepository.saveToken(token);
+      return token;
+
+    }catch (Exception e){
+      if(e instanceof ApiError){
+        ApiError ex = (ApiError) e;
+        if(ex.getNeedValidateEmail()) {
+          performConfirmEmail(credentials.getEmail());
+          token = login(credentials);
+          return token;
+        }else if(ex.getStatusCode()==400){
+          throw new BadCredentials();
+        }else throw new ServerProblemException(e);
+      }else throw new ServerProblemException(e);
+
+
+    }
   }
 
-  private Credentials performInputCredential() {
+  public void performLogin() throws ServerProblemException, BreakByUserException {
+    processToken();
+  }
+
+  private Optional<Credentials> performInputCredential() {
     if (inputCredentialAction == null) {
       throw new RuntimeException("Необходимо установить экшен получения данных пользователя.");
     }
-    return inputCredentialAction.get();
+    return inputCredentialAction.get();//как обработать отказ? Тк нужно будет выйти из запроса
   }
 
-  private Token getTokenFromBase(){
-    return null;
+  private void performConfirmEmail(String email) throws BreakByUserException {
+    if (performConfirmEmailAction == null) {
+      throw new RuntimeException("Необходимо установить экшен для подтверждения почты.");
+    }
+    performConfirmEmailAction.confirm(email);
   }
 
-  private void resetTokenInBase(){
-
+  /**
+   * Сообщит пользователю об ошибке
+   * @param e
+   * @return
+   */
+  private void performErrorInfo(Exception e) {
+    if (preformErrorInfoAction == null) {
+      throw new RuntimeException("Необходимо установить экшен для подтверждения почты.");
+    }
+    preformErrorInfoAction.accept(e);
   }
+
+  public static class BreakByUserException extends Exception{
+
+    public BreakByUserException(String message) {
+      super(message);
+    }
+  }
+
+  public static class ServerProblemException extends Exception{
+
+    public ServerProblemException(String message) {
+      super(message);
+    }
+
+    public ServerProblemException(String message, Throwable cause) {
+      super(message, cause);
+    }
+
+    public ServerProblemException(Throwable cause) {
+      super(cause);
+    }
+  }
+
+
+  private static class BadCredentials extends Exception{}
+
+  public interface ConfirmEmailAction{
+    void confirm(String email) throws BreakByUserException;
+  }
+
+
 }
