@@ -10,6 +10,7 @@ import javafx.scene.control.ToggleGroup;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
+import javafx.stage.WindowEvent;
 import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
@@ -45,6 +46,11 @@ public class PrintController extends BaseController {
 
     @Override
     protected void onCompletedInitialise() {
+
+    }
+
+    @Override
+    protected void onClose(WindowEvent event) {
 
     }
 

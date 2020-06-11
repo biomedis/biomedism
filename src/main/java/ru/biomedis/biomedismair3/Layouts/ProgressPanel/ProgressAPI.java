@@ -7,7 +7,11 @@ public interface ProgressAPI {
      */
      void setInfoMessage(String message);
 
-    /**
+  void setWarningMessage(String message);
+
+  void setErrorMessage(String message);
+
+  /**
      *
      * @param value 0 - 1.0
      * @param textAction ниже textInfo

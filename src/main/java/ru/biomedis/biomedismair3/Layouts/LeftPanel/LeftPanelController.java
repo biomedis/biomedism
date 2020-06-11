@@ -13,6 +13,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 import ru.biomedis.biomedismair3.App;
 import ru.biomedis.biomedismair3.AppController;
 import ru.biomedis.biomedismair3.BaseController;
@@ -71,6 +72,11 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
     @Override
     protected void onCompletedInitialise() {
+
+    }
+
+    @Override
+    protected void onClose(WindowEvent event) {
 
     }
 

@@ -15,6 +15,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 import ru.biomedis.biomedismair3.*;
 import ru.biomedis.biomedismair3.Dialogs.SearchProfile;
 import ru.biomedis.biomedismair3.Dialogs.TextInputValidationController;
@@ -67,6 +68,11 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
     @Override
     protected void onCompletedInitialise() {
+
+    }
+
+    @Override
+    protected void onClose(WindowEvent event) {
 
     }
 

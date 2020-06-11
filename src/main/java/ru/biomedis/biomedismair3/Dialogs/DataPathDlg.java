@@ -6,6 +6,7 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Modality;
+import javafx.stage.WindowEvent;
 import ru.biomedis.biomedismair3.App;
 import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.Log;
@@ -31,6 +32,11 @@ public class DataPathDlg extends BaseController {
 
     @Override
     protected void onCompletedInitialise() {
+
+    }
+
+    @Override
+    protected void onClose(WindowEvent event) {
 
     }
 

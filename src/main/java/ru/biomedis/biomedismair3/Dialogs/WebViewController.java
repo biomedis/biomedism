@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
+import javafx.stage.WindowEvent;
 import ru.biomedis.biomedismair3.BaseController;
 
 import java.net.URL;
@@ -19,6 +20,11 @@ public class WebViewController extends BaseController {
 
     @Override
     protected void onCompletedInitialise() {
+
+    }
+
+    @Override
+    protected void onClose(WindowEvent event) {
 
     }
 

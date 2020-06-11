@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javafx.stage.WindowEvent;
 
 
 /**
@@ -54,6 +55,8 @@ public abstract class BaseController implements Initializable {
      * Вызывается после завершиния инициализации контроллера
      */
     protected abstract void onCompletedInitialise();
+
+    protected abstract void onClose(WindowEvent event);
 
     public ModelDataApp getModel() {
         return app.getModel();
@@ -127,6 +130,8 @@ public abstract class BaseController implements Initializable {
         BaseController controller = (BaseController) fxmlLoader.getController();
         controller.setWindow(dlg);
 
+        dlg.setOnCloseRequest(controller::onClose);
+
         root.setUserData(userData);
         controller.setParams(params);//до открытия окна в show, можно устанавливать любые параметры. initialize вызывается в контроллере до этого !!
         controller.onCompletedInitialise();
@@ -142,6 +147,7 @@ public abstract class BaseController implements Initializable {
         if (maxW != 0) dlg.setMaxWidth(maxW);
 
         dlg.showAndWait();
+        dlg.setOnCloseRequest(null);
 
         root.setUserData(null); //теперь если очистить ссылку снаружи, сборщик мусора сможет забрать ресурсы окна
         return userDataRef.get();

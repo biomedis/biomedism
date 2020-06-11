@@ -10,6 +10,7 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 import ru.biomedis.biomedismair3.BaseController;
 
 import java.net.URL;
@@ -209,6 +210,11 @@ public class MultyFreqEditDialogController extends BaseController {
 
     @Override
     protected void onCompletedInitialise() {
+
+    }
+
+    @Override
+    protected void onClose(WindowEvent event) {
 
     }
 

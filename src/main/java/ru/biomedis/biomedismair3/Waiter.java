@@ -14,6 +14,7 @@ import javafx.stage.Window;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.stage.WindowEvent;
 
 /**
  * Created by Anama on 16.02.2016.
@@ -26,6 +27,11 @@ public class Waiter extends BaseController
 
     @Override
     protected void onCompletedInitialise() {
+
+    }
+
+    @Override
+    protected void onClose(WindowEvent event) {
 
     }
 

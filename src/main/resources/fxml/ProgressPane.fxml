@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.effect.Reflection?>
-<?import javafx.scene.layout.*?>
-<StackPane HBox.hgrow="ALWAYS"  xmlns="http://javafx.com/javafx/8.0.72" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.Layouts.ProgressPanel.ProgressPanelController">
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<StackPane HBox.hgrow="ALWAYS" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.Layouts.ProgressPanel.ProgressPanelController">
 
       <children>
          <VBox fx:id="progress2Pane" alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" spacing="8.0" visible="false">
@@ -40,7 +46,15 @@
          </VBox>
          <VBox fx:id="progress3Pane" alignment="CENTER" maxWidth="1.7976931348623157E308" StackPane.alignment="CENTER">
             <children>
-               <Label fx:id="messageText" alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Label" VBox.vgrow="ALWAYS" />
+              <HBox>
+                 <children>
+                    <ImageView fx:id="infoImage" fitHeight="128.0" fitWidth="24.0">
+                     <HBox.margin>
+                        <Insets right="8.0" />
+                     </HBox.margin></ImageView>
+                    <Label fx:id="messageText" alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" text="Label" HBox.hgrow="ALWAYS" />
+                 </children>
+              </HBox>
             </children>
          </VBox>
       </children>

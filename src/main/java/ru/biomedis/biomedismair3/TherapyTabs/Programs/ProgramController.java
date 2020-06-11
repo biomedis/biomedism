@@ -12,6 +12,7 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
+import javafx.stage.WindowEvent;
 import ru.biomedis.biomedismair3.AppController;
 import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.Layouts.LeftPanel.LeftPanelAPI;
@@ -68,6 +69,11 @@ public class ProgramController extends BaseController implements ProgramAPI{
 
     @Override
     protected void onCompletedInitialise() {
+
+    }
+
+    @Override
+    protected void onClose(WindowEvent event) {
 
     }
 

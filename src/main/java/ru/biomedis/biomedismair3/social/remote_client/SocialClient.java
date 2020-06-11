@@ -3,7 +3,6 @@ package ru.biomedis.biomedismair3.social.remote_client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import feign.Feign;
 import feign.Feign.Builder;
 import feign.RequestInterceptor;
@@ -18,14 +17,11 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 
-import ru.biomedis.biomedismair3.social.remote_client.TokenHolder.BreakByUserException;
-import ru.biomedis.biomedismair3.social.remote_client.TokenHolder.ConfirmEmailAction;
-import ru.biomedis.biomedismair3.social.remote_client.TokenHolder.ServerProblemException;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Credentials;
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError;
 import ru.biomedis.biomedismair3.utils.Text.TextUtil;
@@ -96,7 +92,7 @@ public class SocialClient {
   /**
    * Экшен должен открыть окно ввода данных для логина и вернуть эти данные
    */
-  public void setInputCredentialAction(Supplier<Optional<Credentials>> inputCredentialAction) {
+  public void setInputCredentialAction(BiFunction<String, String, Optional<Credentials>> inputCredentialAction) {
     tokenHolder.setInputCredentialAction(inputCredentialAction);
   }
 

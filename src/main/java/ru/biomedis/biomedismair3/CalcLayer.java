@@ -16,6 +16,7 @@ import javafx.stage.Window;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.stage.WindowEvent;
 
 import static ru.biomedis.biomedismair3.Log.logger;
 
@@ -38,6 +39,11 @@ private CalcActionListener actionListener;
 
     @Override
     protected void onCompletedInitialise() {
+
+    }
+
+    @Override
+    protected void onClose(WindowEvent event) {
 
     }
 

@@ -26,6 +26,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
+import javafx.stage.WindowEvent;
 import ru.biomedis.biomedismair3.BaseController;
 
 import java.awt.geom.Rectangle2D;
@@ -345,6 +346,11 @@ public class PDFController extends BaseController {
 
     @Override
     protected void onCompletedInitialise() {
+
+    }
+
+    @Override
+    protected void onClose(WindowEvent event) {
 
     }
 

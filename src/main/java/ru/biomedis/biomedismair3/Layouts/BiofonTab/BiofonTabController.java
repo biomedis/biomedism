@@ -12,6 +12,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
+import javafx.stage.WindowEvent;
 import ru.biomedis.biomedismair3.AppController;
 import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.Log;
@@ -93,6 +94,11 @@ public class BiofonTabController extends BaseController{
 
     @Override
     protected void onCompletedInitialise() {
+
+    }
+
+    @Override
+    protected void onClose(WindowEvent event) {
 
     }
 

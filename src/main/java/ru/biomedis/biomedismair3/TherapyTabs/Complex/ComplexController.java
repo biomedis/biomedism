@@ -21,6 +21,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 import ru.biomedis.biomedismair3.*;
 import ru.biomedis.biomedismair3.Dialogs.NameDescroptionDialogController;
 import ru.biomedis.biomedismair3.Layouts.LeftPanel.LeftPanelAPI;
@@ -101,6 +102,11 @@ public class ComplexController extends BaseController implements ComplexAPI{
 
     @Override
     protected void onCompletedInitialise() {
+
+    }
+
+    @Override
+    protected void onClose(WindowEvent event) {
 
     }
 

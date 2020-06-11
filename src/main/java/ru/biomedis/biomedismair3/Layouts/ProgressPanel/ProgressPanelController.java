@@ -6,8 +6,11 @@ import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ProgressIndicator;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import ru.biomedis.biomedismair3.BaseController;
 
@@ -26,8 +29,18 @@ public class ProgressPanelController extends BaseController implements ProgressA
     @FXML private Label textInfo;
     @FXML private Label textActionInfo;
 
+    @FXML private ImageView infoImage;
+    private Image imageOk;
+    private Image imageError;
+    private Image imageWarning;
+
     @Override
     protected void onCompletedInitialise() {
+
+    }
+
+    @Override
+    protected void onClose(WindowEvent event) {
 
     }
 
@@ -41,6 +54,20 @@ public class ProgressPanelController extends BaseController implements ProgressA
         progress1Pane.setVisible(false);
         progress2Pane.setVisible(false);
         progress3Pane.setVisible(false);
+
+        URL imageLocation;
+        imageLocation = getClass().getResource("/images/image_ok.png");
+        imageOk=new Image(imageLocation.toExternalForm());
+
+        imageLocation = getClass().getResource("/images/image_error.png");
+        imageError=new Image(imageLocation.toExternalForm());
+
+        imageLocation = getClass().getResource("/images/image_warning.png");
+        imageWarning=new Image(imageLocation.toExternalForm());
+
+
+        infoImage.setImage(imageOk);
+        infoImage.setEffect(null);
     }
 
 
@@ -51,11 +78,41 @@ public class ProgressPanelController extends BaseController implements ProgressA
     @Override
     public void setInfoMessage(String message)
     {
+        setMessage(message, MessageType.OK);
+    }
+
+    @Override
+    public void setWarningMessage(String message)
+    {
+        setMessage(message, MessageType.OK);
+    }
+
+    @Override
+    public void setErrorMessage(String message)
+    {
+        setMessage(message, MessageType.OK);
+    }
+
+    private enum MessageType{ OK, ERROR, WARNING}
+
+    private void setMessage(String message, MessageType messageType)
+    {
         progress1Pane.setVisible(false);
         progress2Pane.setVisible(false);
         progress3Pane.setVisible(true);
 
         messageText.setText(message);
+        switch (messageType){
+            case OK:
+                infoImage.setImage(imageOk);
+                break;
+            case ERROR:
+                infoImage.setImage(imageError);
+                break;
+            case WARNING:
+                infoImage.setImage(imageWarning);
+                break;
+        }
 
         FadeTransition fadeTransition;
         fadeTransition = new FadeTransition(Duration.seconds(6), progress3Pane);

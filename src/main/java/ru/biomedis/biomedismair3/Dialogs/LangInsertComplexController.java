@@ -3,6 +3,7 @@ package ru.biomedis.biomedismair3.Dialogs;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.stage.Modality;
+import javafx.stage.WindowEvent;
 import javafx.util.StringConverter;
 import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.entity.Language;
@@ -22,6 +23,11 @@ public class LangInsertComplexController extends BaseController {
 
     @Override
     protected void onCompletedInitialise() {
+
+    }
+
+    @Override
+    protected void onClose(WindowEvent event) {
 
     }
 

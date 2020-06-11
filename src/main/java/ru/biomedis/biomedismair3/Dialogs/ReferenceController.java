@@ -15,6 +15,7 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Modality;
+import javafx.stage.WindowEvent;
 import javafx.util.StringConverter;
 import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.UserUtils.CreateBaseHelper;
@@ -44,6 +45,11 @@ public class ReferenceController extends BaseController {
     @Override
     protected void onCompletedInitialise() {
         onHome();
+
+    }
+
+    @Override
+    protected void onClose(WindowEvent event) {
 
     }
 

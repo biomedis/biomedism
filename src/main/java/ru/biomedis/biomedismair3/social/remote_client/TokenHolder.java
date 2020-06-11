@@ -1,8 +1,8 @@
 package ru.biomedis.biomedismair3.social.remote_client;
 
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Credentials;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Token;
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError;
@@ -11,8 +11,8 @@ class TokenHolder {
 
   private LoginClient loginClient;
   private final TokenRepository tokenRepository;
-  private Optional<Token> token;
-  private Supplier<Optional<Credentials>> inputCredentialAction;
+  private Optional<Token> token = Optional.empty();
+  private BiFunction<String, String, Optional<Credentials>> inputCredentialAction;
   private ConfirmEmailAction performConfirmEmailAction;
   private Consumer<Exception> preformErrorInfoAction;
 
@@ -23,7 +23,8 @@ class TokenHolder {
     this.tokenRepository = tokenRepository;
   }
 
-  public void setInputCredentialAction(Supplier<Optional<Credentials>> inputCredentialAction) {
+  public void setInputCredentialAction(
+      BiFunction<String, String, Optional<Credentials>> inputCredentialAction) {
     this.inputCredentialAction = inputCredentialAction;
   }
 
@@ -68,7 +69,7 @@ class TokenHolder {
    */
   private String processTokenIfNeedLogin()
       throws BreakByUserException, ServerProblemException {
-    Optional<Credentials> credentials = performInputCredential();
+    Optional<Credentials> credentials = performInputCredential("","");
     if(!credentials.isPresent()) throw new BreakByUserException("Прервано пользователем");
     boolean retry = true;
    while (retry){
@@ -76,6 +77,9 @@ class TokenHolder {
        token = Optional.of(login(credentials.get()));
        retry = false;
      }catch (BadCredentials e){
+       credentials = performInputCredential(credentials.get().getEmail(), credentials.get().getPassword());
+       if(!credentials.isPresent()) throw new BreakByUserException("Прервано пользователем");
+
      }
    }
 
@@ -143,11 +147,11 @@ class TokenHolder {
     processToken();
   }
 
-  private Optional<Credentials> performInputCredential() {
+  private Optional<Credentials> performInputCredential(String email, String pass) {
     if (inputCredentialAction == null) {
       throw new RuntimeException("Необходимо установить экшен получения данных пользователя.");
     }
-    return inputCredentialAction.get();//как обработать отказ? Тк нужно будет выйти из запроса
+    return inputCredentialAction.apply(email, pass);//как обработать отказ? Тк нужно будет выйти из запроса
   }
 
   private void performConfirmEmail(String email) throws BreakByUserException {
@@ -167,35 +171,6 @@ class TokenHolder {
       throw new RuntimeException("Необходимо установить экшен для подтверждения почты.");
     }
     preformErrorInfoAction.accept(e);
-  }
-
-  public static class BreakByUserException extends Exception{
-
-    public BreakByUserException(String message) {
-      super(message);
-    }
-  }
-
-  public static class ServerProblemException extends Exception{
-
-    public ServerProblemException(String message) {
-      super(message);
-    }
-
-    public ServerProblemException(String message, Throwable cause) {
-      super(message, cause);
-    }
-
-    public ServerProblemException(Throwable cause) {
-      super(cause);
-    }
-  }
-
-
-  private static class BadCredentials extends Exception{}
-
-  public interface ConfirmEmailAction{
-    void confirm(String email) throws BreakByUserException;
   }
 
 

@@ -19,6 +19,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
+import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import org.anantacreative.updater.Update.UpdateException;
 import org.anantacreative.updater.Update.UpdateTask;
@@ -46,6 +47,14 @@ import ru.biomedis.biomedismair3.UserUtils.Import.ImportUserBase;
 import ru.biomedis.biomedismair3.entity.*;
 import ru.biomedis.biomedismair3.m2.M2;
 import ru.biomedis.biomedismair3.m2.M2BinaryFile;
+import ru.biomedis.biomedismair3.social.login.EmailConfirmationController;
+
+import ru.biomedis.biomedismair3.social.login.InputCredentialController;
+import ru.biomedis.biomedismair3.social.remote_client.SocialClient;
+
+import ru.biomedis.biomedismair3.social.remote_client.BreakByUserException;
+import ru.biomedis.biomedismair3.social.remote_client.ConfirmEmailAction;
+import ru.biomedis.biomedismair3.social.remote_client.dto.Credentials;
 import ru.biomedis.biomedismair3.social.social_panel.SocialPanelAPI;
 import ru.biomedis.biomedismair3.utils.Date.DateUtil;
 import ru.biomedis.biomedismair3.utils.Disk.DiskDetector;
@@ -237,6 +246,7 @@ public class AppController  extends BaseController {
         biofonUIUtil = initBiofon();
         socialPanelAPI = initSocialPanel();
 
+        initSocialActions();
 
         initBiofonImage();
         initTrinityImage();
@@ -273,6 +283,57 @@ public class AppController  extends BaseController {
 
 
         getModel().setInProfileChanged(this::onLastChangeProfiles);
+    }
+
+    private void initSocialActions() {
+
+        SocialClient.INSTANCE.setConfirmEmailAction(new ConfirmEmailAction() {
+            @Override
+            public void confirm(String email) throws BreakByUserException {
+
+                try {
+                    EmailConfirmationController.Data res = BaseController.openDialogUserData(
+                        getApp().getMainWindow(),
+                        "/fxml/EmailConfirmation.fxml",
+                        "Подтверждение email",
+                        false,
+                        StageStyle.UTILITY,
+                        0, 0, 0, 0,
+                        new EmailConfirmationController.Data(email));
+                    if(res.closedByUser) throw new BreakByUserException("");//если нет исключения, то считаетмя подтвержденным
+
+                } catch (IOException e) {
+                    logger.error("", e);
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+
+
+        SocialClient.INSTANCE.setInputCredentialAction((email, pass) -> {
+            try {
+                InputCredentialController.Data res =   BaseController.openDialogUserData(
+                    getApp().getMainWindow(),
+                    "/fxml/CredentialsInputDialog.fxml",
+                    "Вход",
+                    false,
+                    StageStyle.UTILITY,
+                    0, 0, 0, 0,
+                    new InputCredentialController.Data(email,pass)
+                    );
+                if(res.cancel) return Optional.empty();
+                else return Optional.of(new Credentials(res.email, res.password));
+
+            } catch (IOException e) {
+                logger.error("",e);
+                throw new RuntimeException(e);
+            }
+
+        });
+
+        SocialClient.INSTANCE.setErrorAction(e -> {
+            progressAPI.setErrorMessage(e.getMessage());
+        });
     }
 
     private SocialPanelAPI initSocialPanel() {
@@ -1971,6 +2032,11 @@ if(!getConnectedDevice())return;
             Log.logger.error(e);
             showExceptionDialog("Детектирование USB подключений","Ошибка!","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
         }
+    }
+
+    @Override
+    protected void onClose(WindowEvent event) {
+
     }
 
 
