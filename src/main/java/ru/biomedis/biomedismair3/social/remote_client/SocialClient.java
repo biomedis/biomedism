@@ -19,10 +19,12 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 
 import ru.biomedis.biomedismair3.social.remote_client.dto.Credentials;
+import ru.biomedis.biomedismair3.social.remote_client.dto.Token;
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError;
 import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
@@ -92,8 +94,8 @@ public class SocialClient {
   /**
    * Экшен должен открыть окно ввода данных для логина и вернуть эти данные
    */
-  public void setInputCredentialAction(BiFunction<String, String, Optional<Credentials>> inputCredentialAction) {
-    tokenHolder.setInputCredentialAction(inputCredentialAction);
+  public void setLoginAction(Supplier< Optional<Token>> action) {
+    tokenHolder.setLoginAction(action);
   }
 
   public void setErrorAction(Consumer<Exception> action) {
@@ -101,9 +103,7 @@ public class SocialClient {
     errorAction = action;
   }
 
-  public void setConfirmEmailAction(ConfirmEmailAction action){
-    tokenHolder.setPerformConfirmEmailAction(action);
-  }
+
 
 
 
@@ -127,6 +127,9 @@ public class SocialClient {
     return contactsClient;
   }
 
+  public LoginClient getLoginClient() {
+    return loginClient;
+  }
 
   public String getToken() throws BreakByUserException {
     return tokenHolder.getToken();

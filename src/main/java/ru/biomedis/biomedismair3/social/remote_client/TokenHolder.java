@@ -3,6 +3,7 @@ package ru.biomedis.biomedismair3.social.remote_client;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Credentials;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Token;
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError;
@@ -12,8 +13,7 @@ class TokenHolder {
   private LoginClient loginClient;
   private final TokenRepository tokenRepository;
   private Optional<Token> token = Optional.empty();
-  private BiFunction<String, String, Optional<Credentials>> inputCredentialAction;
-  private ConfirmEmailAction performConfirmEmailAction;
+  private Supplier<Optional<Token>> loginAction;
   private Consumer<Exception> preformErrorInfoAction;
 
 
@@ -23,14 +23,11 @@ class TokenHolder {
     this.tokenRepository = tokenRepository;
   }
 
-  public void setInputCredentialAction(
-      BiFunction<String, String, Optional<Credentials>> inputCredentialAction) {
-    this.inputCredentialAction = inputCredentialAction;
+  public void setLoginAction(Supplier< Optional<Token>> action) {
+    this.loginAction = action;
   }
 
-  public void setPerformConfirmEmailAction(ConfirmEmailAction performConfirmEmailAction) {
-    this.performConfirmEmailAction = performConfirmEmailAction;
-  }
+
 
   public void setPreformErrorInfoAction(
       Consumer<Exception> preformErrorInfoAction) {
@@ -68,22 +65,9 @@ class TokenHolder {
    * @throws ServerProblemException
    */
   private String processTokenIfNeedLogin()
-      throws BreakByUserException, ServerProblemException {
-    Optional<Credentials> credentials = performInputCredential("","");
-    if(!credentials.isPresent()) throw new BreakByUserException("Прервано пользователем");
-    boolean retry = true;
-   while (retry){
-     try {
-       token = Optional.of(login(credentials.get()));
-       retry = false;
-     }catch (BadCredentials e){
-       credentials = performInputCredential(credentials.get().getEmail(), credentials.get().getPassword());
-       if(!credentials.isPresent()) throw new BreakByUserException("Прервано пользователем");
-
-     }
-   }
-
-    return token.get().getAccessToken();
+      throws BreakByUserException {
+     token =  login();
+     return token.get().getAccessToken();
   }
 
 
@@ -119,47 +103,19 @@ class TokenHolder {
   }
 
 
-  private Token login(Credentials credentials)
-      throws BreakByUserException, ServerProblemException, BadCredentials {
-    Token token;
-    try {
-      token = loginClient.getToken(credentials);
-      tokenRepository.saveToken(token);
+  private Optional<Token> login()  throws BreakByUserException {
+    Optional<Token> token  = loginAction.get();
+    if(token.isPresent()) {
+      tokenRepository.saveToken(token.get());
       return token;
-
-    }catch (Exception e){
-      if(e instanceof ApiError){
-        ApiError ex = (ApiError) e;
-        if(ex.getNeedValidateEmail()) {
-          performConfirmEmail(credentials.getEmail());
-          token = login(credentials);
-          return token;
-        }else if(ex.getStatusCode()==400){
-          throw new BadCredentials();
-        }else throw new ServerProblemException(e);
-      }else throw new ServerProblemException(e);
-
-
-    }
+    }else throw new BreakByUserException("");
   }
 
   public void performLogin() throws ServerProblemException, BreakByUserException {
     processToken();
   }
 
-  private Optional<Credentials> performInputCredential(String email, String pass) {
-    if (inputCredentialAction == null) {
-      throw new RuntimeException("Необходимо установить экшен получения данных пользователя.");
-    }
-    return inputCredentialAction.apply(email, pass);//как обработать отказ? Тк нужно будет выйти из запроса
-  }
 
-  private void performConfirmEmail(String email) throws BreakByUserException {
-    if (performConfirmEmailAction == null) {
-      throw new RuntimeException("Необходимо установить экшен для подтверждения почты.");
-    }
-    performConfirmEmailAction.confirm(email);
-  }
 
   /**
    * Сообщит пользователю об ошибке

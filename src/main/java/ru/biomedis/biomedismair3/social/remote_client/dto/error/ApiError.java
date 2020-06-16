@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class ApiError extends Exception {
+public class ApiError extends RuntimeException {
 
   private int statusCode = 0;
 
@@ -20,12 +20,12 @@ public class ApiError extends Exception {
 
   private  List<ApiSubError> subErrors;
 
-  private Boolean validationError;
+  private boolean validationError;
 
   private TokenErrorType tokenErrorType;
 
-  private Boolean tokenError;
+  private boolean tokenError;
 
-  private Boolean needValidateEmail;
+  private boolean needValidateEmail;
 
 }

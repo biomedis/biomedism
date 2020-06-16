@@ -1,5 +1,22 @@
 package ru.biomedis.biomedismair3;
 
+import static ru.biomedis.biomedismair3.Log.logger;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.net.URL;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
@@ -8,7 +25,15 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ProgressBar;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.Tooltip;
+import javafx.scene.control.TreeItem;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -38,23 +63,27 @@ import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileTable;
 import ru.biomedis.biomedismair3.TherapyTabs.Programs.ProgramAPI;
 import ru.biomedis.biomedismair3.TherapyTabs.Programs.ProgramController;
 import ru.biomedis.biomedismair3.TherapyTabs.Programs.ProgramTable;
-import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.*;
+import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.CreateFrequenciesFile;
+import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.CreateLanguageFiles;
+import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.CreateLanguageFilesCheckLatin;
+import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadFrequenciesFile;
+import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadLanguageFiles;
 import ru.biomedis.biomedismair3.UserUtils.CreateBaseHelper;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportProfile;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportUserBase;
 import ru.biomedis.biomedismair3.UserUtils.Import.ImportProfile;
 import ru.biomedis.biomedismair3.UserUtils.Import.ImportUserBase;
-import ru.biomedis.biomedismair3.entity.*;
+import ru.biomedis.biomedismair3.entity.Complex;
+import ru.biomedis.biomedismair3.entity.INamed;
+import ru.biomedis.biomedismair3.entity.Profile;
+import ru.biomedis.biomedismair3.entity.Program;
+import ru.biomedis.biomedismair3.entity.Section;
+import ru.biomedis.biomedismair3.entity.TherapyComplex;
+import ru.biomedis.biomedismair3.entity.TherapyProgram;
 import ru.biomedis.biomedismair3.m2.M2;
 import ru.biomedis.biomedismair3.m2.M2BinaryFile;
-import ru.biomedis.biomedismair3.social.login.EmailConfirmationController;
-
-import ru.biomedis.biomedismair3.social.login.InputCredentialController;
+import ru.biomedis.biomedismair3.social.login.LoginController;
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient;
-
-import ru.biomedis.biomedismair3.social.remote_client.BreakByUserException;
-import ru.biomedis.biomedismair3.social.remote_client.ConfirmEmailAction;
-import ru.biomedis.biomedismair3.social.remote_client.dto.Credentials;
 import ru.biomedis.biomedismair3.social.social_panel.SocialPanelAPI;
 import ru.biomedis.biomedismair3.utils.Date.DateUtil;
 import ru.biomedis.biomedismair3.utils.Disk.DiskDetector;
@@ -64,17 +93,6 @@ import ru.biomedis.biomedismair3.utils.Files.ZIPUtil;
 import ru.biomedis.biomedismair3.utils.OS.OSValidator;
 import ru.biomedis.biomedismair3.utils.USB.PlugDeviceListener;
 import ru.biomedis.biomedismair3.utils.USB.USBHelper;
-
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.net.URL;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
-import static ru.biomedis.biomedismair3.Log.logger;
 
 public class AppController  extends BaseController {
 
@@ -287,45 +305,22 @@ public class AppController  extends BaseController {
 
     private void initSocialActions() {
 
-        SocialClient.INSTANCE.setConfirmEmailAction(new ConfirmEmailAction() {
-            @Override
-            public void confirm(String email) throws BreakByUserException {
-
-                try {
-                    EmailConfirmationController.Data res = BaseController.openDialogUserData(
-                        getApp().getMainWindow(),
-                        "/fxml/EmailConfirmation.fxml",
-                        "Подтверждение email",
-                        false,
-                        StageStyle.UTILITY,
-                        0, 0, 0, 0,
-                        new EmailConfirmationController.Data(email));
-                    if(res.closedByUser) throw new BreakByUserException("");//если нет исключения, то считаетмя подтвержденным
-
-                } catch (IOException e) {
-                    logger.error("", e);
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-
-
-        SocialClient.INSTANCE.setInputCredentialAction((email, pass) -> {
+        SocialClient.INSTANCE.setLoginAction(() -> {
             try {
-                InputCredentialController.Data res =   BaseController.openDialogUserData(
+                LoginController.Data res =   BaseController.openDialogUserData(
                     getApp().getMainWindow(),
-                    "/fxml/CredentialsInputDialog.fxml",
+                    "/fxml/LoginDialog.fxml",
                     "Вход",
                     false,
                     StageStyle.UTILITY,
                     0, 0, 0, 0,
-                    new InputCredentialController.Data(email,pass)
+                    new LoginController.Data()
                     );
                 if(res.cancel) return Optional.empty();
-                else return Optional.of(new Credentials(res.email, res.password));
+                else return Optional.of(res.token);
 
-            } catch (IOException e) {
-                logger.error("",e);
+            }catch (Exception e){
+                logger.error("Ошибка открытия диалога входа",e);
                 throw new RuntimeException(e);
             }
 
