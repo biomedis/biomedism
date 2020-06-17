@@ -1,13 +1,16 @@
 package ru.biomedis.biomedismair3.social.login;
 
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
+import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javax.swing.Spring;
 import ru.biomedis.biomedismair3.AppController;
@@ -163,6 +166,15 @@ public class LoginController extends BaseController {
 
   private void confirmEmail(String email, String code) {
 
+  }
+
+  public void registration() {
+    Optional<String> userEmail = RegistrationController
+        .performRegistration((Stage) root.getScene().getWindow());
+    if(userEmail.isPresent()){
+      AppController.getProgressAPI().setInfoMessage("Успешная регистрация!");
+      emailInput.setText(userEmail.get());
+    }
   }
 
 

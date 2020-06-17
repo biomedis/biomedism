@@ -54,8 +54,8 @@ public class SocialClient {
   }
 
   private SocialClient(TokenRepository tokenRepository) {
-
-    loginClient = createFeign(false, new LoginErrorDecoder())
+    LoginErrorDecoder loginErrorDecoder = new LoginErrorDecoder();
+    loginClient = createFeign(false, loginErrorDecoder)
         .target(LoginClient.class, TextUtil.addPath(apiURL, "/token"));
 
     tokenHolder = new TokenHolder(loginClient, tokenRepository);
@@ -71,7 +71,7 @@ public class SocialClient {
     filesClient = createFeign(true, apiErrorDecoder).target(FilesClient.class,
         TextUtil.addPath(apiURL, "/api/private/files"));// /api/private/files
 
-    registrationClient = createFeign(true, apiErrorDecoder)
+    registrationClient = createFeign(true, loginErrorDecoder)
         .target(RegistrationClient.class, TextUtil.addPath(apiURL, "/api/public/registration"));//
 
     contactsClient = createFeign(true, apiErrorDecoder)
@@ -180,8 +180,14 @@ public class SocialClient {
       } finally {
         log.error(res);
       }
+      //400 это bad request, ретраить моно 1 раз, с попыткой токен получить заново(протух в процессе запроса.)
+      //возможно тут процессить токен не надо, это сделает интерцептор. Проверить сработает ли он при ретрае.
       if(response.status() >= 400 && response.status() < 500)
       try {
+        //TODO так оставлять нельзя!! Если нужно будет логин ввести,то будет ошибка тк не удастся создать окно из потока.
+        //TODO нужно при необходимости войти кинуть окно ошибки и остановить операцию. те восстанавливать токен, если наддо войти,
+        // здесь если не верная аутентификация, то явно косяк - левый токен был.нужно прервать все
+        //то нужно явно об этом сообщить, прервав операцию
         tokenHolder.processToken();//в случае ошибки инициирует процессинг токена
         return new RetryableException(
             response.status(),
@@ -245,6 +251,7 @@ public class SocialClient {
       //если токена нет или он косячный, то будет ошибка. Ее отловим в декодере,
       // проведем процесс обновления токена и повторим запрос, при новом запросе тут будет верный токен
       template.header("Authorization", "Bearer " + tokenHolder.getToken());
+      //TODO избегать необходимости вводить логин и пароль! Иначе ошибку кидать или как-то еще. Постараться не пустить без токена
     }
   }
 

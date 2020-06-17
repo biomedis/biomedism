@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox fx:id="root" spacing="8.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.social.login.RegistrationController">
+  <children>
+    <Label text="Имя:" />
+    <TextField fx:id="nameInput" minWidth="250.0">
+      <VBox.margin>
+        <Insets bottom="5.0" />
+      </VBox.margin>
+    </TextField>
+
+    <Label text="Email:" />
+    <TextField fx:id="emailInput" minWidth="250.0">
+      <VBox.margin>
+        <Insets bottom="5.0" />
+      </VBox.margin>
+    </TextField>
+
+    <Label text="Password:" />
+    <TextField fx:id="passwordInput" minWidth="250.0">
+      <VBox.margin>
+        <Insets bottom="5.0" />
+      </VBox.margin>
+    </TextField>
+
+    <Label text="Фамилия:" />
+    <TextField fx:id="firstNameInput" minWidth="250.0">
+      <VBox.margin>
+        <Insets bottom="5.0" />
+      </VBox.margin>
+    </TextField>
+
+    <Label text="Имя:" />
+    <TextField fx:id="lastNameInput" minWidth="250.0">
+      <VBox.margin>
+        <Insets bottom="5.0" />
+      </VBox.margin>
+    </TextField>
+
+    <Label text="Страна:" />
+    <TextField fx:id="countryInput" minWidth="250.0">
+      <VBox.margin>
+        <Insets bottom="5.0" />
+      </VBox.margin>
+    </TextField>
+
+    <Label text="Город:" />
+    <TextField fx:id="cityInput" minWidth="250.0">
+      <VBox.margin>
+        <Insets bottom="5.0" />
+      </VBox.margin>
+    </TextField>
+
+    <Label text="Skype:" />
+    <TextField fx:id="skypeInput" minWidth="250.0">
+      <VBox.margin>
+        <Insets bottom="5.0" />
+      </VBox.margin>
+    </TextField>
+
+    <Label text="О себе:" />
+    <TextArea fx:id="aboutInput" minWidth="250.0">
+      <VBox.margin>
+        <Insets bottom="8.0" />
+      </VBox.margin>
+    </TextArea>
+
+    <Button fx:id="registrationBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onRegistrationAction" text="Войти">
+      <styleClass>
+        <String fx:value="GenericBtn" />
+      </styleClass>
+    </Button>
+
+
+  </children>
+   <padding>
+      <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+   </padding>
+</VBox>
