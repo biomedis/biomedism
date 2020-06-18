@@ -1,5 +1,7 @@
 package ru.biomedis.biomedismair3.social.login;
 
+import static ru.biomedis.biomedismair3.Log.logger;
+
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -11,6 +13,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+import javafx.stage.Window;
 import javafx.stage.WindowEvent;
 import javax.swing.Spring;
 import ru.biomedis.biomedismair3.AppController;
@@ -19,6 +23,7 @@ import ru.biomedis.biomedismair3.BlockingAction;
 import ru.biomedis.biomedismair3.Log;
 import ru.biomedis.biomedismair3.social.remote_client.BadCredentials;
 import ru.biomedis.biomedismair3.social.remote_client.LoginClient;
+import ru.biomedis.biomedismair3.social.remote_client.RegistrationClient;
 import ru.biomedis.biomedismair3.social.remote_client.ServerProblemException;
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Credentials;
@@ -61,6 +66,7 @@ public class LoginController extends BaseController {
 
   private boolean closedByLoginAction = false;
   private LoginClient loginClient;
+  private RegistrationClient registrationClient;
 
   @Override
   protected void onCompletedInitialise() {
@@ -84,6 +90,7 @@ public class LoginController extends BaseController {
   public void initialize(URL location, ResourceBundle resources) {
     res = resources;
     client = SocialClient.INSTANCE;
+    registrationClient = SocialClient.INSTANCE.getRegistrationClient();
     loginClient = client.getLoginClient();
     logIn.disableProperty()
         .bind(emailInput.textProperty().isEmpty().or(passwordInput.textProperty().isEmpty()));
@@ -105,17 +112,19 @@ public class LoginController extends BaseController {
 
       if (result.getError() instanceof ServerProblemException) {
        AppController.getProgressAPI().setErrorMessage("Ошибка сервера. Попробуйте позже");
-       Log.logger.error(e);
+       Log.logger.error("",e);
       } else if (result.getError() instanceof BadCredentials) {
        AppController.getProgressAPI().setErrorMessage("Не верный логин или пароль");
       } else if (result.getError() instanceof NeedEmailValidationException){
-        login.setVisible(false);
-        confirmation.setVisible(true);
+        prepareValidationEmail(e);
       } else {
        AppController.getProgressAPI().setErrorMessage("Произошла ошибка. Если ошибка повторится обратитесь к разработчикам.");
-       showErrorDialog("Ошибка","Произошла ошибка. Если ошибка повторится обратитесь к разработчикам.","", getControllerWindow(),
+       showErrorDialog("Ошибка",
+           "Произошла ошибка. Если ошибка повторится обратитесь к разработчикам.",
+           "",
+           getControllerWindow(),
            Modality.APPLICATION_MODAL);
-       Log.logger.error(e);
+       Log.logger.error("",e);
       }
 
     } else {
@@ -125,6 +134,19 @@ public class LoginController extends BaseController {
       getControllerWindow().close();
     }
 
+  }
+
+  private void prepareValidationEmail(final String email){
+    login.setVisible(false);
+    confirmation.setVisible(true);
+    Result<Void> res = BlockingAction.actionNoResult(getControllerWindow(), () -> registrationClient.sendCode(email));
+    if(res.isError()){
+      AppController.getProgressAPI().setErrorMessage("Не удалось отправить ко на указанную почту.");
+      showErrorDialog("Ошибка","Не удалось отправить ко на указанную почту. Проверьте правильность введенного адреса.",
+          "", getControllerWindow(),
+          Modality.WINDOW_MODAL);
+      Log.logger.error("",res.getError());
+    }
   }
 
 
@@ -156,17 +178,47 @@ public class LoginController extends BaseController {
   public void onConfirmEmailAction(){
     final String code = inputCode.getText().trim();
     final String email = emailInput.getText().trim();
-    Result<Void> result = BlockingAction.actionNoResult(getControllerWindow(), () -> confirmEmail(email, code));
+    Result<Void> result = BlockingAction.actionNoResult(getControllerWindow(), () -> registrationClient.confirmEmail(email, code));
     if (!result.isError()) {
+      AppController.getProgressAPI().setErrorMessage("Email успешно подтвержден");
       login.setVisible(true);
       confirmation.setVisible(false);
+      emailInput.setText(email);
       onLoginAction();
+    }else {
+      if(result.getError() instanceof ApiError){
+        ApiError ae = (ApiError) result.getError();
+        if(ae.getStatusCode()==400){
+
+          showWarningDialog("Подтверждение почты",
+              "Необходимо заполнить оба поля",
+              "",
+              getControllerWindow(),
+              Modality.WINDOW_MODAL);
+          return;
+
+        }else if(ae.getStatusCode()==404){
+
+          showWarningDialog("Подтверждение почты",
+              "Пользователь с указанным email не найден",
+              "",
+              getControllerWindow(),
+              Modality.WINDOW_MODAL);
+          return;
+        }
+      }
+
+      AppController.getProgressAPI().setErrorMessage("Не удалось подтвердить почту");
+      showErrorDialog("Подтверждение почты",
+          "Не удалось подтвердить почту",
+          "Обратитесь к разработчикам, если ошибка появится снова",
+          getControllerWindow(),
+          Modality.WINDOW_MODAL);
+      Log.logger.error("",result.getError());
     }
   }
 
-  private void confirmEmail(String email, String code) {
 
-  }
 
   public void registration() {
     Optional<String> userEmail = RegistrationController
@@ -193,4 +245,24 @@ public class LoginController extends BaseController {
   }
 
   private static class NeedEmailValidationException extends Exception{}
+
+  public static Optional<Token> openLoginDialog(Stage context){
+    try {
+      LoginController.Data res =   BaseController.openDialogUserData(
+          context,
+          "/fxml/LoginDialog.fxml",
+          "Вход",
+          false,
+          StageStyle.UTILITY,
+          0, 0, 0, 0,
+          new LoginController.Data()
+      );
+      if(res.cancel) return Optional.empty();
+      else return Optional.of(res.token);
+
+    }catch (Exception e){
+      logger.error("Ошибка открытия диалога входа",e);
+      throw new RuntimeException(e);
+    }
+  }
 }

@@ -91,6 +91,7 @@ public class RegistrationController extends BaseController {
     dto.setCity(cityInput.getText().trim());
     dto.setCountry(countryInput.getText().trim());
     dto.setSkype(skypeInput.getText().trim());
+    dto.setPassword(passwordInput.getText().trim());
 
     Result<Void> result = BlockingAction.actionNoResult(getControllerWindow(), () -> registration(dto));
 
@@ -104,11 +105,21 @@ public class RegistrationController extends BaseController {
     if(result.getError() instanceof ApiError){
       ApiError e = (ApiError)result.getError();
       if(e.getStatusCode()==406) {
-        showWarningDialog("Регистрация",
+        if(e.getDebugMessage().equals("email")) showWarningDialog("Регистрация",
             "Регистрация не удалась",
             "Аккаунт с указанным email уже существует",
             root.getScene().getWindow(),
             Modality.WINDOW_MODAL);
+        else if(e.getDebugMessage().equals("userName"))showWarningDialog("Регистрация",
+            "Регистрация не удалась",
+            "Аккаунт с указанным именем уже существует",
+            root.getScene().getWindow(),
+            Modality.WINDOW_MODAL);
+        else showWarningDialog("Регистрация",
+              "Регистрация не удалась",
+              e.getMessage(),
+              root.getScene().getWindow(),
+              Modality.WINDOW_MODAL);
       }else if(e.isValidationError()){
          processValidationError(e);
       }else {

@@ -305,26 +305,7 @@ public class AppController  extends BaseController {
 
     private void initSocialActions() {
 
-        SocialClient.INSTANCE.setLoginAction(() -> {
-            try {
-                LoginController.Data res =   BaseController.openDialogUserData(
-                    getApp().getMainWindow(),
-                    "/fxml/LoginDialog.fxml",
-                    "Вход",
-                    false,
-                    StageStyle.UTILITY,
-                    0, 0, 0, 0,
-                    new LoginController.Data()
-                    );
-                if(res.cancel) return Optional.empty();
-                else return Optional.of(res.token);
-
-            }catch (Exception e){
-                logger.error("Ошибка открытия диалога входа",e);
-                throw new RuntimeException(e);
-            }
-
-        });
+        SocialClient.INSTANCE.setLoginAction(() -> LoginController.openLoginDialog(getApp().getMainWindow()));
 
         SocialClient.INSTANCE.setErrorAction(e -> {
             progressAPI.setErrorMessage(e.getMessage());

@@ -21,7 +21,7 @@
     </Appenders>
     <Loggers>
         <Logger name="org.biomedis.mair" level="info"  additivity="false">
-            <AppenderRef ref="Console"/>
+            <AppenderRef ref="Console" level="debug"/>
             <AppenderRef ref="RollingFile" level="error"/>
         </Logger>
 

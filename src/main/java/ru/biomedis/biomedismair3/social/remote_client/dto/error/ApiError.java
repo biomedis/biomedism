@@ -2,9 +2,7 @@ package ru.biomedis.biomedismair3.social.remote_client.dto.error;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
@@ -14,10 +12,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ApiError extends RuntimeException {
 
-  @JsonProperty("status")
+
+  private String status;
+
   private int statusCode = 0;
 
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm:ss")
+  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy HH:mm:ss")
+  @JsonDeserialize(using = CustomLocalDateTimeDeserializer.class)
   private  LocalDateTime timestamp;
 
   private  String message;

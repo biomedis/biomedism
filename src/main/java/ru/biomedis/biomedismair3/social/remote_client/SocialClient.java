@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import feign.Feign;
 import feign.Feign.Builder;
+import feign.Logger.Level;
+import feign.Request.Options;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import feign.Response;
@@ -17,13 +19,11 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.time.Instant;
 import java.util.Optional;
-import java.util.function.BiFunction;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
-
-import ru.biomedis.biomedismair3.social.remote_client.dto.Credentials;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Token;
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError;
 import ru.biomedis.biomedismair3.utils.Text.TextUtil;
@@ -81,6 +81,9 @@ public class SocialClient {
 
   private Feign.Builder createFeign(boolean interceptor, ErrorDecoder errorDecoder) {
     Builder builder = Feign.builder()
+        .options(new Options(15, TimeUnit.SECONDS, 30, TimeUnit.SECONDS,false))
+        .logger(new CustomFeignRequestLogging())
+        .logLevel( Level.FULL)
         .decoder(new JacksonDecoder())
         .encoder(new JacksonEncoder());
     if (interceptor) {
@@ -230,8 +233,6 @@ public class SocialClient {
         apiError = new ApiError();
         apiError.setStatusCode(response.status());
         apiError.setMessage(res);
-      } finally {
-        log.error(res);
       }
 
       return apiError;
