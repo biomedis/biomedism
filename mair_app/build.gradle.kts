@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     java
     kotlin("jvm") version "1.3.72"
@@ -24,6 +26,16 @@ tasks {
     }
     compileTestKotlin {
         kotlinOptions.jvmTarget = "1.8"
+    }
+    named<ShadowJar>("shadowJar") {
+        archiveBaseName.set("distr")
+        mergeServiceFiles()
+        manifest {
+            attributes(mapOf("Main-Class" to "ru.biomedis.biomedismair3.App"))
+        }
+    }
+    build {
+        dependsOn(shadowJar)
     }
 }
 
