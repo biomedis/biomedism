@@ -13,7 +13,6 @@
 /nb-configuration.xml
 /nbactions-release-profile.xml
 /nbactions.xml
-/*.db
 BiomedisMAir3.iml
 /tmp/
 /backup_db/
@@ -28,3 +27,8 @@ BiomedisMAir3.iml
 /*/dependency-reduced-pom.xml
 dependency-reduced-pom.xml
 *.iml
+/mair_app/mAirDB.mv.db
+/mair_app/mAirDB.trace.db
+/starter/mAirDB.mv.db
+/starter/mAirDB.trace.db
+/version.txt

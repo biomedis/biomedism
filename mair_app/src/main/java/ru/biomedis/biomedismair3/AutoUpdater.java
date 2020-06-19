@@ -4,13 +4,14 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.stage.Modality;
 import lombok.extern.slf4j.Slf4j;
-import org.anantacreative.updater.FilesUtil;
+import org.anantacreative.updater.Utilites.FilesUtil;
 import org.anantacreative.updater.Update.AbstractUpdateTaskCreator;
 import org.anantacreative.updater.Update.UpdateException;
 import org.anantacreative.updater.Update.UpdateTask;
 import org.anantacreative.updater.Update.XML.XmlUpdateTaskCreator;
-import org.anantacreative.updater.Version;
+
 import org.anantacreative.updater.VersionCheck.DefineActualVersionError;
+import org.anantacreative.updater.VersionCheck.Version;
 import org.anantacreative.updater.VersionCheck.XML.XmlVersionChecker;
 import ru.biomedis.biomedismair3.utils.OS.OSValidator;
 
