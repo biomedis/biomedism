@@ -32,3 +32,13 @@ dependency-reduced-pom.xml
 /starter/mAirDB.mv.db
 /starter/mAirDB.trace.db
 /version.txt
+/mair_app/logs/
+/mair_app/data/
+/mair_app/docs/
+/starter/logs/
+/mAirDB.h2.db
+/mAirDB.mv.db
+/mAirDB.trace.db
+/starter/build/
+/mair_app/build/
+/build/

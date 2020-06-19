@@ -1,7 +1,5 @@
 import  java.net.URI
 
-//group = "life.biomedis"
-//version = "1.0"
 
 
 
@@ -20,6 +18,7 @@ plugins {
 	java
 	id("application")
 	//id("org.openjfx.javafxplugin") version "0.0.8"
+	id("com.github.johnrengelman.shadow") version "6.0.0"
 
 }
 
@@ -28,10 +27,15 @@ subprojects{
 	apply(plugin = "java")
 
 	apply(plugin = "application")
+	apply(plugin = "com.github.johnrengelman.shadow")//https://imperceptiblethoughts.com/shadow/configuration/
 
 	buildscript {
 		repositories {
 			mavenCentral()
+			jcenter()
+		}
+		dependencies {
+			classpath ("com.github.jengelman.gradle.plugins:shadow:6.0.0")
 		}
 //		repositories {
 //			maven {
