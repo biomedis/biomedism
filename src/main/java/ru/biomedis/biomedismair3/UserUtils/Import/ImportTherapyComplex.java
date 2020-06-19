@@ -1,9 +1,10 @@
 package ru.biomedis.biomedismair3.UserUtils.Import;
 
+import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
-import ru.biomedis.biomedismair3.Log;
+
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
 import ru.biomedis.biomedismair3.utils.Text.TextUtil;
@@ -16,11 +17,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static ru.biomedis.biomedismair3.Log.logger;
 
-/**
- * Created by Anama on 17.09.2015.
- */
+
+@Slf4j
 public class ImportTherapyComplex
 {
 
@@ -65,11 +64,11 @@ public class ImportTherapyComplex
         } catch (SAXException e) {
 
 
-            logger.error("",e);
+            log.error("",e);
             if (listener != null) {
 
                 if (e.getCause() instanceof FileTypeMissMatch) {
-                    logger.error("SAXException");
+                    log.error("SAXException");
 
                     listener.onError(true);
                 } else listener.onError(false);
@@ -79,7 +78,7 @@ public class ImportTherapyComplex
             return 0;
 
         } catch (Exception e) {
-            logger.error("",e);
+            log.error("",e);
             if (listener != null) listener.onError(false);
             clear();
             listener = null;
@@ -115,7 +114,7 @@ public class ImportTherapyComplex
             }
         } catch (NumberFormatException e) {
 
-            logger.error("Неверный формат частот",e);
+            log.error("Неверный формат частот",e);
             if (listener != null) listener.onError(true);
             listener = null;
             clear();
@@ -145,7 +144,7 @@ public class ImportTherapyComplex
 
             resSize = this.complexes.size();
         } catch (Exception ee) {
-            Log.logger.error("Ошибка создание элементов базы", ee);
+            log.error("Ошибка создание элементов базы", ee);
             if(this.listener != null) {
                 this.listener.onError(true);
             }
@@ -162,7 +161,7 @@ public class ImportTherapyComplex
                     }
                 }
             } catch (Exception var22) {
-                Log.logger.error("Не удалось откатить изменения", ee);
+                log.error("Не удалось откатить изменения", ee);
             }
 
             resSize = 0;

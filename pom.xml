@@ -15,7 +15,6 @@
         <programmVersionMajor>4</programmVersionMajor>
         <programmVersionMinor>11</programmVersionMinor>
         <programmVersionFix>0</programmVersionFix>
-        <log4j.version>2.5</log4j.version>
 
     </properties>
 
@@ -186,7 +185,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.12</version>
+            <version>1.18.8</version>
         </dependency>
 
         <dependency>
@@ -201,15 +200,22 @@
             <version>0.8.3</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>${log4j.version}</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.2.3</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${log4j.version}</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.2.3</version>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.26</version>
+        </dependency>
+
+
 
         <dependency>
             <groupId>org.hid4java</groupId>

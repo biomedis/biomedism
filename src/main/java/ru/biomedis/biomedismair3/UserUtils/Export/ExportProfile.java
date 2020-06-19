@@ -1,5 +1,6 @@
 package ru.biomedis.biomedismair3.UserUtils.Export;
 
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.*;
 import ru.biomedis.biomedismair3.utils.Text.TextUtil;
@@ -8,11 +9,8 @@ import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.util.List;
 
-import static ru.biomedis.biomedismair3.Log.logger;
 
-/**
- * Created by Anama on 17.09.2015.
- */
+@Slf4j
 public class ExportProfile {
 
     private static final String[] noops={
@@ -64,11 +62,11 @@ public class ExportProfile {
 
         } catch (IOException e) {
             e.printStackTrace();
-            logger.error("",e);
+            log.error("",e);
             return false;
         }catch (Exception e){
             e.printStackTrace();
-            logger.error("",e);
+            log.error("",e);
             return false;
         }
         return true;

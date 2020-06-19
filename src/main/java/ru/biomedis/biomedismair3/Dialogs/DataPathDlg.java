@@ -7,18 +7,17 @@ import javafx.scene.control.Label;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Modality;
 import javafx.stage.WindowEvent;
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.App;
 import ru.biomedis.biomedismair3.BaseController;
-import ru.biomedis.biomedismair3.Log;
+
 
 import java.io.File;
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-/**
- * Created by Ananta on 16.11.2016.
- */
+@Slf4j
 public class DataPathDlg extends BaseController {
 
     @FXML
@@ -78,7 +77,7 @@ public class DataPathDlg extends BaseController {
                     if(!getApp().getDataDir().getAbsolutePath().equals(dataDir.getAbsolutePath()))          cleanDataFilesAndState(dataDir);
                     defaultPath.setDisable(true);
                 } catch (Exception e) {
-                    Log.logger.error("Не удалось установить путь кданным в опициях");
+                   log.error("Не удалось установить путь кданным в опициях");
                     showErrorDialog("Сброс пути к данным","","Не удалось установить путь к данным в опциях",getControllerWindow(),Modality.WINDOW_MODAL);
                     return;
                 }
@@ -137,7 +136,7 @@ public class DataPathDlg extends BaseController {
                         defaultPath.setDisable(false);
                     }
                 } catch (Exception e) {
-                    Log.logger.error("Не удалось установить путь кданным в опциях");
+                    log.error("Не удалось установить путь кданным в опциях");
                     showErrorDialog("Установка пути к данным","","Не удалось установить путь к данным в опциях",getControllerWindow(),Modality.WINDOW_MODAL);
                     return;
                 }

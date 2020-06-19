@@ -1,6 +1,5 @@
 package ru.biomedis.biomedismair3.social.login;
 
-import static ru.biomedis.biomedismair3.Log.logger;
 
 import java.net.URL;
 import java.util.Optional;
@@ -14,21 +13,21 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.AppController;
 import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.BlockingAction;
 import ru.biomedis.biomedismair3.Layouts.ProgressPanel.ProgressAPI;
-import ru.biomedis.biomedismair3.Log;
 import ru.biomedis.biomedismair3.social.remote_client.RegistrationClient;
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient;
 import ru.biomedis.biomedismair3.social.remote_client.dto.RegistrationDto;
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError;
-import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiValidationError;
 import ru.biomedis.biomedismair3.utils.Other.Result;
 
 /**
  * Осуществляет регистрацию пользователя в сервисе MAir
  */
+@Slf4j
 public class RegistrationController extends BaseController {
 
   @FXML private Button registrationBtn;
@@ -123,7 +122,7 @@ public class RegistrationController extends BaseController {
       }else if(e.isValidationError()){
          processValidationError(e);
       }else {
-        logger.error("", e);
+        log.error("", e);
         showExceptionDialog("Регистрация",
             "Регистрация не удалась",
             "Ошибка на стороне сервера. ",
@@ -133,7 +132,7 @@ public class RegistrationController extends BaseController {
 
       }
     }else {
-      logger.error("", result.getError());
+      log.error("", result.getError());
       showExceptionDialog("Регистрация",
           "Регистрация не удалась",
           "",
@@ -173,7 +172,7 @@ public class RegistrationController extends BaseController {
       );
 
     }catch (Exception e){
-      logger.error("Ошибка открытия диалога входа",e);
+      log.error("Ошибка открытия диалога входа",e);
       throw new RuntimeException(e);
     }
 

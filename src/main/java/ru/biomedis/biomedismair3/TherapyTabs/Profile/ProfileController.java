@@ -16,6 +16,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.*;
 import ru.biomedis.biomedismair3.Dialogs.SearchProfile;
 import ru.biomedis.biomedismair3.Dialogs.TextInputValidationController;
@@ -44,8 +45,8 @@ import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static ru.biomedis.biomedismair3.Log.logger;
 
+@Slf4j
 public class ProfileController extends BaseController implements ProfileAPI {
     private static final int MAX_BUNDLES = AppController.MAX_BUNDLES;
 
@@ -210,7 +211,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
                 try {
                     checkBundlesLength(therapyComplexes);
                 } catch (Exception e) {
-                    Log.logger.error("",e);
+                    log.error("",e);
                     showExceptionDialog("Ошибка обновления комплексов","","",e,getApp().getMainWindow(), Modality.WINDOW_MODAL);
                     return;
                 }
@@ -459,7 +460,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
         try {
             res=  BaseController.openDialogUserData(getApp().getMainWindow(), "/fxml/Search_profile.fxml", this.res.getString("search_in_profile"), false, StageStyle.UTILITY, 0, 0, 0, 0, new SearchProfile.Data(0));
         } catch (IOException e) {
-            logger.error("",e);
+            log.error("",e);
         }
 
         if(res!=null)
@@ -517,7 +518,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
             td = null;
         } catch (Exception e) {
             td = null;
-            logger.error("",e);
+            log.error("",e);
             showExceptionDialog("Ошибка  создания профиля", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
             return;
         }
@@ -590,7 +591,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
 
         } catch (Exception e) {
-            logger.error("",e);
+            log.error("",e);
             showExceptionDialog(res.getString("app.title82"), "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
         }
 
@@ -632,7 +633,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
                     try {
                         getModel().updateTherapyProgram(tp);
                     } catch (Exception e) {
-                        logger.error("",e);
+                        log.error("",e);
                     }
                     tp=null;
                 }
@@ -717,7 +718,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
 
         } catch (Exception e) {
-            logger.error("",e);
+            log.error("",e);
             showExceptionDialog(res.getString("app.title86"), "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
         }
 
@@ -800,7 +801,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
                     r=  fcp.forceCopyProfile(dir,true);
                 }catch (Exception e)
                 {
-                    logger.error("",e);
+                    log.error("",e);
                 }
                 return r;
 
@@ -930,7 +931,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
                             r=  fcp.forceCopyProfile(f,false);
                         }catch (Exception e)
                         {
-                            logger.error("",e);
+                            log.error("",e);
                         }
                         return r;
 
@@ -1151,14 +1152,14 @@ public class ProfileController extends BaseController implements ProfileAPI {
                 writer.print(ProfileTable.getInstance().getSelectedItem().getName());//название профиля
             }catch (IOException e)
             {
-                logger.error("",e);
+                log.error("",e);
                 Platform.runLater(() -> showExceptionDialog(res.getString("app.title87"), "", res.getString("app.title91"), e, getApp().getMainWindow(), Modality.WINDOW_MODAL));
 
                 callFail("Ошибка записи файлов профиля.");
                 return false;
             }
             catch (Exception e) {
-                logger.error("",e);
+                log.error("",e);
                 Platform.runLater(() -> showExceptionDialog(res.getString("app.title87"), "", res.getString("app.title92"), e, getApp().getMainWindow(), Modality.WINDOW_MODAL));
 
                 callFail("Ошибка записи файлов профиля.");
@@ -1254,14 +1255,14 @@ public class ProfileController extends BaseController implements ProfileAPI {
             }catch (IOException e)
             {
 
-                logger.error("",e);
+                log.error("",e);
                 Platform.runLater(() -> showWarningDialog(res.getString("app.title87"), "", res.getString("app.title115"), getApp().getMainWindow(), Modality.WINDOW_MODAL));
                 callFail("Ошибка копирования файлов.");
                 return false;
             }
             catch (Exception e)
             {
-                logger.error("",e);
+                log.error("",e);
                 Platform.runLater(() -> showExceptionDialog(res.getString("app.title87"), "", res.getString("app.title93"), e, getApp().getMainWindow(), Modality.WINDOW_MODAL));
                 callFail("Ошибка копирования файлов.");
                 return false;
@@ -1349,7 +1350,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
                     getModel().updateTherapyProgram(itm);
                 } catch (Exception e)
                 {
-                    logger.error("",e);
+                    log.error("",e);
                     showExceptionDialog("Ошибка обновления данных терапевтических программ.", "Очистка произошла с ошибкой", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                     ret=false;
                     callFail("Очистка произошла с ошибкой");
@@ -1399,7 +1400,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
                                     updateProfileWeight(profile);
                                 }
                             }catch (Exception e){
-                                logger.error("",e);
+                                log.error("",e);
                             }
 
                             return remove;
@@ -1533,7 +1534,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
             } catch (Exception e) {
                 selectedItem=null;
-                logger.error("",e);
+                log.error("",e);
                 showExceptionDialog("Ошибка удаления профиля","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
             }
 
@@ -1552,7 +1553,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
         try {
         getModel().updateProfile(p);
         } catch (Exception e) {
-            Log.logger.error("",e);
+            log.error("",e);
             showExceptionDialog("Обновление объема файлов профиля","","Ошибка обновления", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
         }
     }
@@ -1567,7 +1568,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
         try {
             getModel().updateTimeProfile(p);
         } catch (Exception e) {
-            Log.logger.error("",e);
+            log.error("",e);
             showExceptionDialog("Обновление времени профиля","","Ошибка обновления", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
         }
 
@@ -1595,7 +1596,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
 
         } catch (IOException e) {
-            logger.error("",e);
+            log.error("",e);
         }
     }
 
@@ -2046,11 +2047,11 @@ public class ProfileController extends BaseController implements ProfileAPI {
                 while (in.hasNextLine()) profileParam.add(in.nextLine());
 
             } catch (IOException e) {
-                logger.error("", e);
+                log.error("", e);
                 showExceptionDialog(res.getString("app.title116"), res.getString("app.title106"), res.getString("app.title117"), e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                 return false;
             } catch (Exception e) {
-                logger.error("", e);
+                log.error("", e);
                 showExceptionDialog(res.getString("app.title116"), res.getString("app.title106"), res.getString("app.title117"), e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                 return false;
             }
@@ -2120,7 +2121,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
 
             } catch (Exception e) {
-                logger.error("",e);
+                log.error("",e);
                 showExceptionDialog("Ошибка сохраниения данных в базе","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
                 return false;
             }
@@ -2128,13 +2129,13 @@ public class ProfileController extends BaseController implements ProfileAPI {
         }
 
         catch (OldComplexTypeException e) {
-            logger.error("",e);
+            log.error("",e);
             showErrorDialog(res.getString("app.title116"), res.getString("app.title118"), res.getString("app.title117"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
             return false;
         }
         catch (Exception e)
         {
-            logger.error("",e);
+            log.error("",e);
             showExceptionDialog("Ошибка создания или обновления комплекса", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
             return false;
         }
@@ -2173,14 +2174,14 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
 
             } catch (Exception e) {
-                logger.error("",e);
+                log.error("",e);
                 showExceptionDialog("Ошибка сохраниения данных в базе","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
                 return  false;
             }
         }
         catch (Exception e)
         {
-            logger.error("",e);
+            log.error("",e);
             showExceptionDialog(res.getString("app.error"), "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
             return  false;
         }

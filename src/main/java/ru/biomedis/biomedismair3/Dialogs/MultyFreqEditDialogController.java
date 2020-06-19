@@ -11,18 +11,20 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.BaseController;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-import static ru.biomedis.biomedismair3.Log.logger;
+
 
 /**
  * Разбор мультичестот между ; ; те между значениями есть только + +
- * Created by Anama on 10.09.2015.
+ * 
  */
+@Slf4j
 public class MultyFreqEditDialogController extends BaseController {
 
 
@@ -245,7 +247,7 @@ public void onEdit()
         td = null;
     } catch (Exception e) {
         td = null;
-        logger.error("",e);
+        log.error("",e);
         showExceptionDialog(res.getString("app.text.edit_freq_error"), "", "", e, rootNode.getScene().getWindow(), Modality.WINDOW_MODAL);
         return;
     }

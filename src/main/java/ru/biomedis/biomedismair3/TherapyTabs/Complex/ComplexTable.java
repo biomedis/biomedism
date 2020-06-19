@@ -16,10 +16,11 @@ import javafx.scene.input.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.stage.Modality;
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.App;
 import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.CellFactories.TextAreaTableCell;
-import ru.biomedis.biomedismair3.Log;
+
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileTable;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
@@ -34,9 +35,9 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static ru.biomedis.biomedismair3.BaseController.getApp;
-import static ru.biomedis.biomedismair3.Log.logger;
 import static ru.biomedis.biomedismair3.TherapyTabs.TablesCommon.isEnablePaste;
 
+@Slf4j
 public class ComplexTable {
     private  ResourceBundle res;
     private  Image imageCancel;
@@ -175,7 +176,7 @@ public class ComplexTable {
         MenuItem mi =((MenuItem)e.getSource());
         Long langId = (Long)mi.getUserData();
         if(langId==null) {
-            Log.logger.error("в элементе меню отсутствует ID языка для перевода");
+            log.error("в элементе меню отсутствует ID языка для перевода");
             return;
         }
         try {
@@ -188,7 +189,7 @@ public class ComplexTable {
             table.getSelectionModel().clearSelection();
 
         }catch (Exception ex){
-            Log.logger.error("",ex);
+            log.error("",ex);
             BaseController.showExceptionDialog("Перевод","Ошибка перевода","",ex,getApp().getMainWindow(), Modality.WINDOW_MODAL);
         }
 
@@ -210,7 +211,7 @@ public class ComplexTable {
     public void refreshItem(TherapyComplex item){
         int i = getAllItems().indexOf(item);
         if(i < 0){
-            Log.logger.warn("refreshItem - объект отсутствуетс в таблице");
+            log.warn("refreshItem - объект отсутствуетс в таблице");
             return;
         }
         getAllItems().set(i,null);
@@ -448,7 +449,7 @@ public class ComplexTable {
                 p = null;
 
             } catch (Exception e) {
-                logger.error("",e);
+                log.error("",e);
             }
 
 
@@ -480,7 +481,7 @@ public class ComplexTable {
                 p = null;
 
             } catch (Exception e) {
-                logger.error("", e);
+                log.error("", e);
             }
 
 

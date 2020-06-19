@@ -3,6 +3,7 @@ package ru.biomedis.biomedismair3;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.stage.Modality;
+import lombok.extern.slf4j.Slf4j;
 import org.anantacreative.updater.FilesUtil;
 import org.anantacreative.updater.Update.AbstractUpdateTaskCreator;
 import org.anantacreative.updater.Update.UpdateException;
@@ -24,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Автообновления
  */
+@Slf4j
 public class AutoUpdater {
     private static AutoUpdater autoUpdater;
     private SimpleBooleanProperty processed = new SimpleBooleanProperty(false);
@@ -163,7 +165,7 @@ public class AutoUpdater {
                         @Override
                         public void error(Exception e) {
                             setProcessed(false);
-                            Log.logger.error("", e);
+                            log.error("", e);
                             listener.error(e);
 
 
@@ -256,7 +258,7 @@ public class AutoUpdater {
         try {
             App.getAppController().getModel().disableAutoUpdate();
         } catch (Exception e) {
-            Log.logger.error("", e);
+            log.error("", e);
         }
         Platform.runLater(() -> App.getAppController().showWarningDialog(
                 getRes().getString("app.update"),

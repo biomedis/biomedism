@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 import javafx.util.StringConverter;
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.BaseController;
 
 import java.net.URL;
@@ -23,11 +24,8 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-import static ru.biomedis.biomedismair3.Log.logger;
 
-/**
- * Created by Anama on 10.09.2015.
- */
+@Slf4j
 public class ProgramDialogController extends BaseController {
 
 
@@ -321,7 +319,7 @@ public void onEdit()
             td = null;
         } catch (Exception e) {
             td = null;
-            logger.error("",e);
+            log.error("",e);
             showExceptionDialog(res.getString("app.text.edit_freqs_error"), "", "", e, rootNode.getScene().getWindow(), Modality.WINDOW_MODAL);
             return;
         }
@@ -340,7 +338,7 @@ public void onEdit()
             td = null;
         } catch (Exception e) {
             td = null;
-            logger.error("",e);
+            log.error("",e);
             showExceptionDialog(res.getString("app.text.edit_freq_error"), "", "", e, rootNode.getScene().getWindow(), Modality.WINDOW_MODAL);
             return;
         }

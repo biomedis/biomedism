@@ -22,6 +22,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.*;
 import ru.biomedis.biomedismair3.Dialogs.NameDescroptionDialogController;
 import ru.biomedis.biomedismair3.Layouts.LeftPanel.LeftPanelAPI;
@@ -49,8 +50,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static ru.biomedis.biomedismair3.Log.logger;
-
+@Slf4j
 public class ComplexController extends BaseController implements ComplexAPI{
     private static int MAX_BUNDLES = AppController.MAX_BUNDLES;
     @FXML    private TableView<TherapyComplex> tableComplex;
@@ -274,7 +274,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
                     updateComplexsTime(items, true);
                 } catch (Exception var8) {
                     hideBundlesSpinnerBTNPan(this.tableComplex.getSelectionModel().getSelectedItem().getBundlesLength());
-                    Log.logger.error("", var8);
+                    log.error("", var8);
                     showExceptionDialog("Ошибка обновления времени в терапевтическом комплексе", "", "", var8, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                 } finally {
                     this.hideTFSpinnerBTNPan();
@@ -304,7 +304,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
                         this.getModel().updateTherapyComplex(sCompl);
                         timeToFreqSpinner.getValueFactory().setValue(st / 60.0);
                     } catch (Exception e) {
-                        logger.error("",e);
+                        log.error("",e);
                     }
 
                 }
@@ -331,7 +331,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
                     this.updateComplexsTime(items, true);
                 } catch (Exception var8) {
                     this.hideTFSpinnerBTNPan(this.tableComplex.getSelectionModel().getSelectedItem().getTimeForFrequency().intValue());
-                    Log.logger.error("", var8);
+                    log.error("", var8);
                     showExceptionDialog("Ошибка обновления времени в терапевтическом комплексе", "", "", var8, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                 } finally {
                     this.hideTFSpinnerBTNPan();
@@ -531,7 +531,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
                     }
                 }
             } catch (Exception var8) {
-                Log.logger.error("", var8);
+                log.error("", var8);
                 showExceptionDialog("Ошибка переноса комплекса  в базу", "", "", var8, getApp().getMainWindow(), Modality.WINDOW_MODAL);
             }
 
@@ -583,7 +583,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
 
 
         } catch (IOException e) {
-            logger.error("",e);
+            log.error("",e);
             data =null;
         }
 
@@ -608,7 +608,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
                 tableComplex.scrollTo(i);
                 tableComplex.getFocusModel().focus(i);
             } catch (Exception e) {
-                logger.error("",e);
+                log.error("",e);
                 showExceptionDialog("Ошибка создания терапевтического комплекса","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
             }
 
@@ -813,13 +813,13 @@ public class ComplexController extends BaseController implements ComplexAPI{
 
                                     return true;
                                 } catch (IOException ex1) {
-                                    Log.logger.error("", ex1);
+                                    log.error("", ex1);
                                     Platform.runLater(() -> {
                                         BaseController.showWarningDialog(res.getString("app.title87"), "", res.getString("app.title115"), BaseController.getApp().getMainWindow(), Modality.WINDOW_MODAL);
                                     });
                                     return false;
                                 } catch (Exception var18) {
-                                    Log.logger.error("", var18);
+                                    log.error("", var18);
                                     Platform.runLater(() -> {
                                         BaseController.showExceptionDialog(res.getString("app.title87"), "", res.getString("app.title93"), var18, BaseController.getApp().getMainWindow(), Modality.WINDOW_MODAL);
                                     });
@@ -847,7 +847,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
                         thread.setDaemon(true);
                         thread.start();
                     } catch (Exception ex3) {
-                        Log.logger.error("", ex3);
+                        log.error("", ex3);
                         showExceptionDialog("Ошибка записи файлов", "", "", ex3, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                     }
                 }
@@ -895,7 +895,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
                     }
                 }
             } catch (Exception e) {
-                Log.logger.error("", e);
+                log.error("", e);
                 showExceptionDialog(this.res.getString("app.title82"), "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
             }
 
@@ -918,7 +918,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
                             try {
                                 this.getModel().updateTherapyProgram(tp);
                             } catch (Exception var6) {
-                                Log.logger.error("", var6);
+                                log.error("", var6);
                             }
 
                             tp = null;
@@ -994,7 +994,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
                         }
 
                     });
-                    Log.logger.error("", e);
+                    log.error("", e);
                     showExceptionDialog(this.res.getString("app.title86"), "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                 }
 
@@ -1017,7 +1017,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
 
 
         } catch (IOException e) {
-            logger.error("",e);
+            log.error("",e);
         }
 
 
@@ -1082,7 +1082,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
                     profileAPI.updateProfileTime((Profile)ProfileTable.getInstance().getSelectedItem());
                     this.tableComplex.getSelectionModel().clearSelection();
                 } catch (Exception var9) {
-                    Log.logger.error("", var9);
+                    log.error("", var9);
                     showExceptionDialog("Ошибка удаления комплексов", "", "", var9, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                 }
             }
@@ -1178,7 +1178,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
 
                 profileAPI.updateProfileTime(profile);
             } catch (Exception e1) {
-                logger.error(e1);
+                log.error("", e1);
                 showExceptionDialog("Ошибка копирования комплексов","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
 
                 therapyComplexes.clear();
@@ -1214,7 +1214,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
                 }
                 profileAPI.updateProfileTime(profile);
             } catch (Exception e1) {
-                logger.error(e1);
+                log.error("",e1);
                 showExceptionDialog("Ошибка копирования комплексов","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
 
                 therapyComplexes.clear();
@@ -1348,7 +1348,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
             }
 
         } catch (Exception e1) {
-            logger.error(e1);
+            log.error("",e1);
             showExceptionDialog("Ошибка обновления позиции комплексов","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
 
             return;
@@ -1703,7 +1703,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
                 }
             }
 
-        }catch (Exception e){ logger.error("",e);return false;}
+        }catch (Exception e){ log.error("",e);return false;}
 
         if(programms==null) return false;
         else return true;

@@ -8,6 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
 import org.anantacreative.updater.Version;
 import ru.biomedis.biomedismair3.Tests.TestsFramework.TestsManager;
 import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadLanguageFiles;
@@ -33,9 +34,9 @@ import java.util.stream.Stream;
 
 import static ru.biomedis.biomedismair3.BaseController.getApp;
 import static ru.biomedis.biomedismair3.BaseController.showExceptionDialog;
-import static ru.biomedis.biomedismair3.Log.logger;
 
 
+@Slf4j
 public class App extends Application {
     
       public   EntityManagerFactory emf=null; 
@@ -165,7 +166,7 @@ public class App extends Application {
             em.merge(programOptions);
             em.getTransaction().commit();
         } catch (Exception ex) {
-           logger.error("Ошибка обновления опции updateVersion",ex);
+           log.error("Ошибка обновления опции updateVersion",ex);
         } finally {
             if (em != null) {
                 em.close();
@@ -186,7 +187,7 @@ public class App extends Application {
             em.merge(programOptions);
             em.getTransaction().commit();
         } catch (Exception ex) {
-            logger.error("Ошибка обновления опции updateFixVersion",ex);
+            log.error("Ошибка обновления опции updateFixVersion",ex);
         } finally {
             if (em != null) {
                 em.close();
@@ -233,7 +234,7 @@ public class App extends Application {
 
             }
         } catch (Exception e) {
-            logger.error("Ошибка копирования кодека",e);
+            log.error("Ошибка копирования кодека",e);
             return false;
         }
         return true;
@@ -276,7 +277,7 @@ public class App extends Application {
     public void start(Stage stage) throws Exception {
 
 
-        Log.logger.info("Старт программы");
+       log.info("Старт программы");
 
 
       String develop = System.getProperty("develop");
@@ -357,7 +358,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
 
 
         }else if(getUpdateVersion() > currentUpdateFile){
-            logger.error("Запуск апдейта "+currentUpdateFile+" ниже установленного "+getUpdateVersion()+"!");
+            log.error("Запуск апдейта "+currentUpdateFile+" ниже установленного "+getUpdateVersion()+"!");
 
             BaseController.showInfoConfirmDialog(this.strings.getString("app.error"), "", this.strings.getString("app.update.incorrect_update_message"), null, Modality.APPLICATION_MODAL);
             Platform.exit();
@@ -664,7 +665,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
 
 
         }else if(getUpdateVersion() > currentUpdateFile){
-            logger.error("Запуск апдейта "+currentUpdateFile+" ниже установленного "+getUpdateVersion()+"!");
+            log.error("Запуск апдейта "+currentUpdateFile+" ниже установленного "+getUpdateVersion()+"!");
 
             BaseController.showInfoConfirmDialog(this.strings.getString("app.error"), "", this.strings.getString("app.update.incorrect_update_message"), null, Modality.APPLICATION_MODAL);
             Platform.exit();
@@ -729,7 +730,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
             }
             catch (Exception e) {
                 //если что поставим язык по умолчанию
-                 Log.logger.error("",e);
+                 log.error("",e);
                 getModel().setProgramLanguageDefault();
             }
 
@@ -838,9 +839,9 @@ https://gist.github.com/DemkaAge/8999236
             try {
                 USBHelper.stopHotPlugListener();
             } catch (USBHelper.USBException e) {
-                Log.logger.error("Ошибка остановки слушателей USB",e);
+                log.error("Ошибка остановки слушателей USB",e);
             }catch (Exception e){
-                Log.logger.error("Ошибка остановки слушателей USB",e);
+               log.error("Ошибка остановки слушателей USB",e);
             }finally {
                 USBHelper.closeContext();
             }
@@ -912,7 +913,7 @@ https://gist.github.com/DemkaAge/8999236
 
     }
     private void updateIn14_3(ProgramOptions updateOption) {
-        logger.info("ОБНОВЛЕНИЕ 14.3");
+        log.info("ОБНОВЛЕНИЕ 14.3");
 
         File base_translate=null;
         try {
@@ -924,7 +925,7 @@ https://gist.github.com/DemkaAge/8999236
             LoadLanguageFiles ll=new LoadLanguageFiles();
             if( ll.parse(Arrays.asList(base_translate),getModel())){
 
-                logger.info("ОБНОВЛЕНИЕ 14.3 ЗАВЕРШЕНО.");
+                log.info("ОБНОВЛЕНИЕ 14.3 ЗАВЕРШЕНО.");
 
 
             }
@@ -932,17 +933,17 @@ https://gist.github.com/DemkaAge/8999236
 
         } catch (IOException e) {
             wrapException("14.3",e);
-            logger.info("ОБНОВЛЕНИЕ 14.3 НЕ ЗАВЕРШЕНО.");
+            log.info("ОБНОВЛЕНИЕ 14.3 НЕ ЗАВЕРШЕНО.");
 
         } catch (Exception e) {
             wrapException("14.3",e);
-            logger.info("ОБНОВЛЕНИЕ 14.3 НЕ ЗАВЕРШЕНО.");
+            log.info("ОБНОВЛЕНИЕ 14.3 НЕ ЗАВЕРШЕНО.");
 
         }
     }
     private void update14(ProgramOptions updateOption) {
 
-        logger.info("ОБНОВЛЕНИЕ 14");
+        log.info("ОБНОВЛЕНИЕ 14");
 
         File base_translate=null;
         try {
@@ -954,7 +955,7 @@ https://gist.github.com/DemkaAge/8999236
             LoadLanguageFiles ll=new LoadLanguageFiles();
             if( ll.parse(Arrays.asList(base_translate),getModel())){
 
-                logger.info("ОБНОВЛЕНИЕ 14 ЗАВЕРШЕНО.");
+                log.info("ОБНОВЛЕНИЕ 14 ЗАВЕРШЕНО.");
 
                 setUpdateVersion(updateOption, 14);
             }
@@ -962,11 +963,11 @@ https://gist.github.com/DemkaAge/8999236
 
         } catch (IOException e) {
             wrapException("14",e);
-            logger.info("ОБНОВЛЕНИЕ 14 НЕ ЗАВЕРШЕНО.");
+            log.info("ОБНОВЛЕНИЕ 14 НЕ ЗАВЕРШЕНО.");
 
         } catch (Exception e) {
             wrapException("14",e);
-            logger.info("ОБНОВЛЕНИЕ 14 НЕ ЗАВЕРШЕНО.");
+            log.info("ОБНОВЛЕНИЕ 14 НЕ ЗАВЕРШЕНО.");
 
         }
 
@@ -974,7 +975,7 @@ https://gist.github.com/DemkaAge/8999236
     }
 
     private void update12(ProgramOptions updateOption) {
-        logger.info("ОБНОВЛЕНИЕ 12.");
+        log.info("ОБНОВЛЕНИЕ 12.");
 
         try {
 
@@ -1004,7 +1005,7 @@ https://gist.github.com/DemkaAge/8999236
     }
 
     private void updateIn12_4(ProgramOptions updateOption) {
-        logger.info("ОБНОВЛЕНИЕ 12.4");
+        log.info("ОБНОВЛЕНИЕ 12.4");
         //фикс с округлением частоты
     }
 
@@ -1016,7 +1017,7 @@ https://gist.github.com/DemkaAge/8999236
         boolean flag =false;
         int cnt=0;
 
-        logger.info("ОБНОВЛЕНИЕ 12.2");
+        log.info("ОБНОВЛЕНИЕ 12.2");
         try {
         ResourceUtil en=new ResourceUtil();
         File translateFile = en.saveResource(getTmpDir(),"trinity_new_en_.xmlb",
@@ -1049,18 +1050,18 @@ https://gist.github.com/DemkaAge/8999236
 
         } catch (IOException e) {
             wrapException("12.2",e);
-            logger.info("ОБНОВЛЕНИЕ 12.2 НЕ ЗАВЕРШЕНО.");
+            log.info("ОБНОВЛЕНИЕ 12.2 НЕ ЗАВЕРШЕНО.");
 
         } catch (Exception e) {
             wrapException("12.2",e);
-            logger.info("ОБНОВЛЕНИЕ 12.2 НЕ ЗАВЕРШЕНО.");
+            log.info("ОБНОВЛЕНИЕ 12.2 НЕ ЗАВЕРШЕНО.");
 
         }
         if(flag ==true && cnt==38){
             if(_cnt_12_2==2) {
                 //исправляет проблему  у тех у кого почему-то не поправилась база на 12.1
                 wrapException("12.2",new Exception());
-                logger.info("ОБНОВЛЕНИЕ 12.2 НЕ ЗАВЕРШЕНО.");
+                log.info("ОБНОВЛЕНИЕ 12.2 НЕ ЗАВЕРШЕНО.");
             }
             updateIn12_1(updateOption);
             updateIn12_2(updateOption);
@@ -1071,7 +1072,7 @@ https://gist.github.com/DemkaAge/8999236
 
     private void updateIn12_3(ProgramOptions updateOption) {
        //необходима была замена файлов формальная
-        logger.info("ОБНОВЛЕНИЕ 12.3  ЗАВЕРШЕНО.");
+        log.info("ОБНОВЛЕНИЕ 12.3  ЗАВЕРШЕНО.");
 
     }
 
@@ -1145,16 +1146,16 @@ https://gist.github.com/DemkaAge/8999236
             if(res==false) throw new Exception("Ошибка импорта переводов программ");
 
 
-                logger.info("ОБНОВЛЕНИЕ 12.1  ЗАВЕРШЕНО.");
+                log.info("ОБНОВЛЕНИЕ 12.1  ЗАВЕРШЕНО.");
 
 
         } catch (IOException e) {
             wrapException("12.1",e);
-            logger.info("ОБНОВЛЕНИЕ 12.1 НЕ ЗАВЕРШЕНО.");
+            log.info("ОБНОВЛЕНИЕ 12.1 НЕ ЗАВЕРШЕНО.");
 
         } catch (Exception e) {
             wrapException("12.1",e);
-            logger.info("ОБНОВЛЕНИЕ 12.1 НЕ ЗАВЕРШЕНО.");
+            log.info("ОБНОВЛЕНИЕ 12.1 НЕ ЗАВЕРШЕНО.");
 
         }
     }
@@ -1229,17 +1230,17 @@ https://gist.github.com/DemkaAge/8999236
             LoadLanguageFiles ll=new LoadLanguageFiles();
             if( ll.parse(Arrays.asList(base_translate),getModel())){
 
-                logger.info("ОБНОВЛЕНИЕ 9.1  ЗАВЕРШЕНО.");
+                log.info("ОБНОВЛЕНИЕ 9.1  ЗАВЕРШЕНО.");
             }
             else  wrapException("9.1",new Exception());
 
         } catch (IOException e) {
             wrapException("9.1",e);
-            logger.info("ОБНОВЛЕНИЕ 9.1 НЕ ЗАВЕРШЕНО.");
+            log.info("ОБНОВЛЕНИЕ 9.1 НЕ ЗАВЕРШЕНО.");
 
         } catch (Exception e) {
             wrapException("9.1",e);
-            logger.info("ОБНОВЛЕНИЕ 9.1 НЕ ЗАВЕРШЕНО.");
+            log.info("ОБНОВЛЕНИЕ 9.1 НЕ ЗАВЕРШЕНО.");
 
         }
     }
@@ -1257,17 +1258,17 @@ https://gist.github.com/DemkaAge/8999236
             LoadLanguageFiles ll=new LoadLanguageFiles();
             if( ll.parse(Arrays.asList(base_translate),getModel())){
 
-                logger.info("ОБНОВЛЕНИЕ 9.2  ЗАВЕРШЕНО.");
+                log.info("ОБНОВЛЕНИЕ 9.2  ЗАВЕРШЕНО.");
             }
             else  wrapException("9.2",new Exception());
 
         } catch (IOException e) {
             wrapException("9.2",e);
-            logger.info("ОБНОВЛЕНИЕ 9.2 НЕ ЗАВЕРШЕНО.");
+            log.info("ОБНОВЛЕНИЕ 9.2 НЕ ЗАВЕРШЕНО.");
 
         } catch (Exception e) {
             wrapException("9.2",e);
-            logger.info("ОБНОВЛЕНИЕ 9.2 НЕ ЗАВЕРШЕНО.");
+            log.info("ОБНОВЛЕНИЕ 9.2 НЕ ЗАВЕРШЕНО.");
 
         }
     }
@@ -1293,7 +1294,7 @@ https://gist.github.com/DemkaAge/8999236
 
         } catch (Exception e) {
             wrapException("9.3",e);
-            logger.info("ОБНОВЛЕНИЕ 9.3 НЕ ЗАВЕРШЕНО.");
+            log.info("ОБНОВЛЕНИЕ 9.3 НЕ ЗАВЕРШЕНО.");
 
         }
     }
@@ -1353,7 +1354,7 @@ https://gist.github.com/DemkaAge/8999236
         LoadLanguageFiles ll=new LoadLanguageFiles();
         if( ll.parse(Arrays.asList(de),getModel())){
 
-            logger.info("ОБНОВЛЕНИЕ 13_! ЗАВЕРШЕНО.");
+            log.info("ОБНОВЛЕНИЕ 13_! ЗАВЕРШЕНО.");
         }
         else  wrapException("13",new Exception());
     }
@@ -1364,7 +1365,7 @@ https://gist.github.com/DemkaAge/8999236
             rootSectionNames("Nauja dažnių bazė", "Sena dažnių bazė", "lt");
             userSectionName("Naudotojo bazė","lt");
 
-            logger.info("ОБНОВЛЕНИЕ 13_2 ЗАВЕРШЕНО.");
+            log.info("ОБНОВЛЕНИЕ 13_2 ЗАВЕРШЕНО.");
         } catch (Exception e) {
             wrapException("13.2",e);
         }
@@ -1388,7 +1389,7 @@ https://gist.github.com/DemkaAge/8999236
             LoadLanguageFiles ll=new LoadLanguageFiles();
             if( ll.parse(Arrays.asList(italian, italian_trin, lat),getModel())){
 
-                logger.info("ОБНОВЛЕНИЕ 13 ЗАВЕРШЕНО.");
+                log.info("ОБНОВЛЕНИЕ 13 ЗАВЕРШЕНО.");
             }
             else  wrapException("13",new Exception());
 
@@ -1396,11 +1397,11 @@ https://gist.github.com/DemkaAge/8999236
 
         } catch (IOException e) {
             wrapException("13",e);
-            logger.info("ОБНОВЛЕНИЕ 13 НЕ ЗАВЕРШЕНО.");
+            log.info("ОБНОВЛЕНИЕ 13 НЕ ЗАВЕРШЕНО.");
 
         } catch (Exception e) {
             wrapException("13",e);
-            logger.info("ОБНОВЛЕНИЕ 13 НЕ ЗАВЕРШЕНО.");
+            log.info("ОБНОВЛЕНИЕ 13 НЕ ЗАВЕРШЕНО.");
 
         }
     }
@@ -1458,7 +1459,7 @@ https://gist.github.com/DemkaAge/8999236
         try {
             getModel().setOption("app.lang_insert_complex",abbr);
         } catch (Exception e) {
-            logger.error("",e);
+            log.error("",e);
             showExceptionDialog("Ошибка применения параметра языка", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
             return;
         }
@@ -1559,21 +1560,21 @@ https://gist.github.com/DemkaAge/8999236
      */
     private void update1( ProgramOptions updateOption) {
 
-        logger.info("ОБНОВЛЕНИЕ 1.");
+        log.info("ОБНОВЛЕНИЕ 1.");
         try
         {
-            logger.info("Проверка наличия столбца BUNDLESLENGTH  в THERAPYCOMPLEX ");
+            log.info("Проверка наличия столбца BUNDLESLENGTH  в THERAPYCOMPLEX ");
             Object singleResult = emf.createEntityManager().createNativeQuery("SELECT BUNDLESLENGTH FROM THERAPYCOMPLEX LIMIT 1").getSingleResult();
-            logger.info("Столбец  BUNDLESLENGTH  найден.");
+            log.info("Столбец  BUNDLESLENGTH  найден.");
         }catch (Exception e){
-            logger.info("Столбец  BUNDLESLENGTH не найден.");
-            logger.info("Создается  столбец BUNDLESLENGTH  в THERAPYCOMPLEX ");
+            log.info("Столбец  BUNDLESLENGTH не найден.");
+            log.info("Создается  столбец BUNDLESLENGTH  в THERAPYCOMPLEX ");
             EntityManager em = emf.createEntityManager();
             em.getTransaction().begin();
             try{
                 em.createNativeQuery("ALTER TABLE THERAPYCOMPLEX ADD BUNDLESLENGTH INT DEFAULT 1").executeUpdate();
                 em.getTransaction().commit();
-                logger.info("Столбец  BUNDLESLENGTH создан.");
+                log.info("Столбец  BUNDLESLENGTH создан.");
             }catch (Exception ex){
                 throw new RuntimeException("Не удалось выполнить ALTER TABLE THERAPYCOMPLEX ADD BUNDLESLENGTH INT ");
             }finally {
@@ -1587,18 +1588,18 @@ https://gist.github.com/DemkaAge/8999236
         try
         {
             //столбец связан с языком вставки комплексов
-            logger.info("Проверка наличия столбца ONAME  в THERAPYCOMPLEX ");
+            log.info("Проверка наличия столбца ONAME  в THERAPYCOMPLEX ");
             Object singleResult = emf.createEntityManager().createNativeQuery("SELECT ONAME FROM THERAPYCOMPLEX LIMIT 1").getSingleResult();
-            logger.info("Столбец  ONAME  найден.");
+            log.info("Столбец  ONAME  найден.");
         }catch (Exception e){
-            logger.info("Столбец  ONAME не найден.");
-            logger.info("Создается  столбец ONAME  в THERAPYCOMPLEX ");
+            log.info("Столбец  ONAME не найден.");
+            log.info("Создается  столбец ONAME  в THERAPYCOMPLEX ");
             EntityManager em = emf.createEntityManager();
             em.getTransaction().begin();
             try{
                 em.createNativeQuery("ALTER TABLE THERAPYCOMPLEX ADD ONAME VARCHAR(255) DEFAULT ''").executeUpdate();
                 em.getTransaction().commit();
-                logger.info("Столбец  ONAME создан.");
+                log.info("Столбец  ONAME создан.");
             }catch (Exception ex){
                 throw new RuntimeException("Не удалось выполнить ALTER TABLE THERAPYCOMPLEX ADD ONAME VARCHAR(255) DEFAULT ''");
             }finally {
@@ -1611,18 +1612,18 @@ https://gist.github.com/DemkaAge/8999236
         try
         {
             //столбец связан с языком вставки комплексов
-            logger.info("Проверка наличия столбца ONAME  в THERAPYPROGRAM ");
+            log.info("Проверка наличия столбца ONAME  в THERAPYPROGRAM ");
             Object singleResult = emf.createEntityManager().createNativeQuery("SELECT ONAME FROM THERAPYPROGRAM LIMIT 1").getSingleResult();
-            logger.info("Столбец  ONAME  найден.");
+            log.info("Столбец  ONAME  найден.");
         }catch (Exception e){
-            logger.info("Столбец  ONAME не найден.");
-            logger.info("Создается  столбец ONAME  в THERAPYPROGRAM ");
+            log.info("Столбец  ONAME не найден.");
+            log.info("Создается  столбец ONAME  в THERAPYPROGRAM ");
             EntityManager em = emf.createEntityManager();
             em.getTransaction().begin();
             try{
                 em.createNativeQuery("ALTER TABLE THERAPYPROGRAM ADD ONAME VARCHAR(255) DEFAULT ''").executeUpdate();
                 em.getTransaction().commit();
-                logger.info("Столбец  ONAME создан.");
+                log.info("Столбец  ONAME создан.");
             }catch (Exception ex){
                 throw new RuntimeException("Не удалось выполнить ALTER TABLE THERAPYPROGRAM ADD ONAME VARCHAR(255) DEFAULT ''");
             }finally {
@@ -1634,17 +1635,17 @@ https://gist.github.com/DemkaAge/8999236
 
         setUpdateVersion(updateOption,1);//установим новую версию обновления
 
-        logger.info("ОБНОВЛЕНИЕ 1 ЗАВЕРШЕНО.");
+        log.info("ОБНОВЛЕНИЕ 1 ЗАВЕРШЕНО.");
     }
 
 
     private void update2(ProgramOptions updateOption) {
-        logger.info("ОБНОВЛЕНИЕ 2.");
+        log.info("ОБНОВЛЕНИЕ 2.");
 
 
         setUpdateVersion(updateOption,2);//установим новую версию обновления
 
-        logger.info("ОБНОВЛЕНИЕ 2 ЗАВЕРШЕНО.");
+        log.info("ОБНОВЛЕНИЕ 2 ЗАВЕРШЕНО.");
 
 
 
@@ -1655,7 +1656,7 @@ https://gist.github.com/DemkaAge/8999236
     }
 
     private void update3(ProgramOptions updateOption) {
-        logger.info("ОБНОВЛЕНИЕ 3.");
+        log.info("ОБНОВЛЕНИЕ 3.");
         //основное изменение в базе - обновление для фр. языка.
         //сделается из файла
 
@@ -1673,7 +1674,7 @@ https://gist.github.com/DemkaAge/8999236
             if (ll.parse(Arrays.asList(base_translate), getModel())) {
 
                 setUpdateVersion(updateOption, 3);//установим новую версию обновления
-                logger.info("ОБНОВЛЕНИЕ 3  ЗАВЕРШЕНО.");
+                log.info("ОБНОВЛЕНИЕ 3  ЗАВЕРШЕНО.");
 
             } else   wrapException("3",  new Exception());
         } catch (IOException e) {
@@ -1687,7 +1688,7 @@ https://gist.github.com/DemkaAge/8999236
     }
 
     private void wrapException(String msg, Exception e){
-        Log.logger.error("",e);
+        log.error("",e);
         throw new RuntimeException(msg, e);
     }
 
@@ -1703,7 +1704,7 @@ https://gist.github.com/DemkaAge/8999236
     }
 
     private void update4(ProgramOptions updateOption) {
-        logger.info("ОБНОВЛЕНИЕ 4.");
+        log.info("ОБНОВЛЕНИЕ 4.");
         //основное изменение в базе - обновление для итальянского. языка.
         //сделается из файла
                 File base_translate=null;
@@ -1718,17 +1719,17 @@ https://gist.github.com/DemkaAge/8999236
 
 
                         setUpdateVersion(updateOption,4);//установим новую версию обновления
-                        logger.info("ОБНОВЛЕНИЕ 4  ЗАВЕРШЕНО.");
+                        log.info("ОБНОВЛЕНИЕ 4  ЗАВЕРШЕНО.");
                     }
                     else  wrapException("4",new Exception());
 
                 } catch (IOException e) {
                    wrapException("4",e);
-                    logger.info("ОБНОВЛЕНИЕ 4 НЕ ЗАВЕРШЕНО.");
+                    log.info("ОБНОВЛЕНИЕ 4 НЕ ЗАВЕРШЕНО.");
 
                 } catch (Exception e) {
                     wrapException("4",e);
-                    logger.info("ОБНОВЛЕНИЕ 4 НЕ ЗАВЕРШЕНО.");
+                    log.info("ОБНОВЛЕНИЕ 4 НЕ ЗАВЕРШЕНО.");
 
                 }
     }
@@ -1736,14 +1737,14 @@ https://gist.github.com/DemkaAge/8999236
 
     private void update5(ProgramOptions updateOption)
     {
-        logger.info("ОБНОВЛЕНИЕ 5.");
+        log.info("ОБНОВЛЕНИЕ 5.");
         try {
-            logger.info("Добавление раздела Trinity");
+            log.info("Добавление раздела Trinity");
             addTrinityBase();
-            logger.info("Добавление раздела Trinity --- успешно");
+            log.info("Добавление раздела Trinity --- успешно");
 
         } catch (Exception ex) {
-            logger.error("Не удалось выполнить добавление Trinity",ex);
+            log.error("Не удалось выполнить добавление Trinity",ex);
             wrapException("5",ex);
         }
 
@@ -1752,7 +1753,7 @@ https://gist.github.com/DemkaAge/8999236
 
     private void update6(ProgramOptions updateOption)
     {
-        logger.info("ОБНОВЛЕНИЕ 6.");
+        log.info("ОБНОВЛЕНИЕ 6.");
 
 
 
@@ -1761,14 +1762,14 @@ https://gist.github.com/DemkaAge/8999236
                 em.getTransaction().begin();
                 try
                 {
-                    logger.info("Обновление BUNDLESLENGTH  ");
+                    log.info("Обновление BUNDLESLENGTH  ");
 
                     int res = em.createNativeQuery("UPDATE  THERAPYCOMPLEX SET  BUNDLESLENGTH = 3  WHERE BUNDLESLENGTH = 1").executeUpdate();
                     em.getTransaction().commit();
-                    logger.info("BUNDLESLENGTH обновлен. Обновлено "+res+" значений");
+                    log.info("BUNDLESLENGTH обновлен. Обновлено "+res+" значений");
 
                 }catch (Exception e){
-                    logger.error(" Ошибка обновления BUNDLESLENGTH",e);
+                    log.error(" Ошибка обновления BUNDLESLENGTH",e);
                     wrapException("6",e);
                 }finally {
                     if(em!=null) em.close();
@@ -1782,10 +1783,10 @@ https://gist.github.com/DemkaAge/8999236
                     Program beta=   getModel().findProgram("c5175f11-cd07-484e-b63c-6b6bd0fcb928");
                     Program alfa=   getModel().findProgram("d8652bff-a090-451f-bcef-6380195ad2f5");
                     if(beta==null || alfa==null){
-                        logger.error("не найдены комплексы alfa и beta");
+                        log.error("не найдены комплексы alfa и beta");
                     }else {
                         if(beta.getFrequencies().equals("7.84")){
-                            logger.info("Обмен значений альфаи бета ритмов");
+                            log.info("Обмен значений альфаи бета ритмов");
                             beta.setFrequencies(alfa.getFrequencies());
                             alfa.setFrequencies("7.84");
                             getModel().updateProgram(alfa);
@@ -1797,14 +1798,14 @@ https://gist.github.com/DemkaAge/8999236
 
 
 
-                    logger.info("Обновление раздела Trinity");
+                    log.info("Обновление раздела Trinity");
                     //первый вариант добавления забраковали. Далее используется обновленная версия.
                     //Эта версия обновит если уже было добавлено не верно или создаст верный вариант. При кумулятивном обновлении сработает в update5
                     addTrinityBase();
-                    logger.info("Обновление раздела Trinity --- успешно");
+                    log.info("Обновление раздела Trinity --- успешно");
 
                 } catch (Exception ex) {
-                    logger.error("Не удалось выполнить обновление Trinity",ex);
+                    log.error("Не удалось выполнить обновление Trinity",ex);
                     wrapException("6",ex);
                 }
 
@@ -1817,7 +1818,7 @@ https://gist.github.com/DemkaAge/8999236
     }
     private void update7(ProgramOptions updateOption)
     {
-        logger.info("ОБНОВЛЕНИЕ 7.");
+        log.info("ОБНОВЛЕНИЕ 7.");
 
             try {
                 Language ru = model.getLanguage("ru");
@@ -2036,7 +2037,7 @@ https://gist.github.com/DemkaAge/8999236
                 Program p5 = getModel().findProgram("160ca4f8-ca82-4b7e-8dbe-311d993bf7af");
 
                 if (p1 == null || p2 == null || p3 == null || p4 == null || p5 == null) {
-                    logger.error("не найдены программы для обновления частот");
+                    log.error("не найдены программы для обновления частот");
                 } else {
                     p1.setFrequencies("2;12;26;26.5;66;75.5;94;95.5");
                     p2.setFrequencies("6.3;6.5;23.5;60.5;61.5;63;64.5;67");
@@ -2072,13 +2073,13 @@ https://gist.github.com/DemkaAge/8999236
     }
     private void update8(ProgramOptions updateOption)
     {
-        logger.info("ОБНОВЛЕНИЕ 8.");
+        log.info("ОБНОВЛЕНИЕ 8.");
 
                 try {
                     Program p5 = getModel().findProgram("160ca4f8-ca82-4b7e-8dbe-311d993bf7af");
 
                     if (p5 == null) {
-                        logger.error("не найдены программы для обновления частот");
+                        log.error("не найдены программы для обновления частот");
                     } else {
                         p5.setFrequencies("941.9;425;433;445;941.9;935;1010;1060;457;465;777;778;1214;1216;8478");
                         getModel().updateProgram(p5);
@@ -2113,7 +2114,7 @@ https://gist.github.com/DemkaAge/8999236
 }
 
     private void update9(ProgramOptions updateOption) {
-        logger.info("ОБНОВЛЕНИЕ 9.");
+        log.info("ОБНОВЛЕНИЕ 9.");
 
                 try {
                     setTimeForFreqToCompex("7683715f-47f8-427e-8a07-e623ea236ef4" ,300);
@@ -2141,7 +2142,7 @@ https://gist.github.com/DemkaAge/8999236
 
 
                 }catch (Exception ex){
-                    Log.logger.error("Вероятно предыдущие обновления меняющие UUID прошли некорректно",ex);
+                    log.error("Вероятно предыдущие обновления меняющие UUID прошли некорректно",ex);
                     wrapException("9",ex);
                 }
 /*
@@ -2174,7 +2175,7 @@ https://gist.github.com/DemkaAge/8999236
     }
     private void update10(ProgramOptions updateOption)
     {
-        logger.info("ОБНОВЛЕНИЕ 10.");
+        log.info("ОБНОВЛЕНИЕ 10.");
 
         try {
 
@@ -2188,7 +2189,7 @@ https://gist.github.com/DemkaAge/8999236
     }
     private void update11(ProgramOptions updateOption)
     {
-        logger.info("ОБНОВЛЕНИЕ 11.");
+        log.info("ОБНОВЛЕНИЕ 11.");
 
         try {
 
@@ -2204,27 +2205,27 @@ https://gist.github.com/DemkaAge/8999236
     private void changeDDL(){
         try
         {
-            logger.info("Проверка наличия столбца MULTYFREQ  в THERAPYPROGRAM ");
+            log.info("Проверка наличия столбца MULTYFREQ  в THERAPYPROGRAM ");
             emf.createEntityManager().createNativeQuery("SELECT MULTYFREQ FROM THERAPYPROGRAM LIMIT 1").getResultList();
-            logger.info("Столбец  MULTYFREQ  найден.");
+            log.info("Столбец  MULTYFREQ  найден.");
         }catch (Exception e){
-            Log.logger.error("Поиск столбца", e);
-            logger.info("Столбец  MULTYFREQ не найден.");
-            logger.info("Создается  столбец MULTYFREQ  в THERAPYPROGRAM ");
+            log.error("Поиск столбца", e);
+            log.info("Столбец  MULTYFREQ не найден.");
+            log.info("Создается  столбец MULTYFREQ  в THERAPYPROGRAM ");
             EntityManager em = emf.createEntityManager();
             em.getTransaction().begin();
             try{
                 em.createNativeQuery("ALTER TABLE THERAPYPROGRAM ADD MULTYFREQ BOOLEAN(1) DEFAULT 1").executeUpdate();
                 em.getTransaction().commit();
-                logger.info("Столбец  MULTYFREQ создан.");
+                log.info("Столбец  MULTYFREQ создан.");
 
 
-                logger.info("Столбец  MULTYFREQ обновлен.");
+                log.info("Столбец  MULTYFREQ обновлен.");
 
 
 
             }catch (Exception ex){
-                logger.error("ошибка обновления ALTER TABLE THERAPYPROGRAM ADD MULTYFREQ BOOLEAN(1) DEFAULT 1",ex);
+                log.error("ошибка обновления ALTER TABLE THERAPYPROGRAM ADD MULTYFREQ BOOLEAN(1) DEFAULT 1",ex);
                 wrapException("updateDDL",e);
             }finally {
                 if(em!=null) em.close();
@@ -2240,20 +2241,20 @@ https://gist.github.com/DemkaAge/8999236
         boolean mFreqFinded=false;
         try
         {
-            logger.info("Проверка наличия столбца MULLTYFREQ  в THERAPYCOMPLEX ");
+            log.info("Проверка наличия столбца MULLTYFREQ  в THERAPYCOMPLEX ");
             emf.createEntityManager().createNativeQuery("SELECT MULLTYFREQ FROM THERAPYCOMPLEX LIMIT 1").getResultList();
-            logger.info("Столбец  MULLTYFREQ  найден.");
+            log.info("Столбец  MULLTYFREQ  найден.");
             mFreqFinded=true;
             EntityManager em = emf.createEntityManager();
             em.getTransaction().begin();
             try{
                 em.createNativeQuery("ALTER TABLE THERAPYCOMPLEX DROP `MULLTYFREQ`").executeUpdate();
                 em.getTransaction().commit();
-                logger.info("Столбец  MULLTYFREQ удален.");
+                log.info("Столбец  MULLTYFREQ удален.");
 
 
             }catch (Exception ex){
-                logger.error("ошибка обновления ALTER TABLE THERAPYCOMPLEX DROP `MULLTYFREQ`",ex);
+                log.error("ошибка обновления ALTER TABLE THERAPYCOMPLEX DROP `MULLTYFREQ`",ex);
                 wrapException("6",ex);
             }finally {
                 if(em!=null) em.close();
@@ -2264,24 +2265,24 @@ https://gist.github.com/DemkaAge/8999236
 
         try
         {
-            logger.info("Проверка наличия столбца POSITION  в THERAPYCOMPLEX ");
+            log.info("Проверка наличия столбца POSITION  в THERAPYCOMPLEX ");
             emf.createEntityManager().createNativeQuery("SELECT `POSITION` FROM THERAPYCOMPLEX LIMIT 1").getResultList();
-            logger.info("Столбец  POSITION  найден.");
+            log.info("Столбец  POSITION  найден.");
             tpPosFinded=true;
         }catch (Exception e){
-            logger.info("Столбец  POSITION не найден.");
-            logger.info("Создается  столбец POSITION  в THERAPYPROGRAM ");
+            log.info("Столбец  POSITION не найден.");
+            log.info("Создается  столбец POSITION  в THERAPYPROGRAM ");
             EntityManager em = emf.createEntityManager();
             em.getTransaction().begin();
             try{
                 em.createNativeQuery("ALTER TABLE THERAPYCOMPLEX ADD `POSITION` BIGINT(19) DEFAULT 1").executeUpdate();
                 em.getTransaction().commit();
-                logger.info("Столбец  POSITION создан.");
+                log.info("Столбец  POSITION создан.");
 
 
 
             }catch (Exception ex){
-                logger.error("ошибка обновления ALTER TABLE THERAPYCOMPLEX ADD `POSITION` BIGINT(19) DEFAULT 1",ex);
+                log.error("ошибка обновления ALTER TABLE THERAPYCOMPLEX ADD `POSITION` BIGINT(19) DEFAULT 1",ex);
                 wrapException("6",ex);
             }finally {
                 if(em!=null) em.close();
@@ -2292,22 +2293,22 @@ https://gist.github.com/DemkaAge/8999236
         reopenPersistentContext();
         try
         {
-            logger.info("Проверка наличия столбца POSITION  в PROFILE ");
+            log.info("Проверка наличия столбца POSITION  в PROFILE ");
             emf.createEntityManager().createNativeQuery("SELECT `POSITION` FROM PROFILE LIMIT 1").getResultList();
-            logger.info("Столбец  POSITION  найден.");
+            log.info("Столбец  POSITION  найден.");
             profPosFinded=true;
         }catch (Exception e){
-            logger.info("Столбец  POSITION не найден.");
-            logger.info("Создается  столбец POSITION  в PROFILE ");
+            log.info("Столбец  POSITION не найден.");
+            log.info("Создается  столбец POSITION  в PROFILE ");
             EntityManager em = emf.createEntityManager();
             em.getTransaction().begin();
             try{
                 em.createNativeQuery("ALTER TABLE PROFILE ADD `POSITION` BIGINT(19) DEFAULT 1").executeUpdate();
                 em.getTransaction().commit();
-                logger.info("Столбец  POSITION создан.");
+                log.info("Столбец  POSITION создан.");
 
             }catch (Exception ex){
-                logger.error("ошибка обновления ALTER TABLE PROFILE ADD `POSITION` BIGINT(19) DEFAULT 1",ex);
+                log.error("ошибка обновления ALTER TABLE PROFILE ADD `POSITION` BIGINT(19) DEFAULT 1",ex);
                 wrapException("6",ex);
             }finally {
                 if(em!=null) em.close();
@@ -2319,23 +2320,23 @@ https://gist.github.com/DemkaAge/8999236
         reopenPersistentContext();
         try
         {
-            logger.info("Проверка наличия столбца TIMEFORFREQ  в COMPLEX ");
+            log.info("Проверка наличия столбца TIMEFORFREQ  в COMPLEX ");
             emf.createEntityManager().createNativeQuery("SELECT `TIMEFORFREQ` FROM COMPLEX LIMIT 1").getResultList();
-            logger.info("Столбец  TIMEFORFREQ  найден.");
+            log.info("Столбец  TIMEFORFREQ  найден.");
 
         }catch (Exception e) {
-            logger.info("Столбец  TIMEFORFREQ не найден.");
-            logger.info("Создается  столбец TIMEFORFREQ  в COMPLEX ");
+            log.info("Столбец  TIMEFORFREQ не найден.");
+            log.info("Создается  столбец TIMEFORFREQ  в COMPLEX ");
             EntityManager em = emf.createEntityManager();
             em.getTransaction().begin();
             try {
                 em.createNativeQuery("ALTER TABLE COMPLEX ADD `TIMEFORFREQ` INT DEFAULT 0").executeUpdate();
                 em.getTransaction().commit();
-                logger.info("Столбец  TIMEFORFREQ создан.");
+                log.info("Столбец  TIMEFORFREQ создан.");
 
 
             } catch (Exception ex) {
-                logger.error("ALTER TABLE COMPLEX ADD `TIMEFORFREQ` INT DEFAULT 0", ex);
+                log.error("ALTER TABLE COMPLEX ADD `TIMEFORFREQ` INT DEFAULT 0", ex);
                 wrapException("9",ex);
             } finally {
                 if (em != null) em.close();
@@ -2346,24 +2347,24 @@ https://gist.github.com/DemkaAge/8999236
 
         try
         {
-            logger.info("Проверка наличия столбца SRCUUID  в THERAPYCOMPLEX ");
+            log.info("Проверка наличия столбца SRCUUID  в THERAPYCOMPLEX ");
             emf.createEntityManager().createNativeQuery("SELECT `SRCUUID` FROM THERAPYCOMPLEX LIMIT 1").getResultList();
-            logger.info("Столбец  SRCUUID  найден.");
+            log.info("Столбец  SRCUUID  найден.");
 
         }catch (Exception e){
-            logger.info("Столбец  SRCUUID не найден.");
-            logger.info("Создается  столбец SRCUUID  в THERAPYPROGRAM ");
+            log.info("Столбец  SRCUUID не найден.");
+            log.info("Создается  столбец SRCUUID  в THERAPYPROGRAM ");
             EntityManager em = emf.createEntityManager();
             em.getTransaction().begin();
             try{
                 em.createNativeQuery("ALTER TABLE THERAPYCOMPLEX ADD `SRCUUID` VARCHAR(255) DEFAULT ''").executeUpdate();
                 em.getTransaction().commit();
-                logger.info("Столбец  SRCUUID создан.");
+                log.info("Столбец  SRCUUID создан.");
 
 
 
             }catch (Exception ex){
-                logger.error("ошибка обновления ALTER TABLE THERAPYCOMPLEX ADD `SRCUUID` VARCHAR(255) DEFAULT ''",ex);
+                log.error("ошибка обновления ALTER TABLE THERAPYCOMPLEX ADD `SRCUUID` VARCHAR(255) DEFAULT ''",ex);
                 wrapException("10",ex);
             }finally {
                 if(em!=null) em.close();
@@ -2374,24 +2375,24 @@ https://gist.github.com/DemkaAge/8999236
         reopenPersistentContext();
         try
         {
-            logger.info("Проверка наличия столбца SRCUUID  в THERAPYPROGRAM ");
+            log.info("Проверка наличия столбца SRCUUID  в THERAPYPROGRAM ");
             emf.createEntityManager().createNativeQuery("SELECT `SRCUUID` FROM THERAPYPROGRAM LIMIT 1").getResultList();
-            logger.info("Столбец  SRCUUID  найден.");
+            log.info("Столбец  SRCUUID  найден.");
 
         }catch (Exception e){
-            logger.info("Столбец  SRCUUID не найден.");
-            logger.info("Создается  столбец SRCUUID  в THERAPYPROGRAM ");
+            log.info("Столбец  SRCUUID не найден.");
+            log.info("Создается  столбец SRCUUID  в THERAPYPROGRAM ");
             EntityManager em = emf.createEntityManager();
             em.getTransaction().begin();
             try{
                 em.createNativeQuery("ALTER TABLE THERAPYPROGRAM ADD `SRCUUID` VARCHAR(255) DEFAULT ''").executeUpdate();
                 em.getTransaction().commit();
-                logger.info("Столбец  SRCUUID создан.");
+                log.info("Столбец  SRCUUID создан.");
 
 
 
             }catch (Exception ex){
-                logger.error("ошибка обновления ALTER TABLE THERAPYPROGRAM ADD `SRCUUID` VARCHAR(255) DEFAULT ''",ex);
+                log.error("ошибка обновления ALTER TABLE THERAPYPROGRAM ADD `SRCUUID` VARCHAR(255) DEFAULT ''",ex);
                 wrapException("10",ex);
             }finally {
                 if(em!=null) em.close();
@@ -2402,23 +2403,23 @@ https://gist.github.com/DemkaAge/8999236
         boolean lastChange = false;
         try
         {
-            logger.info("Проверка наличия столбца LASTCHANGE  в PROFILE ");
+            log.info("Проверка наличия столбца LASTCHANGE  в PROFILE ");
             emf.createEntityManager().createNativeQuery("SELECT `LASTCHANGE` FROM PROFILE LIMIT 1").getResultList();
-            logger.info("Столбец  LASTCHANGE  найден.");
+            log.info("Столбец  LASTCHANGE  найден.");
 
         }catch (Exception e){
-            logger.info("Столбец  LASTCHANGE не найден.");
-            logger.info("Создается  столбец LASTCHANGE  в PROFILE ");
+            log.info("Столбец  LASTCHANGE не найден.");
+            log.info("Создается  столбец LASTCHANGE  в PROFILE ");
             EntityManager em = emf.createEntityManager();
             em.getTransaction().begin();
             try{
                 em.createNativeQuery("ALTER TABLE PROFILE ADD `LASTCHANGE` BIGINT(19) DEFAULT 1").executeUpdate();
                 em.getTransaction().commit();
-                logger.info("Столбец  LASTCHANGE создан.");
+                log.info("Столбец  LASTCHANGE создан.");
                 lastChange =true;
 
             }catch (Exception ex){
-                logger.error("ошибка обновления ALTER TABLE PROFILE ADD `LASTCHANGE` BIGINT(19) DEFAULT 1",ex);
+                log.error("ошибка обновления ALTER TABLE PROFILE ADD `LASTCHANGE` BIGINT(19) DEFAULT 1",ex);
                 wrapException("6",ex);
             }finally {
                 if(em!=null) em.close();
@@ -2430,22 +2431,22 @@ https://gist.github.com/DemkaAge/8999236
         boolean timeAddToProfile = false;
         try
         {
-            logger.info("Проверка наличия столбца TIME  в PROFILE ");
+            log.info("Проверка наличия столбца TIME  в PROFILE ");
             emf.createEntityManager().createNativeQuery("SELECT `TIME` FROM PROFILE LIMIT 1").getResultList();
-            logger.info("Столбец  TIME  найден.");
+            log.info("Столбец  TIME  найден.");
 
         }catch (Exception e){
-            logger.info("Столбец  TIME не найден.");
-            logger.info("Создается  столбец TIME  в PROFILE ");
+            log.info("Столбец  TIME не найден.");
+            log.info("Создается  столбец TIME  в PROFILE ");
             EntityManager em = emf.createEntityManager();
             em.getTransaction().begin();
             try{
                 em.createNativeQuery("ALTER TABLE PROFILE ADD `TIME` BIGINT(19) DEFAULT 0").executeUpdate();
                 em.getTransaction().commit();
-                logger.info("Столбец  TIME создан.");
+                log.info("Столбец  TIME создан.");
                 timeAddToProfile=true;
             }catch (Exception ex){
-                logger.error("ошибка обновления ALTER TABLE PROFILE ADD `TIME` BIGINT(19) DEFAULT 1",ex);
+                log.error("ошибка обновления ALTER TABLE PROFILE ADD `TIME` BIGINT(19) DEFAULT 1",ex);
                 wrapException("14",ex);
             }finally {
                 if(em!=null) em.close();
@@ -2459,22 +2460,22 @@ https://gist.github.com/DemkaAge/8999236
         boolean weightAddToProfile = false;
         try
         {
-            logger.info("Проверка наличия столбца PROFILEWEIGHT  в PROFILE ");
+            log.info("Проверка наличия столбца PROFILEWEIGHT  в PROFILE ");
             emf.createEntityManager().createNativeQuery("SELECT `PROFILEWEIGHT` FROM PROFILE LIMIT 1").getResultList();
-            logger.info("Столбец  PROFILEWEIGHT  найден.");
+            log.info("Столбец  PROFILEWEIGHT  найден.");
 
         }catch (Exception e){
-            logger.info("Столбец  PROFILEWEIGHT не найден.");
-            logger.info("Создается  столбец PROFILEWEIGHT  в PROFILE ");
+            log.info("Столбец  PROFILEWEIGHT не найден.");
+            log.info("Создается  столбец PROFILEWEIGHT  в PROFILE ");
             EntityManager em = emf.createEntityManager();
             em.getTransaction().begin();
             try{
                 em.createNativeQuery("ALTER TABLE PROFILE ADD `PROFILEWEIGHT` BIGINT(19) DEFAULT 0").executeUpdate();
                 em.getTransaction().commit();
-                logger.info("Столбец  PROFILEWEIGHT создан.");
+                log.info("Столбец  PROFILEWEIGHT создан.");
                 weightAddToProfile=true;
             }catch (Exception ex){
-                logger.error("ошибка обновления ALTER TABLE PROFILE ADD `PROFILEWEIGHT` BIGINT(19) DEFAULT 1",ex);
+                log.error("ошибка обновления ALTER TABLE PROFILE ADD `PROFILEWEIGHT` BIGINT(19) DEFAULT 1",ex);
                 wrapException("14",ex);
             }finally {
                 if(em!=null) em.close();
@@ -2497,7 +2498,7 @@ https://gist.github.com/DemkaAge/8999236
                     getModel().updateTherapyComplex(tc);
 
                 }
-                logger.info("Столбец  POSITION TherapyComplex обновлен.");
+                log.info("Столбец  POSITION TherapyComplex обновлен.");
             }
             if(!profPosFinded) {
                 for (Profile profile : getModel().findAllProfiles()) {
@@ -2507,11 +2508,11 @@ https://gist.github.com/DemkaAge/8999236
                     getModel().updateProfile(profile);
 
                 }
-                logger.info("Столбец  POSITION Profile обновлен.");
+                log.info("Столбец  POSITION Profile обновлен.");
             }
 
         }catch (Exception e){
-            logger.error("ошибка обновления POSITION",e);
+            log.error("ошибка обновления POSITION",e);
             wrapException("6",e);
         }
 
@@ -2538,7 +2539,7 @@ https://gist.github.com/DemkaAge/8999236
             }
         } catch (Exception e) {
             wrapException("6",e);
-            logger.error("ошибка обновления `LASTCHANGE`, не удалось обновить профили",e);
+            log.error("ошибка обновления `LASTCHANGE`, не удалось обновить профили",e);
             e.printStackTrace();
         }
 
@@ -2552,7 +2553,7 @@ https://gist.github.com/DemkaAge/8999236
                     model.updateTimeProfile(profile);
                 }
             }catch (Exception e){
-                logger.error("ошибка обновления времени профилей",e);
+                log.error("ошибка обновления времени профилей",e);
                 wrapException("14",e);
             }
 
@@ -2568,7 +2569,7 @@ https://gist.github.com/DemkaAge/8999236
                     model.updateProfile(profile);
                 }
             }catch (Exception e){
-                logger.error("ошибка обновления размера файлов профилей",e);
+                log.error("ошибка обновления размера файлов профилей",e);
                 wrapException("14",e);
             }
 

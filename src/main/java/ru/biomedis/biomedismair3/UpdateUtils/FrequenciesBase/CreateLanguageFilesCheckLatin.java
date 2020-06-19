@@ -1,5 +1,6 @@
 package ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase;
 
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.Complex;
 import ru.biomedis.biomedismair3.entity.Language;
@@ -16,13 +17,14 @@ import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.biomedis.biomedismair3.Log.logger;
+
 
 /**
  * Создает набор файлов для правки переводов. Выдает только те названия в которых есть латинские символы в словах.
  * Используется для корректировки переводов типа греческого итп
- * Created by Ananta on 10.08.2016.
+ * 
  */
+@Slf4j
 public class CreateLanguageFilesCheckLatin
 {
 
@@ -101,7 +103,7 @@ public class CreateLanguageFilesCheckLatin
             fw.close();
 
         } catch (IOException e) {
-            logger.error("",e);
+            log.error("",e);
             System.out.print("Error "+e.getMessage());
             return false;
         }finally

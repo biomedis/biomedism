@@ -1,5 +1,6 @@
 package ru.biomedis.biomedismair3.DBImport;
 
+import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -15,11 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import static ru.biomedis.biomedismair3.Log.logger;
 
-/**
- * Created by Anama on 17.09.2015.
- */
+@Slf4j
 public class FileProfileParser
 {
 
@@ -56,20 +54,20 @@ public class FileProfileParser
             parser.parse(xmlFile, new ParserHandler());
 
         } catch (ParserConfigurationException e) {
-            logger.error("",e);
+            log.error("",e);
 
             return false;
         } catch (SAXException e) {
 
 
-            logger.error("",e);
+            log.error("",e);
 
             clear();
 
             return false;
 
         } catch (Exception e) {
-            logger.error("",e);
+            log.error("",e);
             clear();
 
             return false;
@@ -103,7 +101,7 @@ public class FileProfileParser
             }
         } catch (NumberFormatException e) {
 
-            logger.error("Неверный формат частот",e);
+            log.error("Неверный формат частот",e);
 
             clear();
             return false;

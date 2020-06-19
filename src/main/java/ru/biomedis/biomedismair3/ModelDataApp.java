@@ -9,6 +9,7 @@ import com.mpatric.mp3agic.Mp3File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import javafx.application.Platform;
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.JPAControllers.*;
 import ru.biomedis.biomedismair3.JPAControllers.exceptions.NonexistentEntityException;
 import ru.biomedis.biomedismair3.entity.*;
@@ -20,13 +21,10 @@ import java.util.*;
 import ru.biomedis.biomedismair3.social.remote_client.TokenRepository;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Token;
 
-import static ru.biomedis.biomedismair3.Log.logger;
 
 
-/**
- *
- * @author Anama
- */
+
+@Slf4j
 public class ModelDataApp implements TokenRepository {
 
     private IInProfileChanged onInProfileChanged;
@@ -222,12 +220,12 @@ public class ModelDataApp implements TokenRepository {
                 addString(userBase.getName(), "User base", getDefaultLanguage());
 
             } catch (Exception e) {
-                Log.logger.error("",e);
+                log.error("",e);
             }
 
         }catch (NonUniqueResultException ex)
         {
-            Log.logger.error("",ex);
+            log.error("",ex);
         }
 
 
@@ -353,14 +351,14 @@ public class ModelDataApp implements TokenRepository {
         try {
             setOption("enable_autoupdate","true");
         } catch (Exception e) {
-           Log.logger.error("",e);
+           log.error("",e);
         }
     }
     public void disableAutoUpdate() {
         try {
             setOption("enable_autoupdate","false");
         } catch (Exception e) {
-            Log.logger.error("",e);
+            log.error("",e);
         }
     }
 
@@ -436,7 +434,7 @@ public class ModelDataApp implements TokenRepository {
         try {
             return  getOption("app.lang_insert_complex");
         } catch (Exception e) {
-            logger.error("Ошибка получения языка вставки комплекса",e);
+            log.error("Ошибка получения языка вставки комплекса",e);
         }
         return "";
     }
@@ -451,7 +449,7 @@ public class ModelDataApp implements TokenRepository {
             optionsDAO.create(opt);
         }
         catch (Exception ex) {
-            Log.logger.error("",ex);
+            log.error("",ex);
             opt=null;
 
 
@@ -585,7 +583,7 @@ public class ModelDataApp implements TokenRepository {
             profile.setLastChange(Calendar.getInstance().getTimeInMillis());
 
         } catch (Exception ex) {
-            Log.logger.error("",ex);
+            log.error("",ex);
             profile=null;
 
             throw new Exception("Ошибка создания профиля",ex);
@@ -613,7 +611,7 @@ public class ModelDataApp implements TokenRepository {
             this.profileDAO.create(profile);
 
         } catch (Exception ex) {
-            Log.logger.error("",ex);
+            log.error("",ex);
             profile=null;
 
             throw new Exception("Ошибка создания профиля",ex);
@@ -636,7 +634,7 @@ public class ModelDataApp implements TokenRepository {
             profileDAO.destroy(profile.getId());
         }catch (Exception e)
         {
-            Log.logger.error("",e);
+            log.error("",e);
             throw  e;
         }
 
@@ -714,7 +712,7 @@ public class ModelDataApp implements TokenRepository {
         }
         catch(Exception ex)
         {
-            Log.logger.error("",ex);
+            log.error("",ex);
             section=null;
             throw new Exception("Ошибка создания раздела",ex);
         }
@@ -744,7 +742,7 @@ public class ModelDataApp implements TokenRepository {
         }
         catch(Exception ex)
         {
-            Log.logger.error("",ex);
+            log.error("",ex);
             section=null;
             throw new Exception("Ошибка создания раздела",ex);
         }
@@ -777,7 +775,7 @@ public class ModelDataApp implements TokenRepository {
              
         } catch (Exception e) 
         {
-            Log.logger.error("",e);
+            log.error("",e);
             throw new Exception("Ошибка удаления раздела",e);
         } 
     }
@@ -810,7 +808,7 @@ public class ModelDataApp implements TokenRepository {
              
         } catch (Exception e) 
         {
-            Log.logger.error("",e);
+            log.error("",e);
             throw new Exception("Ошибка удаления раздела",e);
         }
        
@@ -1006,7 +1004,7 @@ public class ModelDataApp implements TokenRepository {
         }
         catch(Exception ex)
         {
-            Log.logger.error("",ex);
+            log.error("",ex);
             complex=null;
             throw new Exception("Ошибка создания комплекса",ex);
         }
@@ -1033,7 +1031,7 @@ public class ModelDataApp implements TokenRepository {
              
         } catch (Exception e) 
         {
-            Log.logger.error("",e);
+            log.error("",e);
             throw new Exception("Ошибка удаления комплекса",e);
         }
     }
@@ -1166,7 +1164,7 @@ public class ModelDataApp implements TokenRepository {
         }
         catch(Exception ex)
         {
-            Log.logger.error("",ex);
+            log.error("",ex);
             program=null;
             throw new Exception("Ошибка создания программы",ex);
         }
@@ -1198,7 +1196,7 @@ public class ModelDataApp implements TokenRepository {
         }
         catch(Exception ex)
         {
-            Log.logger.error("",ex);
+            log.error("",ex);
             program=null;
             throw new Exception("Ошибка создания программы",ex);
         }
@@ -1306,7 +1304,7 @@ public class ModelDataApp implements TokenRepository {
              
         } catch (Exception e) 
         {
-            Log.logger.error("",e);
+            log.error("",e);
             throw new Exception("Ошибка удаления програмы",e);
         }
        
@@ -1374,7 +1372,7 @@ public class ModelDataApp implements TokenRepository {
             localizedStringDAO.create(lstr);
             
         } catch (Exception ex) {
-            Log.logger.error("",ex);
+            log.error("",ex);
             str=null;
             lstr=null;
             throw new Exception("Ошибка создания локализованной строки", ex);
@@ -1405,7 +1403,7 @@ public class ModelDataApp implements TokenRepository {
                localizedStringDAO.create(lstr);
 
            } catch (Exception ex) {
-               Log.logger.error("",ex);
+               log.error("",ex);
 
                lstr=null;
                throw new Exception("Ошибка создания локализованной строки", ex);
@@ -1541,7 +1539,7 @@ public class ModelDataApp implements TokenRepository {
               
          } catch (Exception ex) 
          {
-             Log.logger.error("",ex);
+             log.error("",ex);
             throw new Exception("Ошибка удаления строки  и локализаций",ex);
          }
        
@@ -1677,7 +1675,7 @@ public class ModelDataApp implements TokenRepository {
          try {
              langU= updateLanguage(abbr,name,avaliable);
          } catch (Exception e) {
-             Log.logger.error("",e);
+             log.error("",e);
              return langU;
          }
          if(langU!=null)return langU;
@@ -1691,7 +1689,7 @@ public class ModelDataApp implements TokenRepository {
         try {
             this.languageDAO.create(lang);
         } catch (Exception ex) {
-            Log.logger.error("",ex);
+            log.error("",ex);
         }
          return lang;
      }
@@ -1702,7 +1700,7 @@ public class ModelDataApp implements TokenRepository {
         try {
             langU= updateLanguage(abbr,name,false);
         } catch (Exception e) {
-            Log.logger.error("",e);
+            log.error("",e);
             return langU;
         }
         if(langU!=null)return langU;
@@ -1715,7 +1713,7 @@ public class ModelDataApp implements TokenRepository {
         try {
             this.languageDAO.create(lang);
         } catch (Exception ex) {
-            Log.logger.error("",ex);
+            log.error("",ex);
         }
         return lang;
     }
@@ -1859,7 +1857,7 @@ public class ModelDataApp implements TokenRepository {
         {
             therapyComplexDAO.create(tc);
         }catch(Exception e){
-            Log.logger.error("",e);
+            log.error("",e);
             tc=null;
             throw new Exception("Ошибка создания терапевтического комплекса",e);
         }
@@ -1907,7 +1905,7 @@ public class ModelDataApp implements TokenRepository {
          therapyComplexDAO.create(tc);//создадим компелекс
          for(Program itm: findAllProgramByComplex) createTherapyProgram(itm.getUuid(),tc, itm.getNameString(),itm.getDescriptionString(),itm.getFrequencies());//создадим програмы из комплекса
 
-        }catch(Exception e){Log.logger.error("",e);tc=null;throw new Exception("Ошибка создания терапевтического комплекса",e); }
+        }catch(Exception e){log.error("",e);tc=null;throw new Exception("Ошибка создания терапевтического комплекса",e); }
           if(tc!=null){
               tc.setPosition(tc.getId());
               updateTherapyComplex(tc);
@@ -2015,7 +2013,7 @@ public class ModelDataApp implements TokenRepository {
 
 
         }catch(Exception e){
-            Log.logger.error("",e);
+            log.error("",e);
             tc=null;
             throw new Exception("Ошибка создания терапевтического комплекса",e); }
         if(tc!=null){
@@ -2292,7 +2290,7 @@ public class ModelDataApp implements TokenRepository {
             therapyComplexDAO.destroy(th.getId());
             Platform.runLater(()->onInProfileChanged.change(th.getProfile().getId()));
         } catch (Exception ex) {
-            Log.logger.error("",ex);
+            log.error("",ex);
             throw new Exception("Ошибка удаления терапевтического комплекса",ex);
         }
 
@@ -2348,7 +2346,7 @@ public class ModelDataApp implements TokenRepository {
 
 
         } catch (Exception e) {
-            Log.logger.error("",e);
+            log.error("",e);
             tc=null;
             throw new Exception("Ошибка копирования терапевтического комплекса",e);
         }
@@ -2377,7 +2375,7 @@ public class ModelDataApp implements TokenRepository {
 
 
            } catch (Exception e) {
-               Log.logger.error("",e);
+               log.error("",e);
 
                throw new Exception("Ошибка копирования терапевтическогй программы",e);
            }
@@ -2399,7 +2397,7 @@ public class ModelDataApp implements TokenRepository {
 
 
            } catch (Exception e) {
-               Log.logger.error("",e);
+               log.error("",e);
 
                throw new Exception("Ошибка копирования терапевтическогй программы",e);
            }
@@ -2438,7 +2436,7 @@ public class ModelDataApp implements TokenRepository {
 
         }catch(Exception e)
         {
-            Log.logger.error("",e);
+            log.error("",e);
             tc=null;
             throw new Exception("Ошибка создания терапевтической программы",e);
         }
@@ -2486,7 +2484,7 @@ public class ModelDataApp implements TokenRepository {
 
         }catch(Exception e)
         {
-            Log.logger.error("",e);
+            log.error("",e);
             tc=null;
             throw new Exception("Ошибка создания терапевтической программы",e);
         }
@@ -2523,7 +2521,7 @@ public class ModelDataApp implements TokenRepository {
             therapyProgramDAO.edit(tc);
 
 
-        }catch(Exception e){ Log.logger.error("",e);tc=null;throw new Exception("Ошибка создания терапевтической программы",e); }
+        }catch(Exception e){ log.error("",e);tc=null;throw new Exception("Ошибка создания терапевтической программы",e); }
 
         Platform.runLater(()->onInProfileChanged.change(therapyComplex.getProfile().getId()));
         return tc;

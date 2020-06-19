@@ -1,6 +1,5 @@
 package ru.biomedis.biomedismair3;
 
-import static ru.biomedis.biomedismair3.Log.logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,6 +45,7 @@ import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
+import lombok.extern.slf4j.Slf4j;
 import org.anantacreative.updater.Update.UpdateException;
 import org.anantacreative.updater.Update.UpdateTask;
 import org.hid4java.HidDevice;
@@ -94,6 +94,7 @@ import ru.biomedis.biomedismair3.utils.OS.OSValidator;
 import ru.biomedis.biomedismair3.utils.USB.PlugDeviceListener;
 import ru.biomedis.biomedismair3.utils.USB.USBHelper;
 
+@Slf4j
 public class AppController  extends BaseController {
 
     public static final int MAX_BUNDLES=10;
@@ -445,7 +446,7 @@ public class AppController  extends BaseController {
                 addComplexToBiofonTab(th);
 
             } catch (Exception e) {
-                logger.error("",e);
+                log.error("",e);
                 showExceptionDialog("Ошибка создания терапевтического комплекса ", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
 
             }
@@ -470,7 +471,7 @@ public class AppController  extends BaseController {
                 profileAPI.updateProfileTime(ProfileTable.getInstance().getSelectedItem());
                 th = null;
             } catch (Exception e) {
-                logger.error("",e);
+                log.error("",e);
                 showExceptionDialog("Ошибка создания терапевтического комплекса ", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
             }
             c = null;
@@ -498,7 +499,7 @@ public class AppController  extends BaseController {
                 name = getModel().getString2(p.getName(),getModel().getLanguage(il));
                 descr=getModel().getString2(p.getDescription(),getModel().getLanguage(il));
             } catch (Exception e) {
-                logger.error("",e);
+                log.error("",e);
                 showExceptionDialog("Ошибка создания терапевтической программы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
             }
         }
@@ -510,7 +511,7 @@ public class AppController  extends BaseController {
                 TherapyProgram therapyProgram = getModel().createTherapyProgram(p.getUuid(),selectedTCBiofon, name, descr, p.getFrequencies(),oname);
                 addProgramToBiofonTab(selectedTCBiofon,therapyProgram);
             } catch (Exception e) {
-                logger.error("",e);
+                log.error("",e);
                 showExceptionDialog("Ошибка создания терапевтической программы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
 
             }
@@ -539,7 +540,7 @@ public class AppController  extends BaseController {
                 therapyProgram = null;
             } catch (Exception e) {
 
-                logger.error("",e);
+                log.error("",e);
                 showExceptionDialog("Ошибка создания терапевтической программы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
             }
             p = null;
@@ -643,7 +644,7 @@ public class AppController  extends BaseController {
                     System.out.println("GC");
                 }
             } catch (InterruptedException e) {
-                logger.error("",e);
+                log.error("",e);
             }
 
         });
@@ -689,7 +690,7 @@ public class AppController  extends BaseController {
                                    devicePath=DiskDetector.getRootPath(fs);
                                } catch (Exception e) {
                                    devicePath=null;
-                                   logger.error("",e);
+                                   log.error("",e);
                                }
                            }
                             else if(!fsDeviceName.equals(fs.name()))
@@ -699,7 +700,7 @@ public class AppController  extends BaseController {
                                    devicePath=DiskDetector.getRootPath(fs);
                                } catch (Exception e) {
                                    devicePath=null;
-                                   logger.error("",e);
+                                   log.error("",e);
                                }
 
                            }
@@ -769,7 +770,7 @@ public class AppController  extends BaseController {
 
             });
         } catch (Exception e) {
-            logger.error("",e);
+            log.error("",e);
         }
     }
 
@@ -979,7 +980,7 @@ public class AppController  extends BaseController {
             @Override
             public void onFailure(USBHelper.USBException e)
             {
-                Log.logger.error(e);
+                log.error("", e);
                 showExceptionDialog("USB подключение","Ошибка!","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
 
             }
@@ -1136,7 +1137,7 @@ public class AppController  extends BaseController {
             retString  = BaseController.showTextInputDialog(res.getString("ui.main.find_device_title_dlg"),"", res.getString("ui.main.find_device_content_dlg"), option , getApp().getMainWindow(), Modality.APPLICATION_MODAL);
 
         } catch (Exception e) {
-            logger.error("",e);
+            log.error("",e);
 
         }
 if(!retString.equals(option) && !retString.isEmpty())
@@ -1146,7 +1147,7 @@ if(!retString.equals(option) && !retString.isEmpty())
         DiskDetector.setNameDiskStore(retString);
         System.out.println(retString);
     } catch (Exception e) {
-        logger.error("",e);
+        log.error("",e);
     }
 }
 
@@ -1293,7 +1294,7 @@ if(!getConnectedDevice())return;
             //openDialogNotModal(getApp().getMainWindow(), "/fxml/webview.fxml", res.getString("app.title72"), true, StageStyle.DECORATED, 0, 0, 0, 0);
             openDialogNotModal(getApp().getMainWindow(), "/fxml/PdfViewer.fxml", res.getString("app.title72"), true, StageStyle.DECORATED, 0, 0, 0, 0,manualpath);
         } catch (IOException e) {
-            logger.error("",e);
+            log.error("",e);
         }
 
 
@@ -1358,7 +1359,7 @@ if(!getConnectedDevice())return;
             });
 
         } catch (Exception e) {
-         logger.error("Ошибка парсинга времени",e);
+         log.error("Ошибка парсинга времени",e);
             Platform.runLater(() -> {
                 showExceptionDialog(res.getString("app.ui.reading_device"),res.getString("app.title116"),"",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
             });
@@ -1372,7 +1373,7 @@ if(!getConnectedDevice())return;
         try {
             openDialog(getApp().getMainWindow(),"/fxml/language_options.fxml",res.getString("app.title114"),false,StageStyle.DECORATED,0,0,0,0);
         } catch (IOException e) {
-            logger.error("",e);
+            log.error("",e);
         }
 
     }
@@ -1393,7 +1394,7 @@ if(!getConnectedDevice())return;
                     complexes.stream().map(value -> value.getId()).collect(Collectors.toList())
                     ,2);
         } catch (IOException e) {
-            logger.error("",e);
+            log.error("",e);
         }
     }
 
@@ -1437,7 +1438,7 @@ if(!getConnectedDevice())return;
            }
 
        } catch (Exception e) {
-           logger.error("",e);
+           log.error("",e);
            showExceptionDialog("Ошибка чтения опции codec.path", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
        }
    }
@@ -1447,7 +1448,7 @@ if(!getConnectedDevice())return;
      try {
          openDialog(getApp().getMainWindow(),"/fxml/language_insert_complex_option_dlg.fxml",res.getString("app.menu.insert_language"),false,StageStyle.DECORATED,0,0,0,0);
      } catch (IOException e) {
-         logger.error("",e);
+         log.error("",e);
      }
  }
 
@@ -1536,7 +1537,7 @@ if(!getConnectedDevice())return;
             lf.parse(file,getModel());
             showInfoDialog("Загрузка файла частот","","Файл загружен",getApp().getMainWindow(),Modality.WINDOW_MODAL);
         } catch (Exception e) {
-           logger.error("Ошибка загрузки файла частот",e);
+           log.error("Ошибка загрузки файла частот",e);
             showErrorDialog("Загрузка файла частот","","Файл не загружен",getApp().getMainWindow(),Modality.WINDOW_MODAL);
         }
     }
@@ -1894,7 +1895,7 @@ if(!getConnectedDevice())return;
         try {
             openDialog(getApp().getMainWindow(),"/fxml/DataPathDialog.fxml",res.getString("app.ui.options.data_path"),false,StageStyle.DECORATED,0,0,0,0);
         } catch (IOException e) {
-            logger.error("",e);
+            log.error("",e);
         }
     }
 
@@ -1962,13 +1963,13 @@ if(!getConnectedDevice())return;
                             @Override
                             public void error(UpdateException e) {
                                e.printStackTrace();
-                                Log.logger.error("Ошибка обновления starter",e);
+                                log.error("Ошибка обновления starter",e);
                                 Platform.runLater(() ->  Waiter.closeLayer());
                             }
                         });
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Log.logger.error("",e);
+                        log.error("",e);
                     }
 
                 }
@@ -1976,7 +1977,7 @@ if(!getConnectedDevice())return;
                 @Override
                 public void error(Exception e) {
                     e.printStackTrace();
-                    Log.logger.error("",e);
+                    log.error("",e);
                 }
 
                 @Override
@@ -2005,7 +2006,7 @@ if(!getConnectedDevice())return;
         try {
             USBHelper.startHotPlugListener();
         } catch (USBHelper.USBException e) {
-            Log.logger.error(e);
+            log.error("",e);
             showExceptionDialog("Детектирование USB подключений","Ошибка!","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
         }
     }
@@ -2020,7 +2021,7 @@ if(!getConnectedDevice())return;
         try {
             openDialogNotModal(getApp().getMainWindow(),"/fxml/ReferenceBook.fxml",res.getString("app.menu.reference"),true,StageStyle.DECORATED,600,900,0,0,"/styles/Styles.css");
         } catch (IOException e) {
-            logger.error("",e);
+            log.error("",e);
         }
     }
 
@@ -2061,7 +2062,7 @@ if(!getConnectedDevice())return;
 
 
         } catch (Exception e) {
-            logger.error("",e);
+            log.error("",e);
         }
     }
 }

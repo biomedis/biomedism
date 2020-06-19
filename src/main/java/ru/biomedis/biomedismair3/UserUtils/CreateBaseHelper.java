@@ -1,5 +1,6 @@
 package ru.biomedis.biomedismair3.UserUtils;
 
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.Complex;
 import ru.biomedis.biomedismair3.entity.Language;
@@ -14,9 +15,9 @@ import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.biomedis.biomedismair3.Log.logger;
 
 
+@Slf4j
 public class CreateBaseHelper{
 
     public static void createHelpFiles(File dir, ModelDataApp mda) throws Exception{
@@ -185,7 +186,7 @@ public class CreateBaseHelper{
             fw.close();
 
         } catch (IOException e) {
-            logger.error("",e);
+            log.error("",e);
             return false;
         }
         return true;

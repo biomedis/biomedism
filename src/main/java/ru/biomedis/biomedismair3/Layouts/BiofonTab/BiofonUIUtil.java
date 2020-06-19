@@ -20,6 +20,7 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
+import lombok.extern.slf4j.Slf4j;
 import org.hid4java.HidDevice;
 import ru.biomedis.biomedismair3.App;
 import ru.biomedis.biomedismair3.BaseController;
@@ -28,7 +29,7 @@ import ru.biomedis.biomedismair3.Biofon.BiofonBinaryFile;
 import ru.biomedis.biomedismair3.Biofon.BiofonComplex;
 import ru.biomedis.biomedismair3.Biofon.BiofonProgram;
 import ru.biomedis.biomedismair3.Dialogs.NameDescroptionDialogController;
-import ru.biomedis.biomedismair3.Log;
+
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
@@ -42,12 +43,10 @@ import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static ru.biomedis.biomedismair3.Log.logger;
+
 import static ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileController.checkBundlesLength;
 
-/**
- * Created by anama on 09.12.16.
- */
+@Slf4j
 public class BiofonUIUtil {
 
     private ResourceBundle resource;
@@ -129,7 +128,7 @@ public class BiofonUIUtil {
             checkBundlesLength(biofonComplexes);
             biofonComplexes.addAll(allTherapyComplexByProfile);
         } catch (Exception e) {
-            Log.logger.error("",e);
+            log.error("",e);
             bc.showExceptionDialog("Ошибка обновления комплексов","","",e,bc.getControllerWindow(),Modality.WINDOW_MODAL);
             return;
         }
@@ -398,7 +397,7 @@ public class BiofonUIUtil {
 
 
         } catch (Exception e) {
-           Log.logger.error("Ошибка создание комплекса или программ в базе",e);
+           log.error("Ошибка создание комплекса или программ в базе",e);
            bc.showExceptionDialog("Редактирование комплекса с устройства","Ошибка","",e,app.getMainWindow(),Modality.WINDOW_MODAL);
         }
 
@@ -560,7 +559,7 @@ private enum LoadIndicatorType{RED,GREEN}
             checkBundlesLength(biofonComplexes);
             biofonComplexes.addAll(allTherapyComplexByProfile);
         } catch (Exception e) {
-            Log.logger.error("",e);
+            log.error("",e);
             bc.showExceptionDialog("Ошибка обновления комплексов","","",e,bc.getControllerWindow(),Modality.WINDOW_MODAL);
             return;
         }
@@ -728,7 +727,7 @@ private enum LoadIndicatorType{RED,GREEN}
 
             @Override
             public void onFailure(USBHelper.USBException e) {
-                Log.logger.error(e);
+                log.error("", e);
                 BaseController.showExceptionDialog("USB подключение","Ошибка!","",e,app.getMainWindow(),Modality.WINDOW_MODAL);
 
             }
@@ -820,7 +819,7 @@ private enum LoadIndicatorType{RED,GREEN}
                     app.getMainWindow(),Modality.WINDOW_MODAL);
 
         } catch (Biofon.WriteToDeviceException e1) {
-            Log.logger.error("Ошибка записи в биофон",e1);
+            log.error("Ошибка записи в биофон",e1);
             bc.showExceptionDialog(resource.getString("app.ui.record_to_device"),resource.getString("app.ui.write_error"),"",e1,
                     app.getMainWindow(),Modality.WINDOW_MODAL);
         } catch (BiofonComplex.MaxPauseBoundException e1) {
@@ -1017,12 +1016,12 @@ Platform.runLater(() -> {
             //доработать обработчик нажатия на кнопки, чтобы учесть если id комплекса =0 то брать программы не из базы а из списков
 
         } catch (Biofon.ReadFromDeviceException e) {
-            Log.logger.error("Ошибка в процессе считывания прибора",e);
+            log.error("Ошибка в процессе считывания прибора",e);
             Platform.runLater(() ->bc.showExceptionDialog(resource.getString("app.ui.reading_device"),resource.getString("app.error"),
                     "",e,
                     app.getMainWindow(),Modality.WINDOW_MODAL));
         } catch (Exception e) {
-            Log.logger.error("Ошибка в процессе анализа содержимого прибора",e);
+            log.error("Ошибка в процессе анализа содержимого прибора",e);
             Platform.runLater(() ->bc.showExceptionDialog(resource.getString("app.ui.reading_device"),resource.getString("app.ui.error_processing"),
                     "",e,
                     app.getMainWindow(),Modality.WINDOW_MODAL) );
@@ -1051,7 +1050,7 @@ Platform.runLater(() -> {
             try {
                 mda.updateTherapyComplex(tc);
             } catch (Exception e) {
-                Log.logger.error("",e);
+                log.error("",e);
             }
         }else {
             int tm = tc.getTimeForFrequency() / 60;
@@ -1060,7 +1059,7 @@ Platform.runLater(() -> {
                 try {
                     mda.updateTherapyComplex(tc);
                 } catch (Exception e) {
-                    Log.logger.error("",e);
+                    log.error("",e);
                 }
             }
         }
@@ -1100,7 +1099,7 @@ Platform.runLater(() -> {
 
 
         } catch (IOException e) {
-            logger.error("", e);
+            log.error("", e);
             data = null;
         }
 
@@ -1131,7 +1130,7 @@ Platform.runLater(() -> {
                 biofonCompexesList.scrollTo(i);
                 biofonCompexesList.getFocusModel().focus(i);
             } catch (Exception e) {
-                logger.error("", e);
+                log.error("", e);
                 bc.showExceptionDialog("Ошибка создания терапевтического комплекса",
                         "",
                         "",
@@ -1173,7 +1172,7 @@ Platform.runLater(() -> {
 
 
         } catch (IOException e) {
-            logger.error("", e);
+            log.error("", e);
             data = null;
         }
 
@@ -1196,7 +1195,7 @@ Platform.runLater(() -> {
 
 
             } catch (Exception e) {
-                logger.error("", e);
+                log.error("", e);
                 bc.showExceptionDialog("Ошибка редактирования терапевтического комплекса",
                         "",
                         "",
@@ -1253,7 +1252,7 @@ Platform.runLater(() -> {
 
 
                 } catch (Exception var9) {
-                    Log.logger.error("", var9);
+                    log.error("", var9);
                     bc.showExceptionDialog("Ошибка удаления комплексов",
                             "",
                             "",
@@ -1334,7 +1333,7 @@ private void changePositionProgram(boolean up){
                 biofonPrograms.remove(selectedItem);
 
             } catch (Exception e) {
-                logger.error("", e);
+                log.error("", e);
 
                 bc.showExceptionDialog("Ошибка удаления программы",
                         "",

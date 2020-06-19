@@ -1,5 +1,6 @@
 package ru.biomedis.biomedismair3.UserUtils.Import;
 
+import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -16,11 +17,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import static ru.biomedis.biomedismair3.Log.logger;
 
-/**
- * Created by Anama on 17.09.2015.
- */
+
+@Slf4j
 public class ImportProfile {
 
     private Listener listener=null;
@@ -58,18 +57,18 @@ public class ImportProfile {
             parser.parse(xmlFile, new ParserHandler());
 
         } catch (ParserConfigurationException e) {
-            logger.error("",e);
+            log.error("",e);
             if (listener != null) listener.onError(false);
             listener = null;
             return false;
         } catch (SAXException e) {
 
 
-            logger.error("",e);
+            log.error("",e);
             if (listener != null) {
 
                 if (e.getCause() instanceof FileTypeMissMatch) {
-                    logger.error("SAXException",e);
+                    log.error("SAXException",e);
                     listener.onError(true);
                 } else listener.onError(false);
             }
@@ -78,7 +77,7 @@ public class ImportProfile {
             return false;
 
         } catch (Exception e) {
-            logger.error("",e);
+            log.error("",e);
             if (listener != null) listener.onError(false);
             clear();
             listener = null;
@@ -114,7 +113,7 @@ public class ImportProfile {
             }
         } catch (NumberFormatException e) {
 
-            logger.error("Неверный формат частот",e);
+            log.error("Неверный формат частот",e);
             if (listener != null) listener.onError(true);
             listener = null;
             clear();
@@ -154,7 +153,7 @@ public class ImportProfile {
         } catch (Exception e)
         {
 
-            logger.error("Ошибка создание элементов базы",e);
+            log.error("Ошибка создание элементов базы",e);
             if (listener != null) listener.onError(true);
             listener = null;
 
@@ -170,7 +169,7 @@ public class ImportProfile {
             }catch (Exception ex)
             {
 
-                logger.error("Не удалось откатить изменения",e);
+                log.error("Не удалось откатить изменения",e);
             }
 
 

@@ -1,6 +1,7 @@
 package ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase;
 
-import ru.biomedis.biomedismair3.Log;
+
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.Complex;
 import ru.biomedis.biomedismair3.entity.Program;
@@ -15,12 +16,13 @@ import java.io.OutputStreamWriter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.biomedis.biomedismair3.Log.logger;
+
 
 /**
  * Создает файл для правки частот, позже можно будет его загрузить и подправить частоты
- * Created by Ananta on 10.08.2016.
+ * 
  */
+@Slf4j
 public class CreateFrequenciesFile
 {
 
@@ -63,9 +65,9 @@ public class CreateFrequenciesFile
         StringBuilder strb=new StringBuilder();
         allRootSection.forEach(section -> {
 
-            Log.logger.info("Обработка раздела ...");
+            log.info("Обработка раздела ...");
             strb.append(getSection(section, md,0));});
-        Log.logger.info("ОК");
+        log.info("ОК");
 
 
         try {
@@ -79,7 +81,7 @@ public class CreateFrequenciesFile
             fw.close();
 
         } catch (IOException e) {
-            logger.error("",e);
+            log.error("",e);
             return false;
         }
         return true;

@@ -1,5 +1,6 @@
 package ru.biomedis.biomedismair3.UserUtils.Export;
 
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.Complex;
 import ru.biomedis.biomedismair3.entity.Program;
@@ -13,11 +14,9 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
 
-import static ru.biomedis.biomedismair3.Log.logger;
 
-/**
- * Created by Anama on 17.09.2015.
- */
+
+@Slf4j
 public class ExportUserBase
 {
 
@@ -68,11 +67,11 @@ public class ExportUserBase
 
         } catch (IOException e) {
             e.printStackTrace();
-            logger.error("",e);
+            log.error("",e);
 return false;
         }catch (Exception e){
             e.printStackTrace();
-            logger.error("",e);
+            log.error("",e);
             return false;
         }
         return true;

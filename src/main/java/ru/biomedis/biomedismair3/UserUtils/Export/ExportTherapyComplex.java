@@ -1,6 +1,6 @@
 package ru.biomedis.biomedismair3.UserUtils.Export;
 
-import ru.biomedis.biomedismair3.Log;
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.ModelDataApp;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
 import ru.biomedis.biomedismair3.entity.TherapyProgram;
@@ -13,10 +13,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.List;
 
-/**
- * Created by Anama on 17.09.2015.
- */
-
+@Slf4j
 public class ExportTherapyComplex {
     private static final String[] noops = new String[]{"", "   ", "       ", "           ", "               ", "                   ", "                       ", "                           ", "                               ", "                                   ", "                                       ", "                                           ", "                                               ", "                                                   ", "                                                       ", "                                                           "};
 
@@ -41,7 +38,7 @@ public class ExportTherapyComplex {
                 e.close();
                 return true;
             } catch (IOException var5) {
-                Log.logger.error("", var5);
+                log.error("", var5);
                 return false;
             }
         }

@@ -5,17 +5,16 @@ import javafx.scene.control.ComboBox;
 import javafx.stage.Modality;
 import javafx.stage.WindowEvent;
 import javafx.util.StringConverter;
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.entity.Language;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import static ru.biomedis.biomedismair3.Log.logger;
 
-/**
- * Created by Anama on 30.09.2015.
- */
+
+@Slf4j
 public class LangInsertComplexController extends BaseController {
 
     @FXML private ComboBox<Language> langlist;
@@ -52,7 +51,7 @@ public class LangInsertComplexController extends BaseController {
                 try {
                     getModel().setOption("app.lang_insert_complex", getLangAbbrByComboboxIndex(newValue));
                 } catch (Exception e) {
-                    logger.error("",e);
+                    log.error("",e);
                     showExceptionDialog("Ошибка применения параметра языка", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                     return;
                 }
@@ -79,7 +78,7 @@ public class LangInsertComplexController extends BaseController {
             langlist.getSelectionModel().select(index);
 
         } catch (Exception e) {
-            logger.error("",e);
+            log.error("",e);
             langlist.getSelectionModel().select(0);
         }
     }

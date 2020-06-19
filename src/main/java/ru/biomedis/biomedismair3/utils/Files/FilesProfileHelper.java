@@ -1,6 +1,6 @@
 package ru.biomedis.biomedismair3.utils.Files;
 
-import ru.biomedis.biomedismair3.Log;
+
 
 import java.io.*;
 import java.nio.channels.FileChannel;
@@ -8,11 +8,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Создание директорий, удаление директорий в папке profiles
- * Created by Anama on 13.10.2015.
+ *
  */
+@Slf4j
 public class FilesProfileHelper
 {
 
@@ -35,7 +37,7 @@ public class FilesProfileHelper
                 return null;
             }
         }catch (Exception e){
-            Log.logger.error("",e);return null;}
+            log.error("",e);return null;}
         return programms;
     }
 

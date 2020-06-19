@@ -13,9 +13,10 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.WindowEvent;
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.AppController;
 import ru.biomedis.biomedismair3.BaseController;
-import ru.biomedis.biomedismair3.Log;
+
 import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
 import ru.biomedis.biomedismair3.entity.TherapyProgram;
@@ -27,6 +28,7 @@ import java.util.ResourceBundle;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+@Slf4j
 public class BiofonTabController extends BaseController{
     private static final int MAX_BUNDLES = AppController.MAX_BUNDLES;
     @FXML
@@ -253,7 +255,7 @@ public class BiofonTabController extends BaseController{
 
                 } catch (Exception var8) {
                     this.hideTFSpinnerBTNPanBiofon(biofonCompexesList.getSelectionModel().getSelectedItem().getTimeForFrequency().intValue()/60);
-                    Log.logger.error("", var8);
+                    log.error("", var8);
                     showExceptionDialog("Ошибка обновления времени на частоту в терапевтическом комплексе", "", "", var8, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                 } finally {
                     this.hideTFSpinnerBTNPanBiofon();
@@ -339,7 +341,7 @@ public class BiofonTabController extends BaseController{
 
             } catch (Exception e) {
                 hideBundlesSpinnerBTNPanBiofon();
-                Log.logger.error("Ошибка установки пачек частот", e);
+                log.error("Ошибка установки пачек частот", e);
                 showExceptionDialog("Ошибка установки пачек частот", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
             }
 

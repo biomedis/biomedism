@@ -1,16 +1,15 @@
 package ru.biomedis.biomedismair3.utils.Files;
 
-import ru.biomedis.biomedismair3.Log;
+
 
 import java.io.*;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
+import lombok.extern.slf4j.Slf4j;
 
-/**
- * Created by Ananta on 09.08.2016.
- */
+@Slf4j
 public class ZIPUtil
 {
 
@@ -30,7 +29,7 @@ public class ZIPUtil
 
     }catch (Exception e)
     {
-        Log.logger.error("ошибка создания архива");
+        log.error("ошибка создания архива");
         res=false;
     }
 
@@ -44,11 +43,11 @@ return res;
         boolean res=true;
 
         if (!zipArch.exists() || !zipArch.canRead()) {
-            Log.logger.error("File cannot be read");
+            log.error("File cannot be read");
             return false;
         }
 
-        if(!dstFolder.exists()) if(!dstFolder.mkdir()) {  Log.logger.error("Не удалось создать папку для распаковки");return false;}
+        if(!dstFolder.exists()) if(!dstFolder.mkdir()) {  log.error("Не удалось создать папку для распаковки");return false;}
 
 
         try {
@@ -75,7 +74,7 @@ return res;
 
             zip.close();
         } catch (IOException e) {
-            Log.logger.error("Ошибка распаковки архива");
+            log.error("Ошибка распаковки архива");
             res=false;
         }
         return res;

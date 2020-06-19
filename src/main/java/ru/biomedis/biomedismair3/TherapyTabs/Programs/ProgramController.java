@@ -13,6 +13,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.WindowEvent;
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.AppController;
 import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.Layouts.LeftPanel.LeftPanelAPI;
@@ -32,8 +33,7 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static ru.biomedis.biomedismair3.Log.logger;
-
+@Slf4j
 public class ProgramController extends BaseController implements ProgramAPI{
 
     @FXML
@@ -218,7 +218,7 @@ public class ProgramController extends BaseController implements ProgramAPI{
             getModel().updateTherapyProgram(tp1);
             getModel().updateTherapyProgram(tp2);
         } catch (Exception e) {
-            logger.error("",e);
+            log.error("",e);
         }
 
 
@@ -245,7 +245,7 @@ public class ProgramController extends BaseController implements ProgramAPI{
             getModel().updateTherapyProgram(tp1);
             getModel().updateTherapyProgram(tp2);
         } catch (Exception e) {
-            logger.error("",e);
+            log.error("",e);
         }
         tp1=null;
         tp2=null;
@@ -281,7 +281,7 @@ public class ProgramController extends BaseController implements ProgramAPI{
                 tableProgram.getSelectionModel().clearSelection();
                 profileAPI.updateProfileWeight(ProfileTable.getInstance().getSelectedItem());
             } catch (Exception e) {
-                logger.error("",e);
+                log.error("",e);
 
                 showExceptionDialog("Ошибка удаления программы","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
 
@@ -338,7 +338,7 @@ public class ProgramController extends BaseController implements ProgramAPI{
 
 
         } catch (Exception e) {
-            logger.error("",e);
+            log.error("",e);
             showExceptionDialog("Ошибка создания программы", "","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
         }
     }
@@ -503,7 +503,7 @@ public class ProgramController extends BaseController implements ProgramAPI{
             profileAPI.updateProfileWeight(ProfileTable.getInstance().getSelectedItem());
         } catch (Exception e)
         {
-            logger.error("Ошибка обновления TherapyProgram",e);
+            log.error("Ошибка обновления TherapyProgram",e);
             return;
         }
 
@@ -562,7 +562,7 @@ public class ProgramController extends BaseController implements ProgramAPI{
             //s  if (treeItem != null) sectionTree.getSelectionModel().select(treeItem.getChildren().get(treeItem.getChildren().size() - 1));//выделим
 
         } catch (Exception e) {
-            logger.error("",e);
+            log.error("",e);
             showExceptionDialog("Ошибка переноса программы в базу","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
         }
     }
@@ -622,7 +622,7 @@ public class ProgramController extends BaseController implements ProgramAPI{
                 complexAPI.updateComplexTime(therapyComplex,true);
                 //updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
             } catch (Exception e1) {
-                logger.error(e1);
+                log.error("",e1);
                 showExceptionDialog("Ошибка копирования программ","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
                 therapyProgramsCopied=false;
                 therapyPrograms.clear();
@@ -662,7 +662,7 @@ public class ProgramController extends BaseController implements ProgramAPI{
                 complexAPI.updateComplexTime(therapyComplex,true);
                 //updateProfileTime(tableProfile.getSelectionModel().getSelectedItem());
             } catch (Exception e1) {
-                logger.error(e1);
+                log.error("",e1);
                 showExceptionDialog("Ошибка копирования программ","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
                 therapyProgramsCopied=false;
                 therapyPrograms.clear();
@@ -811,7 +811,7 @@ public class ProgramController extends BaseController implements ProgramAPI{
             }
 
         } catch (Exception e1) {
-            logger.error(e1);
+            log.error("", e1);
             showExceptionDialog("Ошибка обновления позиции программ","","",e1,getApp().getMainWindow(), Modality.WINDOW_MODAL);
 
             return;

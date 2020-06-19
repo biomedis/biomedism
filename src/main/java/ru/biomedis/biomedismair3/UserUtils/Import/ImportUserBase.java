@@ -1,5 +1,6 @@
 package ru.biomedis.biomedismair3.UserUtils.Import;
 
+import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -15,12 +16,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import static ru.biomedis.biomedismair3.Log.logger;
+
 
 /**
  * XML файл. теги не содержат текста, все данные внутри атрибутов. Все ковычки должны быть экранированны или их недолжно быть в текста атрибутов!!!!!!. Здесь они восстанавливаются
- * Created by Anama on 17.09.2015.
+ *
  */
+@Slf4j
 public class ImportUserBase
 {
 private Listener listener=null;
@@ -64,19 +66,19 @@ private Listener listener=null;
             parser.parse(xmlFile, new ParserHandler());
 
         } catch (ParserConfigurationException e) {
-            logger.error("",e);
+            log.error("",e);
             if (listener != null) listener.onError(false);
             listener = null;
             return false;
         } catch (SAXException e) {
 
 
-            logger.error("",e);
+            log.error("",e);
             if (listener != null) {
 
                 if (e.getCause() instanceof FileTypeMissMatch) {
 
-                    logger.error("SAXException");
+                    log.error("SAXException");
                     listener.onError(true);
                 } else listener.onError(false);
             }
@@ -85,7 +87,7 @@ private Listener listener=null;
             return false;
 
         } catch (Exception e) {
-            logger.error("",e);
+            log.error("",e);
             if (listener != null) listener.onError(false);
             clear();
             listener = null;
@@ -121,7 +123,7 @@ private Listener listener=null;
             }
         } catch (NumberFormatException e) {
 
-            logger.error("Неверный формат частот",e);
+            log.error("Неверный формат частот",e);
             if (listener != null) listener.onError(true);
             listener = null;
             clear();
@@ -161,7 +163,7 @@ private Listener listener=null;
         } catch (Exception e)
         {
 
-            logger.error("Ошибка создание элементов базы",e);
+            log.error("Ошибка создание элементов базы",e);
             if (listener != null) listener.onError(true);
             listener = null;
 
@@ -174,7 +176,7 @@ private Listener listener=null;
 
             }catch (Exception ex)
             {
-                logger.error("Не удалось откатить изменения",e);
+                log.error("Не удалось откатить изменения",e);
             }
 
             res=false;

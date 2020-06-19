@@ -1,11 +1,9 @@
 package ru.biomedis.biomedismair3.social.login;
 
-import static ru.biomedis.biomedismair3.Log.logger;
 
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -14,13 +12,12 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.stage.Window;
 import javafx.stage.WindowEvent;
-import javax.swing.Spring;
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.AppController;
 import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.BlockingAction;
-import ru.biomedis.biomedismair3.Log;
+
 import ru.biomedis.biomedismair3.social.remote_client.BadCredentials;
 import ru.biomedis.biomedismair3.social.remote_client.LoginClient;
 import ru.biomedis.biomedismair3.social.remote_client.RegistrationClient;
@@ -31,6 +28,7 @@ import ru.biomedis.biomedismair3.social.remote_client.dto.Token;
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError;
 import ru.biomedis.biomedismair3.utils.Other.Result;
 
+@Slf4j
 public class LoginController extends BaseController {
 
   private ResourceBundle res;
@@ -112,7 +110,7 @@ public class LoginController extends BaseController {
 
       if (result.getError() instanceof ServerProblemException) {
        AppController.getProgressAPI().setErrorMessage("Ошибка сервера. Попробуйте позже");
-       Log.logger.error("",e);
+       log.error("",e);
       } else if (result.getError() instanceof BadCredentials) {
        AppController.getProgressAPI().setErrorMessage("Не верный логин или пароль");
       } else if (result.getError() instanceof NeedEmailValidationException){
@@ -124,7 +122,7 @@ public class LoginController extends BaseController {
            "",
            getControllerWindow(),
            Modality.APPLICATION_MODAL);
-       Log.logger.error("",e);
+       log.error("",e);
       }
 
     } else {
@@ -145,7 +143,7 @@ public class LoginController extends BaseController {
       showErrorDialog("Ошибка","Не удалось отправить ко на указанную почту. Проверьте правильность введенного адреса.",
           "", getControllerWindow(),
           Modality.WINDOW_MODAL);
-      Log.logger.error("",res.getError());
+      log.error("",res.getError());
     }
   }
 
@@ -214,7 +212,7 @@ public class LoginController extends BaseController {
           "Обратитесь к разработчикам, если ошибка появится снова",
           getControllerWindow(),
           Modality.WINDOW_MODAL);
-      Log.logger.error("",result.getError());
+      log.error("",result.getError());
     }
   }
 
@@ -261,7 +259,7 @@ public class LoginController extends BaseController {
       else return Optional.of(res.token);
 
     }catch (Exception e){
-      logger.error("Ошибка открытия диалога входа",e);
+      log.error("Ошибка открытия диалога входа",e);
       throw new RuntimeException(e);
     }
   }

@@ -6,9 +6,9 @@ import feign.Logger;
 import feign.Request;
 import feign.Response;
 import java.io.IOException;
-import lombok.extern.log4j.Log4j2;
-import ru.biomedis.biomedismair3.Log;
-@Log4j2
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 public class CustomFeignRequestLogging  extends Logger {
   @Override
   protected void logRequest(String configKey, Level logLevel, Request request) {

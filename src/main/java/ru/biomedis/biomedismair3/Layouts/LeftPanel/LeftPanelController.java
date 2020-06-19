@@ -14,6 +14,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.App;
 import ru.biomedis.biomedismair3.AppController;
 import ru.biomedis.biomedismair3.BaseController;
@@ -37,8 +38,8 @@ import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import static ru.biomedis.biomedismair3.Log.logger;
 
+@Slf4j
 public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
 
@@ -782,7 +783,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
 
         } catch (IOException e) {
-            logger.error("",e);
+            log.error("",e);
             data =null;
         }
 
@@ -825,7 +826,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
             } catch (Exception e) {
                 data=null;
-                logger.error("",e);
+                log.error("",e);
                 BaseController.showExceptionDialog("Ошибка создания раздела", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
             }
 
@@ -853,7 +854,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
 
             } catch (IOException e) {
-                logger.error("",e);
+                log.error("",e);
                 data =null;
             }
 
@@ -877,7 +878,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
                 } catch (Exception e) {
                     data=null;
-                    logger.error("",e);
+                    log.error("",e);
                     BaseController.showExceptionDialog("Ошибка создания комплекса", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);return;
                 }
 
@@ -908,7 +909,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
 
             } catch (IOException e) {
-                logger.error("",e);
+                log.error("",e);
                 data =null;
             }
 
@@ -936,7 +937,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
                 } catch (Exception e) {
                     data=null;
-                    logger.error("",e);
+                    log.error("",e);
                     BaseController.showExceptionDialog("Ошибка создания комплекса", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);return;
                 }
 
@@ -1000,7 +1001,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
                 }
         }catch (Exception e)
         {
-            logger.error("",e);
+            log.error("",e);
             BaseController.showExceptionDialog("Ошибка создания элемента", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);return;
         }
 
@@ -1031,7 +1032,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
 
                     } catch (IOException e) {
-                        logger.error("",e);
+                        log.error("",e);
                         data =null;
                     }
 
@@ -1082,7 +1083,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
                             data=null;
                         } catch (Exception e) {
                             data=null;
-                            logger.error("",e);
+                            log.error("",e);
                             BaseController.showExceptionDialog("Ошибка редакетирования раздела", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                             return;
                         }
@@ -1105,7 +1106,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
 
                     } catch (IOException e) {
-                        logger.error("",e);
+                        log.error("",e);
                         data =null;
                     }
 
@@ -1144,7 +1145,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
                         } catch (Exception e) {
                             data=null;
-                            logger.error("",e);
+                            log.error("",e);
                             BaseController.showExceptionDialog("Ошибка редакетирования комплекса", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                             return;
                         }
@@ -1167,7 +1168,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
 
                     } catch (IOException e) {
-                        logger.error("",e);
+                        log.error("",e);
                         data =null;
                     }
 
@@ -1207,7 +1208,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
                         } catch (Exception e) {
                             data=null;
-                            logger.error("",e);
+                            log.error("",e);
                             BaseController.showExceptionDialog("Ошибка редакетирования програмы", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                             return;
                         }
@@ -1236,7 +1237,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
 
                 } catch (IOException e) {
-                    logger.error("",e);
+                    log.error("",e);
                     data =null;
                 }
 
@@ -1276,7 +1277,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
                         data=null;
                     } catch (Exception e) {
                         data=null;
-                        logger.error("",e);
+                        log.error("",e);
                         BaseController.showExceptionDialog("Ошибка редакетирования раздела", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                         return;
                     }
@@ -1314,7 +1315,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
                     sectionCombo.getSelectionModel().select(0);
 
                 } catch (Exception e) {
-                    logger.error("",e);
+                    log.error("",e);
                     showExceptionDialog("Ошибка удаления раздела", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                 }
 
@@ -1343,7 +1344,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
                     clearTree(itemSelected);
 
                 } catch (Exception e) {
-                    logger.error("",e);
+                    log.error("",e);
                     showExceptionDialog("Ошибка удаления програмы","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
                 }
 
@@ -1364,7 +1365,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
 
                 } catch (Exception e) {
-                    logger.error("",e);
+                    log.error("",e);
                     showExceptionDialog("Ошибка удаления комплекса","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
                 }
 
@@ -1414,7 +1415,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
 
                 } catch (Exception e) {
-                    logger.error("",e);
+                    log.error("",e);
                     showExceptionDialog("Ошибка удаления раздела","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
                 }
 
@@ -1447,7 +1448,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
 
                 } catch (Exception e) {
-                    logger.error("",e);
+                    log.error("",e);
                     showExceptionDialog("Ошибка удаления раздела","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
                 }
 
@@ -1471,7 +1472,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
 
                 } catch (Exception e) {
-                    logger.error("",e);
+                    log.error("",e);
                     showExceptionDialog("Ошибка очистки комплекса", "", "", e, getApp().getMainWindow(), Modality.WINDOW_MODAL);
                 }
 
@@ -1563,7 +1564,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
             }
 
-        }catch (Exception e){ logger.error("",e);return false;}
+        }catch (Exception e){ log.error("",e);return false;}
 
         if(programms==null) return false;
         else return true;
@@ -1875,7 +1876,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
             container.setDescriptionString("");
             container.setNameString(res);
         } catch (Exception e) {
-            logger.error("",e);
+            log.error("",e);
 
             showExceptionDialog("Ошибка создания раздела контейнера для импорта базы","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
             return;
@@ -2019,7 +2020,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
             try {
                 getApp().getModel().removeSection(sect);
             } catch (Exception e) {
-                logger.error("",e);
+                log.error("",e);
             }
 
         });

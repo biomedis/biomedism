@@ -2,6 +2,7 @@ package ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -15,12 +16,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.biomedis.biomedismair3.Log.logger;
 
 /**
  * Загружает файл с переводами, можно получить сырую информацию о программах и комплексах
  *
  */
+@Slf4j
 public class LoadUUIDs
 {
 
@@ -79,14 +80,14 @@ public class LoadUUIDs
             res=true;
 
         } catch (ParserConfigurationException e) {
-            logger.error("",e);
+            log.error("",e);
 
             return false;
         } catch (SAXException e) {
-            logger.error("",e);
+            log.error("",e);
             return false;
         } catch (Exception e) {
-            logger.error("",e);
+            log.error("",e);
 
 
             return false;

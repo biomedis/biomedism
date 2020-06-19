@@ -1,28 +1,24 @@
 package ru.biomedis.biomedismair3.utils.Disk;
 
-import ru.biomedis.biomedismair3.entity.Strings;
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileStore;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.utils.OS.ExecCommand;
 import ru.biomedis.biomedismair3.utils.OS.OSValidator;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.file.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static ru.biomedis.biomedismair3.Log.logger;
 
-/**
- * Created by Anama on 02.09.2015.
- */
+@Slf4j
 public class DiskDetector
 {
 
@@ -104,7 +100,7 @@ public static FileStore getStorage(Path path)
         }
     }catch (Exception ex)
     {
-        logger.error("",ex);
+        log.error("",ex);
     }
 return ret;
 }
@@ -135,7 +131,7 @@ return ret;
                 }
             }
             if (ex != null) {
-                logger.error("Ощибка определения ОС. Ожидался Windows",ex);
+                log.error("Ощибка определения ОС. Ожидался Windows",ex);
                 throw ex;
             }
 
@@ -233,7 +229,7 @@ return ret;
                 }
             }
             if (ex != null) {
-                logger.error("Ощибка определения ОС. Ожидался Windows",ex);
+                log.error("Ощибка определения ОС. Ожидался Windows",ex);
                 throw ex;
             }
 
@@ -327,7 +323,7 @@ return ret;
 
         }catch (Exception ex)
         {
-            logger.error("",ex);
+            log.error("",ex);
             ds=null;
         }
         return ds;
@@ -370,7 +366,7 @@ return ret;
                     drivesPath=getAllDisk();
 
                 } catch (Exception ex) {
-                    logger.error("",ex);
+                    log.error("",ex);
                     return;
                 }
 
@@ -390,12 +386,12 @@ return ret;
 
 
                     } catch (InterruptedException e) {
-                        logger.error("",e);
+                        log.error("",e);
                         statusService=false;
                         return;
                     }catch (Exception ex)
                     {
-                        logger.error("",ex);
+                        log.error("",ex);
                         ex.printStackTrace();
                         statusService=false;
                         return;
@@ -458,7 +454,7 @@ return ret;
                     }
                 }catch (Exception ex)
                 {
-                    logger.error("",ex);
+                    log.error("",ex);
                     return;
                 }
 
@@ -496,12 +492,12 @@ return ret;
 
 
                     } catch (InterruptedException e) {
-                        logger.error("",e);
+                        log.error("",e);
                         statusService=false;
                         return;
                     }catch (Exception e)
                     {
-                        logger.error("",e);
+                        log.error("",e);
                         statusService=false;
                         return;
                     }

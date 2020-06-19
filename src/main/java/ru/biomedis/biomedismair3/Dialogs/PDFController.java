@@ -27,6 +27,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.stage.WindowEvent;
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.BaseController;
 
 import java.awt.geom.Rectangle2D;
@@ -40,8 +41,8 @@ import java.util.ResourceBundle;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import static ru.biomedis.biomedismair3.Log.logger;
 
+@Slf4j
 public class PDFController extends BaseController {
 
     @FXML private Pagination pagination ;
@@ -115,7 +116,7 @@ public class PDFController extends BaseController {
                     ((Stage) window1).setTitle(title);
                 }
             } catch (IOException e) {
-                logger.error("",e);
+                log.error("",e);
                 showErrorMessage("Could not read title from pdf file", e);
             }
         });

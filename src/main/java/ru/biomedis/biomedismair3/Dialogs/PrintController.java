@@ -11,6 +11,7 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Modality;
 import javafx.stage.WindowEvent;
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
@@ -20,11 +21,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static ru.biomedis.biomedismair3.Log.logger;
-
-/**
- * Created by Anama on 30.09.2015.
- */
+@Slf4j
 public class PrintController extends BaseController {
 
     private   @FXML  ChoiceBox<Float> fontSize;
@@ -132,7 +129,7 @@ public class PrintController extends BaseController {
                     job.endJob();
                 }
             } catch (Exception e) {
-                logger.error("", e);
+                log.error("", e);
                 BaseController.showInfoDialog(res.getString("app.print"), res.getString("app.print_error_message"), "", root.getScene().getWindow(), Modality.WINDOW_MODAL);
             }
 

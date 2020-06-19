@@ -2,6 +2,7 @@ package ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -18,12 +19,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static ru.biomedis.biomedismair3.Log.logger;
+
 
 /**
  * Загружает файл частот
- * Created by Ananta on 10.08.2016.
+ *
  */
+@Slf4j
 public class LoadLanguageFiles
 {
 
@@ -86,18 +88,18 @@ public class LoadLanguageFiles
             parser.parse(xmlFile, new LoadLanguageFiles.ParserHandler());
 
         } catch (ParserConfigurationException e) {
-            logger.error("",e);
+            log.error("",e);
 
             return false;
         } catch (SAXException e) {
-            logger.error("",e);
+            log.error("",e);
 
 
 
             return false;
 
         } catch (Exception e) {
-            logger.error("",e);
+            log.error("",e);
 
 
             return false;
@@ -229,7 +231,7 @@ public class LoadLanguageFiles
         } catch (Exception e)
         {
 
-            logger.error("Ошибка обновления элементов базы",e);
+            log.error("Ошибка обновления элементов базы",e);
 
             res=false;
         }

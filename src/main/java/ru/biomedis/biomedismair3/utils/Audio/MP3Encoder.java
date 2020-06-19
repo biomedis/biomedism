@@ -3,6 +3,7 @@ package ru.biomedis.biomedismair3.utils.Audio;
 
 import javafx.concurrent.Task;
 import javafx.stage.Modality;
+import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.App;
 import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.ModelDataApp;
@@ -19,12 +20,9 @@ import java.io.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static ru.biomedis.biomedismair3.Log.logger;
 
-//TODO хорошо бы при импорте все , заменитт на . в частотах
-/**
- * Created by Anama on 30.09.2015.
- */
+
+@Slf4j
 public class MP3Encoder extends Task<Boolean>
 {
 
@@ -116,12 +114,12 @@ private static final boolean debug=false;
            res=true;
        } catch (IOException e) {
            System.out.println("FAIL");
-           logger.error("",e);
+           log.error("",e);
         res=false;
        }catch (Exception e)
        {
            System.out.println("FAIL");
-           logger.error("",e);
+           log.error("",e);
            res=false;
        }
        finally {
@@ -142,7 +140,7 @@ private static final boolean debug=false;
 
         fName = new File(fName).getAbsolutePath();
 
-        logger.info("MP3 params: src = "+outputWavFile.getAbsolutePath()+"\n dst = "+fName);
+        log.info("MP3 params: src = "+outputWavFile.getAbsolutePath()+"\n dst = "+fName);
        switch (codecType)
         {
             case EXTERNAL_CODEC:
@@ -167,7 +165,7 @@ private static final boolean debug=false;
     }catch (Exception e)
     {
         System.out.println("FAIL");
-        logger.error("",e);
+        log.error("",e);
         BaseController.showErrorDialog("Ошибка", "", "Возможно указан не правильный путь к исполняемому файлу кодека!", BaseController.getApp().getMainWindow(), Modality.WINDOW_MODAL);
         res=false;
     }

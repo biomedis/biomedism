@@ -1,13 +1,14 @@
 package ru.biomedis.biomedismair3.utils.Disk;
 
 import java.nio.file.FileStore;
+import lombok.extern.slf4j.Slf4j;
 
-import static ru.biomedis.biomedismair3.Log.logger;
 
 /**
  * представляет класс агрегации  параметров дискового пространства
- * Created by Anama on 02.09.2015.
+ *
  */
+@Slf4j
 public class DiskSpaceData
 {
     static final long KILO_BYTE = 1024;
@@ -92,7 +93,7 @@ public class DiskSpaceData
 
         }catch (Exception e)
         {
-            logger.error("",e);
+            log.error("",e);
             ds=null;
         }
         return ds;

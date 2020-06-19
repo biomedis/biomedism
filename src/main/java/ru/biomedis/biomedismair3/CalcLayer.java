@@ -17,14 +17,14 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.stage.WindowEvent;
-
-import static ru.biomedis.biomedismair3.Log.logger;
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
  *  CalcLayer.openLayer(() -> CalcLayer.closeLayerSilent(), root.getScene().getWindow());
- * Created by Anama on 19.10.2015.
+ * 
  */
+@Slf4j
 public class CalcLayer extends BaseController
 {
     @FXML    VBox root;
@@ -118,7 +118,7 @@ protected void enableCancellBtn(){cancel.setDisable(false);}
         try {
             root = fxmlLoader.load();
         } catch (IOException e) {
-               logger.error(e);
+               log.error("",e);
             return null;
         }
         controller = (CalcLayer)fxmlLoader.getController();
