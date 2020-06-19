@@ -3,7 +3,7 @@ package ru.biomedis.starter;
 
 import org.anantacreative.updater.Pack.Exceptions.PackException;
 import org.anantacreative.updater.Pack.Packer;
-import org.anantacreative.updater.Version;
+
 
 import javax.persistence.EntityManager;
 import java.io.File;
@@ -11,6 +11,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.anantacreative.updater.VersionCheck.Version;
 
 public class DataHelper {
 

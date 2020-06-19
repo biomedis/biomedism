@@ -9,8 +9,9 @@ import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
-import org.anantacreative.updater.Version;
-import ru.biomedis.biomedismair3.Tests.TestsFramework.TestsManager;
+
+
+import org.anantacreative.updater.VersionCheck.Version;
 import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadLanguageFiles;
 import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadUUIDs;
 import ru.biomedis.biomedismair3.UserUtils.Import.ImportUserBase;
@@ -260,7 +261,7 @@ public class App extends Application {
   /**
    * Режим разработчика
    * Необходимо передать в аргументах командной строки develop=true
-   * exec:java -Ddevelop=true
+   * vm args   -Ddevelop=true
    * @return
    */
   public boolean isDeveloped() {
@@ -850,12 +851,7 @@ https://gist.github.com/DemkaAge/8999236
 
 
         stage.show();
-         
-        if(test) 
-        {
-            TestsManager mdat=new TestsManager(this,"ru.biomedis.biomedismair3.Tests");
-            mdat.runAllTests();
-        }
+
 //        if(importDB)
 //        {
 //

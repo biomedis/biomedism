@@ -8,7 +8,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.anantacreative.updater.Version;
+import org.anantacreative.updater.VersionCheck.Version;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
