@@ -37,6 +37,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javafx.stage.WindowEvent;
+import org.jetbrains.annotations.NotNull;
 
 
 /**
@@ -62,7 +63,7 @@ public abstract class BaseController implements Initializable {
         return app.getModel();
     }
 
-    public void setWindow(Stage win) {
+    public void setWindow(@NotNull Stage win) {
         window = win;
     }
 
@@ -71,7 +72,7 @@ public abstract class BaseController implements Initializable {
      *
      * @param lp
      */
-    public static void setApp(App lp) {
+    public static void setApp(@NotNull App lp) {
         BaseController.app = lp;
     }
 
@@ -80,7 +81,7 @@ public abstract class BaseController implements Initializable {
      *
      * @param mc
      */
-    public static void setMainController(AppController mc) {
+    public static void setMainController(@NotNull AppController mc) {
         mdc = mc;
     }
 
@@ -90,6 +91,7 @@ public abstract class BaseController implements Initializable {
      *
      * @return
      */
+    @NotNull
     public static App getApp() {
         return BaseController.app;
     }
@@ -111,7 +113,8 @@ public abstract class BaseController implements Initializable {
      * @param userData    пользовотельский объект данных, он же и вернет. Объект доступен как root.getUserData()
      * @throws IOException
      */
-    public static <T> T openDialogUserData(Stage ownerWindow, String fxml, String title, boolean resizeble, StageStyle st, int minH, int minW, int maxH, int maxW, T userData, Object... params) throws IOException {
+    @NotNull
+    public static <T> T openDialogUserData(@NotNull Stage ownerWindow, @NotNull String fxml, @NotNull String title,  boolean resizeble, @NotNull StageStyle st, int minH, int minW, int maxH, int maxW, @NotNull T userData, Object... params) throws IOException {
         Stage dlg = new Stage(st);
         dlg.initOwner(ownerWindow);
         dlg.initModality(Modality.WINDOW_MODAL);
@@ -168,7 +171,7 @@ public abstract class BaseController implements Initializable {
      * @param params      - параметры для контролеера.  Каждый контроллер должен раелизовать класс BaseController и реализовать метод setParams, для разбора параметров если нужно
      * @throws IOException
      */
-    public static void openDialog(Stage ownerWindow, String fxml, String title, boolean resizeble, StageStyle st, int minH, int minW, int maxH, int maxW, Object... params) throws IOException {
+    public static void openDialog(@NotNull Stage ownerWindow, @NotNull String fxml, @NotNull String title, boolean resizeble, @NotNull StageStyle st, int minH, int minW, int maxH, int maxW, Object... params) throws IOException {
         Stage dlg = new Stage(st);
         dlg.initOwner(ownerWindow);
         dlg.initModality(Modality.WINDOW_MODAL);
@@ -216,7 +219,7 @@ public abstract class BaseController implements Initializable {
      * @param params      - параметры для контролеера.  Каждый контроллер должен раелизовать класс BaseController и реализовать метод setParams, для разбора параметров если нужно
      * @throws IOException
      */
-    public static void openDialogNotModal(Stage ownerWindow, String fxml, String title, boolean resizeble, StageStyle st, int minH, int minW, int maxH, int maxW, Object... params) throws IOException {
+    public static void openDialogNotModal(@NotNull Stage ownerWindow, @NotNull String fxml, @NotNull String title, boolean resizeble, @NotNull StageStyle st, int minH, int minW, int maxH, int maxW, Object... params) throws IOException {
         openDialogNotModal( ownerWindow,  fxml,  title,  resizeble, st, minH,
          minW,  maxH,  maxW,  "", params);
     }
@@ -237,7 +240,7 @@ public abstract class BaseController implements Initializable {
      * @param params      - параметры для контролеера.  Каждый контроллер должен раелизовать класс BaseController и реализовать метод setParams, для разбора параметров если нужно
      * @throws IOException
      */
-    public static void openDialogNotModal(Stage ownerWindow, String fxml, String title, boolean resizeble, StageStyle st, int minH, int minW, int maxH, int maxW,String cssResourcePath, Object... params) throws IOException {
+    public static void openDialogNotModal(@NotNull Stage ownerWindow, @NotNull String fxml, @NotNull String title, boolean resizeble, @NotNull StageStyle st, int minH, int minW, int maxH, int maxW,@NotNull String cssResourcePath, Object... params) throws IOException {
         Stage dlg = new Stage(st);
         dlg.initOwner(ownerWindow);
         dlg.initModality(Modality.NONE);
@@ -276,7 +279,7 @@ public abstract class BaseController implements Initializable {
      *
      * @param scene
      */
-    private void sceneResizeListner(Scene scene) {
+    private void sceneResizeListner(@NotNull Scene scene) {
         scene.widthProperty().addListener((ObservableValue<? extends Number> observableValue, Number oldSceneWidth, Number newSceneWidth) -> {
             System.out.println("Width: " + newSceneWidth);
         });
@@ -295,7 +298,8 @@ public abstract class BaseController implements Initializable {
      * @return
      * @throws Exception
      */
-    public Initializable replaceContent(String fxml, AnchorPane content, Object... params) throws Exception {
+    @NotNull
+    public Initializable replaceContent(@NotNull String fxml, @NotNull AnchorPane content, Object... params) throws Exception {
 
 
         URL location = app.getClass().getResource(fxml);
@@ -314,11 +318,8 @@ public abstract class BaseController implements Initializable {
         ObservableList<Node> children = content.getChildren();
         children.clear();
         children.add(root);
-
-
+        if(controller==null) throw new RuntimeException("Controller must be not null");
         return (Initializable) controller;
-
-
     }
 
     /**
@@ -330,7 +331,8 @@ public abstract class BaseController implements Initializable {
      * @return
      * @throws Exception
      */
-    public Initializable addContentHBox(String fxml, HBox content, Object... params) throws Exception {
+    @NotNull
+    public Initializable addContentHBox(@NotNull String fxml, @NotNull HBox content, Object... params) throws Exception {
 
 
         URL location = app.getClass().getResource(fxml);
@@ -344,11 +346,13 @@ public abstract class BaseController implements Initializable {
 
         ObservableList<Node> children = content.getChildren();
         children.add(root);
+        if(controller==null) throw new RuntimeException("Controller must be not null");
         return (Initializable) controller;
 
     }
 
-    public Initializable replaceContentScrollPane(String fxml, ScrollPane scrlbr, Object... params) throws Exception {
+    @NotNull
+    public Initializable replaceContentScrollPane(@NotNull String fxml, @NotNull ScrollPane scrlbr, Object... params) throws Exception {
 
 
         URL location = app.getClass().getResource(fxml);
@@ -362,7 +366,7 @@ public abstract class BaseController implements Initializable {
 
         scrlbr.setContent(root);
 
-
+        if(controller==null) throw new RuntimeException("Controller must be not null");
         return (Initializable) controller;
 
 
@@ -377,8 +381,8 @@ public abstract class BaseController implements Initializable {
      */
     public abstract void setParams(Object... params);
 
-
-    public static void showInfoDialog(String title, String header, String content, Window owner, Modality modal) {
+    @NotNull
+    public static void showInfoDialog(@NotNull String title,@NotNull String header,@NotNull String content,@NotNull Window owner,@NotNull Modality modal) {
 
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle(title);
@@ -389,7 +393,7 @@ public abstract class BaseController implements Initializable {
         alert.showAndWait();
     }
 
-    public static void showInfoDialogNoHeader(String title, String content, Window owner, Modality modal) {
+    public static void showInfoDialogNoHeader(@NotNull String title, @NotNull String content,@NotNull  Window owner, @NotNull Modality modal) {
 
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle(title);
@@ -401,7 +405,7 @@ public abstract class BaseController implements Initializable {
         alert.showAndWait();
     }
 
-    public static void showWarningDialog(String title, String header, String content, Window owner, Modality modal) {
+    public static void showWarningDialog(@NotNull String title,@NotNull String header,@NotNull String content,@NotNull Window owner,@NotNull Modality modal) {
 
         Alert alert = new Alert(AlertType.WARNING);
         alert.setTitle(title);
@@ -413,7 +417,7 @@ public abstract class BaseController implements Initializable {
         alert.showAndWait();
     }
 
-    public static void showErrorDialog(String title, String header, String content, Window owner, Modality modal) {
+    public static void showErrorDialog(@NotNull String title,@NotNull String header,@NotNull String content, @NotNull Window owner, @NotNull Modality modal) {
 
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle(title);
@@ -425,7 +429,7 @@ public abstract class BaseController implements Initializable {
         alert.showAndWait();
     }
 
-    public static void showExceptionDialog(String title, String header, String content, Exception ex, Window owner, Modality modal) {
+    public static void showExceptionDialog(@NotNull String title, @NotNull String header, @NotNull String content,@NotNull  Exception ex, @NotNull Window owner, Modality modal) {
 
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle(title);
@@ -471,7 +475,8 @@ public abstract class BaseController implements Initializable {
      * @param content
      * @return okButtonType или noButtonType
      */
-    public static Optional<ButtonType> showConfirmationDialog(String title, String header, String content, Window owner, Modality modal) {
+    @NotNull
+    public static Optional<ButtonType> showConfirmationDialog(@NotNull String title,@NotNull  String header,@NotNull  String content, @NotNull Window owner, @NotNull Modality modal) {
         if (okButtonType == null) {
             //инициализация при первом использовании
             okButtonType = new ButtonType(getApp().getResources().getString("app.yes"));
@@ -507,7 +512,8 @@ public abstract class BaseController implements Initializable {
      * @param content
      * @return ButtonType.OK или ButtonType.CANCEL
      */
-    public static Optional<ButtonType> showInfoConfirmDialog(String title, String header, String content, Window owner, Modality modal) {
+    @NotNull
+    public static Optional<ButtonType> showInfoConfirmDialog(@NotNull String title,@NotNull String header,@NotNull String content,@NotNull Window owner,@NotNull Modality modal) {
 
         Alert alert = new Alert(AlertType.CONFIRMATION);
         alert.setTitle(title);
@@ -530,7 +536,8 @@ public abstract class BaseController implements Initializable {
      * @param initText
      * @return вернет строку или исходную строку если жали отмену
      */
-    public static String showTextInputDialog(String title, String header, String content, String initText, Window owner, Modality modal) {
+    @NotNull
+    public static String showTextInputDialog(@NotNull String title, @NotNull String header, @NotNull String content, @NotNull String initText, @NotNull Window owner, @NotNull Modality modal) {
         if (initText == null) initText = "";
         TextInputDialog dialog = new TextInputDialog(initText);
 
@@ -555,7 +562,8 @@ public abstract class BaseController implements Initializable {
      * @param defaultChoice
      * @return Вернет выбранныую строку или null если отмена
      */
-    public static String showChoiceDialog(String title, String header, String content, List<String> choiceList, String defaultChoice, Window owner, Modality modal) {
+    @NotNull
+    public static String showChoiceDialog(@NotNull String title,@NotNull  String header,@NotNull String content,@NotNull List<String> choiceList, @NotNull String defaultChoice, @NotNull Window owner, @NotNull Modality modal) {
 
         if (!choiceList.contains(defaultChoice)) defaultChoice = choiceList.get(0);
 
@@ -580,7 +588,8 @@ public abstract class BaseController implements Initializable {
      * @param text
      * @return
      */
-    public static String replaceSpecial(String text) {
+    @NotNull
+    public static String replaceSpecial(@NotNull String text) {
 
 
         return text.replaceAll("[\\\\!\"#$%&()*+',./:;<=>?@\\[\\]^_{|}~]", "");
@@ -595,7 +604,8 @@ public abstract class BaseController implements Initializable {
      * @param regexp регулярное выражение соответствующее удаляемым символам
      * @return
      */
-    public static String replaceSpecial(String text, String regexp) {
+    @NotNull
+    public static String replaceSpecial(@NotNull String text, @NotNull String regexp) {
 
 
         return text.replaceAll(regexp, "");
@@ -604,7 +614,7 @@ public abstract class BaseController implements Initializable {
     }
 
 
-    public static boolean muchSpecials(String text, String regexp) {
+    public static boolean muchSpecials(@NotNull String text, @NotNull String regexp) {
 
         Pattern p = Pattern.compile(regexp);
         Matcher m = p.matcher(text);
@@ -612,7 +622,7 @@ public abstract class BaseController implements Initializable {
     }
 
 
-    public static boolean muchSpecials(String text) {
+    public static boolean muchSpecials(@NotNull String text) {
         Pattern p = Pattern.compile("[\\\\!\"#$%&()*+',./:;<=>?@\\[\\]^_{|}~]");
         Matcher m = p.matcher(text);
         return m.find();
