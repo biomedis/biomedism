@@ -28,13 +28,13 @@ public class CustomFeignRequestLogging  extends Logger {
   protected Response logAndRebufferResponse(String configKey, Level logLevel, Response response, long elapsedTime)
       throws IOException {
     if (logLevel.ordinal() >= HEADERS.ordinal()) {
-      super.logAndRebufferResponse(configKey, logLevel, response, elapsedTime);
+      return super.logAndRebufferResponse(configKey, logLevel, response, elapsedTime);
     } else {
       int status = response.status();
       Request request = response.request();
       log(configKey, "<--- %s %s HTTP/1.1 %s (%sms) ", request.httpMethod().name(), request.url(), status, elapsedTime);
+      return response;
     }
-    return response;
   }
 
 

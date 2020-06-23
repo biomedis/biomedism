@@ -2,10 +2,12 @@ package ru.biomedis.biomedismair3.social.login;
 
 
 import java.net.URL;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -23,15 +25,20 @@ import ru.biomedis.biomedismair3.social.remote_client.LoginClient;
 import ru.biomedis.biomedismair3.social.remote_client.RegistrationClient;
 import ru.biomedis.biomedismair3.social.remote_client.ServerProblemException;
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient;
+import ru.biomedis.biomedismair3.social.remote_client.ValidationError;
+import ru.biomedis.biomedismair3.social.remote_client.ValidationErrorProcessor;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Credentials;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Token;
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError;
+import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiValidationError;
 import ru.biomedis.biomedismair3.utils.Other.Result;
 
 @Slf4j
 public class LoginController extends BaseController {
 
+
   private ResourceBundle res;
+
 
 
   @FXML
@@ -101,6 +108,7 @@ public class LoginController extends BaseController {
 
 
   public void onLoginAction() {
+    hideValidationMessages();
     final String e = emailInput.getText().trim();
     final String p = passwordInput.getText().trim();
 
@@ -111,11 +119,14 @@ public class LoginController extends BaseController {
       if (result.getError() instanceof ServerProblemException) {
        AppController.getProgressAPI().setErrorMessage("Ошибка сервера. Попробуйте позже");
        log.error("",e);
-      } else if (result.getError() instanceof BadCredentials) {
+      } else if(result.getError() instanceof ValidationError){
+        showValidationMessages(((ValidationError)result.getError()).getErrors());
+      }
+      else if (result.getError() instanceof BadCredentials) {
        AppController.getProgressAPI().setErrorMessage("Не верный логин или пароль");
       } else if (result.getError() instanceof NeedEmailValidationException){
         prepareValidationEmail(e);
-      } else {
+      }  else {
        AppController.getProgressAPI().setErrorMessage("Произошла ошибка. Если ошибка повторится обратитесь к разработчикам.");
        showErrorDialog("Ошибка",
            "Произошла ошибка. Если ошибка повторится обратитесь к разработчикам.",
@@ -149,7 +160,7 @@ public class LoginController extends BaseController {
 
 
   private Token login(String email, String password)
-      throws ServerProblemException, BadCredentials, NeedEmailValidationException {
+      throws ServerProblemException, BadCredentials, NeedEmailValidationException, ValidationError {
     Token token;
     try {
       token = loginClient.getToken(new Credentials(email, password));
@@ -160,9 +171,12 @@ public class LoginController extends BaseController {
       ApiError ex = (ApiError) e;
       if (ex.isNeedValidateEmail()) {
         throw new NeedEmailValidationException();
-      } else if (ex.getStatusCode() == 400) {
-       throw new BadCredentials();
-      } else {
+      } else if(ex.isValidationError()){
+        throw new ValidationError(ValidationErrorProcessor.process(ex));
+      }else if (ex.getStatusCode() == 403) {
+        throw new BadCredentials();
+      }
+      else {
        throw new ServerProblemException(e);
       }
      } else {
@@ -187,7 +201,6 @@ public class LoginController extends BaseController {
       if(result.getError() instanceof ApiError){
         ApiError ae = (ApiError) result.getError();
         if(ae.getStatusCode()==400){
-
           showWarningDialog("Подтверждение почты",
               "Необходимо заполнить оба поля",
               "",
@@ -225,6 +238,47 @@ public class LoginController extends BaseController {
       AppController.getProgressAPI().setInfoMessage("Успешная регистрация!");
       emailInput.setText(userEmail.get());
     }
+  }
+
+
+  private void showValidationMessages(List<ApiValidationError> errorMessages){
+   StringBuilder strb = new StringBuilder();
+    errorMessages.forEach(e->{
+      switch (e.getField()){
+        case "email":
+          if(!emailInput.getStyleClass().contains("error_border")){
+            emailInput.getStyleClass().add("error_border");
+          }
+          strb.append("\n").append("Email: "+e.getMessage());
+          break;
+        case "password":
+          if(!passwordInput.getStyleClass().contains("error_border")){
+            passwordInput.getStyleClass().add("error_border");
+          }
+          strb.append("\n").append("Пароль: "+e.getMessage());
+          break;
+        default:
+        showErrorDialog(
+            "Ошибка валидации",
+            "Неизвестная ошибка валидации",
+            e.getField()+". "+e.getMessage(),
+            getControllerWindow(),
+            Modality.WINDOW_MODAL);
+      }
+    });
+
+    showWarningDialog(
+        "Валидация полей формы",
+        "Некоторые поля имеют некорректное содержимое",
+        strb.toString(),
+        getControllerWindow(),
+        Modality.WINDOW_MODAL);
+  }
+
+  private void hideValidationMessages(){
+    emailInput.getStyleClass().remove("error_border");
+    passwordInput.getStyleClass().remove("error_border");
+
   }
 
 

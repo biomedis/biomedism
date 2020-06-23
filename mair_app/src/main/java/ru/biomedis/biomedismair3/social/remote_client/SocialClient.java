@@ -14,6 +14,7 @@ import feign.RetryableException;
 import feign.codec.ErrorDecoder;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
+import feign.okhttp.OkHttpClient;
 import java.io.BufferedReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
@@ -24,6 +25,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
+
 import ru.biomedis.biomedismair3.social.remote_client.dto.Token;
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError;
 import ru.biomedis.biomedismair3.utils.Text.TextUtil;
@@ -81,6 +83,7 @@ public class SocialClient {
 
   private Feign.Builder createFeign(boolean interceptor, ErrorDecoder errorDecoder) {
     Builder builder = Feign.builder()
+        .client(new OkHttpClient())
         .options(new Options(15, TimeUnit.SECONDS, 30, TimeUnit.SECONDS,false))
         .logger(new CustomFeignRequestLogging())
         .logLevel( Level.FULL)
@@ -220,6 +223,7 @@ public class SocialClient {
           response.body().asReader(StandardCharsets.UTF_8))) {
         resp = reader.lines().collect(Collectors.joining());
       } catch (Exception e) {
+        log.error("",e);
         return e;
       }
       ApiError apiError = null;

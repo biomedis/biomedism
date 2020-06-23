@@ -302,3 +302,10 @@
     -fx-background-repeat: no-repeat;
     -fx-background-position:center;
 }
+
+.error_border{
+    -fx-border-color: red;
+    -fx-border-style: solid;
+    -fx-border-width: 1;
+    -fx-border-radius: 5px;
+}

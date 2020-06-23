@@ -101,6 +101,9 @@ subprojects{
 		implementation( "org.anantacreative","updater", "0.15.2")//https://github.com/lightway82/updater
 		implementation( "io.github.openfeign","feign-core", "11.0")
 		implementation( "io.github.openfeign","feign-jackson", "11.0")
+		implementation( "io.github.openfeign","feign-okhttp", "11.0")
+
+
 	}
 
 	configure<JavaPluginConvention> {

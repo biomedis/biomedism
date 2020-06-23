@@ -140,7 +140,7 @@ public abstract class BaseController implements Initializable {
         controller.onCompletedInitialise();
 
         Scene scene = new Scene(root);
-
+        scene.getStylesheets().add("/styles/Styles.css");
         dlg.setScene(scene);
         dlg.setTitle(title);
         dlg.setResizable(resizeble);
@@ -190,7 +190,7 @@ public abstract class BaseController implements Initializable {
         controller.onCompletedInitialise();
 
         Scene scene = new Scene(root);
-
+        scene.getStylesheets().add("/styles/Styles.css");
         dlg.setScene(scene);
         dlg.setTitle(title);
         dlg.setResizable(resizeble);
