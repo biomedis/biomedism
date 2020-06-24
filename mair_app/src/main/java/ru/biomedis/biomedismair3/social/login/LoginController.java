@@ -74,7 +74,7 @@ public class LoginController extends BaseController {
   private RegistrationClient registrationClient;
 
   @Override
-  protected void onCompletedInitialise() {
+  protected void onCompletedInitialization() {
     data = (Data) root.getUserData();
     closedByLoginAction = false;
   }
@@ -124,6 +124,11 @@ public class LoginController extends BaseController {
       }
       else if (result.getError() instanceof BadCredentials) {
        AppController.getProgressAPI().setErrorMessage("Не верный логин или пароль");
+        showWarningDialog("Вход",
+            "Не верный логин или пароль",
+            "",
+            getControllerWindow(),
+            Modality.WINDOW_MODAL);
       } else if (result.getError() instanceof NeedEmailValidationException){
         prepareValidationEmail(e);
       }  else {
@@ -148,14 +153,15 @@ public class LoginController extends BaseController {
   private void prepareValidationEmail(final String email){
     login.setVisible(false);
     confirmation.setVisible(true);
-    Result<Void> res = BlockingAction.actionNoResult(getControllerWindow(), () -> registrationClient.sendCode(email));
-    if(res.isError()){
-      AppController.getProgressAPI().setErrorMessage("Не удалось отправить ко на указанную почту.");
-      showErrorDialog("Ошибка","Не удалось отправить ко на указанную почту. Проверьте правильность введенного адреса.",
-          "", getControllerWindow(),
-          Modality.WINDOW_MODAL);
-      log.error("",res.getError());
-    }
+    //контроллер на сервере сразу отправляет код
+//    Result<Void> res = BlockingAction.actionNoResult(getControllerWindow(), () -> registrationClient.sendCode(email));
+//    if(res.isError()){
+//      AppController.getProgressAPI().setErrorMessage("Не удалось отправить ко на указанную почту.");
+//      showErrorDialog("Ошибка","Не удалось отправить ко на указанную почту. Проверьте правильность введенного адреса.",
+//          "", getControllerWindow(),
+//          Modality.WINDOW_MODAL);
+//      log.error("",res.getError());
+//    }
   }
 
 

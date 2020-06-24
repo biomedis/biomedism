@@ -346,7 +346,7 @@ public class PDFController extends BaseController {
     }
 
     @Override
-    protected void onCompletedInitialise() {
+    protected void onCompletedInitialization() {
 
     }
 

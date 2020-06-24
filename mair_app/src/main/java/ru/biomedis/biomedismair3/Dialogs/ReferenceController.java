@@ -43,7 +43,7 @@ public class ReferenceController extends BaseController {
 
 
     @Override
-    protected void onCompletedInitialise() {
+    protected void onCompletedInitialization() {
         onHome();
 
     }

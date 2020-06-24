@@ -35,7 +35,7 @@ public class ProgressPanelController extends BaseController implements ProgressA
     private Image imageWarning;
 
     @Override
-    protected void onCompletedInitialise() {
+    protected void onCompletedInitialization() {
 
     }
 

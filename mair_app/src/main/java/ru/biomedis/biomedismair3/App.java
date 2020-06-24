@@ -817,7 +817,8 @@ https://gist.github.com/DemkaAge/8999236
             Parent root = fxmlLoader.load();
             controller = (AppController )fxmlLoader.getController();
             BaseController.setMainController(controller);
-            controller.onCompletedInitialise();
+            controller.setWindow(stage);
+            controller.onCompletedInitialization();
            /*********************************/
        
         Scene scene = new Scene(root);

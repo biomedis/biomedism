@@ -21,7 +21,7 @@ public class LangInsertComplexController extends BaseController {
 
 
     @Override
-    protected void onCompletedInitialise() {
+    protected void onCompletedInitialization() {
 
     }
 

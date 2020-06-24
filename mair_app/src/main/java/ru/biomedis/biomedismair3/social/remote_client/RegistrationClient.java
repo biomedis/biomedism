@@ -20,7 +20,7 @@ public interface RegistrationClient {
    * Отправляет код подтверждения на почту
    * @param email
    */
-  @RequestLine("GET /send_code")
+  @RequestLine("GET /send_code?email={email}")
   void sendCode(@Param("email") String email);
 
   /**
@@ -28,14 +28,14 @@ public interface RegistrationClient {
    * @param email
    * @param code
    */
-  @RequestLine("GET /confirm_email")
+  @RequestLine("GET /confirm_email?email={email}&code={code}")
   void confirmEmail(@Param("email") String email, @Param("code") String code);
 
   /**
    * Сбросить пароль и отправить проверочный код на почту
    * @param email
    */
-  @RequestLine("GET /send_reset_code")
+  @RequestLine("GET /send_reset_code?email={email}")
   void sendResetCode(@Param("email") String email);
 
 
@@ -45,6 +45,6 @@ public interface RegistrationClient {
    * @param code
    * @param password
    */
-  @RequestLine("PUT /new_password")
+  @RequestLine("PUT /new_password?email={email}&password={password}")
   void setNewPassword(@Param("email") String email, @Param("code") String code, @Param("password") String password);
 }

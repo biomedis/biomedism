@@ -101,7 +101,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
     }
 
     @Override
-    protected void onCompletedInitialise() {
+    protected void onCompletedInitialization() {
 
     }
 

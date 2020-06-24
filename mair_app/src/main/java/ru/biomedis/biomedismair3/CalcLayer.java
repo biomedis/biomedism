@@ -38,7 +38,7 @@ public class CalcLayer extends BaseController
 private CalcActionListener actionListener;
 
     @Override
-    protected void onCompletedInitialise() {
+    protected void onCompletedInitialization() {
 
     }
 

@@ -68,7 +68,7 @@ public class ProgramController extends BaseController implements ProgramAPI{
     private boolean therapyProgramsCopied=false;
 
     @Override
-    protected void onCompletedInitialise() {
+    protected void onCompletedInitialization() {
 
     }
 

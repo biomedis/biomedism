@@ -306,10 +306,8 @@ public class AppController  extends BaseController {
 
     private void initSocialActions() {
 
-        SocialClient.INSTANCE.setLoginAction(() -> LoginController.openLoginDialog(getApp().getMainWindow()));
-
-        SocialClient.INSTANCE.setErrorAction(e -> {
-            progressAPI.setErrorMessage(e.getMessage());
+        SocialClient.INSTANCE.setErrorAction(m -> {
+            progressAPI.setErrorMessage(m);
         });
     }
 
@@ -1940,7 +1938,7 @@ if(!getConnectedDevice())return;
     }
 
     @Override
-    protected void onCompletedInitialise() {
+    protected void onCompletedInitialization() {
         if(getModel().isAutoUpdateEnable()){
             System.out.println("Current starter version = "+App.getStarterVersion());
             AutoUpdater.getAutoUpdater().startUpdater(App.getStarterVersion(), new AutoUpdater.Listener() {

@@ -19,7 +19,7 @@ public class AboutController extends BaseController {
     private WebEngine webEngine;
 
     @Override
-    protected void onCompletedInitialise() {
+    protected void onCompletedInitialization() {
 
     }
 

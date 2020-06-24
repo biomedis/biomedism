@@ -51,7 +51,7 @@ res=resources;
 
 
     @Override
-    protected void onCompletedInitialise() {
+    protected void onCompletedInitialization() {
 
     }
 

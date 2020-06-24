@@ -30,7 +30,7 @@ public class SearchProfile extends BaseController {
     @FXML    Button setProfile;
 
     @Override
-    protected void onCompletedInitialise() {
+    protected void onCompletedInitialization() {
 
     }
 

@@ -111,7 +111,7 @@ public class M2UI extends BaseController {
     }
 
     @Override
-    protected void onCompletedInitialise() {
+    protected void onCompletedInitialization() {
 
     }
 

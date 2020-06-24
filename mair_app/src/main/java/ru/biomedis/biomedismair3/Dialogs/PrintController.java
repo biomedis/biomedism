@@ -42,7 +42,7 @@ public class PrintController extends BaseController {
     private static int DEFAULT_FONT_SIZE=10;
 
     @Override
-    protected void onCompletedInitialise() {
+    protected void onCompletedInitialization() {
 
     }
 

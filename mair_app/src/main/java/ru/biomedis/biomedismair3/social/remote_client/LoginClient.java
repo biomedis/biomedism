@@ -2,6 +2,7 @@ package ru.biomedis.biomedismair3.social.remote_client;
 
 
 import feign.Headers;
+import feign.Param;
 import feign.RequestLine;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Credentials;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Token;
@@ -16,5 +17,5 @@ public interface LoginClient {
   @RequestLine("POST /refresh")
   @Headers("Content-Type: application/json")
   Token refreshToken(String refresh);
-
 }
+

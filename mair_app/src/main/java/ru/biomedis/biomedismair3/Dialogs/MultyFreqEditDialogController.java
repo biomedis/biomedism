@@ -211,7 +211,7 @@ public class MultyFreqEditDialogController extends BaseController {
 
 
     @Override
-    protected void onCompletedInitialise() {
+    protected void onCompletedInitialization() {
 
     }
 

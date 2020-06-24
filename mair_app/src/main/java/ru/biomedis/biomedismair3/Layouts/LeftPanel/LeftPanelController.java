@@ -72,7 +72,7 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
 
     @Override
-    protected void onCompletedInitialise() {
+    protected void onCompletedInitialization() {
 
     }
 

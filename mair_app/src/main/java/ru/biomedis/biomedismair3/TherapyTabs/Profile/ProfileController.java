@@ -68,7 +68,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
     private ComplexAPI complexAPI;
 
     @Override
-    protected void onCompletedInitialise() {
+    protected void onCompletedInitialization() {
 
     }
 

@@ -4,41 +4,40 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import javafx.stage.Stage;
+import lombok.extern.slf4j.Slf4j;
+import ru.biomedis.biomedismair3.BlockingAction;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Credentials;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Token;
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError;
+import ru.biomedis.biomedismair3.utils.Other.Result;
 
+@Slf4j
 class TokenHolder {
 
   private LoginClient loginClient;
+  private AccountClient accountClient;
   private final TokenRepository tokenRepository;
   private Optional<Token> token = Optional.empty();
-  private Supplier<Optional<Token>> loginAction;
-  private Consumer<Exception> preformErrorInfoAction;
+  private Consumer<String > preformErrorInfoAction;
 
 
-  public TokenHolder(LoginClient loginClient, TokenRepository tokenRepository) {
+  public TokenHolder(LoginClient loginClient, AccountClient accountClient, TokenRepository tokenRepository) {
     this.loginClient = loginClient;
+    this.accountClient  = accountClient;
 
     this.tokenRepository = tokenRepository;
   }
 
-  public void setLoginAction(Supplier< Optional<Token>> action) {
-    this.loginAction = action;
-  }
-
-
-
   public void setPreformErrorInfoAction(
-      Consumer<Exception> preformErrorInfoAction) {
+      Consumer<String> preformErrorInfoAction) {
     this.preformErrorInfoAction = preformErrorInfoAction;
   }
 
   /**
    * должен запрашивать автоматически обновление токена.
    */
-  //TODO вопрос - при получении нового токена старый на сервере остается в базе? Проблема актуальна, если старый просрали.
-  public void processToken() throws BreakByUserException, ServerProblemException {
+  public void processToken() throws ServerProblemException, NeedAuthByLogin, RequestClientException {
 
     if(token.isPresent()) {
        processTokenIfExpired(token.get());
@@ -47,7 +46,7 @@ class TokenHolder {
       if(token.isPresent()){
          processTokenIfExpired(token.get());
       }else {
-         processTokenIfNeedLogin();
+        throw new NeedAuthByLogin();
       }
     }
   }
@@ -56,23 +55,10 @@ class TokenHolder {
     return token.map(Token::getAccessToken).orElse("EMPTY_TOKEN");
   }
 
-  /**
-   * Запрашиваетлогин и пароль, пробует получить токен,
-   * запросит подтверждение почты если нужно.
-   * Будет повторяться если логин кинет BadCredentials
-   * @return
-   * @throws BreakByUserException
-   * @throws ServerProblemException
-   */
-  private String processTokenIfNeedLogin()
-      throws BreakByUserException {
-     token =  login();
-     return token.get().getAccessToken();
-  }
 
 
   private String processTokenIfExpired(Token token)
-      throws ServerProblemException, BreakByUserException {
+      throws ServerProblemException, NeedAuthByLogin, RequestClientException {
 
     if(token.isExpired()){
       try{
@@ -84,14 +70,19 @@ class TokenHolder {
           ApiError ex = (ApiError) e;
           if(ex.getStatusCode()==400){
             //не верный токен обновления.
-            return processTokenIfNeedLogin();
+            throw new NeedAuthByLogin();
           } else  throw new ServerProblemException(e);
-        } else  throw new ServerProblemException(e);
-
+        } else  throw new RequestClientException(e);
       }
     }else {
       return token.getAccessToken();
     }
+  }
+
+  protected void setToken(Optional<Token> token){
+    this.token = token;
+    if(token.isPresent()) tokenRepository.saveToken(token.get());
+    else tokenRepository.clearToken();
   }
 
   /**
@@ -103,30 +94,44 @@ class TokenHolder {
   }
 
 
-  private Optional<Token> login()  throws BreakByUserException {
-    Optional<Token> token  = loginAction.get();
-    if(token.isPresent()) {
-      tokenRepository.saveToken(token.get());
-      return token;
-    }else throw new BreakByUserException("");
-  }
-
-  public void performLogin() throws ServerProblemException, BreakByUserException {
-    processToken();
-  }
-
-
 
   /**
    * Сообщит пользователю об ошибке
-   * @param e
+   * @param m
    * @return
    */
-  private void performErrorInfo(Exception e) {
+  private void performErrorInfo(String m) {
     if (preformErrorInfoAction == null) {
-      throw new RuntimeException("Необходимо установить экшен для подтверждения почты.");
+      throw new RuntimeException("Необходимо установить экшен для отображения ошибки.");
     }
-    preformErrorInfoAction.accept(e);
+    preformErrorInfoAction.accept(m);
+  }
+
+
+  public boolean performLogout(Stage context) {
+    Result<Void> res = BlockingAction
+        .actionNoResult(context, () -> accountClient.clearAllToken());
+    if(!res.isError()){
+      resetToken();
+      return true;
+    }else {
+      performErrorInfo("Не удалось выйти из системы");
+      log.error("Не удалось выйти из системы");
+      return false;
+    }
+  }
+
+  public boolean performLogoutFromAll(Stage ctx) {
+    Result<Void> res = BlockingAction
+        .actionNoResult(ctx, () -> accountClient.clearToken());
+    if(!res.isError()){
+      resetToken();
+      return true;
+    }else {
+      performErrorInfo("Не удалось выйти из системы");
+      log.error("Не удалось выйти из системы");
+      return false;
+    }
   }
 
 

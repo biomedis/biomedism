@@ -48,7 +48,7 @@ public class RegistrationController extends BaseController {
   private boolean closedByAction=false;
 
   @Override
-  protected void onCompletedInitialise() {
+  protected void onCompletedInitialization() {
 
   }
 

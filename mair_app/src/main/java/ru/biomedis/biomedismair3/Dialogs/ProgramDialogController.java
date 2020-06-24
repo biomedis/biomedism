@@ -278,7 +278,7 @@ public class ProgramDialogController extends BaseController {
 
 
     @Override
-    protected void onCompletedInitialise() {
+    protected void onCompletedInitialization() {
 
     }
 
