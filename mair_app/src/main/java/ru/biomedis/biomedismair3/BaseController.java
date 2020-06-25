@@ -7,6 +7,9 @@
 package ru.biomedis.biomedismair3;
 
 
+import java.lang.reflect.Field;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -37,12 +40,12 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javafx.stage.WindowEvent;
+import javafx.util.Duration;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 
-/**
- * @author Anama
- */
+@Slf4j
 public abstract class BaseController implements Initializable {
     protected static App app = null;
     protected static AppController mdc = null;
@@ -58,7 +61,7 @@ public abstract class BaseController implements Initializable {
      */
     protected abstract void onCompletedInitialization();
 
-    protected abstract void onClose(WindowEvent event);
+    protected abstract void onClose(@NotNull WindowEvent event);
 
     public ModelDataApp getModel() {
         return app.getModel();
@@ -130,6 +133,7 @@ public abstract class BaseController implements Initializable {
 
         URL location = app.getClass().getResource(fxml);
         FXMLLoader fxmlLoader = new FXMLLoader(location, app.strings);
+        fxmlLoader.setClassLoader(app.getClass().getClassLoader());
         Parent root = fxmlLoader.load();
         BaseController controller = (BaseController) fxmlLoader.getController();
         controller.setWindow(dlg);
@@ -380,7 +384,7 @@ public abstract class BaseController implements Initializable {
      *
      * @param params
      */
-    public abstract void setParams(Object... params);
+    public abstract void setParams(@NotNull Object... params);
 
     @NotNull
     public static void showInfoDialog(@NotNull String title,@NotNull String header,@NotNull String content,@NotNull Window owner,@NotNull Modality modal) {
@@ -628,6 +632,38 @@ public abstract class BaseController implements Initializable {
         Matcher m = p.matcher(text);
         return m.find();
 
+    }
+
+    /**
+     * Уменьшает время отклика Tooltip в мс
+     * @param tooltip
+     */
+    public static void hackTooltipStartTiming(Tooltip tooltip,int startDelay,int hideDelay) {
+        try {
+            Field fieldBehavior = tooltip.getClass().getDeclaredField("BEHAVIOR");
+            fieldBehavior.setAccessible(true);
+            Object objBehavior = fieldBehavior.get(tooltip);
+
+            Field fieldTimer = objBehavior.getClass().getDeclaredField("activationTimer");
+            fieldTimer.setAccessible(true);
+            Timeline objTimer = (Timeline) fieldTimer.get(objBehavior);
+
+            objTimer.getKeyFrames().clear();
+            objTimer.getKeyFrames().add(new KeyFrame(new Duration(startDelay)));
+
+            ////
+
+            Field fieldTimer1 = objBehavior.getClass().getDeclaredField("hideTimer");
+            fieldTimer1.setAccessible(true);
+            Timeline objTimer1 = (Timeline) fieldTimer1.get(objBehavior);
+
+            objTimer1.getKeyFrames().clear();
+            objTimer1.getKeyFrames().add(new KeyFrame(new Duration(hideDelay)));
+
+
+        } catch (Exception e) {
+            log.error("",e);
+        }
     }
 
 }

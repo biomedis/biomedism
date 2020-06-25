@@ -45,6 +45,6 @@ public interface RegistrationClient {
    * @param code
    * @param password
    */
-  @RequestLine("PUT /new_password?email={email}&password={password}")
+  @RequestLine("PUT /new_password?email={email}&password={password}&code={code}")
   void setNewPassword(@Param("email") String email, @Param("code") String code, @Param("password") String password);
 }

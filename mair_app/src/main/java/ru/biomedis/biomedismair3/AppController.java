@@ -2032,35 +2032,5 @@ if(!getConnectedDevice())return;
     {
     }
 
-    /**
-     * Уменьшает время отклика Tooltip в мс
-     * @param tooltip
-     */
-    public static void hackTooltipStartTiming(Tooltip tooltip,int startDelay,int hideDelay) {
-        try {
-            Field fieldBehavior = tooltip.getClass().getDeclaredField("BEHAVIOR");
-            fieldBehavior.setAccessible(true);
-            Object objBehavior = fieldBehavior.get(tooltip);
 
-            Field fieldTimer = objBehavior.getClass().getDeclaredField("activationTimer");
-            fieldTimer.setAccessible(true);
-            Timeline objTimer = (Timeline) fieldTimer.get(objBehavior);
-
-            objTimer.getKeyFrames().clear();
-            objTimer.getKeyFrames().add(new KeyFrame(new Duration(startDelay)));
-
-            ////
-
-            Field fieldTimer1 = objBehavior.getClass().getDeclaredField("hideTimer");
-            fieldTimer1.setAccessible(true);
-            Timeline objTimer1 = (Timeline) fieldTimer1.get(objBehavior);
-
-            objTimer1.getKeyFrames().clear();
-            objTimer1.getKeyFrames().add(new KeyFrame(new Duration(hideDelay)));
-
-
-        } catch (Exception e) {
-            log.error("",e);
-        }
-    }
 }

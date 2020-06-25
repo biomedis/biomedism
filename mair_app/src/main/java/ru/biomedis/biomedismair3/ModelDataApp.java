@@ -8,6 +8,7 @@ package ru.biomedis.biomedismair3;
 import com.mpatric.mp3agic.Mp3File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.stream.Collectors;
 import javafx.application.Platform;
 import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.JPAControllers.*;
@@ -18,6 +19,7 @@ import javax.persistence.*;
 import java.io.File;
 import java.text.Collator;
 import java.util.*;
+import ru.biomedis.biomedismair3.social.remote_client.EmailListRepository;
 import ru.biomedis.biomedismair3.social.remote_client.TokenRepository;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Token;
 
@@ -25,9 +27,12 @@ import ru.biomedis.biomedismair3.social.remote_client.dto.Token;
 
 
 @Slf4j
-public class ModelDataApp implements TokenRepository {
+public class ModelDataApp implements TokenRepository, EmailListRepository {
 
     private IInProfileChanged onInProfileChanged;
+
+
+
     public interface IInProfileChanged{
          void change( long profileID);
     }
@@ -489,6 +494,42 @@ public class ModelDataApp implements TokenRepository {
 
     }
     /*************/
+
+    @Override
+    public void addEmail(String email) {
+        try {
+            SortedSet<String> emails = getEmails();
+            emails.add(email);
+            String list = String.join(";", emails);
+            setOption("email_list",list);
+        } catch (Exception exception) {
+            createOption("email_list",email);
+        }
+    }
+
+    @Override
+    public void clearList() {
+        try {
+            setOption("email_list","");
+        } catch (Exception exception) {
+            //ничего не нужно делеть
+        }
+    }
+
+    @Override
+    public SortedSet<String> getEmails() {
+        SortedSet<String> res = new TreeSet<>();
+        try {
+            String email_list = getOption("email_list");
+            String[] split = email_list.split(";");
+            for (String email : split) {
+                res.add(email);
+            }
+        } catch (Exception exception) {
+        }finally {
+            return res;
+        }
+    }
 
 
     @Override

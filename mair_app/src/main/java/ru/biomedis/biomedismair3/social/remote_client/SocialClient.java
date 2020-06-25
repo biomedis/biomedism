@@ -87,7 +87,7 @@ public class SocialClient {
     filesClient = createFeign(true, apiErrorDecoder).target(FilesClient.class,
         TextUtil.addPath(apiURL, "/api/private/files"));// /api/private/files
 
-    registrationClient = createFeign(true, loginErrorDecoder)
+    registrationClient = createFeign(false, loginErrorDecoder)
         .target(RegistrationClient.class, TextUtil.addPath(apiURL, "/api/public/registration"));//
 
     contactsClient = createFeign(true, apiErrorDecoder)

@@ -6,6 +6,7 @@
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
@@ -14,11 +15,11 @@
       <VBox fx:id="login" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="170.0" spacing="8.0">
          <children>
             <Label text="Email:" />
-            <TextField fx:id="emailInput" minWidth="250.0">
+            <HBox fx:id="emailInputBox">
                <VBox.margin>
                   <Insets bottom="5.0" />
                </VBox.margin>
-            </TextField>
+            </HBox>
             <Label text="Password:" />
             <TextField fx:id="passwordInput" minWidth="250.0">
                <VBox.margin>
@@ -30,7 +31,12 @@
                   <String fx:value="GenericBtn" />
                </styleClass>
             </Button>
-            <Hyperlink onAction="#registration" text="Регистрация" />
+            <HBox>
+               <children>
+                  <Hyperlink onAction="#registration" text="Регистрация" />
+                  <Hyperlink fx:id="forgotPassword" onAction="#remember_password" text="Забыли пароль?" />
+               </children>
+            </HBox>
          </children>
          <padding>
             <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
@@ -41,8 +47,9 @@
             <Label text="Введите проверочный код, отправленный на email:" />
             <TextField fx:id="inputCode" />
             <Button fx:id="sendCode" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onConfirmEmailAction" text="Отправить" />
+            <Hyperlink fx:id="resend" maxWidth="1.7976931348623157E308" onAction="#onResend" text="Отправить повторно код" />
             <Label fx:id="info" maxWidth="1.7976931348623157E308" />
-            
+
          </children>
          <padding>
             <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />

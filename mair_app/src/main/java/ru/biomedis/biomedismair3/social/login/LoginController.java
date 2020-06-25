@@ -5,10 +5,17 @@ import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.TreeSet;
+import java.util.regex.Pattern;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -20,7 +27,10 @@ import ru.biomedis.biomedismair3.AppController;
 import ru.biomedis.biomedismair3.BaseController;
 import ru.biomedis.biomedismair3.BlockingAction;
 
+import ru.biomedis.biomedismair3.CustomControls.AutoCompleteStringTextField;
+import ru.biomedis.biomedismair3.CustomControls.AutoCompleteTextField;
 import ru.biomedis.biomedismair3.social.remote_client.BadCredentials;
+import ru.biomedis.biomedismair3.social.remote_client.EmailListRepository;
 import ru.biomedis.biomedismair3.social.remote_client.LoginClient;
 import ru.biomedis.biomedismair3.social.remote_client.RegistrationClient;
 import ru.biomedis.biomedismair3.social.remote_client.ServerProblemException;
@@ -36,10 +46,11 @@ import ru.biomedis.biomedismair3.utils.Other.Result;
 @Slf4j
 public class LoginController extends BaseController {
 
+  @FXML public HBox emailInputBox;
 
   private ResourceBundle res;
 
-
+  @FXML public Hyperlink forgotPassword;
 
   @FXML
   private Button sendCode;
@@ -47,8 +58,8 @@ public class LoginController extends BaseController {
   @FXML
   private Button logIn;
 
-  @FXML
-  private TextField emailInput;
+
+  private AutoCompleteTextField<String> emailInput;
 
   @FXML
   private TextField passwordInput;
@@ -66,12 +77,14 @@ public class LoginController extends BaseController {
   private TextField inputCode;
 
   private SocialClient client;
+  private Tooltip forgotTooltip =  new Tooltip("Введите валидный email");
 
   private Data data;
 
   private boolean closedByLoginAction = false;
   private LoginClient loginClient;
   private RegistrationClient registrationClient;
+  private EmailListRepository emailListRepository;
 
   @Override
   protected void onCompletedInitialization() {
@@ -97,11 +110,24 @@ public class LoginController extends BaseController {
     client = SocialClient.INSTANCE;
     registrationClient = SocialClient.INSTANCE.getRegistrationClient();
     loginClient = client.getLoginClient();
+
+    //forgotPassword.disableProperty().bind(emailInput.textProperty().isEmpty());
+    hackTooltipStartTiming(forgotTooltip, 250, 7000);
+    forgotPassword.setTooltip(forgotTooltip);
+
+    emailListRepository = getModel();
+
+    emailInput = new AutoCompleteTextField<>(emailListRepository.getEmails());
+    emailInputBox.getChildren().addAll(emailInput);
+    emailInput.setMaxWidth(Double.MAX_VALUE);
+    HBox.setHgrow(emailInput, Priority.ALWAYS );
+
     logIn.disableProperty()
         .bind(emailInput.textProperty().isEmpty().or(passwordInput.textProperty().isEmpty()));
 
     sendCode.disableProperty()
         .bind(emailInput.textProperty().isEmpty().or(inputCode.textProperty().isEmpty()));
+
 
   }
 
@@ -145,6 +171,7 @@ public class LoginController extends BaseController {
       data.token = result.getValue();
       data.cancel = false;
       closedByLoginAction = true;
+      emailListRepository.addEmail(emailInput.getText().trim());
       getControllerWindow().close();
     }
 
@@ -285,6 +312,52 @@ public class LoginController extends BaseController {
     emailInput.getStyleClass().remove("error_border");
     passwordInput.getStyleClass().remove("error_border");
 
+  }
+
+  /**
+   * Повторная отправка email
+   * @param actionEvent
+   */
+  public void onResend(ActionEvent actionEvent) {
+    Result<Void> result = BlockingAction.actionNoResult(getControllerWindow(),
+        () -> registrationClient.sendCode(emailInput.getText().trim()));
+    if(!result.isError()){
+      showWarningDialog(
+          "Отправка кода",
+          "Код успешно отправлен на указанную почту",
+          "",
+          getControllerWindow(),
+          Modality.WINDOW_MODAL);
+    }
+  }
+
+  public void remember_password(ActionEvent actionEvent) {
+
+    if(!emailInput.getText().trim().matches("^[\\w-_.+]*[\\w-_.]@([\\w]+\\.)+[\\w]+[\\w]$")){
+      showWarningDialog(
+          "Отправка кода",
+          "",
+          "Введен не корректный email!",
+          getControllerWindow(),
+          Modality.WINDOW_MODAL);
+    return;
+    }
+    Result<Void> result = BlockingAction.actionNoResult(getControllerWindow(),
+        () -> registrationClient.sendResetCode(emailInput.getText().trim()));
+    if(result.isError()){
+      showWarningDialog(
+          "Отправка кода",
+          "Не удалось отправить код для восстановления",
+          "Попробуйте позже. Если ошибка повторится, обратитесь к разработчикам",
+          getControllerWindow(),
+          Modality.WINDOW_MODAL);
+      log.error("Отправка кода восстановления",result.getError());
+      return;
+    }
+
+    String email = RestorePasswordController
+        .openRestoreDialog(getControllerWindow(), emailInput.getText().trim());
+    emailInput.setText(email);
   }
 
 
