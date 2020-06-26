@@ -22,12 +22,11 @@ import java.time.Instant;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.stage.Stage;
 import lombok.extern.log4j.Log4j2;
-
 import ru.biomedis.biomedismair3.social.login.LoginController;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Token;
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError;
@@ -45,13 +44,14 @@ public class SocialClient {
   private static String apiURL;
   private final SimpleBooleanProperty isAuth = new SimpleBooleanProperty(false);
 
-  private final TokenHolder tokenHolder;
+  private  TokenHolder tokenHolder = null;
   private Consumer<String> errorAction;
 
   public static SocialClient INSTANCE = null;
 
   private static ObjectMapper mapper = new ObjectMapper()
       .enable(SerializationFeature.INDENT_OUTPUT);
+
 
   public static void init(String _apiURL, TokenRepository tokenRepository) {
     apiURL = _apiURL;
@@ -72,32 +72,34 @@ public class SocialClient {
   }
 
   private SocialClient(TokenRepository tokenRepository) {
+    Supplier<String> tokenProvider =  () -> tokenHolder==null?"":tokenHolder.getToken();
+
     LoginErrorDecoder loginErrorDecoder = new LoginErrorDecoder();
-    loginClient = createFeign(false, loginErrorDecoder)
+    loginClient = createFeign(false, loginErrorDecoder, tokenProvider)
         .target(LoginClient.class, TextUtil.addPath(apiURL, "/token"));
 
     APIErrorDecoder apiErrorDecoder = new APIErrorDecoder();
 
-    accountClient = createFeign(true, apiErrorDecoder)
+    accountClient = createFeign(true, apiErrorDecoder, tokenProvider)
         .target(AccountClient.class, TextUtil.addPath(apiURL, "/api/private/users"));
 
-    backupClient = createFeign(true, apiErrorDecoder)
+    backupClient = createFeign(true, apiErrorDecoder, tokenProvider)
         .target(BackupClient.class, TextUtil.addPath(apiURL, "/api/private/files"));//
 
-    filesClient = createFeign(true, apiErrorDecoder).target(FilesClient.class,
+    filesClient = createFeign(true, apiErrorDecoder, tokenProvider).target(FilesClient.class,
         TextUtil.addPath(apiURL, "/api/private/files"));// /api/private/files
 
-    registrationClient = createFeign(false, loginErrorDecoder)
+    registrationClient = createFeign(false, loginErrorDecoder, tokenProvider)
         .target(RegistrationClient.class, TextUtil.addPath(apiURL, "/api/public/registration"));//
 
-    contactsClient = createFeign(true, apiErrorDecoder)
+    contactsClient = createFeign(true, apiErrorDecoder, tokenProvider)
         .target(ContactsClient.class, TextUtil.addPath(apiURL, "/api/private/relations"));//
 
     tokenHolder = new TokenHolder(loginClient, accountClient,  tokenRepository);
   }
 
 
-  private Feign.Builder createFeign(boolean interceptor, ErrorDecoder errorDecoder) {
+  private Feign.Builder createFeign(boolean interceptor, ErrorDecoder errorDecoder, Supplier<String> tokenProvider) {
     Builder builder = Feign.builder()
         .client(new OkHttpClient())
         .options(new Options(15, TimeUnit.SECONDS, 30, TimeUnit.SECONDS, false))
@@ -106,7 +108,7 @@ public class SocialClient {
         .decoder(new JacksonDecoder())
         .encoder(new JacksonEncoder());
     if (interceptor) {
-      builder.requestInterceptor(new AuthInterceptor(tokenHolder));
+      builder.requestInterceptor(new AuthInterceptor(tokenProvider));
     }
 
     builder.errorDecoder(errorDecoder);
@@ -126,7 +128,7 @@ public class SocialClient {
       throws ServerProblemException, RequestClientException, NeedAuthByLogin {
     try {
       tokenHolder.processToken();
-      isAuth.set(!tokenHolder.getToken().isEmpty());
+      isAuth.set(tokenHolder.hasToken());
     } catch (NeedAuthByLogin e) {
       isAuth.set(false);
       throw e;
@@ -173,7 +175,7 @@ public class SocialClient {
     } catch (NeedAuthByLogin e) {
       Optional<Token> token = LoginController.openLoginDialog(ctx);
       tokenHolder.setToken(token);
-      isAuth.set(!tokenHolder.getToken().isEmpty());
+      isAuth.set(tokenHolder.hasToken());
       return token.isPresent();
     } catch (ServerProblemException  | RequestClientException e) {
       isAuth.set(false);
@@ -292,17 +294,17 @@ public class SocialClient {
 
   private static class AuthInterceptor implements RequestInterceptor {
 
-    private final TokenHolder tokenHolder;
+    private final Supplier<String> tokenProvider;
 
-    public AuthInterceptor(TokenHolder tokenHolder) {
-      this.tokenHolder = tokenHolder;
+    public AuthInterceptor(Supplier<String> tokenProvider) {
+      this.tokenProvider = tokenProvider;
     }
 
     @Override
     public void apply(RequestTemplate template) {
       //может вернуть пустой токен, если пользователь не аутентифицирован( нет валидного токена в базе, не удалось обновить токен)
       //при неверном токене, в декодере ошибки, будет проведена попытка обновить или извлечь из базы
-      template.header("Authorization", "Bearer " + tokenHolder.getToken());
+      template.header("Authorization", "Bearer " + tokenProvider.get());
     }
   }
 

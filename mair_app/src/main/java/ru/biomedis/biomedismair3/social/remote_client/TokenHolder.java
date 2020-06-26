@@ -55,6 +55,10 @@ class TokenHolder {
     return token.map(Token::getAccessToken).orElse("EMPTY_TOKEN");
   }
 
+  public boolean hasToken(){
+    return token.isPresent();
+  }
+
 
 
   private String processTokenIfExpired(Token token)
@@ -109,27 +113,32 @@ class TokenHolder {
 
 
   public boolean performLogout(Stage context) {
+    if(!token.isPresent()){
+      performErrorInfo("Не удалось выйти из системы");
+      log.error("Не удалось выйти из системы, тк отсутствует токен!");
+      return false;
+    }
     Result<Void> res = BlockingAction
-        .actionNoResult(context, () -> accountClient.clearAllToken());
+        .actionNoResult(context, () -> accountClient.clearToken(token.get().getRefreshToken()));
     if(!res.isError()){
       resetToken();
       return true;
     }else {
       performErrorInfo("Не удалось выйти из системы");
-      log.error("Не удалось выйти из системы");
+      log.error("Не удалось выйти из системы", res.getError());
       return false;
     }
   }
 
   public boolean performLogoutFromAll(Stage ctx) {
     Result<Void> res = BlockingAction
-        .actionNoResult(ctx, () -> accountClient.clearToken());
+        .actionNoResult(ctx, () -> accountClient.clearAllToken());
     if(!res.isError()){
       resetToken();
       return true;
     }else {
       performErrorInfo("Не удалось выйти из системы");
-      log.error("Не удалось выйти из системы");
+      log.error("Не удалось выйти из системы", res.getError());
       return false;
     }
   }

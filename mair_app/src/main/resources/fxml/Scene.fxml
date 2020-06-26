@@ -21,7 +21,7 @@
    <top>
       <HBox spacing="10.0" BorderPane.alignment="CENTER">
          <children>
-            <MenuBar BorderPane.alignment="CENTER_LEFT" HBox.hgrow="ALWAYS">
+            <MenuBar BorderPane.alignment="CENTER_LEFT" HBox.hgrow="ALWAYS" prefHeight="30.0" style="-fx-padding: 3 0 0 0;">
               <menus>
                 <Menu mnemonicParsing="false" text="%app.menu.file">
                   <items>
@@ -113,6 +113,7 @@
                <BorderPane.margin>
                   <Insets right="8.0" />
                </BorderPane.margin>
+
             </MenuBar>
 
            <HBox fx:id="topPanel" />
