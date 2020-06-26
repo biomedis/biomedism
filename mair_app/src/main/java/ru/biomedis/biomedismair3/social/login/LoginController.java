@@ -322,12 +322,14 @@ public class LoginController extends BaseController {
     Result<Void> result = BlockingAction.actionNoResult(getControllerWindow(),
         () -> registrationClient.sendCode(emailInput.getText().trim()));
     if(!result.isError()){
-      showWarningDialog(
+      showInfoDialog(
           "Отправка кода",
           "Код успешно отправлен на указанную почту",
           "",
           getControllerWindow(),
           Modality.WINDOW_MODAL);
+    }else {
+      processSendCodeError(result);
     }
   }
 
@@ -345,13 +347,7 @@ public class LoginController extends BaseController {
     Result<Void> result = BlockingAction.actionNoResult(getControllerWindow(),
         () -> registrationClient.sendResetCode(emailInput.getText().trim()));
     if(result.isError()){
-      showWarningDialog(
-          "Отправка кода",
-          "Не удалось отправить код для восстановления",
-          "Попробуйте позже. Если ошибка повторится, обратитесь к разработчикам",
-          getControllerWindow(),
-          Modality.WINDOW_MODAL);
-      log.error("Отправка кода восстановления",result.getError());
+      processSendCodeError(result);
       return;
     }
 
@@ -360,6 +356,37 @@ public class LoginController extends BaseController {
     emailInput.setText(email);
   }
 
+
+  private void processSendCodeError(Result<Void> result){
+    if(result.getError() instanceof ApiError){
+      ApiError err = (ApiError)result.getError();
+      if(err.getStatusCode()==404) {
+        showWarningDialog(
+            "Отправка кода",
+            "Не удалось отправить код",
+            "Аккаунт с указанным email не существует",
+            getControllerWindow(),
+            Modality.WINDOW_MODAL);
+
+      }else if(err.getStatusCode()==400) {
+        showWarningDialog(
+            "Отправка кода",
+            "Не удалось отправить код",
+            "Введен не корректный email",
+            getControllerWindow(),
+            Modality.WINDOW_MODAL);
+
+      }
+    }else {
+      showWarningDialog(
+          "Отправка кода",
+          "Не удалось отправить код для восстановления",
+          "Попробуйте позже. Если ошибка повторится, обратитесь к разработчикам",
+          getControllerWindow(),
+          Modality.WINDOW_MODAL);
+      log.error("Отправка кода восстановления",result.getError());
+    }
+  }
 
   public static class Data {
 

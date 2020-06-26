@@ -16,6 +16,7 @@ import ru.biomedis.biomedismair3.social.remote_client.RegistrationClient
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
+import ru.biomedis.biomedismair3.utils.Other.Result
 import java.net.URL
 import java.util.*
 
@@ -64,6 +65,13 @@ class RestorePasswordController : BaseController() {
 
         if(!result.isError) {
             AppController.getProgressAPI().setInfoMessage("Пароль успешно обновлен")
+            showInfoDialog(
+                    "Установка пароля",
+                    "",
+                    "Пароль успешно обновлен",
+                    controllerWindow,
+                    Modality.WINDOW_MODAL
+            )
             root.userData = emailInput.text.trim()
             controllerWindow.close()
             return
@@ -100,14 +108,41 @@ class RestorePasswordController : BaseController() {
         val result = BlockingAction.actionNoResult(controllerWindow ) {
             registrationClient.sendCode(emailInput.text.trim())
         }
-        if (!result.isError) {
-            showWarningDialog(
-                    "Отправка кода",
-                    "Код успешно отправлен на указанную почту",
-                    "",
-                    controllerWindow,
-                    Modality.WINDOW_MODAL)
-        }else {
+        when {
+            !result.isError -> {
+                showWarningDialog(
+                        "Отправка кода",
+                        "Код успешно отправлен на указанную почту",
+                        "",
+                        controllerWindow,
+                        Modality.WINDOW_MODAL)
+            }
+            else -> {
+                processSendCodeError(result)
+            }
+        }
+    }
+
+    private fun processSendCodeError(result: Result<Void>) {
+        val err = result.error
+        if (err is ApiError) {
+            when (err.statusCode) {
+                404 -> showWarningDialog(
+                            "Отправка кода",
+                            "Не удалось отправить код",
+                            "Аккаунт с указанным email не существует",
+                            controllerWindow,
+                            Modality.WINDOW_MODAL)
+
+                400 ->  showWarningDialog(
+                            "Отправка кода",
+                            "Не удалось отправить код",
+                            "Введен не корректный email",
+                            controllerWindow,
+                            Modality.WINDOW_MODAL)
+
+            }
+        } else {
             showWarningDialog(
                     "Отправка кода",
                     "Не удалось отправить код для восстановления",
@@ -115,10 +150,8 @@ class RestorePasswordController : BaseController() {
                     controllerWindow,
                     Modality.WINDOW_MODAL)
             log.error("Отправка кода восстановления", result.error)
-
         }
     }
-
 
     companion object {
         private val log by LoggerDelegate()
