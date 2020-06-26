@@ -1,5 +1,7 @@
 package ru.biomedis.biomedismair3.CustomControls;
 
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.geometry.Side;
@@ -58,6 +60,7 @@ public class AutoCompleteTextField<S> extends TextField
 {
 
   private final ObjectProperty<S> lastSelectedItem = new SimpleObjectProperty<>();
+
 
   /**
    * The existing autocomplete entries.
@@ -238,6 +241,9 @@ public class AutoCompleteTextField<S> extends TextField
       item.setOnAction((ActionEvent actionEvent) ->
       {
         lastSelectedItem.set(itemObject);
+        setText(itemObject.toString());
+        positionCaret(getText().length());
+
         entriesPopup.hide();
       });
       menuItems.add(item);
@@ -302,4 +308,11 @@ public class AutoCompleteTextField<S> extends TextField
     this.maxEntries = maxEntries;
   }
 
+  public Object getLastSelectedItem() {
+    return lastSelectedItem.get();
+  }
+
+  public ObjectProperty<S> lastSelectedItemProperty() {
+    return lastSelectedItem;
+  }
 }
