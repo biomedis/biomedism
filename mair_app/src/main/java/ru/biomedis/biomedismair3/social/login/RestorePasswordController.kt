@@ -79,14 +79,33 @@ class RestorePasswordController : BaseController() {
 
         when(val err = result.error){
             is ApiError ->{
-                log.error("Установка пароля", err)
-                showErrorDialog(
-                        "Установка пароля",
-                        "",
-                        "Пароль не  установлен, произошла ошибка. Попробуйте позже.",
-                        controllerWindow,
-                        Modality.WINDOW_MODAL
-                )
+                if(err.statusCode==400){
+                    showWarningDialog(
+                            "Установка пароля",
+                            "",
+                            "Указан не верный код. Пароль не  установлен.",
+                            controllerWindow,
+                            Modality.WINDOW_MODAL
+                    )
+                }else if(err.statusCode==404){
+                    showWarningDialog(
+                            "Установка пароля",
+                            "",
+                            "Неверный email. Пароль не  установлен.",
+                            controllerWindow,
+                            Modality.WINDOW_MODAL
+                    )
+                }else {
+                    log.error("Установка пароля", err)
+                    showErrorDialog(
+                            "Установка пароля",
+                            "",
+                            "Пароль не  установлен, произошла ошибка. Попробуйте позже.",
+                            controllerWindow,
+                            Modality.WINDOW_MODAL
+                    )
+                }
+
             }
             else -> {
                 showErrorDialog(

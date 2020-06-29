@@ -235,7 +235,7 @@ public class LoginController extends BaseController {
         ApiError ae = (ApiError) result.getError();
         if(ae.getStatusCode()==400){
           showWarningDialog("Подтверждение почты",
-              "Необходимо заполнить оба поля",
+              "Не верный код.",
               "",
               getControllerWindow(),
               Modality.WINDOW_MODAL);
