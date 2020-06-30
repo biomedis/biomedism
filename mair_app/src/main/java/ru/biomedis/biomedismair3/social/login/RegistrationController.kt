@@ -1,11 +1,7 @@
 package ru.biomedis.biomedismair3.social.login
 
 import javafx.fxml.FXML
-import javafx.scene.Node
-import javafx.scene.control.Button
-import javafx.scene.control.Control
-import javafx.scene.control.TextArea
-import javafx.scene.control.TextField
+import javafx.scene.control.*
 import javafx.scene.layout.VBox
 import javafx.stage.Modality
 import javafx.stage.Stage
@@ -18,16 +14,13 @@ import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.Layouts.ProgressPanel.ProgressAPI
 import ru.biomedis.biomedismair3.social.remote_client.RegistrationClient
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
-import ru.biomedis.biomedismair3.social.remote_client.ValidationError
 import ru.biomedis.biomedismair3.social.remote_client.ValidationErrorProcessor
 import ru.biomedis.biomedismair3.social.remote_client.dto.RegistrationDto
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError
-import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiSubError
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiValidationError
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import java.net.URL
 import java.util.*
-import java.util.function.Consumer
 
 /**
  * Осуществляет регистрацию пользователя в сервисе MAir
@@ -124,7 +117,49 @@ class RegistrationController : BaseController() {
         )
     }
 
+    private fun checkFieldLength(field: TextInputControl, msg: String, minLength: Int, maxLength: Int):Boolean{
+        return if( nameInput.text.trim().length < minLength ||  nameInput.text.trim().length > maxLength){
+            showWarningDialog(
+                    "Регистрация",
+                    "",
+                    msg,
+                    controllerWindow,
+                    Modality.WINDOW_MODAL)
+            setErrorField(field)
+            false
+        }else true
+    }
+
+
     fun onRegistrationAction() {
+
+        if (!emailInput.text.trim().matches("^[\\w-_.+]*[\\w-_.]@([\\w]+\\.)+[\\w]+[\\w]$".toRegex())) {
+            showWarningDialog(
+                    "Регистрация",
+                    "",
+                    "Введен не корректный email!",
+                    controllerWindow,
+                    Modality.WINDOW_MODAL)
+            setErrorField(emailInput)
+            return
+        }
+        if(!checkFieldLength(passwordInput, "Пароль должен быть не менее 5 и не более 255 символов", 5, 255)) return
+
+        if(!checkFieldLength(nameInput, "Псевдоним пользователя не должно быть пустым и быть более 255 символов", 1, 255)) return
+
+        if(!checkFieldLength(aboutInput, "Описание должно быть не более 16535 символов", 0, 16535)) return
+
+        if(!checkFieldLength(firstNameInput, "Имя пользователя не должно быть пустым и быть более 255 символов", 1, 255)) return
+
+        if(!checkFieldLength(lastNameInput, "Фамилия пользователя не должна быть пустой и быть более 255 символов", 1, 255)) return
+
+        if(!checkFieldLength(countryInput, "Страна пользователя не должно быть пустой и быть более 255 символов", 1, 255)) return
+
+        if(!checkFieldLength(cityInput, "Город пользователя не должен быть пустым и быть более 255 символов", 1, 255)) return
+
+        if(!checkFieldLength(skypeInput, "Логин в Skype пользователя не должен быть более 255 символов", 0, 255)) return
+
+
         val dto = RegistrationDto()
         dto.userName = nameInput.text.trim()
         dto.email = emailInput.text.trim()
