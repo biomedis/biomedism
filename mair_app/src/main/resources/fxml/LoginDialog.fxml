@@ -10,6 +10,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.PasswordField?>
 <StackPane fx:id="root" prefHeight="170.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.social.login.LoginController">
    <children>
       <VBox fx:id="login" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="170.0" spacing="8.0">
@@ -21,11 +22,11 @@
                </VBox.margin>
             </HBox>
             <Label text="Password:" />
-            <TextField fx:id="passwordInput" minWidth="250.0">
+            <PasswordField fx:id="passwordInput" minWidth="250.0">
                <VBox.margin>
                   <Insets bottom="8.0" />
                </VBox.margin>
-            </TextField>
+            </PasswordField>
             <Button fx:id="logIn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onLoginAction" text="Войти">
                <styleClass>
                   <String fx:value="GenericBtn" />

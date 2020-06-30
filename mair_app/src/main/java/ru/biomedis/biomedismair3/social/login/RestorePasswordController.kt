@@ -180,7 +180,7 @@ class RestorePasswordController : BaseController() {
             openDialogUserData(
                     context,
                     "/fxml/RestorePasswordDialog.fxml",
-                    "Вход",
+                    "Восстановление пароля",
                     false,
                     StageStyle.UTILITY,
                     0, 0, 0, 0,
