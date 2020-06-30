@@ -9,7 +9,7 @@
 <?import javafx.scene.layout.StackPane?>
 
 <?import javafx.scene.image.Image?>
-<HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.social.social_panel.SocialPanelController">
+<HBox fx:id="root" alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.social.social_panel.SocialPanelController">
    <children>
       <Button fx:id="logIn" mnemonicParsing="false" text="Войти">
          <styleClass>

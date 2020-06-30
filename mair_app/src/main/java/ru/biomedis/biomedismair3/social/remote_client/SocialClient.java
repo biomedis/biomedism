@@ -72,7 +72,7 @@ public class SocialClient {
   }
 
   private SocialClient(TokenRepository tokenRepository) {
-    Supplier<String> tokenProvider =  () -> tokenHolder==null?"":tokenHolder.getToken();
+    Supplier<String> tokenProvider =  () -> tokenHolder==null?"":tokenHolder.getAccessToken();
 
     LoginErrorDecoder loginErrorDecoder = new LoginErrorDecoder();
     loginClient = createFeign(false, loginErrorDecoder, tokenProvider)
@@ -160,9 +160,14 @@ public class SocialClient {
     return loginClient;
   }
 
-  public String getToken() throws BreakByUserException {
+  public String getAccessToken(){
+    return tokenHolder.getAccessToken();
+  }
+
+  public Optional<Token> getToken()  {
     return tokenHolder.getToken();
   }
+
 
 
   /**

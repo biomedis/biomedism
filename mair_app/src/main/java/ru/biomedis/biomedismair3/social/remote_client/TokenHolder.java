@@ -51,8 +51,12 @@ class TokenHolder {
     }
   }
 
-  public String getToken(){
+  public String getAccessToken(){
     return token.map(Token::getAccessToken).orElse("EMPTY_TOKEN");
+  }
+
+  public Optional<Token> getToken(){
+    return token;
   }
 
   public boolean hasToken(){

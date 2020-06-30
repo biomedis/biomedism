@@ -5,7 +5,9 @@ import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.scene.control.Button
+import javafx.scene.control.Hyperlink
 import javafx.scene.control.Label
+import javafx.scene.layout.HBox
 import javafx.stage.WindowEvent
 import ru.biomedis.biomedismair3.AppController
 import ru.biomedis.biomedismair3.BaseController
@@ -19,6 +21,9 @@ import java.util.*
 
 
 class SocialPanelController : BaseController(), SocialPanelAPI {
+
+    @FXML
+    private lateinit var root: HBox
 
     @FXML
     private lateinit var messageCounter: Label
@@ -45,7 +50,13 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
             log.error("Ошибка обработки запроса аутентификации.", e)
         } catch (needAuthByLogin: NeedAuthByLogin) {
         }
+
+        client.isAuthProperty.addListener { _: ObservableValue<out Boolean>?, oldValue: Boolean, newValue: Boolean ->
+            if (oldValue == newValue) return@addListener
+            if (newValue) showLogout() else showLogin()
+        }
     }
+
 
     override fun onClose(event: WindowEvent) {}
 
@@ -55,10 +66,7 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
         res = resources
         client = SocialClient.INSTANCE
         logIn.onAction = EventHandler(this::login)
-        client.isAuthProperty.addListener { _: ObservableValue<out Boolean>?, oldValue: Boolean, newValue: Boolean ->
-            if (oldValue == newValue) return@addListener
-            if (newValue) showLogout() else showLogin()
-        }
+
     }
 
     //todo - сделать если чел вошел, то при нажатии - меню, с выбором выйти. выйти со всех устройств.
@@ -86,10 +94,35 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
     override fun showLogin() {
         isLogin = false
         logIn.text = "Войти"
+        hideUserName()
     }
+
+
 
     override fun showLogout() {
         isLogin = true
         logIn.text = "Выйти"
+        showUserName()
+    }
+
+    private fun onShowProfile(){
+
+    }
+
+    private fun showUserName(){
+        client.token.ifPresent {
+            val link  = Hyperlink(it.userName)
+            link.onAction = EventHandler { onShowProfile() }
+            root.children.add(0, link)
+            root.requestLayout()
+        }
+    }
+
+
+
+    private fun hideUserName() {
+        val link = root.children[0] as Hyperlink
+        link.onAction = null
+        root.children.remove(link)
     }
 }

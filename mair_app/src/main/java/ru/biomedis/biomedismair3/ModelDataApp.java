@@ -208,7 +208,7 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
             if(option!=null) optionsMap.put(option.getName(),option);
         }
         allOptions = findAllOptions();//получим опции с новыми
-        allOptions.stream().forEach(option->optionsMap.put(option.getName(),option));
+        allOptions.forEach(option->optionsMap.put(option.getName(),option));
 
 
         //пользовательская база
@@ -459,7 +459,7 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
 
 
         }
-
+        optionsMap.put(name, opt);
         return opt;
     }
 
@@ -490,7 +490,7 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
             ProgramOptions programOptions = optionsMap.get(name);
             programOptions.setValue(value);
             optionsDAO.edit(programOptions);
-        }
+        }else createOption(name,value);
 
     }
     /*************/
@@ -503,7 +503,7 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
             String list = String.join(";", emails);
             setOption("email_list",list);
         } catch (Exception exception) {
-            createOption("email_list",email);
+            throw new RuntimeException("Опиция email_list не существует", exception);
         }
     }
 
@@ -535,7 +535,7 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
     @Override
     public Optional<Token> getToken(){
         Query query=emf.createEntityManager()
-            .createQuery("Select o From ProgramOptions o Where o.name in ('token','refresh_token','expired_token')" );
+            .createQuery("Select o From ProgramOptions o Where o.name in ('token','refresh_token','expired_token','user_name_token')" );
         List<ProgramOptions> opts = query.getResultList();
         if(opts.isEmpty()) {
             clearToken();
@@ -550,6 +550,9 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
                     break;
                 case "refresh_token":
                     token.setRefreshToken(opt.getValue());
+                    break;
+                case "user_name_token":
+                    token.setUserName(opt.getValue());
                     break;
                 case "expired_token":
                     try {
@@ -570,17 +573,23 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
         try {
             updateOption("token",token.getAccessToken());
         } catch (Exception e) {
-            createOption("token",token.getAccessToken());
+            throw new RuntimeException("Опиция token не существует", e);
         }
         try {
             updateOption("refresh_token",token.getRefreshToken());
         } catch (Exception e) {
-            createOption("refresh_token",token.getRefreshToken());
+            throw new RuntimeException("Опиция refresh_token не существует", e);
         }
         try {
             updateOption("expired_token",tokenExpiredDateFormat.format(token.getExpired()));
         } catch (Exception e) {
-            createOption("expired_token",tokenExpiredDateFormat.format(token.getExpired()));
+            throw new RuntimeException("Опиция expired_token не существует", e);
+        }
+
+        try {
+            updateOption("user_name_token",token.getUserName());
+        } catch (Exception e) {
+            throw new RuntimeException("Опиция user_name_token не существует", e);
         }
 
     }
@@ -602,7 +611,11 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
         } catch (Exception e) {
             createOption("expired_token","");
         }
-
+        try {
+            updateOption("user_name_token","");
+        } catch (Exception e) {
+            createOption("user_name_token","");
+        }
     }
     
     
