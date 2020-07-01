@@ -353,7 +353,7 @@ public class LoginController extends BaseController {
     }
 
     String email = RestorePasswordController
-        .openRestoreDialog(getControllerWindow(), emailInput.getText().trim());
+        .openRestoreDialog(getControllerWindow(), emailInput.getText().trim(), false);
     emailInput.setText(email);
   }
 

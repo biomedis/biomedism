@@ -8,7 +8,6 @@ package ru.biomedis.biomedismair3;
 import com.mpatric.mp3agic.Mp3File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.stream.Collectors;
 import javafx.application.Platform;
 import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.JPAControllers.*;
@@ -535,7 +534,7 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
     @Override
     public Optional<Token> getToken(){
         Query query=emf.createEntityManager()
-            .createQuery("Select o From ProgramOptions o Where o.name in ('token','refresh_token','expired_token','user_name_token')" );
+            .createQuery("Select o From ProgramOptions o Where o.name in ('token','refresh_token','expired_token','user_name_token','id_user_token')" );
         List<ProgramOptions> opts = query.getResultList();
         if(opts.isEmpty()) {
             clearToken();
@@ -553,6 +552,10 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
                     break;
                 case "user_name_token":
                     token.setUserName(opt.getValue());
+                    break;
+
+                case "id_user_token":
+                    token.setUserId(Long.parseLong(opt.getValue()));
                     break;
                 case "expired_token":
                     try {
@@ -587,6 +590,11 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
         }
 
         try {
+            updateOption("id_user_token",token.getUserId()+"");
+        } catch (Exception e) {
+            throw new RuntimeException("Опиция id_user_token не существует", e);
+        }
+        try {
             updateOption("user_name_token",token.getUserName());
         } catch (Exception e) {
             throw new RuntimeException("Опиция user_name_token не существует", e);
@@ -611,6 +619,12 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
         } catch (Exception e) {
             createOption("expired_token","");
         }
+        try {
+            updateOption("id_user_token","");
+        } catch (Exception e) {
+            createOption("id_user_token","");
+        }
+
         try {
             updateOption("user_name_token","");
         } catch (Exception e) {

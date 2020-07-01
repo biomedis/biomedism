@@ -8,6 +8,7 @@ public class Token {
   private String refreshToken;
   private Date expired;
   private String userName;
+  private long userId;
 
   public Token() {
   }
@@ -49,10 +50,23 @@ public class Token {
   }
 
 
+  public long getUserId() {
+    return userId;
+  }
 
+  public void setUserId(long userId) {
+    this.userId = userId;
+  }
+
+  @Override
   public String toString() {
-    return "Token(accessToken=" + this.getAccessToken() + ", refreshToken=" + this.getRefreshToken()
-        + ", expired=" + this.getExpired() + ", userName=" + this.getUserName() + ")";
+    return "Token{" +
+        "accessToken='" + accessToken + '\'' +
+        ", refreshToken='" + refreshToken + '\'' +
+        ", expired=" + expired +
+        ", userName='" + userName + '\'' +
+        ", userId=" + userId +
+        '}';
   }
 }
 

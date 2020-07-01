@@ -38,6 +38,7 @@ class RestorePasswordController : BaseController() {
 
 
 
+
     override fun setParams(vararg params: Any) {
 
     }
@@ -46,7 +47,9 @@ class RestorePasswordController : BaseController() {
     }
 
     override fun onCompletedInitialization() {
-        emailInput.text = root.userData as String
+       val data =  root.userData as Data
+        emailInput.text = data.email
+        emailInput.disableProperty().value = data.disableEmailField
     }
 
     override fun initialize(location: URL, resources: ResourceBundle) {
@@ -176,7 +179,7 @@ class RestorePasswordController : BaseController() {
         private val log by LoggerDelegate()
 
         @JvmStatic
-        fun openRestoreDialog(context: Stage, email: String): String = try {
+        fun openRestoreDialog(context: Stage, email: String, disableEmailField: Boolean=false): String = try {
             openDialogUserData(
                     context,
                     "/fxml/RestorePasswordDialog.fxml",
@@ -184,12 +187,14 @@ class RestorePasswordController : BaseController() {
                     false,
                     StageStyle.UTILITY,
                     0, 0, 0, 0,
-                    email
-            )
+                    Data(email, disableEmailField)
+            ).email
         } catch (e: Exception) {
             log.error("", e)
             throw RuntimeException(e)
         }
     }
+
+    private data class Data(val email: String, val disableEmailField: Boolean)
 
 }
