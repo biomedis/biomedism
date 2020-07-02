@@ -182,16 +182,16 @@ class AccountController: BaseController(){
     companion object{
         private val log by LoggerDelegate()
         @JvmStatic
-        fun showAccount(context: Stage): Optional<String> {
-            return try {
-                openDialogUserData(
+        fun showAccount(context: Stage) {
+             try {
+                openDialogUserData<Unit>(
                         context,
                         "/fxml/AccountDialog.fxml",
                         "Аккаунт",
                         true,
                         StageStyle.UTILITY,
                         0, 0, 0, 0,
-                        Optional.empty()
+                        Unit
                 )
             } catch (e: Exception) {
                 log.error("Ошибка открытия диалога аккаунта", e)

@@ -102,6 +102,13 @@ public abstract class BaseController implements Initializable {
 
 
     /**
+     * Данные переданые диалоговому окну как userData
+     * @return
+     */
+    protected Object getInputDialogData(){
+        return getControllerWindow().getScene().getRoot().getUserData();
+    }
+    /**
      * Создание окна. Параметры передаются после вызова initialize в контроллере!!! Это нужно учесть при проектировании контроллера. Те если что нужно инициализировать то именно в обработчике установки параметров
      *
      * @param ownerWindow - родительское окно. Может быть null для нового отдельного
@@ -114,7 +121,8 @@ public abstract class BaseController implements Initializable {
      * @param maxH        - минимальная высота(0 для игнора)
      * @param maxW        - минимальная ширина(0 для игнора)
      * @param params      - параметры для контролеера.  Каждый контроллер должен раелизовать класс BaseController и реализовать метод setParams, для разбора параметров если нужно
-     * @param userData    пользовотельский объект данных, он же и вернет. Объект доступен как root.getUserData()
+     * @param userData    пользовотельский объект данных, он же и вернет. Объект доступен как getInputDialogData(). В контроллере необходимо, присвоить поля этому объекту, не создавать новый!
+     * Не передавать через него, входные данные. Для этого есть params.
      * @throws IOException
      */
     @NotNull

@@ -181,15 +181,7 @@ public class LoginController extends BaseController {
   private void prepareValidationEmail(final String email){
     login.setVisible(false);
     confirmation.setVisible(true);
-    //контроллер на сервере сразу отправляет код
-//    Result<Void> res = BlockingAction.actionNoResult(getControllerWindow(), () -> registrationClient.sendCode(email));
-//    if(res.isError()){
-//      AppController.getProgressAPI().setErrorMessage("Не удалось отправить ко на указанную почту.");
-//      showErrorDialog("Ошибка","Не удалось отправить ко на указанную почту. Проверьте правильность введенного адреса.",
-//          "", getControllerWindow(),
-//          Modality.WINDOW_MODAL);
-//      log.error("",res.getError());
-//    }
+
   }
 
 
