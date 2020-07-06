@@ -76,4 +76,10 @@ public interface AccountClient {
 
   @RequestLine("PUT /depot")
   void setDepot(boolean depot);
+
+  @RequestLine("GET /send_code_change_email?email={email}")
+  void sendCodeToChangeEmail(@Param("email") String email);
+
+  @RequestLine("GET /change_email?code={code}&old_code={old_code}")
+  void changeEmail(@Param("code") String code, @Param("old_code") String codeOld );
 }
