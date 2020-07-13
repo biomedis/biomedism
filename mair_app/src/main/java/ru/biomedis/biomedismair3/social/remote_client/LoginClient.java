@@ -14,8 +14,8 @@ public interface LoginClient {
   @Headers("Content-Type: application/json")
   Token getToken(Credentials credentials);
 
-  @RequestLine("POST /refresh")
+  @RequestLine("POST /refresh?refresh={refresh}")
   @Headers("Content-Type: application/json")
-  Token refreshToken(String refresh);
+  Token refreshToken(@Param("refresh") String refresh);
 }
 

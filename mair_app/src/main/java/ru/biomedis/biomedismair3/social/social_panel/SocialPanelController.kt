@@ -11,6 +11,7 @@ import javafx.scene.layout.HBox
 import javafx.stage.WindowEvent
 import ru.biomedis.biomedismair3.AppController
 import ru.biomedis.biomedismair3.BaseController
+import ru.biomedis.biomedismair3.social.account.AccountController
 import ru.biomedis.biomedismair3.social.remote_client.NeedAuthByLogin
 import ru.biomedis.biomedismair3.social.remote_client.RequestClientException
 import ru.biomedis.biomedismair3.social.remote_client.ServerProblemException
@@ -106,7 +107,7 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
     }
 
     private fun onShowProfile(){
-
+        AccountController.showAccount(controllerWindow)
     }
 
     private fun showUserName(){

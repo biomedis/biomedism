@@ -10,6 +10,9 @@ import ru.biomedis.biomedismair3.social.account.FindData;
 
 public interface AccountClient {
 
+  @RequestLine("PUT /change_name")
+  void changeUserName(String name);
+
   @RequestLine("PUT /logout_all")
   void clearAllToken();
 
@@ -65,6 +68,9 @@ public interface AccountClient {
 
   @RequestLine("PUT /partner")
   void setPartner(boolean partner);
+
+  @RequestLine("PUT /bris")
+  void setBris(boolean bris);
 
 
   @RequestLine("PUT /support/{userId}")

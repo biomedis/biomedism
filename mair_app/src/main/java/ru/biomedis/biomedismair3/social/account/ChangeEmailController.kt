@@ -193,7 +193,7 @@ class ChangeEmailController : BaseController() {
                         Data()
                 )
             } catch (e: Exception) {
-                log.error("Ошибка открытия диалога аккаунта", e)
+                log.error("Ошибка открытия диалога изменения почты", e)
                 throw RuntimeException(e)
             }
 

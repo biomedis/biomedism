@@ -21,11 +21,18 @@
         <VBox spacing="8.0">
           <children>
             <Label text="Имя(псевдоним) пользователя:" />
-            <TextField fx:id="nameInput" minWidth="250.0">
+            <Label fx:id="nameText" minWidth="250.0">
               <VBox.margin>
                 <Insets bottom="5.0" />
               </VBox.margin>
-            </TextField>
+            </Label>
+
+            <Label text="Email:" />
+            <Label fx:id="emailText" minWidth="250.0">
+              <VBox.margin>
+                <Insets bottom="5.0" />
+              </VBox.margin>
+            </Label>
 
             <Label text="Фамилия:" />
             <TextField fx:id="firstNameInput" minWidth="250.0">
@@ -98,11 +105,6 @@
               </VBox.margin>
             </TextArea>
 
-            <Button fx:id="changeBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onAccountChange" text="Изменить">
-              <styleClass>
-                <String fx:value="GenericBtn" />
-              </styleClass>
-            </Button>
              <HBox>
                <children>
                  <Hyperlink  text="Изменить пароль" onAction="#onChangePassword"/>
