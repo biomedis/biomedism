@@ -27,9 +27,11 @@ import java.util.stream.Collectors;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.stage.Stage;
 import lombok.extern.log4j.Log4j2;
+import ru.biomedis.biomedismair3.App;
 import ru.biomedis.biomedismair3.social.login.LoginController;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Token;
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError;
+import ru.biomedis.biomedismair3.utils.OS.OSValidator;
 import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
 @Log4j2
@@ -109,6 +111,8 @@ public class SocialClient {
         .encoder(new JacksonEncoder());
     if (interceptor) {
       builder.requestInterceptor(new AuthInterceptor(tokenProvider));
+    }else {
+      builder.requestInterceptor(new UserAgentInterceptor());
     }
 
     builder.errorDecoder(errorDecoder);
@@ -310,6 +314,16 @@ public class SocialClient {
       //может вернуть пустой токен, если пользователь не аутентифицирован( нет валидного токена в базе, не удалось обновить токен)
       //при неверном токене, в декодере ошибки, будет проведена попытка обновить или извлечь из базы
       template.header("Authorization", "Bearer " + tokenProvider.get());
+      template.header("User-Agent", "("+OSValidator.osAlt()+") "+"BiomedisMAir/"+ App.getAppVersion());
+
+    }
+  }
+
+  private static class UserAgentInterceptor implements RequestInterceptor {
+
+    @Override
+    public void apply(RequestTemplate template) {
+      template.header("User-Agent", "("+OSValidator.osAlt()+") "+"BiomedisMAir/"+ App.getAppVersion());
     }
   }
 

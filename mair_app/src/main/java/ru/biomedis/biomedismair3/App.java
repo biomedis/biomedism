@@ -142,6 +142,9 @@ public class App extends Application {
 
     }
 
+    private static Version appVersion;
+    public static Version getAppVersion(){ return appVersion;}
+
     private static ModelDataApp modelStatic;
     public static ModelDataApp getStaticModel() {
         return modelStatic;
@@ -688,6 +691,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
 
         boolean firstStart=false;
 
+        appVersion = new Version(4, currentUpdateFile, currentMinorVersion);
 
         File firstStartFileIndicator=new File(getInnerDataDir(),"fs.ind");
         if(!firstStartFileIndicator.exists())firstStart=true;

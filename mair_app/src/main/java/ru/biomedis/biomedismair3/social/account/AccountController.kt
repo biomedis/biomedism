@@ -32,9 +32,6 @@ class AccountController: BaseController(){
     private lateinit var textFieldUtil: TextFieldUtil
 
     @FXML
-    private lateinit var changeBtn: Button
-
-    @FXML
     private lateinit var nameText: Label
 
     @FXML
@@ -97,50 +94,8 @@ class AccountController: BaseController(){
     //добавить поля по врачам, складам итп
     // для партнерства - выкл просто, а вкл с проверкой
     override fun onCompletedInitialization() {
-        changeBtn.disableProperty().bind(
-                firstNameInput.textProperty().isEmpty
-                        .or(lastNameInput.textProperty().isEmpty)
-                        .or(countryInput.textProperty().isEmpty)
-                        .or(cityInput.textProperty().isEmpty)
-        )
-
-        if(!SocialClient.INSTANCE.token.isPresent){
-            Platform.runLater{
-                showErrorDialog(
-                        "Аккаунт",
-                        "",
-                        "Сессия потеряна, перезапустите программу. Если ошибка повториться обратитесь к разработчикам",
-                        controllerWindow,
-                        Modality.WINDOW_MODAL
-                )
-                controllerWindow.close()
-            }
-        }
-
-        Platform.runLater {
-
-            val result: Result<AccountView> = BlockingAction.actionResult(controllerWindow) {
-                accountClient.getAccount(SocialClient.INSTANCE.token.get().userId)
-            }
-
-            if(result.isError){
-                showErrorDialog(
-                        "Аккаунт",
-                        "",
-                        "Не удалось получить данные аккаунта. Перезапустите программу. Если ошибка повториться обратитесь к разработчикам",
-                        controllerWindow,
-                        Modality.WINDOW_MODAL
-                )
-                controllerWindow.close()
-            }else {
-                fillAccount(result.value)
-                account = result.value
-                onChangeForm()
-            }
 
 
-
-        }
     }
 
     private fun fillAccount(value: AccountView) = account.apply {
@@ -186,8 +141,44 @@ class AccountController: BaseController(){
                 "редактирование профиля"
         )
 
+        if(!SocialClient.INSTANCE.token.isPresent){
+            Platform.runLater{
+                showErrorDialog(
+                        "Аккаунт",
+                        "",
+                        "Сессия потеряна, перезапустите программу. Если ошибка повториться обратитесь к разработчикам",
+                        controllerWindow,
+                        Modality.WINDOW_MODAL
+                )
+                controllerWindow.close()
+            }
+        }
 
-        bindForm()
+
+        account = AccountView()
+
+        val result: Result<AccountView> = BlockingAction.actionResult(controllerWindow) {
+            accountClient.getAccount(SocialClient.INSTANCE.token.get().userId)
+        }
+
+        if(result.isError){
+            showErrorDialog(
+                    "Аккаунт",
+                    "",
+                    "Не удалось получить данные аккаунта. Перезапустите программу. Если ошибка повториться обратитесь к разработчикам",
+                    controllerWindow,
+                    Modality.WINDOW_MODAL
+            )
+            controllerWindow.close()
+        }else {
+            fillAccount(result.value)
+            onChangeForm()
+            bindForm()
+        }
+
+
+
+
 
     }
 

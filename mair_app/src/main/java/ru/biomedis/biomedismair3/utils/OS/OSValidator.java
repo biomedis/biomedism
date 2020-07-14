@@ -51,5 +51,11 @@ public class OSValidator {
 		return (OS.indexOf("sunos") >= 0);
  
 	}
+
+	public static String osAlt(){
+		if(isMac()) return "OS X";
+		else if(isWindows()) return "Windows";
+		else return "Linux";
+	}
  
 }
