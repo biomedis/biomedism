@@ -2,14 +2,14 @@ package ru.biomedis.biomedismair3.social.account
 
 import javafx.application.Platform
 import javafx.beans.property.BooleanProperty
-import javafx.beans.property.SimpleBooleanProperty
-import javafx.beans.property.SimpleStringProperty
 import javafx.beans.property.StringProperty
-import javafx.beans.value.ChangeListener
-import javafx.beans.value.WritableBooleanValue
-import javafx.beans.value.WritableStringValue
+import javafx.event.EventHandler
 import javafx.fxml.FXML
+import javafx.scene.Node
 import javafx.scene.control.*
+import javafx.scene.input.KeyCode
+import javafx.scene.input.KeyEvent
+import javafx.scene.input.MouseEvent
 import javafx.stage.Modality
 import javafx.stage.Stage
 import javafx.stage.StageStyle
@@ -87,9 +87,20 @@ class AccountController: BaseController(){
     }
 
     override fun onClose(event: WindowEvent) {
-        unBindForm()
-        removeOnChangeForm()
+        removeEventHandlers()
     }
+
+    private fun removeEventHandlers() {
+        eventHandlers.forEach {
+            if (it.first is TextInputControl) {
+                it.first.removeEventFilter(KeyEvent.KEY_PRESSED, it.second as EventHandler<in KeyEvent>)
+            } else {
+                it.first.removeEventFilter(MouseEvent.MOUSE_CLICKED, it.second as EventHandler<in MouseEvent>)
+            }
+        }
+        eventHandlers.clear()
+    }
+
     //смена почты отдельной кнопкой? Подтверждени почты в отдельное окно и контроллер(поправить логин)
     //добавить поля по врачам, складам итп
     // для партнерства - выкл просто, а вкл с проверкой
@@ -98,19 +109,19 @@ class AccountController: BaseController(){
 
     }
 
-    private fun fillAccount(value: AccountView) = account.apply {
-        about = value.about
-        skype = value.skype
-        surname = value.surname
-        name = value.name
-        login = value.login
-        email = value.email
-        country = value.country
-        city = value.city
-        depot = value.depot
-        bris = value.bris
-        doctor = value.doctor
-        partner = value.partner
+    private fun fillFields(value: AccountView) = account.apply {
+        aboutInput.text = value.about
+        skypeInput.text  = value.skype
+        firstNameInput.text = value.name
+        lastNameInput.text = value.surname
+        nameText.text = value.login
+        emailText.text = value.email
+        countryInput.text  = value.country
+        cityInput.text  = value.city
+        depotInput.isSelected = value.depot
+        diagnostInput.isSelected = value.bris
+        doctorInput.isSelected = value.doctor
+        partnerInput.isSelected = value.partner
     }
 
 
@@ -171,98 +182,112 @@ class AccountController: BaseController(){
             )
             controllerWindow.close()
         }else {
-            fillAccount(result.value)
+            fillFields(result.value)
+            account = result.value
             onChangeForm()
-            bindForm()
+        }
+    }
+
+    private fun textEventHandler(
+            control: TextInputControl,
+            modelProperty: StringProperty,
+            action:  (String)->Unit,
+            shiftPressed: Boolean = false
+    ):EventHandler<KeyEvent>{
+       return  EventHandler { event->
+            if(event.code == KeyCode.ENTER && (event.isShiftDown || !shiftPressed)) {
+                if(!onChange(modelProperty.value, control.text, action)) {
+                    event.consume()
+                    control.text = modelProperty.value
+                }
+                else modelProperty.value = control.text
+            }
         }
 
+    }
 
+    private val eventHandlers: MutableList<Pair<Node,EventHandler<*>>> = mutableListOf()
 
+    private fun booleanEventHandler(
+            control: CheckBox,
+            modelProperty: BooleanProperty,
+            action:  (Boolean)->Unit
+    ):EventHandler<MouseEvent>{
+        return EventHandler { event->
+            if(!onChange(modelProperty.value, control.isSelected, action)) {
+                event.consume()
+                //control.isSelected = modelProperty.value
+            }
+            else modelProperty.value = control.isSelected
 
+        }
 
     }
 
-    private fun bindForm() {
-        skypeInput.textProperty().bindBidirectional(account.aboutProperty())
-        aboutInput.textProperty().bindBidirectional(account.aboutProperty())
-        firstNameInput.textProperty().bindBidirectional(account.nameProperty())
-        lastNameInput.textProperty().bindBidirectional(account.surnameProperty())
-        cityInput.textProperty().bindBidirectional(account.cityProperty())
-        countryInput.textProperty().bindBidirectional(account.countryProperty())
-        depotInput.selectedProperty().bindBidirectional(account.depotProperty())
-        doctorInput.selectedProperty().bindBidirectional(account.doctorProperty())
-        diagnostInput.selectedProperty().bindBidirectional(account.brisProperty())
-        partnerInput.selectedProperty().bindBidirectional(account.brisProperty())
+    private fun setTextEventFilter( control: TextInputControl,
+                                    modelProperty: StringProperty,
+                                    shiftPressed: Boolean,
+                                    action:  (String)->Unit){
 
+        var eh : EventHandler<KeyEvent> = textEventHandler(control, modelProperty, action, shiftPressed)
+        control.addEventFilter(KeyEvent.KEY_PRESSED, eh)
+        eventHandlers.add(control to eh)
     }
 
-    private val skypeOnChangeListener = ChangeListener<String> {
-        _, oldValue, newValue -> textOnChange(account.skypeProperty(),oldValue, newValue){ accountClient.setSkype(it) }
-    }
+    private fun setBooleanEventFilter( control: CheckBox,
+                                    modelProperty: BooleanProperty,
+                                    action:  (Boolean)->Unit){
 
-    private val aboutOnChangeListener = ChangeListener<String> {
-        _, oldValue, newValue -> textOnChange(account.aboutProperty(), oldValue, newValue) { accountClient.setAbout(it)}
-    }
-
-    private val firstNameOnChangeListener = ChangeListener<String> {
-        _, oldValue, newValue -> textOnChange(account.nameProperty(), oldValue, newValue)  { accountClient.setFirstName(it)}
-    }
-
-    private val lastNameOnChangeListener = ChangeListener<String> {
-        _, oldValue, newValue -> textOnChange(account.surnameProperty(), oldValue, newValue) { accountClient.setLastName(it)}
-    }
-
-    private val cityOnChangeListener = ChangeListener<String> {
-        _, oldValue, newValue -> textOnChange(account.cityProperty(), oldValue, newValue) { accountClient.setCity(it)}
-    }
-
-    private val countryOnChangeListener = ChangeListener<String> {
-        _, oldValue, newValue -> textOnChange(account.countryProperty(), oldValue, newValue)  { accountClient.setCountry(it)}
-    }
-
-    private val depotOnChangeListener = ChangeListener<Boolean> {
-        _, oldValue, newValue -> boolOnChange( account.depotProperty(),oldValue, newValue)  { accountClient.setDepot(it)}
-    }
-
-    private val diagnostOnChangeListener = ChangeListener<Boolean> {
-        _, oldValue, newValue -> boolOnChange(account.brisProperty(), oldValue, newValue)  { accountClient.setBris(it)}
-    }
-
-    private val partnerOnChangeListener = ChangeListener<Boolean> {
-        _, oldValue, newValue -> boolOnChange(account.partnerProperty(), oldValue, newValue)  { accountClient.setPartner(it)}
-    }
-
-    private val doctorOnChangeListener = ChangeListener<Boolean> {
-        _, oldValue, newValue -> boolOnChange( account.doctorProperty(),oldValue, newValue)  { accountClient.setDoctor(it)}
+        var eh : EventHandler<MouseEvent> = booleanEventHandler(control, modelProperty, action)
+        control.addEventFilter(MouseEvent.MOUSE_CLICKED, eh)
+        eventHandlers.add(control to eh)
     }
 
     private fun onChangeForm() {
-        skypeInput.textProperty().addListener(skypeOnChangeListener)
-        aboutInput.textProperty().addListener(aboutOnChangeListener)
-        firstNameInput.textProperty().addListener(firstNameOnChangeListener)
-        lastNameInput.textProperty().addListener(lastNameOnChangeListener)
-        cityInput.textProperty().addListener(cityOnChangeListener)
-        countryInput.textProperty().addListener(countryOnChangeListener)
-        depotInput.selectedProperty().addListener(depotOnChangeListener)
-        doctorInput.selectedProperty().addListener(doctorOnChangeListener)
-        diagnostInput.selectedProperty().addListener(diagnostOnChangeListener)
-        partnerInput.selectedProperty().addListener(partnerOnChangeListener)
+
+        setTextEventFilter(skypeInput, account.skypeProperty(),false) {
+            accountClient.setSkype(it)
+        }
+
+        setTextEventFilter(firstNameInput, account.nameProperty(),false) {
+            accountClient.setFirstName(it)
+        }
+
+        setTextEventFilter(lastNameInput, account.surnameProperty(),false) {
+            accountClient.setLastName(it)
+        }
+
+        setTextEventFilter(cityInput, account.cityProperty(),false) {
+            accountClient.setCity(it)
+        }
+
+        setTextEventFilter(countryInput, account.countryProperty(),false) {
+            accountClient.setCountry(it)
+        }
+
+        setTextEventFilter(aboutInput, account.aboutProperty(),true) {
+            accountClient.setAbout(it)
+        }
+
+        setBooleanEventFilter(depotInput, account.depotProperty()) {
+            accountClient.setDepot(it)
+        }
+
+        setBooleanEventFilter(doctorInput, account.doctorProperty()) {
+            accountClient.setDoctor(it)
+        }
+
+        setBooleanEventFilter(diagnostInput, account.brisProperty()) {
+            accountClient.setBris(it)
+        }
+
+        setBooleanEventFilter(partnerInput, account.partnerProperty()) {
+            accountClient.setPartner(it)
+        }
 
     }
 
-    private fun removeOnChangeForm() {
-        skypeInput.textProperty().removeListener(skypeOnChangeListener)
-        aboutInput.textProperty().removeListener(aboutOnChangeListener)
-        firstNameInput.textProperty().removeListener(firstNameOnChangeListener)
-        lastNameInput.textProperty().removeListener(lastNameOnChangeListener)
-        cityInput.textProperty().removeListener(cityOnChangeListener)
-        countryInput.textProperty().removeListener(countryOnChangeListener)
-        depotInput.selectedProperty().removeListener(depotOnChangeListener)
-        doctorInput.selectedProperty().removeListener(doctorOnChangeListener)
-        diagnostInput.selectedProperty().removeListener(diagnostOnChangeListener)
-        partnerInput.selectedProperty().removeListener(partnerOnChangeListener)
 
-    }
 
     private fun checkError(result: Result<*>): Boolean{
        if(!result.isError) return false
@@ -278,54 +303,12 @@ class AccountController: BaseController(){
         return true
     }
 
-    private var canceledStringProperty: WritableStringValue? = null
-    private var canceledBoolProperty: WritableBooleanValue? = null
 
-    private fun textOnChange(prop: StringProperty, oldValue: String, newValue: String, action: (String)->Unit){
-        if(oldValue == newValue) return
-        if(canceledStringProperty === prop) {
-            canceledStringProperty = null
-            return
-        }
-
+    private fun <T> onChange( oldValue: T, newValue: T, action: (T)->Unit): Boolean{
+        if(oldValue == newValue) return true
         val result: Result<Void> = BlockingAction.actionNoResult(controllerWindow) { action(newValue) }
-        if(checkError(result)){
-            canceledStringProperty = prop
-           Platform.runLater { prop.value = oldValue }
-        }
+        return !checkError(result)
     }
-
-
-
-    private fun boolOnChange(prop: BooleanProperty, oldValue: Boolean, newValue: Boolean, action: (Boolean)->Unit){
-        if(oldValue == newValue) return
-        if(canceledBoolProperty === prop) {
-            canceledBoolProperty = null
-            return
-        }
-
-        val result: Result<Void> = BlockingAction.actionNoResult(controllerWindow) { action(newValue) }
-        if(checkError(result)){
-            canceledBoolProperty = prop
-            Platform.runLater { prop.value = oldValue }
-        }
-    }
-
-
-    private fun unBindForm() {
-        skypeInput.textProperty().unbind()
-        aboutInput.textProperty().unbind()
-        firstNameInput.textProperty().unbind()
-        lastNameInput.textProperty().unbind()
-        cityInput.textProperty().unbind()
-        countryInput.textProperty().unbind()
-        depotInput.selectedProperty().unbind()
-        doctorInput.selectedProperty().unbind()
-        diagnostInput.selectedProperty().unbind()
-        partnerInput.selectedProperty().unbind()
-
-    }
-
 
     fun onChangePassword() {
         //нельзя сбросить пароль любому человеку, тк сброс будет при подтверждении кода

@@ -34,14 +34,14 @@
               </VBox.margin>
             </Label>
 
-            <Label text="Фамилия:" />
+            <Label text="Имя:" />
             <TextField fx:id="firstNameInput" minWidth="250.0">
               <VBox.margin>
                 <Insets bottom="5.0" />
               </VBox.margin>
             </TextField>
 
-            <Label text="Имя:" />
+            <Label text="Фамилия:" />
             <TextField fx:id="lastNameInput" minWidth="250.0">
               <VBox.margin>
                 <Insets bottom="5.0" />

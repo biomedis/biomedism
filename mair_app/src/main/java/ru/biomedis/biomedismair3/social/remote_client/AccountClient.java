@@ -1,5 +1,6 @@
 package ru.biomedis.biomedismair3.social.remote_client;
 
+import feign.Headers;
 import feign.Param;
 import feign.RequestLine;
 import java.util.List;
@@ -42,7 +43,7 @@ public interface AccountClient {
   @RequestLine("GET /country/{country}/cities")
   List<String> citiesList(@Param("country") String country);
 
-
+  @Headers(value = {"Content-Type: application/json"})
   @RequestLine("PUT /firstName")
   void setFirstName(String name);
 
@@ -63,25 +64,25 @@ public interface AccountClient {
   @RequestLine("PUT /about")
   void setAbout(String about);
 
-  @RequestLine("PUT /doctor")
-  void setDoctor(boolean doctor);
+  @RequestLine("PUT /doctor/{param}")
+  void setDoctor(@Param("param") boolean doctor);
 
-  @RequestLine("PUT /partner")
-  void setPartner(boolean partner);
+  @RequestLine("PUT /partner/{param}")
+  void setPartner(@Param("param") boolean partner);
 
-  @RequestLine("PUT /bris")
-  void setBris(boolean bris);
-
-
-  @RequestLine("PUT /support/{userId}")
-  void setSupport(boolean support, @Param("userId") String userId);
+  @RequestLine("PUT /bris/{param}")
+  void setBris(@Param("param") boolean bris);
 
 
-  @RequestLine("PUT /company/{userId}")
-  void setCompany(boolean company, @Param("userId") String userId);
+  @RequestLine("PUT /support/{userId}/{param}")
+  void setSupport(@Param("param") boolean support, @Param("userId") String userId);
 
-  @RequestLine("PUT /depot")
-  void setDepot(boolean depot);
+
+  @RequestLine("PUT /company/{userId}/{param}")
+  void setCompany(@Param("param") boolean company, @Param("userId") String userId);
+
+  @RequestLine("PUT /depot/{param}")
+  void setDepot(@Param("param") boolean depot);
 
   @RequestLine("GET /send_code_change_email?email={email}")
   void sendCodeToChangeEmail(@Param("email") String email);
