@@ -11,8 +11,8 @@ import ru.biomedis.biomedismair3.social.account.FindData;
 
 public interface AccountClient {
 
-  @RequestLine("PUT /change_name")
-  void changeUserName(String name);
+  @RequestLine("GET /change_name?name={name}")
+  void changeUserName(@Param("name") String name);
 
   @RequestLine("PUT /logout_all")
   void clearAllToken();

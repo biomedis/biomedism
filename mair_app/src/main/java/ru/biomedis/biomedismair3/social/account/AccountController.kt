@@ -23,6 +23,7 @@ import ru.biomedis.biomedismair3.social.TextFieldUtil
 import ru.biomedis.biomedismair3.social.login.RestorePasswordController.Companion.openRestoreDialog
 import ru.biomedis.biomedismair3.social.remote_client.AccountClient
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
+import ru.biomedis.biomedismair3.social.social_panel.SocialPanelAPI
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import ru.biomedis.biomedismair3.utils.Other.Result
 import java.net.URL
@@ -82,6 +83,7 @@ class AccountController: BaseController(){
 
     private lateinit var account:AccountView
     private lateinit var progressAPI: ProgressAPI
+    private lateinit var socialPanelAPI: SocialPanelAPI
 
     override fun setParams(vararg params: Any?) {
 
@@ -188,6 +190,8 @@ class AccountController: BaseController(){
             onChangeForm()
         }
 
+        socialPanelAPI = AppController.getSocialPanelAPI()
+
     }
 
     /**
@@ -224,8 +228,8 @@ class AccountController: BaseController(){
                     control.text = modelProperty.value
                 }
                 else {
+                    if(modelProperty.value != control.text)tabEventFire(event, control)
                     modelProperty.value = control.text
-                    tabEventFire(event, control)
                 }
 
                 event.consume()
@@ -251,6 +255,7 @@ class AccountController: BaseController(){
             }
             else {
                 modelProperty.value = control.isSelected
+                tabEventFire(event, control)
             }
             event.consume()
         }
@@ -354,17 +359,34 @@ class AccountController: BaseController(){
 
     fun onChangeEmail() {
        val emailNew =  ChangeEmailController.showChangeEmailDialog(controllerWindow, account.email)
-        if(!emailNew.isPresent) return
+        if(!emailNew.isPresent) {
+            showErrorDialog(
+                    "Изменение email",
+                    "",
+                    "Email изменен, но значение в поле не обновлено",
+                    controllerWindow, Modality.WINDOW_MODAL)
+            return
+        }
 
         account.email = emailNew.get()
+        emailText.text = account.email
 
 
     }
 
     fun onChangeName() {
-       val newName = ChangeNameController.showChangeNameDialog(controllerWindow, account.name)
-        if(!newName.isPresent) return
-        account.name = newName.get()
+       val newName = ChangeNameController.showChangeNameDialog(controllerWindow, account.login)
+        if(!newName.isPresent) {
+            showErrorDialog(
+                    "Изменение имени",
+                    "",
+                    "Имя изменено, но значение в поле не обновлено",
+                    controllerWindow, Modality.WINDOW_MODAL)
+            return
+        }
+        account.login = newName.get()
+        nameText.text = account.login
+        socialPanelAPI.setName(account.login)
     }
 
     companion object{

@@ -7,4 +7,5 @@ public interface TokenRepository {
   Optional<Token> getToken();
   void saveToken(Token token);
   void clearToken();
+  void updateTokenName(String name);
 }

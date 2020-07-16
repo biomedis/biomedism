@@ -43,6 +43,7 @@ class ChangeNameController : BaseController() {
 
     override fun onCompletedInitialization() {
         data = inputDialogData as Data
+        inputName.text = name
     }
 
     override fun initialize(location: URL, resources: ResourceBundle) {
@@ -54,7 +55,7 @@ class ChangeNameController : BaseController() {
 
     fun onAction() {
         val result = BlockingAction.actionNoResult(controllerWindow) {
-            accountClient.changeUserName(inputName.text)
+            accountClient.changeUserName(inputName.text.trim())
         }
 
         if (result.isError) {
@@ -81,7 +82,7 @@ class ChangeNameController : BaseController() {
             return
         }
 
-        data.result = inputName.text
+        data.result = inputName.text.trim()
         showInfoDialog(
                 "Изменение имени",
                 "Имя успешно изменено",
@@ -107,14 +108,15 @@ class ChangeNameController : BaseController() {
                         true,
                         StageStyle.UTILITY,
                         0, 0, 0, 0,
-                        Data()
+                        Data(),
+                        name
                 )
             } catch (e: Exception) {
                 log.error("Ошибка открытия диалога изменения имени", e)
                 throw RuntimeException(e)
             }
 
-            return if (result.result == name) Optional.empty()
+            return if (result.result == name || result.result.isEmpty()) Optional.empty()
             else Optional.of(result.result)
         }
     }

@@ -5,4 +5,6 @@ public interface SocialPanelAPI {
   void showLogin();
 
   void showLogout();
+
+  void setName(String name);
 }

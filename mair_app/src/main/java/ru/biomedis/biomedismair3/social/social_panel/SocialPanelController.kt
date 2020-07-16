@@ -12,10 +12,7 @@ import javafx.stage.WindowEvent
 import ru.biomedis.biomedismair3.AppController
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.social.account.AccountController
-import ru.biomedis.biomedismair3.social.remote_client.NeedAuthByLogin
-import ru.biomedis.biomedismair3.social.remote_client.RequestClientException
-import ru.biomedis.biomedismair3.social.remote_client.ServerProblemException
-import ru.biomedis.biomedismair3.social.remote_client.SocialClient
+import ru.biomedis.biomedismair3.social.remote_client.*
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import java.net.URL
 import java.util.*
@@ -38,6 +35,7 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
 
     private lateinit var client: SocialClient
     private var isLogin = false
+    private lateinit var  tokenRepository: TokenRepository
 
     override fun onCompletedInitialization() {
         try {
@@ -67,7 +65,7 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
         res = resources
         client = SocialClient.INSTANCE
         logIn.onAction = EventHandler(this::login)
-
+        tokenRepository = model
     }
 
     //todo - сделать если чел вошел, то при нажатии - меню, с выбором выйти. выйти со всех устройств.
@@ -104,6 +102,14 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
         isLogin = true
         logIn.text = "Выйти"
         showUserName()
+    }
+
+    override fun setName(name: String) {
+        val nameNode = root.children[0]
+        if(nameNode is Hyperlink) {
+            nameNode.text = name
+        }
+        tokenRepository.updateTokenName(name)
     }
 
     private fun onShowProfile(){

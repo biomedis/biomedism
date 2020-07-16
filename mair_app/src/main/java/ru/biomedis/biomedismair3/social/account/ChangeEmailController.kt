@@ -102,7 +102,7 @@ class ChangeEmailController : BaseController() {
             return
         }
 
-        data.result = inputEmail.text
+        data.result = inputEmail.text.trim()
         showInfoDialog(
                 "Изменение email",
                 "Email успешно изменен",
@@ -115,7 +115,7 @@ class ChangeEmailController : BaseController() {
 
     private fun sendCode(): Boolean {
         val result = BlockingAction.actionNoResult(controllerWindow) {
-            accountClient.sendCodeToChangeEmail(email)
+            accountClient.sendCodeToChangeEmail(email.trim())
         }
 
         if (result.isError) {
@@ -190,7 +190,8 @@ class ChangeEmailController : BaseController() {
                         true,
                         StageStyle.UTILITY,
                         0, 0, 0, 0,
-                        Data()
+                        Data(),
+                        email
                 )
             } catch (e: Exception) {
                 log.error("Ошибка открытия диалога изменения почты", e)

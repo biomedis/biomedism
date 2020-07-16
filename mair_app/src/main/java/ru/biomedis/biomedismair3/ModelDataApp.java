@@ -631,11 +631,18 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
             createOption("user_name_token","");
         }
     }
-    
-    
-    
-    
-    
+
+    @Override
+    public void updateTokenName(String name) {
+        try {
+            updateOption("user_name_token",name);
+        } catch (Exception e) {
+            createOption("user_name_token",name);
+        }
+
+    }
+
+
     /************** ПРОФИЛИ **************/
     //Обнуление поля therapy профиля и сохранения этой сущности приведет к удалению записи в таблице therapy
     public Profile createProfile(String name)throws Exception

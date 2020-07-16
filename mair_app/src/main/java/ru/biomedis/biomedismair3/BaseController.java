@@ -150,11 +150,11 @@ public abstract class BaseController implements Initializable {
 
         root.setUserData(userData);
         controller.setParams(params);//до открытия окна в show, можно устанавливать любые параметры. initialize вызывается в контроллере до этого !!
-        controller.onCompletedInitialization();
 
         Scene scene = new Scene(root);
         scene.getStylesheets().add("/styles/Styles.css");
         dlg.setScene(scene);
+        controller.onCompletedInitialization();
         dlg.setTitle(title);
         dlg.setResizable(resizeble);
         if (minH != 0) dlg.setMinHeight(minH);
@@ -200,11 +200,12 @@ public abstract class BaseController implements Initializable {
         BaseController controller = (BaseController) fxmlLoader.getController();
         controller.setWindow(dlg);
         controller.setParams(params);//до открытия окна в show, можно устанавливать любые параметры
-        controller.onCompletedInitialization();
+
 
         Scene scene = new Scene(root);
         scene.getStylesheets().add("/styles/Styles.css");
         dlg.setScene(scene);
+        controller.onCompletedInitialization();
         dlg.setTitle(title);
         dlg.setResizable(resizeble);
         if (minH != 0) dlg.setMinHeight(minH);
@@ -269,11 +270,12 @@ public abstract class BaseController implements Initializable {
         BaseController controller = (BaseController) fxmlLoader.getController();
         controller.setWindow(dlg);
         controller.setParams(params);//до открытия окна в show, можно устанавливать любые параметры
-        controller.onCompletedInitialization();
+
 
         Scene scene = new Scene(root);
         if(cssResourcePath!="")scene.getStylesheets().add(cssResourcePath);
         dlg.setScene(scene);
+        controller.onCompletedInitialization();
         dlg.setTitle(title);
         dlg.setResizable(resizeble);
         if (minH != 0) dlg.setMinHeight(minH);
@@ -322,7 +324,7 @@ public abstract class BaseController implements Initializable {
         BaseController controller = (BaseController) fxmlLoader.getController();
         controller.setWindow(this.window);
         controller.setParams(params);//до открытия окна в show можно устанавливать любые параметры
-        controller.onCompletedInitialization();
+
 
         AnchorPane.setLeftAnchor(root, 0.0);
         AnchorPane.setRightAnchor(root, 0.0);
@@ -331,6 +333,7 @@ public abstract class BaseController implements Initializable {
         ObservableList<Node> children = content.getChildren();
         children.clear();
         children.add(root);
+        controller.onCompletedInitialization();
         if(controller==null) throw new RuntimeException("Controller must be not null");
         return (Initializable) controller;
     }
@@ -355,10 +358,10 @@ public abstract class BaseController implements Initializable {
         BaseController controller = (BaseController) fxmlLoader.getController();
         controller.setWindow(this.window);
         controller.setParams(params);//до открытия окна в show можно устанавливать любые параметры
-        controller.onCompletedInitialization();
 
         ObservableList<Node> children = content.getChildren();
         children.add(root);
+        controller.onCompletedInitialization();
         if(controller==null) throw new RuntimeException("Controller must be not null");
         return (Initializable) controller;
 
@@ -375,10 +378,8 @@ public abstract class BaseController implements Initializable {
         BaseController controller = (BaseController) fxmlLoader.getController();
         controller.setWindow(this.window);
         controller.setParams(params);//до открытия окна в show можно устанавливать любые параметры
-        controller.onCompletedInitialization();
-
         scrlbr.setContent(root);
-
+        controller.onCompletedInitialization();
         if(controller==null) throw new RuntimeException("Controller must be not null");
         return (Initializable) controller;
 
