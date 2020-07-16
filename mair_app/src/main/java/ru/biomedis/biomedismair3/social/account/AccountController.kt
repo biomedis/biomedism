@@ -7,6 +7,7 @@ import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.scene.Node
 import javafx.scene.control.*
+import javafx.scene.input.InputEvent
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
@@ -186,7 +187,30 @@ class AccountController: BaseController(){
             account = result.value
             onChangeForm()
         }
+
     }
+
+    /**
+     * ДЛя передачи фокуса следующему контролу
+     */
+    private fun tabEventFire(sourceEvent: InputEvent, node: Node){
+        val newEvent = KeyEvent(
+                sourceEvent.source,
+                sourceEvent.target,
+                KeyEvent.KEY_PRESSED,
+                "",
+                "\t",
+                KeyCode.TAB,
+                false,
+                false,
+                false,
+                false
+        )
+
+        node.fireEvent(newEvent)
+    }
+
+    private val eventHandlers: MutableList<Pair<Node,EventHandler<*>>> = mutableListOf()
 
     private fun textEventHandler(
             control: TextInputControl,
@@ -197,29 +221,38 @@ class AccountController: BaseController(){
        return  EventHandler { event->
             if(event.code == KeyCode.ENTER && (event.isShiftDown || !shiftPressed)) {
                 if(!onChange(modelProperty.value, control.text, action)) {
-                    event.consume()
                     control.text = modelProperty.value
                 }
-                else modelProperty.value = control.text
+                else {
+                    modelProperty.value = control.text
+                    tabEventFire(event, control)
+                }
+
+                event.consume()
             }
         }
 
     }
 
-    private val eventHandlers: MutableList<Pair<Node,EventHandler<*>>> = mutableListOf()
 
-    private fun booleanEventHandler(
+
+    private  fun <T:InputEvent> booleanEventHandler(
             control: CheckBox,
             modelProperty: BooleanProperty,
             action:  (Boolean)->Unit
-    ):EventHandler<MouseEvent>{
+    ):EventHandler<T>{
         return EventHandler { event->
-            if(!onChange(modelProperty.value, control.isSelected, action)) {
-                event.consume()
-                //control.isSelected = modelProperty.value
-            }
-            else modelProperty.value = control.isSelected
+            if(event is KeyEvent && !(event.character=="\t" || event.character=="\r") ) {
+                   control.isSelected =!modelProperty.value
+            }else  if(event is KeyEvent) return@EventHandler
 
+            if(!onChange(modelProperty.value, control.isSelected, action)) {
+                control.isSelected = modelProperty.value
+            }
+            else {
+                modelProperty.value = control.isSelected
+            }
+            event.consume()
         }
 
     }
@@ -240,7 +273,11 @@ class AccountController: BaseController(){
 
         var eh : EventHandler<MouseEvent> = booleanEventHandler(control, modelProperty, action)
         control.addEventFilter(MouseEvent.MOUSE_CLICKED, eh)
+        var  ehk : EventHandler<KeyEvent> = booleanEventHandler(control, modelProperty, action)
+        control.addEventFilter(MouseEvent.MOUSE_CLICKED, eh)
+        control.addEventFilter(KeyEvent.KEY_TYPED, ehk)
         eventHandlers.add(control to eh)
+        eventHandlers.add(control to ehk)
     }
 
     private fun onChangeForm() {
