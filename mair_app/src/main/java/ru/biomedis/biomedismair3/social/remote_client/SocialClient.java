@@ -3,6 +3,7 @@ package ru.biomedis.biomedismair3.social.remote_client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import feign.Feign;
 import feign.Feign.Builder;
 import feign.Logger.Level;
@@ -102,13 +103,19 @@ public class SocialClient {
 
 
   private Feign.Builder createFeign(boolean interceptor, ErrorDecoder errorDecoder, Supplier<String> tokenProvider) {
+    ObjectMapper mapper = new ObjectMapper();
+    JavaTimeModule timeModule = new JavaTimeModule();
+    mapper.registerModule(timeModule);
+    mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+    mapper.configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+
     Builder builder = Feign.builder()
         .client(new OkHttpClient())
         .options(new Options(15, TimeUnit.SECONDS, 30, TimeUnit.SECONDS, false))
         .logger(new CustomFeignRequestLogging())
         .logLevel(Level.FULL)
-        .decoder(new JacksonDecoder())
-        .encoder(new JacksonEncoder());
+        .decoder(new JacksonDecoder(mapper))
+        .encoder(new JacksonEncoder(mapper));
     if (interceptor) {
       builder.requestInterceptor(new AuthInterceptor(tokenProvider));
     }else {
@@ -236,7 +243,7 @@ public class SocialClient {
       try {
         apiError = mapper.readValue(resp, ApiError.class);
       } catch (Exception e) {
-        log.error(e);
+        log.error("Ошибка парсинга объекта ошибки",e);
         apiError = new ApiError();
         apiError.setStatusCode(response.status());
         apiError.setMessage(res);

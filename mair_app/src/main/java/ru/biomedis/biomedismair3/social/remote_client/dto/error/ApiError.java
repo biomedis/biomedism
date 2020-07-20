@@ -2,6 +2,7 @@ package ru.biomedis.biomedismair3.social.remote_client.dto.error;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -67,6 +68,7 @@ public class ApiError extends RuntimeException {
     return this.tokenErrorType;
   }
 
+  @JsonProperty("tokenError")
   public boolean isTokenError() {
     return this.tokenError;
   }

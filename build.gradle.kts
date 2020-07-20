@@ -102,7 +102,7 @@ subprojects{
 		implementation( "io.github.openfeign","feign-core", "11.0")
 		implementation( "io.github.openfeign","feign-jackson", "11.0")
 		implementation( "io.github.openfeign","feign-okhttp", "11.0")
-
+		implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", "2.10.0")
 
 	}
 

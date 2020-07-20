@@ -49,6 +49,7 @@ class TokenHolder {
         throw new NeedAuthByLogin();
       }
     }
+    log.info("Token expired at "+ token.map(t->t.getExpired().toString()).orElse("----"));
   }
 
   public String getAccessToken(){
@@ -71,7 +72,7 @@ class TokenHolder {
     if(token.isExpired()){
       try{
         this.token = Optional.of(loginClient.refreshToken(token.getRefreshToken()));
-        tokenRepository.saveToken(token);
+        tokenRepository.saveToken(this.token.get());
         return token.getAccessToken();
       }catch (Exception e){
         if(e instanceof ApiError) {
