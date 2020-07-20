@@ -4,6 +4,7 @@
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
@@ -17,112 +18,113 @@
   <tabs>
     <Tab text="Информация">
       <content>
-        <VBox spacing="8.0">
-          <children>
-            <Label text="Имя(псевдоним) пользователя:" />
-            <Label fx:id="nameText" minWidth="250.0">
-              <VBox.margin>
-                <Insets bottom="5.0" />
-              </VBox.margin>
-            </Label>
-
-            <Label text="Email:" />
-            <Label fx:id="emailText" minWidth="250.0">
-              <VBox.margin>
-                <Insets bottom="5.0" />
-              </VBox.margin>
-            </Label>
-
-            <Label text="Имя:" />
-            <TextField fx:id="firstNameInput" minWidth="250.0">
-              <VBox.margin>
-                <Insets bottom="5.0" />
-              </VBox.margin>
-            </TextField>
-
-            <Label text="Фамилия:" />
-            <TextField fx:id="lastNameInput" minWidth="250.0">
-              <VBox.margin>
-                <Insets bottom="5.0" />
-              </VBox.margin>
-            </TextField>
-
-            <Label text="Страна:" />
-            <TextField fx:id="countryInput" minWidth="250.0">
-              <VBox.margin>
-                <Insets bottom="5.0" />
-              </VBox.margin>
-            </TextField>
-
-            <Label text="Город:" />
-            <TextField fx:id="cityInput" minWidth="250.0">
-              <VBox.margin>
-                <Insets bottom="5.0" />
-              </VBox.margin>
-            </TextField>
-
-            <Label text="Skype:" />
-            <TextField fx:id="skypeInput" minWidth="250.0">
-              <VBox.margin>
-                <Insets bottom="5.0" />
-              </VBox.margin>
-            </TextField>
-
-            <Label text="БРТ-терапевт:" />
-            <CheckBox fx:id="doctorInput">
-              <VBox.margin>
-                <Insets bottom="5.0" />
-              </VBox.margin>
-            </CheckBox>
-
-            <Label text="Диагност:" />
-            <CheckBox fx:id="diagnostInput">
-              <VBox.margin>
-                <Insets bottom="5.0" />
-              </VBox.margin>
-            </CheckBox>
-
-            <Label text="Склад:" />
-            <CheckBox fx:id="depotInput">
-              <VBox.margin>
-                <Insets bottom="5.0" />
-              </VBox.margin>
-            </CheckBox>
-
-            <Label text="Партнер:" />
-            <CheckBox fx:id="partnerInput">
-              <VBox.margin>
-                <Insets bottom="5.0" />
-              </VBox.margin>
-            </CheckBox>
-
-
-            <Label text="О себе:" />
-            <Label text=" Для сохранения изменения используйте комбинацию клавиш Shift-Enter">
-                     <font>
-                        <Font name="System Italic" size="10.0" />
-                     </font></Label>
-
-            <TextArea fx:id="aboutInput" minWidth="250.0">
-              <VBox.margin>
-                <Insets bottom="8.0" />
-              </VBox.margin>
-            </TextArea>
-
-             <HBox>
-               <children>
-                 <Hyperlink onAction="#onChangePassword" text="Изменить пароль" />
-                 <Hyperlink onAction="#onChangeEmail" text="Изменить email" />
-                 <Hyperlink onAction="#onChangeName" text="Изменить псевдоним" />
-               </children>
-             </HBox>
-
-
-          </children>
-          <padding>
-            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-          </padding>
-        </VBox>
+            <ScrollPane fitToWidth="true" maxWidth="1.7976931348623157E308" minWidth="300.0">
+               <content>
+              <VBox maxWidth="270.0" spacing="8.0">
+                <children>
+                        <HBox spacing="8.0">
+                           <children>
+                        <Label fx:id="emailText" minWidth="250.0" />
+                        <Label fx:id="nameText" minWidth="250.0" />
+                           </children>
+                        </HBox>
+      
+                   <HBox>
+                     <children>
+                       <Hyperlink onAction="#onChangePassword" text="Изменить пароль" />
+                       <Hyperlink onAction="#onChangeEmail" text="Изменить email" />
+                       <Hyperlink onAction="#onChangeName" text="Изменить псевдоним" />
+                     </children>
+                   </HBox>
+      
+                  <Label text="Имя:" />
+                  <TextField fx:id="firstNameInput" minWidth="250.0">
+                    <VBox.margin>
+                      <Insets bottom="5.0" />
+                    </VBox.margin>
+                  </TextField>
+      
+                  <Label text="Фамилия:" />
+                  <TextField fx:id="lastNameInput" minWidth="250.0">
+                    <VBox.margin>
+                      <Insets bottom="5.0" />
+                    </VBox.margin>
+                  </TextField>
+      
+                  <Label text="Страна:" />
+                  <TextField fx:id="countryInput" minWidth="250.0">
+                    <VBox.margin>
+                      <Insets bottom="5.0" />
+                    </VBox.margin>
+                  </TextField>
+      
+                  <Label text="Город:" />
+                  <TextField fx:id="cityInput" minWidth="250.0">
+                    <VBox.margin>
+                      <Insets bottom="5.0" />
+                    </VBox.margin>
+                  </TextField>
+      
+                  <Label text="Skype:" />
+                  <TextField fx:id="skypeInput" minWidth="250.0">
+                    <VBox.margin>
+                      <Insets bottom="5.0" />
+                    </VBox.margin>
+                  </TextField>
+      
+                  <Label text="БРТ-терапевт:" />
+                  <CheckBox fx:id="doctorInput">
+                    <VBox.margin>
+                      <Insets bottom="5.0" />
+                    </VBox.margin>
+                  </CheckBox>
+      
+                  <Label text="Диагност:" />
+                  <CheckBox fx:id="diagnostInput">
+                    <VBox.margin>
+                      <Insets bottom="5.0" />
+                    </VBox.margin>
+                  </CheckBox>
+      
+                  <Label text="Склад:" />
+                  <CheckBox fx:id="depotInput">
+                    <VBox.margin>
+                      <Insets bottom="5.0" />
+                    </VBox.margin>
+                  </CheckBox>
+      
+                  <Label text="Партнер:" />
+                  <CheckBox fx:id="partnerInput">
+                    <VBox.margin>
+                      <Insets bottom="5.0" />
+                    </VBox.margin>
+                  </CheckBox>
+      
+      
+                  <Label text="О себе:" />
+                  <Label text=" Для сохранения изменения используйте комбинацию клавиш Shift-Enter">
+                           <font>
+                              <Font name="System Italic" size="10.0" />
+                           </font>
+                        </Label>
+      
+                  <TextArea fx:id="aboutInput" minWidth="250.0">
+                    <VBox.margin>
+                      <Insets bottom="8.0" />
+                    </VBox.margin>
+                  </TextArea>
+      
+      
+                </children>
+                <padding>
+                  <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                </padding>
+              </VBox>
+               </content>
+               <padding>
+                  <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+               </padding>
+            </ScrollPane>
       </content>
     </Tab>
     <Tab text="Активные сессии">

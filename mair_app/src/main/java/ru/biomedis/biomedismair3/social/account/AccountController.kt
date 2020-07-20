@@ -11,10 +11,7 @@ import javafx.scene.input.InputEvent
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
-import javafx.stage.Modality
-import javafx.stage.Stage
-import javafx.stage.StageStyle
-import javafx.stage.WindowEvent
+import javafx.stage.*
 import ru.biomedis.biomedismair3.AppController
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction
@@ -398,9 +395,9 @@ class AccountController: BaseController(){
                         context,
                         "/fxml/AccountDialog.fxml",
                         "Аккаунт",
-                        true,
+                        false,
                         StageStyle.UTILITY,
-                        0, 0, 0, 0,
+                        (Screen.getPrimary().bounds.height*0.9).toInt(), 0, 0, 0,
                         Unit
                 )
             } catch (e: Exception) {
