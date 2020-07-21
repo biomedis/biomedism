@@ -71,9 +71,8 @@ class TokenHolder {
 
     if(token.isExpired()){
       try{
-        this.token = Optional.of(loginClient.refreshToken(token.getRefreshToken()));
-        tokenRepository.saveToken(this.token.get());
-        return token.getAccessToken();
+        setToken(Optional.of(loginClient.refreshToken(token.getRefreshToken())));
+        return this.token.get().getAccessToken();
       }catch (Exception e){
         if(e instanceof ApiError) {
           ApiError ex = (ApiError) e;

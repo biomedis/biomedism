@@ -1,6 +1,8 @@
 package ru.biomedis.biomedismair3.social.remote_client;
 
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -12,6 +14,8 @@ import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import feign.Response;
 import feign.RetryableException;
+import feign.Retryer;
+import feign.Retryer.Default;
 import feign.codec.ErrorDecoder;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
@@ -110,6 +114,7 @@ public class SocialClient {
     mapper.configure(SerializationFeature.WRITE_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
 
     Builder builder = Feign.builder()
+        .retryer(new Default(100, SECONDS.toMillis(1), 2))
         .client(new OkHttpClient())
         .options(new Options(15, TimeUnit.SECONDS, 30, TimeUnit.SECONDS, false))
         .logger(new CustomFeignRequestLogging())
@@ -320,6 +325,8 @@ public class SocialClient {
     public void apply(RequestTemplate template) {
       //может вернуть пустой токен, если пользователь не аутентифицирован( нет валидного токена в базе, не удалось обновить токен)
       //при неверном токене, в декодере ошибки, будет проведена попытка обновить или извлечь из базы
+      template.removeHeader("Authorization");
+      template.removeHeader("User-Agent");
       template.header("Authorization", "Bearer " + tokenProvider.get());
       template.header("User-Agent", "("+OSValidator.osAlt()+") "+"BiomedisMAir/"+ App.getAppVersion());
 

@@ -78,6 +78,17 @@ class AccountView {
         set(s) = _bris.set(s)
     fun brisProperty() = _bris
 
+    private var _company:BooleanProperty  = SimpleBooleanProperty(this, "company", false)
+    var company: Boolean
+        get() = _company.get()
+        set(s) = _company.set(s)
+    fun companyProperty() = _company
+
+    private var _support:BooleanProperty  = SimpleBooleanProperty(this, "support", false)
+    var support: Boolean
+        get() = _support.get()
+        set(s) = _support.set(s)
+    fun supportProperty() = _support
 }
 
 class FindData {
