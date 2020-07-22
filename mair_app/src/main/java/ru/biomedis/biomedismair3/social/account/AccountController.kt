@@ -17,9 +17,11 @@ import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.Layouts.ProgressPanel.ProgressAPI
 import ru.biomedis.biomedismair3.social.TextFieldUtil
+import ru.biomedis.biomedismair3.social.login.LoginController
 import ru.biomedis.biomedismair3.social.login.RestorePasswordController.Companion.openRestoreDialog
 import ru.biomedis.biomedismair3.social.remote_client.AccountClient
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
+import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError
 import ru.biomedis.biomedismair3.social.social_panel.SocialPanelAPI
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import ru.biomedis.biomedismair3.utils.Other.Result
@@ -29,6 +31,9 @@ import java.util.*
 class AccountController: BaseController(){
 
     private lateinit var textFieldUtil: TextFieldUtil
+
+    @FXML
+    private lateinit var sessionsList: ListView<ActiveSession>
 
     @FXML
     private lateinit var nameText: Label
@@ -350,8 +355,45 @@ class AccountController: BaseController(){
     }
 
     fun onChangePassword() {
+
         //нельзя сбросить пароль любому человеку, тк сброс будет при подтверждении кода
+        val result = BlockingAction.actionNoResult(controllerWindow) {
+            SocialClient.INSTANCE.registrationClient.sendResetCode(account.email)
+        }
+        if (result.isError) {
+            processSendCodeError(result)
+            return
+        }
         openRestoreDialog(controllerWindow, account.email, true)
+    }
+
+    private fun processSendCodeError(result: Result<Void>) {
+        if (result.error is ApiError) {
+            val err = result.error as ApiError
+            if (err.statusCode == 404) {
+                showWarningDialog(
+                        "Отправка кода",
+                        "Не удалось отправить код",
+                        "Аккаунт с указанным email не существует",
+                        controllerWindow,
+                        Modality.WINDOW_MODAL)
+            } else if (err.statusCode == 400) {
+                showWarningDialog(
+                        "Отправка кода",
+                        "Не удалось отправить код",
+                        "Введен не корректный email",
+                        controllerWindow,
+                        Modality.WINDOW_MODAL)
+            }
+        } else {
+            showWarningDialog(
+                    "Отправка кода",
+                    "Не удалось отправить код для восстановления",
+                    "Попробуйте позже. Если ошибка повторится, обратитесь к разработчикам",
+                    controllerWindow,
+                    Modality.WINDOW_MODAL)
+            log.error("Отправка кода восстановления", result.error)
+        }
     }
 
     fun onChangeEmail() {
