@@ -1,7 +1,9 @@
 package ru.biomedis.biomedismair3.social.account
 
 import javafx.beans.property.*
+import java.time.Instant
 import java.time.LocalDateTime
+import java.util.*
 
 
 class AccountView {
@@ -141,9 +143,14 @@ class AccountSmallView {
 }
 
 class ActiveSession {
-    var os = ""
-    var ip = ""
-    var browser = ""
-    var lastLogin: LocalDateTime = LocalDateTime.now()
-    var id = -1
+    var id: Long = -1
+    var expired: Date = Date.from(Instant.now())
+    var created: Date = Date.from(Instant.now())
+    var ip: String = ""
+    var os: String = ""
+    var browser: String = ""
+    var city: String = ""
+    var country: String = ""
+    var region: String = ""
+
 }

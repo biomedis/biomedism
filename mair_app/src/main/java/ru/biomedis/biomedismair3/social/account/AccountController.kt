@@ -3,8 +3,12 @@ package ru.biomedis.biomedismair3.social.account
 import javafx.application.Platform
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.StringProperty
+import javafx.collections.FXCollections
+import javafx.collections.ObservableList
+import javafx.collections.transformation.FilteredList
 import javafx.event.EventHandler
 import javafx.fxml.FXML
+import javafx.geometry.Orientation
 import javafx.scene.Node
 import javafx.scene.control.*
 import javafx.scene.input.InputEvent
@@ -26,6 +30,7 @@ import ru.biomedis.biomedismair3.social.social_panel.SocialPanelAPI
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import ru.biomedis.biomedismair3.utils.Other.Result
 import java.net.URL
+import java.time.Instant
 import java.util.*
 
 class AccountController: BaseController(){
@@ -194,6 +199,21 @@ class AccountController: BaseController(){
 
         socialPanelAPI = AppController.getSocialPanelAPI()
 
+        initTokensList()
+
+    }
+
+    private val  sessionListSource: ObservableList<ActiveSession> = FXCollections.observableArrayList()
+    private val sessionListObs: FilteredList<ActiveSession>  = FilteredList(sessionListSource){
+        t -> t.expired == SocialClient.INSTANCE.token.map { token->token.expired }.orElse(Date.from(Instant.now()))
+    }
+    private fun initTokensList() {
+
+        sessionsList.selectionModel.selectionMode =SelectionMode.MULTIPLE
+        sessionsList.orientation = Orientation.VERTICAL
+        sessionsList.placeholder = Label("Нет активных сессий на других устройствах")
+        sessionsList.items = sessionListObs
+        sessionsList.cellFactory = ActiveSessionCellFactory()
     }
 
     /**

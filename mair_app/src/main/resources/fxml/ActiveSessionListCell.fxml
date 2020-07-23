@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListCell?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<fx:root maxWidth="1.7976931348623157E308" type="javafx.scene.control.ListCell" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+  <graphic>
+    <VBox>
+      <children>
+            <HBox alignment="CENTER_LEFT" spacing="8.0" HBox.hgrow="ALWAYS">
+               <children>
+                  <HBox spacing="3.0">
+                     <children>
+                    <Label text="IP:" />
+                        <Label fx:id="ipLbl" text="1.2.3.4.5" />
+                     </children>
+                  </HBox>
+                  <HBox spacing="3.0">
+                     <children>
+                        <Label fx:id="osLbl" text="Windows" />
+                        <Label fx:id="browserLbl" text="BiomedisMAir 4.25" />
+                     </children>
+                  </HBox>
+               </children>
+            </HBox>
+            <HBox layoutX="156.0" layoutY="10.0" spacing="8.0">
+               <children>
+                  <HBox spacing="3.0">
+                     <children>
+                        <Label text="Создано:" />
+                        <Label fx:id="createdLbl" text="24.05.2020" />
+                     </children>
+                  </HBox>
+                  <HBox spacing="3.0">
+                     <children>
+                        <Label text="Действует до:" />
+                        <Label fx:id="expectedLbl" layoutX="10.0" layoutY="10.0" text="24.05.2020" />
+                     </children>
+                  </HBox>
+               </children>
+            </HBox>
+            <HBox spacing="3.0">
+               <children>
+                  <Label fx:id="countryLbl" text="Страна" />
+                  <Label fx:id="regionLbl" layoutX="10.0" layoutY="10.0" text="Регион" />
+                  <Label fx:id="cityLbl" layoutX="52.0" layoutY="10.0" text="Город" />
+               </children>
+            </HBox>
+      </children>
+         <padding>
+            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+         </padding>
+    </VBox>
+  </graphic>
+</fx:root>
