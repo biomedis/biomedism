@@ -46,7 +46,7 @@ class ActiveSessionCellFactory: Callback<ListView<ActiveSession>, ListCell<Activ
 
         private fun loadFXML() {
             try {
-                val loader = FXMLLoader(javaClass.getResource("fxml/ActiveSessionListCell.fxml"))
+                val loader = FXMLLoader(javaClass.getResource("/fxml/ActiveSessionListCell.fxml"))
                 loader.setController(this)
                 loader.setRoot(this)
                 loader.load<Any>()
@@ -55,9 +55,9 @@ class ActiveSessionCellFactory: Callback<ListView<ActiveSession>, ListCell<Activ
             }
         }
 
-        override fun updateItem(item: ActiveSession, empty: Boolean) {
+        override fun updateItem(item: ActiveSession?, empty: Boolean) {
             super.updateItem(item, empty)
-            if (empty) {
+            if (empty || item==null) {
                 text = null
                 contentDisplay = ContentDisplay.TEXT_ONLY
             } else {
@@ -67,7 +67,7 @@ class ActiveSessionCellFactory: Callback<ListView<ActiveSession>, ListCell<Activ
                 countryLbl.text = item.country
                 cityLbl.text = item.city
                 regionLbl.text = item.region
-                expectedLbl.text = dateFormat.format(item.expired)
+                expectedLbl.text = dateFormat.format(item.expiredRefresh)
                 createdLbl.text = dateFormat.format(item.created)
                 contentDisplay = ContentDisplay.GRAPHIC_ONLY
             }

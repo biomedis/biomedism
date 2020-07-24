@@ -6,6 +6,7 @@ import feign.RequestLine;
 import java.util.List;
 import ru.biomedis.biomedismair3.social.account.AccountSmallView;
 import ru.biomedis.biomedismair3.social.account.AccountView;
+import ru.biomedis.biomedismair3.social.account.ActiveSession;
 import ru.biomedis.biomedismair3.social.account.FindData;
 
 
@@ -19,6 +20,9 @@ public interface AccountClient {
 
   @RequestLine("PUT /logout")
   void clearToken(String refreshToken);
+
+  @RequestLine("DELETE /delete_token/{id}")
+  void deleteToken(@Param("id")long id);
 
   @RequestLine("GET /{id}")
   AccountView getAccount(@Param("id") long id);
@@ -89,4 +93,7 @@ public interface AccountClient {
 
   @RequestLine("GET /change_email?code={code}&old_code={old_code}")
   void changeEmail(@Param("code") String code, @Param("old_code") String codeOld );
+
+  @RequestLine("GET /all_tokens")
+  List<ActiveSession> allTokens();
 }

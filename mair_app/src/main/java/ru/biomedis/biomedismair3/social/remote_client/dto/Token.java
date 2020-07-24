@@ -9,7 +9,7 @@ public class Token {
   private Date expired;
   private String userName;
   private long userId;
-
+  private long id;
   public Token() {
   }
 
@@ -66,7 +66,16 @@ public class Token {
         ", expired=" + expired +
         ", userName='" + userName + '\'' +
         ", userId=" + userId +
+        ", id=" + id +
         '}';
+  }
+
+  public long getId() {
+    return id;
+  }
+
+  public void setId(long id) {
+    this.id = id;
   }
 }
 

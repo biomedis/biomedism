@@ -3,9 +3,11 @@ package ru.biomedis.biomedismair3.social.account
 import javafx.application.Platform
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.StringProperty
+import javafx.beans.value.ChangeListener
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import javafx.collections.transformation.FilteredList
+import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.geometry.Orientation
@@ -36,6 +38,11 @@ import java.util.*
 class AccountController: BaseController(){
 
     private lateinit var textFieldUtil: TextFieldUtil
+
+    @FXML private lateinit var activeSessionsTab: Tab
+
+    @FXML private lateinit var removeSelectedBtn: Button
+    @FXML private lateinit var removeAllBtn: Button
 
     @FXML
     private lateinit var sessionsList: ListView<ActiveSession>
@@ -199,13 +206,44 @@ class AccountController: BaseController(){
 
         socialPanelAPI = AppController.getSocialPanelAPI()
 
+        activeSessionsTab.tabPane.selectionModel.selectedItemProperty()
+                .addListener { _, oldTab, newTab ->
+                   val id =  newTab.id?:""
+                    if(id==activeSessionsTab.id && sessionListSource.isEmpty()){
+                        loadSessions()
+                    }
+                }
         initTokensList()
+        removeSelectedBtn.disableProperty()
+                .bind(sessionsList.selectionModel.selectedItemProperty().isNull)
 
+        removeAllBtn.isDisable = true
+
+    }
+
+    private fun loadSessions() {
+        val result: Result<List<ActiveSession>> = BlockingAction.actionResult(controllerWindow){
+            accountClient.allTokens()
+        }
+        if(result.isError){
+            showWarningDialog(
+                    "Получение списка сессий",
+            "",
+            "Не удалось получить список сессий, попробуйте позже",
+            controllerWindow,
+            Modality.WINDOW_MODAL)
+            log.error("", result.error)
+            return
+        }
+
+        sessionListSource.clear()
+        sessionListSource.addAll(result.value)
+        removeAllBtn.isDisable = sessionListObs.isEmpty()
     }
 
     private val  sessionListSource: ObservableList<ActiveSession> = FXCollections.observableArrayList()
     private val sessionListObs: FilteredList<ActiveSession>  = FilteredList(sessionListSource){
-        t -> t.expired == SocialClient.INSTANCE.token.map { token->token.expired }.orElse(Date.from(Instant.now()))
+         it.id != SocialClient.INSTANCE.token.map { token->token.id }.orElse(-2)
     }
     private fun initTokensList() {
 
@@ -446,6 +484,50 @@ class AccountController: BaseController(){
         account.login = newName.get()
         nameText.text = account.login
         socialPanelAPI.setName(account.login)
+    }
+
+    fun deleteSelectedSessions(actionEvent: ActionEvent) {
+        val result = BlockingAction.actionNoResult(controllerWindow) {
+            val selected = sessionsList.selectionModel.selectedItems.toList()
+            selected.forEach {
+                accountClient.deleteToken(it.id)
+                sessionListSource.remove(it)
+            }
+        }
+        removeAllBtn.isDisable = sessionListObs.isEmpty()
+        if(result.isError) {
+            showWarningDialog(
+                    "Удаление сессий",
+                    "",
+                    "Не все сессии удалены, попробуйте позже",
+                    controllerWindow,
+                    Modality.WINDOW_MODAL)
+            log.error("", result.error)
+        }
+    }
+
+    fun deleteAllSessions(actionEvent: ActionEvent) {
+        val result = BlockingAction.actionNoResult(controllerWindow) {
+            val forDelete = sessionListObs.toList()//исключаем текущую
+            forDelete.forEach {
+                accountClient.deleteToken(it.id)
+                sessionListSource.remove(it)
+            }
+        }
+        removeAllBtn.isDisable = sessionListObs.isEmpty()
+        if(result.isError) {
+            showWarningDialog(
+                    "Удаление сессий",
+                    "",
+                    "Не все сессии удалены, попробуйте позже",
+                    controllerWindow,
+                    Modality.WINDOW_MODAL)
+            log.error("", result.error)
+        }
+    }
+
+    fun refreshAllSessions(actionEvent: ActionEvent) {
+        loadSessions()
     }
 
     companion object{

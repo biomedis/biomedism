@@ -145,6 +145,7 @@ class AccountSmallView {
 class ActiveSession {
     var id: Long = -1
     var expired: Date = Date.from(Instant.now())
+    var expiredRefresh: Date = Date.from(Instant.now())
     var created: Date = Date.from(Instant.now())
     var ip: String = ""
     var os: String = ""

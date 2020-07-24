@@ -11,6 +11,7 @@
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
@@ -19,145 +20,146 @@
   <tabs>
     <Tab text="Информация">
       <content>
-            <ScrollPane fitToWidth="true" maxWidth="1.7976931348623157E308" minWidth="300.0">
-               <content>
-              <VBox maxWidth="270.0" spacing="8.0">
-                <children>
-                        <HBox spacing="8.0">
-                           <children>
-                        <Label fx:id="emailText" minWidth="250.0" />
-                        <Label fx:id="nameText" minWidth="250.0" />
-                           </children>
-                        </HBox>
-      
-                   <HBox>
-                     <children>
-                       <Hyperlink onAction="#onChangePassword" text="Изменить пароль" />
-                       <Hyperlink onAction="#onChangeEmail" text="Изменить email" />
-                       <Hyperlink onAction="#onChangeName" text="Изменить псевдоним" />
-                     </children>
-                   </HBox>
-      
-                  <Label text="Имя:" />
-                  <TextField fx:id="firstNameInput" minWidth="250.0">
-                    <VBox.margin>
-                      <Insets bottom="5.0" />
-                    </VBox.margin>
-                  </TextField>
-      
-                  <Label text="Фамилия:" />
-                  <TextField fx:id="lastNameInput" minWidth="250.0">
-                    <VBox.margin>
-                      <Insets bottom="5.0" />
-                    </VBox.margin>
-                  </TextField>
-      
-                  <Label text="Страна:" />
-                  <TextField fx:id="countryInput" minWidth="250.0">
-                    <VBox.margin>
-                      <Insets bottom="5.0" />
-                    </VBox.margin>
-                  </TextField>
-      
-                  <Label text="Город:" />
-                  <TextField fx:id="cityInput" minWidth="250.0">
-                    <VBox.margin>
-                      <Insets bottom="5.0" />
-                    </VBox.margin>
-                  </TextField>
-      
-                  <Label text="Skype:" />
-                  <TextField fx:id="skypeInput" minWidth="250.0">
-                    <VBox.margin>
-                      <Insets bottom="5.0" />
-                    </VBox.margin>
-                  </TextField>
-      
-                  <Label text="БРТ-терапевт:" />
-                  <CheckBox fx:id="doctorInput">
-                    <VBox.margin>
-                      <Insets bottom="5.0" />
-                    </VBox.margin>
-                  </CheckBox>
-      
-                  <Label text="Диагност:" />
-                  <CheckBox fx:id="diagnostInput">
-                    <VBox.margin>
-                      <Insets bottom="5.0" />
-                    </VBox.margin>
-                  </CheckBox>
-      
-                  <Label text="Склад:" />
-                  <CheckBox fx:id="depotInput">
-                    <VBox.margin>
-                      <Insets bottom="5.0" />
-                    </VBox.margin>
-                  </CheckBox>
-      
-                  <Label text="Партнер:" />
-                  <CheckBox fx:id="partnerInput">
-                    <VBox.margin>
-                      <Insets bottom="5.0" />
-                    </VBox.margin>
-                  </CheckBox>
-      
-      
-                  <Label text="О себе:" />
-                  <Label text=" Для сохранения изменения используйте комбинацию клавиш Shift-Enter">
-                           <font>
-                              <Font name="System Italic" size="10.0" />
-                           </font>
-                        </Label>
-      
-                  <TextArea fx:id="aboutInput" minWidth="250.0">
-                    <VBox.margin>
-                      <Insets bottom="8.0" />
-                    </VBox.margin>
-                  </TextArea>
-      
-      
-                </children>
-                <padding>
-                  <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                </padding>
-              </VBox>
-               </content>
-               <padding>
-                  <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-               </padding>
-            </ScrollPane>
-      </content>
-    </Tab>
-    <Tab text="Активные сессии">
-      <content>
         <ScrollPane fitToWidth="true" maxWidth="1.7976931348623157E308" minWidth="300.0">
           <content>
+            <VBox maxWidth="270.0" spacing="8.0">
+              <children>
+                <HBox spacing="8.0">
+                  <children>
+                    <Label fx:id="emailText" minWidth="250.0" />
+                    <Label fx:id="nameText" minWidth="250.0" />
+                  </children>
+                </HBox>
 
+                <HBox>
+                  <children>
+                    <Hyperlink onAction="#onChangePassword" text="Изменить пароль" />
+                    <Hyperlink onAction="#onChangeEmail" text="Изменить email" />
+                    <Hyperlink onAction="#onChangeName" text="Изменить псевдоним" />
+                  </children>
+                </HBox>
+
+                <Label text="Имя:" />
+                <TextField fx:id="firstNameInput" minWidth="250.0">
+                  <VBox.margin>
+                    <Insets bottom="5.0" />
+                  </VBox.margin>
+                </TextField>
+
+                <Label text="Фамилия:" />
+                <TextField fx:id="lastNameInput" minWidth="250.0">
+                  <VBox.margin>
+                    <Insets bottom="5.0" />
+                  </VBox.margin>
+                </TextField>
+
+                <Label text="Страна:" />
+                <TextField fx:id="countryInput" minWidth="250.0">
+                  <VBox.margin>
+                    <Insets bottom="5.0" />
+                  </VBox.margin>
+                </TextField>
+
+                <Label text="Город:" />
+                <TextField fx:id="cityInput" minWidth="250.0">
+                  <VBox.margin>
+                    <Insets bottom="5.0" />
+                  </VBox.margin>
+                </TextField>
+
+                <Label text="Skype:" />
+                <TextField fx:id="skypeInput" minWidth="250.0">
+                  <VBox.margin>
+                    <Insets bottom="5.0" />
+                  </VBox.margin>
+                </TextField>
+
+                <Label text="БРТ-терапевт:" />
+                <CheckBox fx:id="doctorInput">
+                  <VBox.margin>
+                    <Insets bottom="5.0" />
+                  </VBox.margin>
+                </CheckBox>
+
+                <Label text="Диагност:" />
+                <CheckBox fx:id="diagnostInput">
+                  <VBox.margin>
+                    <Insets bottom="5.0" />
+                  </VBox.margin>
+                </CheckBox>
+
+                <Label text="Склад:" />
+                <CheckBox fx:id="depotInput">
+                  <VBox.margin>
+                    <Insets bottom="5.0" />
+                  </VBox.margin>
+                </CheckBox>
+
+                <Label text="Партнер:" />
+                <CheckBox fx:id="partnerInput">
+                  <VBox.margin>
+                    <Insets bottom="5.0" />
+                  </VBox.margin>
+                </CheckBox>
+
+
+                <Label text="О себе:" />
+                <Label text=" Для сохранения изменения используйте комбинацию клавиш Shift-Enter">
+                  <font>
+                    <Font name="System Italic" size="10.0" />
+                  </font>
+                </Label>
+
+                <TextArea fx:id="aboutInput" minWidth="250.0">
+                  <VBox.margin>
+                    <Insets bottom="8.0" />
+                  </VBox.margin>
+                </TextArea>
+
+
+              </children>
+              <padding>
+                <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+              </padding>
+            </VBox>
           </content>
-               <content>
-                  <VBox spacing="8.0">
-                     <children>
-                        <HBox spacing="8.0">
-                           <children>
-                              <Button fx:id="removeSelectedBtn" mnemonicParsing="false" text="Удалить выбранные" />
-                              <Button fx:id="removeAllBtn" mnemonicParsing="false" text="Выйти со всех устройств" />
-                           </children>
-                           <VBox.margin>
-                              <Insets />
-                           </VBox.margin>
-                           <padding>
-                              <Insets left="8.0" right="8.0" top="8.0" />
-                           </padding>
-                        </HBox>
-                        <ListView fx:id="sessionsList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
-                           <padding>
-                              <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
-                           </padding>
-                        </ListView>
-                     </children>
-                  </VBox>
-               </content>
+          <padding>
+            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+          </padding>
         </ScrollPane>
+      </content>
+    </Tab>
+    <Tab fx:id="activeSessionsTab" text="Активные сессии">
+
+
+      <content>
+        <AnchorPane>
+          <children>
+            <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="540.0" spacing="8.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+              <children>
+                <HBox spacing="8.0">
+                  <children>
+                    <Button fx:id="removeSelectedBtn" mnemonicParsing="false" onAction="#deleteSelectedSessions" text="Удалить выбранные" />
+                    <Button fx:id="removeAllBtn" mnemonicParsing="false" onAction="#deleteAllSessions" text="Выйти со всех устройств" />
+                    <Button  mnemonicParsing="false" onAction="#refreshAllSessions" text="Обновить" />
+
+                  </children>
+                  <VBox.margin>
+                    <Insets />
+                  </VBox.margin>
+                  <padding>
+                    <Insets left="8.0" right="8.0" top="8.0" />
+                  </padding>
+                </HBox>
+                <ListView fx:id="sessionsList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS">
+                  <padding>
+                    <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+                  </padding>
+                </ListView>
+              </children>
+            </VBox>
+          </children>
+        </AnchorPane>
       </content>
     </Tab>
   </tabs>

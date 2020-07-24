@@ -564,6 +564,10 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
                         throw  new RuntimeException(e);
                     }
                     break;
+
+                case "id_token":
+                        token.setId(Long.parseLong(opt.getValue()));
+                    break;
             }
         }
         return Optional.of(token);
@@ -576,28 +580,35 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
         try {
             updateOption("token",token.getAccessToken());
         } catch (Exception e) {
-            throw new RuntimeException("Опиция token не существует", e);
+            throw new RuntimeException("Опция token не существует", e);
         }
         try {
             updateOption("refresh_token",token.getRefreshToken());
         } catch (Exception e) {
-            throw new RuntimeException("Опиция refresh_token не существует", e);
+            throw new RuntimeException("Опция refresh_token не существует", e);
         }
         try {
             updateOption("expired_token",tokenExpiredDateFormat.format(token.getExpired()));
         } catch (Exception e) {
-            throw new RuntimeException("Опиция expired_token не существует", e);
+            throw new RuntimeException("Опция expired_token не существует", e);
         }
 
         try {
             updateOption("id_user_token",token.getUserId()+"");
         } catch (Exception e) {
-            throw new RuntimeException("Опиция id_user_token не существует", e);
+            throw new RuntimeException("Опция id_user_token не существует", e);
         }
+
+        try {
+            updateOption("id_token",token.getId()+"");
+        } catch (Exception e) {
+            throw new RuntimeException("Опция id_token не существует", e);
+        }
+
         try {
             updateOption("user_name_token",token.getUserName());
         } catch (Exception e) {
-            throw new RuntimeException("Опиция user_name_token не существует", e);
+            throw new RuntimeException("Опция user_name_token не существует", e);
         }
 
     }
