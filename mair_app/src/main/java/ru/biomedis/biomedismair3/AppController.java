@@ -3,7 +3,6 @@ package ru.biomedis.biomedismair3;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -16,8 +15,6 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.binding.StringBinding;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -44,11 +41,12 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
-import javafx.util.Duration;
 import lombok.extern.slf4j.Slf4j;
 import org.anantacreative.updater.Update.UpdateException;
 import org.anantacreative.updater.Update.UpdateTask;
 import org.hid4java.HidDevice;
+import org.terracotta.ipceventbus.event.EventBusClient;
+import org.terracotta.ipceventbus.proc.Bus;
 import ru.biomedis.biomedismair3.Layouts.BiofonTab.BiofonTabController;
 import ru.biomedis.biomedismair3.Layouts.BiofonTab.BiofonUIUtil;
 import ru.biomedis.biomedismair3.Layouts.LeftPanel.LeftPanelAPI;
@@ -82,7 +80,6 @@ import ru.biomedis.biomedismair3.entity.TherapyComplex;
 import ru.biomedis.biomedismair3.entity.TherapyProgram;
 import ru.biomedis.biomedismair3.m2.M2;
 import ru.biomedis.biomedismair3.m2.M2BinaryFile;
-import ru.biomedis.biomedismair3.social.login.LoginController;
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient;
 import ru.biomedis.biomedismair3.social.social_panel.SocialPanelAPI;
 import ru.biomedis.biomedismair3.utils.Date.DateUtil;
@@ -226,6 +223,7 @@ public class AppController  extends BaseController {
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        eventBusClient = buildEventBusClient();
 
         res = rb;
         initNamesTables();
@@ -303,6 +301,8 @@ public class AppController  extends BaseController {
 
         getModel().setInProfileChanged(this::onLastChangeProfiles);
     }
+
+
 
     private void initSocialActions() {
 
@@ -1937,69 +1937,120 @@ if(!getConnectedDevice())return;
         thread.start();
     }
 
-    @Override
-    protected void onCompletedInitialization() {
-        if(getModel().isAutoUpdateEnable()){
-            System.out.println("Current starter version = "+App.getStarterVersion());
-            AutoUpdater.getAutoUpdater().startUpdater(App.getStarterVersion(), new AutoUpdater.Listener() {
-                @Override
-                public void taskCompleted() {
-                    try {
-                        Platform.runLater(() -> Waiter.openLayer(getApp().getMainWindow(),true));
-                        AutoUpdater.getAutoUpdater().performUpdateTask(new UpdateTask.UpdateListener() {
-                            @Override
-                            public void progress(int i) {
+    private void startAutoUpdate(){
+        AutoUpdater.getAutoUpdater().startUpdater(App.getStarterVersion(), new AutoUpdater.Listener() {
+            @Override
+            public void taskCompleted() {
+                try {
+                    Platform.runLater(() -> Waiter.openLayer(getApp().getMainWindow(),true));
+                    AutoUpdater.getAutoUpdater().performUpdateTask(new UpdateTask.UpdateListener() {
+                        @Override
+                        public void progress(int i) {
 
-                            }
+                        }
 
-                            @Override
-                            public void completed() {
-                                Platform.runLater(() ->  Waiter.closeLayer());
-                                System.out.println("Обновлен Starter");
-                            }
+                        @Override
+                        public void completed() {
+                            Platform.runLater(() ->  Waiter.closeLayer());
+                            System.out.println("Обновлен Starter");
+                        }
 
-                            @Override
-                            public void error(UpdateException e) {
-                               e.printStackTrace();
-                                log.error("Ошибка обновления starter",e);
-                                Platform.runLater(() ->  Waiter.closeLayer());
-                            }
-                        });
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        log.error("",e);
-                    }
-
-                }
-
-                @Override
-                public void error(Exception e) {
+                        @Override
+                        public void error(UpdateException e) {
+                            e.printStackTrace();
+                            log.error("Ошибка обновления starter",e);
+                            Platform.runLater(() ->  Waiter.closeLayer());
+                        }
+                    });
+                } catch (Exception e) {
                     e.printStackTrace();
                     log.error("",e);
                 }
 
-                @Override
-                public void completeFile(String name) {
+            }
 
+            @Override
+            public void error(Exception e) {
+                e.printStackTrace();
+                log.error("",e);
+            }
+
+            @Override
+            public void completeFile(String name) {
+
+            }
+
+            @Override
+            public void currentFileProgress(float val) {
+
+            }
+
+            @Override
+            public void nextFileStartDownloading(String name) {
+
+            }
+
+            @Override
+            public void totalProgress(float val) {
+
+            }
+        }, 3000);
+    }
+
+
+    private void onCompleteLoginRequestHandler( EventBusClient client) {
+        SocialClient.INSTANCE.completeLoginRequestProperty().addListener((observable, oldValue, newValue) -> {
+                if(newValue && newValue!=oldValue){
+                    client.trigger("to_starter", "run_completed");
+                    System.out.println("Start programm completed");
+                    //завершен запрос к серверу, программа готова к работе.
+                }
+        });
+    }
+    private Optional<EventBusClient> eventBusClient = Optional.empty();
+
+    private Optional<EventBusClient> buildEventBusClient(){
+        EventBusClient client = null;
+        try{
+            client =  new EventBusClient.Builder()
+                .id("starter")
+                .connect("localhost", 56789)
+                .build();
+
+            onCompleteLoginRequestHandler(client);
+
+            client.on("to_main_app", e -> {
+                System.out.println("EXIT Starter event");
+                String data = (String)e.getData();
+                if(data==null) return;
+                switch (data){
+                    case "exit"://стартер закрывается, можно начать обновление
+                        if(getModel().isAutoUpdateEnable()){
+                            System.out.println("Current starter version = "+App.getStarterVersion());
+                            startAutoUpdate();
+                        }
+                        break;
                 }
 
-                @Override
-                public void currentFileProgress(float val) {
-
-                }
-
-                @Override
-                public void nextFileStartDownloading(String name) {
-
-                }
-
-                @Override
-                public void totalProgress(float val) {
-
-                }
             });
+            return Optional.of(client);
+        }catch (Exception e){
+            //если не удалось подключиться к серверу eventbus в starter
+            log.error("Event bus connection error", e);
+            System.out.println("Event bus connection error");
+            return Optional.empty();
         }
 
+    }
+
+    @Override
+    protected void onCompletedInitialization() {
+
+            //если не удалось подключиться к серверу eventbus в starter
+            if(!eventBusClient.isPresent() && getModel().isAutoUpdateEnable()){
+                System.out.println("Current starter version = "+App.getStarterVersion());
+                startAutoUpdate();
+            }
 
         try {
             USBHelper.startHotPlugListener();
@@ -2007,6 +2058,8 @@ if(!getConnectedDevice())return;
             log.error("",e);
             showExceptionDialog("Детектирование USB подключений","Ошибка!","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
         }
+
+
     }
 
     @Override

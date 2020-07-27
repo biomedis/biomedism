@@ -116,7 +116,7 @@ public class AutoUpdater {
 
 
 
-    public void startUpdater(Version currentVersion,Listener listener) {
+    public void startUpdater(Version currentVersion,Listener listener, int startDelay_ms) {
         if (isProcessed()) {
 
             Platform.runLater(() -> App.getAppController().showWarningDialog(
@@ -129,7 +129,11 @@ public class AutoUpdater {
 
         Thread thread = new Thread(() -> {
             System.out.println("startUpdater");
-
+            try {
+                Thread.sleep(startDelay_ms);
+            } catch (InterruptedException e) {
+                log.error("", e);
+            }
 
             rootDirApp = null;
             try {

@@ -1,5 +1,7 @@
 package ru.biomedis.starter;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
@@ -20,6 +22,12 @@ import java.lang.management.ManagementFactory;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.terracotta.ipceventbus.event.Event;
+import org.terracotta.ipceventbus.event.EventBusServer;
+import org.terracotta.ipceventbus.io.Pipe;
+import org.terracotta.ipceventbus.proc.AnyProcess;
+import org.terracotta.ipceventbus.proc.Bus;
+import org.terracotta.ipceventbus.proc.EventJavaProcess;
 
 /**
  * Created by anama on 21.06.17.
@@ -317,25 +325,103 @@ public class App extends Application {
 
         }
 
+
+
+
+
+
+
+//            EventJavaProcess process = EventJavaProcess.newBuilder()
+//                .pipeStdout() // echo stdout
+//                .pipeStderr() // echo stderr
+//                .debug() // activate debug mode for ipc eventbus
+//                .command(command.toArray(new String[]{}))
+//                .build();
+//          process.on("to_starter",e -> {
+//            String data = (String)e.getData();
+//            if(data==null) return;
+//            switch (data){
+//              case "run_completed":
+//                System.out.println("Приложение полностью запущено");
+//                Bus.get().trigger("to_main_app", "exit");
+//                process.unbind("to_starter");
+//                System.exit(0);
+//                break;
+//            }
+//          });
+        Optional<ProcessBuilder> processBuilder = prepareAppProcess();
+        if(!processBuilder.isPresent()){
+            Log.logger.error("Не удалось подготовить процесс к запуску");
+            throw new RuntimeException("Не удалось подготовить процесс к запуску");
+        }
+        Map<String, Pipe> pipeMap = new HashMap<>();
+
+
+        boolean flag = false;
+        try{
+                EventBusServer busServer  = new EventBusServer.Builder()
+                    .id("starter")     // OPTIONAL: bus id
+                    .bind("localhost") // OPTIONAL: bind address
+                    .listen(56789)   // OPTIONAL: port to listen to. Default to 56789
+                    .build();
+
+                busServer.on("to_starter",e -> {
+                    String data = (String)e.getData();
+                    if(data==null) return;
+                    switch (data){
+                        case "run_completed":
+                            System.out.println("Приложение полностью запущено");
+                            busServer.trigger("to_main_app", "exit");
+                            busServer.unbind("to_starter");
+                            if(pipeMap.containsKey("in"))pipeMap.get("in").close();
+                            if(pipeMap.containsKey("err"))pipeMap.get("err").close();
+                            System.exit(0);
+                            break;
+                    }
+                });
+                flag  = true;
+            }catch (Exception e){
+                Log.logger.error("", e);
+            System.out.println("EVENT BUS DO NOT WORK");
+            }
+
+        try {
+            Process process = processBuilder.get().start();
+            pipeMap.put("in", new Pipe("from_main_app_in", new BufferedInputStream(process.getInputStream()), System.out));
+            pipeMap.put("err",  new Pipe("from_main_app_err", new BufferedInputStream(process.getErrorStream()), System.err));
+            Waiter.openLayer(getMainWindow(), true);
+
+        } catch (IOException ioException) {
+            throw new RuntimeException("Не удалось запустить приложение");
+        }
+        if(!flag) System.exit(0);//остановить, тк eventbus не работает. Мы просто запускаем и останавливаем
+
+    }
+
+    private Optional<ProcessBuilder> prepareAppProcess(){
         try {
             File currentJar = new File(App.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            if(!currentJar.getName().endsWith(".jar")) throw new Exception("Не найден путь к jar");
+            File jarDir;
+            if(!currentJar.getName().endsWith(".jar")) {
+                jarDir = new File("./");;
+                // throw new Exception("Не найден путь к jar");
+            }else jarDir = currentJar.getParentFile();
 
 
             final List<String> command = new ArrayList<>();
             String exec="";
             if(OSValidator.isUnix()){
-                exec = new File(currentJar.getParentFile(),"../runtime/bin/java").getAbsolutePath();
+                exec = new File(jarDir,"../runtime/bin/java").getAbsolutePath();
 
             }else if(OSValidator.isWindows()){
-                exec = new File(currentJar.getParentFile(),"./jre/bin/java.exe").getAbsolutePath();
+                exec = new File(jarDir,"./jre/bin/java.exe").getAbsolutePath();
 
             }else if(OSValidator.isMac()){
-                exec = new File(currentJar.getParentFile(),"../Plugins/Java.runtime/Contents/Home/bin/java").getAbsolutePath();
-                System.out.println(exec);
-                Log.logger.error("dddddd",exec);
+                exec = new File(jarDir,"../Plugins/Java.runtime/Contents/Home/bin/java").getAbsolutePath();
 
-            }else return;
+            }else return Optional.empty();
+
+
             command.add(exec);
             //command.add(generateJVMOptions());
             command.add("-Xms400m");
@@ -344,14 +430,14 @@ public class App extends Application {
             command.add("-jar");
             command.add(new File(currentJar.getParentFile(),"dist.jar").getAbsolutePath());
 
-            command.forEach(s -> System.out.println(" "+s));
-            final ProcessBuilder builder = new ProcessBuilder(command);
-            builder.start();
-            System.out.println("startProgram"+builder.toString());
-            System.exit(0);
-        } catch (Exception e) {
-            Log.logger.error("Ошибка запуска приложения",e);
-            throw new RuntimeException(e);
+            System.out.println("################################");
+            System.out.println("START APPLICATION: "+String.join(" ", command));
+            System.out.println("################################");
+
+            return Optional.of(new ProcessBuilder(command));
+        }catch (Exception e){
+            Log.logger.error("", e);
+            return Optional.empty();
         }
 
     }

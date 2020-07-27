@@ -48,6 +48,8 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
             AppController.getProgressAPI().setErrorMessage("Ошибка обработки запроса аутентификации.")
             log.error("Ошибка обработки запроса аутентификации.", e)
         } catch (needAuthByLogin: NeedAuthByLogin) {
+        }finally {
+            SocialClient.INSTANCE.completeLoginRequestProperty().value = true
         }
 
         client.isAuthProperty.addListener { _: ObservableValue<out Boolean>?, oldValue: Boolean, newValue: Boolean ->

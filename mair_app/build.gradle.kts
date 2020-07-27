@@ -28,7 +28,7 @@ tasks {
         kotlinOptions.jvmTarget = "1.8"
     }
     named<ShadowJar>("shadowJar") {
-        archiveBaseName.set("distr")
+        archiveBaseName.set("dist")
         mergeServiceFiles()
         manifest {
             attributes(mapOf("Main-Class" to "ru.biomedis.biomedismair3.App"))

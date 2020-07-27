@@ -478,6 +478,7 @@ public class AppController extends BaseController {
             Version useVersion;
             if(fVersion.lessThen(version) || distFile.exists()==false){
                 //значит пользователь поставил поверх новой версии старую чрез инсталлер и сейчас нужно обязательно обновить!!! Запускать нельзя тк могут быть ошибки
+                System.out.println("File v = "+fVersion+" db v = "+version+" file dist.jar exist = " +distFile.exists());
                 showErrorImage();
                 setTextInfo(getRes().getString("files_corrupted"));
                 hideVersionCheckIndicator();

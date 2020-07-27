@@ -54,6 +54,9 @@ public class SocialClient {
   private  TokenHolder tokenHolder = null;
   private Consumer<String> errorAction;
 
+  private SimpleBooleanProperty logged = new SimpleBooleanProperty(false);
+  private SimpleBooleanProperty completeLoginRequest = new SimpleBooleanProperty(false);
+
   public static SocialClient INSTANCE = null;
 
   private static ObjectMapper mapper = new ObjectMapper()
@@ -225,6 +228,30 @@ public class SocialClient {
       isAuth.set(false);
     }
     return res;
+  }
+
+  public boolean isLogged() {
+    return logged.get();
+  }
+
+  public SimpleBooleanProperty loggedProperty() {
+    return logged;
+  }
+
+  public void setLogged(boolean logged) {
+    this.logged.set(logged);
+  }
+
+  public boolean isCompleteLoginRequest() {
+    return completeLoginRequest.get();
+  }
+
+  public SimpleBooleanProperty completeLoginRequestProperty() {
+    return completeLoginRequest;
+  }
+
+   void setCompleteLoginRequest(boolean completeLoginRequest) {
+    this.completeLoginRequest.set(completeLoginRequest);
   }
 
   /**

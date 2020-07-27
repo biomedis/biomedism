@@ -103,7 +103,7 @@ subprojects{
 		implementation( "io.github.openfeign","feign-jackson", "11.0")
 		implementation( "io.github.openfeign","feign-okhttp", "11.0")
 		implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", "2.10.0")
-
+		implementation( "org.terracotta", "ipc-eventbus","1.1.1")
 	}
 
 	configure<JavaPluginConvention> {
