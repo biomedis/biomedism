@@ -280,9 +280,7 @@ public class App extends Application {
   @Override
     public void start(Stage stage) throws Exception {
 
-
-       log.info("Старт программы");
-
+    log.info("Старт программы");
 
       String develop = System.getProperty("develop");
       developed = Boolean.parseBoolean(develop);
@@ -840,6 +838,12 @@ https://gist.github.com/DemkaAge/8999236
 
         //перед закрытием произойдет уведомление всех подписчиков и закрытие глобальных контекстов
         stage.setOnCloseRequest(event -> {
+          if(AutoUpdater.getAutoUpdater().isProcessed()){
+            event.consume();
+            AppController.getProgressAPI().setInfoMessage(getResources().getString("launcher_is_updating"));
+            return;
+          }
+
             closeAppListeners.stream().forEach(listeners->listeners.onClose());
 
             try {

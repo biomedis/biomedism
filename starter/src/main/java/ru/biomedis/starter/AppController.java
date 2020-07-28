@@ -11,6 +11,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import org.anantacreative.updater.Pack.Exceptions.PackException;
 import org.anantacreative.updater.Update.AbstractUpdateTaskCreator;
@@ -446,7 +447,12 @@ public class AppController extends BaseController {
     }
     public void onStartProgram(){
         disableUpdateAndStartProgram();
-        getApp().startMainApp();
+        try{
+            getApp().startMainApp();
+        }catch (Exception e){
+            startProgramBtn.setDisable(false);
+            showErrorDialog(getRes().getString("app_start"),"",e.getMessage(), getControllerWindow(), Modality.WINDOW_MODAL);
+        }
     }
 
     private Version getVersionFromFile(){

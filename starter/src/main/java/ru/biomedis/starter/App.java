@@ -254,6 +254,10 @@ public class App extends Application {
 
         //перед закрытием произойдет уведомление всех подписчиков и закрытие глобальных контекстов
         stage.setOnCloseRequest(event -> {
+            if(AutoUpdater.getAutoUpdater().isProcessed()){
+                event.consume();
+                return;
+            }
             closeAppListeners.stream().forEach(listeners->listeners.onClose());
             WebHelper.getWebHelper().close();
         });
@@ -324,31 +328,6 @@ public class App extends Application {
             return;
 
         }
-
-
-
-
-
-
-
-//            EventJavaProcess process = EventJavaProcess.newBuilder()
-//                .pipeStdout() // echo stdout
-//                .pipeStderr() // echo stderr
-//                .debug() // activate debug mode for ipc eventbus
-//                .command(command.toArray(new String[]{}))
-//                .build();
-//          process.on("to_starter",e -> {
-//            String data = (String)e.getData();
-//            if(data==null) return;
-//            switch (data){
-//              case "run_completed":
-//                System.out.println("Приложение полностью запущено");
-//                Bus.get().trigger("to_main_app", "exit");
-//                process.unbind("to_starter");
-//                System.exit(0);
-//                break;
-//            }
-//          });
         Optional<ProcessBuilder> processBuilder = prepareAppProcess();
         if(!processBuilder.isPresent()){
             Log.logger.error("Не удалось подготовить процесс к запуску");
