@@ -354,17 +354,22 @@ public class SocialClient {
       //при неверном токене, в декодере ошибки, будет проведена попытка обновить или извлечь из базы
       template.removeHeader("Authorization");
       template.removeHeader("User-Agent");
+      template.removeHeader("Accept-Language");
       template.header("Authorization", "Bearer " + tokenProvider.get());
       template.header("User-Agent", "("+OSValidator.osAlt()+") "+"BiomedisMAir/"+ App.getAppVersion());
-
+      template.header("Accept-Language", App.getStaticModel().getProgramLanguage().getAbbr().toLowerCase());
     }
   }
+
 
   private static class UserAgentInterceptor implements RequestInterceptor {
 
     @Override
     public void apply(RequestTemplate template) {
+      template.removeHeader("User-Agent");
+      template.removeHeader("Accept-Language");
       template.header("User-Agent", "("+OSValidator.osAlt()+") "+"BiomedisMAir/"+ App.getAppVersion());
+      template.header("Accept-Language", App.getStaticModel().getProgramLanguage().getAbbr().toLowerCase());
     }
   }
 
