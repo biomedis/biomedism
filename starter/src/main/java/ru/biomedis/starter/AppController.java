@@ -11,13 +11,15 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.StageStyle;
 import org.anantacreative.updater.Pack.Exceptions.PackException;
 import org.anantacreative.updater.Update.AbstractUpdateTaskCreator;
 import org.anantacreative.updater.Update.UpdateException;
 import org.anantacreative.updater.Update.UpdateTask;
-import org.anantacreative.updater.Version;
+
 import org.anantacreative.updater.VersionCheck.DefineActualVersionError;
+import org.anantacreative.updater.VersionCheck.Version;
 import org.anantacreative.updater.VersionCheck.XML.XmlVersionChecker;
 
 import java.io.File;
@@ -445,7 +447,12 @@ public class AppController extends BaseController {
     }
     public void onStartProgram(){
         disableUpdateAndStartProgram();
-        getApp().startMainApp();
+        try{
+            getApp().startMainApp();
+        }catch (Exception e){
+            startProgramBtn.setDisable(false);
+            showErrorDialog(getRes().getString("app_start"),"",e.getMessage(), getControllerWindow(), Modality.WINDOW_MODAL);
+        }
     }
 
     private Version getVersionFromFile(){
@@ -477,6 +484,7 @@ public class AppController extends BaseController {
             Version useVersion;
             if(fVersion.lessThen(version) || distFile.exists()==false){
                 //значит пользователь поставил поверх новой версии старую чрез инсталлер и сейчас нужно обязательно обновить!!! Запускать нельзя тк могут быть ошибки
+                System.out.println("File v = "+fVersion+" db v = "+version+" file dist.jar exist = " +distFile.exists());
                 showErrorImage();
                 setTextInfo(getRes().getString("files_corrupted"));
                 hideVersionCheckIndicator();

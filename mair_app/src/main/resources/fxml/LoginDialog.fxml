@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.PasswordField?>
+<StackPane fx:id="root" prefHeight="170.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.social.login.LoginController">
+   <children>
+      <VBox fx:id="login" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="170.0" spacing="8.0">
+         <children>
+            <Label text="Email:" />
+            <HBox fx:id="emailInputBox">
+               <VBox.margin>
+                  <Insets bottom="5.0" />
+               </VBox.margin>
+            </HBox>
+            <Label text="Password:" />
+            <PasswordField fx:id="passwordInput" minWidth="250.0">
+               <VBox.margin>
+                  <Insets bottom="8.0" />
+               </VBox.margin>
+            </PasswordField>
+            <Button fx:id="logIn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onLoginAction" text="Войти">
+               <styleClass>
+                  <String fx:value="GenericBtn" />
+               </styleClass>
+            </Button>
+            <HBox>
+               <children>
+                  <Hyperlink onAction="#registration" text="Регистрация" />
+                  <Hyperlink fx:id="forgotPassword" onAction="#remember_password" text="Забыли пароль?" />
+               </children>
+            </HBox>
+         </children>
+         <padding>
+            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+         </padding>
+      </VBox>
+      <VBox fx:id="confirmation" alignment="CENTER_LEFT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="170.0" spacing="8.0" visible="false">
+         <children>
+            <Label text="Введите проверочный код, отправленный на email:" />
+            <TextField fx:id="inputCode" />
+            <Button fx:id="sendCode" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onConfirmEmailAction" text="Отправить" />
+            <Hyperlink fx:id="resend" maxWidth="1.7976931348623157E308" onAction="#onResend" text="Отправить повторно код" />
+            <Label fx:id="info" maxWidth="1.7976931348623157E308" />
+
+         </children>
+         <padding>
+            <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+         </padding>
+      </VBox>
+   </children>
+</StackPane>
