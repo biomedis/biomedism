@@ -16,7 +16,7 @@
         <java-version>1.8</java-version>
         <programmVersionMajor>1</programmVersionMajor>
         <programmVersionMinor>0</programmVersionMinor>
-        <log4j.version>2.5</log4j.version>
+        <log4j.version>2.13.3</log4j.version>
 
     </properties>
 
