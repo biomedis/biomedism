@@ -6,11 +6,21 @@ import feign.RequestLine;
 import java.util.List;
 import ru.biomedis.biomedismair3.social.account.AccountSmallView;
 import ru.biomedis.biomedismair3.social.account.AccountView;
+import ru.biomedis.biomedismair3.social.account.AccountWithRoles;
 import ru.biomedis.biomedismair3.social.account.ActiveSession;
 import ru.biomedis.biomedismair3.social.account.FindData;
 
 
 public interface AccountClient {
+
+  @RequestLine("GET /roles")
+  List<String> allRoles();
+
+  @RequestLine("GET /all_users")
+  List<AccountWithRoles> allUsers();
+
+  @RequestLine("GET /roles/{id}")
+  List<String> userRoles(@Param("id")long id);
 
   @RequestLine("GET /change_name?name={name}")
   void changeUserName(@Param("name") String name);

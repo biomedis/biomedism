@@ -568,6 +568,13 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
                 case "id_token":
                         token.setId(Long.parseLong(opt.getValue()));
                     break;
+
+                case "roles_token":
+                    String[] split = opt.getValue().split("\\s");
+                    List<String> roles = new ArrayList<>();
+                    Collections.addAll(roles, split);
+                    token.setRolesNames(roles);
+                    break;
             }
         }
         return Optional.of(token);
@@ -580,35 +587,48 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
         try {
             updateOption("token",token.getAccessToken());
         } catch (Exception e) {
+            createOption("token","");
             throw new RuntimeException("Опция token не существует", e);
         }
         try {
             updateOption("refresh_token",token.getRefreshToken());
         } catch (Exception e) {
+            createOption("refresh_token","");
             throw new RuntimeException("Опция refresh_token не существует", e);
         }
         try {
             updateOption("expired_token",tokenExpiredDateFormat.format(token.getExpired()));
         } catch (Exception e) {
+            createOption("expired_token","");
             throw new RuntimeException("Опция expired_token не существует", e);
         }
 
         try {
             updateOption("id_user_token",token.getUserId()+"");
         } catch (Exception e) {
+            createOption("id_user_token","");
             throw new RuntimeException("Опция id_user_token не существует", e);
         }
 
         try {
             updateOption("id_token",token.getId()+"");
         } catch (Exception e) {
+            createOption("id_token","");
             throw new RuntimeException("Опция id_token не существует", e);
         }
 
         try {
             updateOption("user_name_token",token.getUserName());
         } catch (Exception e) {
+            createOption("user_name_token","");
             throw new RuntimeException("Опция user_name_token не существует", e);
+        }
+        //сохранение ролей не опасно, тк на сервере идет проверка через jwt токен, который содержит роли
+        try {
+            updateOption("roles_token",String.join(" ",token.getRolesNames()));
+        } catch (Exception e) {
+            createOption("roles_token","");
+            throw new RuntimeException("Опция roles_token не существует", e);
         }
 
     }
@@ -640,6 +660,12 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
             updateOption("user_name_token","");
         } catch (Exception e) {
             createOption("user_name_token","");
+        }
+
+        try {
+            updateOption("roles_token","");
+        } catch (Exception e) {
+            createOption("roles_token","");
         }
     }
 

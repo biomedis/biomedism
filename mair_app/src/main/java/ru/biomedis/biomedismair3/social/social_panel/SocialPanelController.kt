@@ -1,12 +1,16 @@
 package ru.biomedis.biomedismair3.social.social_panel
 
+import javafx.application.Platform
+import javafx.beans.value.ChangeListener
 import javafx.beans.value.ObservableValue
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.fxml.FXML
+import javafx.scene.Node
 import javafx.scene.control.Button
 import javafx.scene.control.Hyperlink
 import javafx.scene.control.Label
+import javafx.scene.control.Tab
 import javafx.scene.layout.HBox
 import javafx.stage.WindowEvent
 import ru.biomedis.biomedismair3.AppController
@@ -29,6 +33,8 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
     @FXML
     private lateinit var logIn: Button
 
+    private var adminTab: Tab? = null
+
     private lateinit var res: ResourceBundle
 
     val log by LoggerDelegate()
@@ -40,7 +46,6 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
     override fun onCompletedInitialization() {
         try {
             client.initProcessToken()
-            showLogout()
         } catch (e: ServerProblemException) {
             log.error("Ошибка обновления аутентификации. Попробуйте позже.", e)
             AppController.getProgressAPI().setErrorMessage("Ошибка обновления аутентификации. Попробуйте позже.")
@@ -50,11 +55,6 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
         } catch (needAuthByLogin: NeedAuthByLogin) {
         }finally {
             SocialClient.INSTANCE.completeLoginRequestProperty().value = true
-        }
-
-        client.isAuthProperty.addListener { _: ObservableValue<out Boolean>?, oldValue: Boolean, newValue: Boolean ->
-            if (oldValue == newValue) return@addListener
-            if (newValue) showLogout() else showLogin()
         }
     }
 
@@ -68,6 +68,24 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
         client = SocialClient.INSTANCE
         logIn.onAction = EventHandler(this::login)
         tokenRepository = model
+
+        SocialClient.INSTANCE.isAuthProperty.addListener{
+            _,oldV, newV->
+            println("$oldV $newV")
+            if (oldV == newV) return@addListener
+            if (newV) showLogout() else showLogin()
+            adminTab = if(newV && client.isAdmin){
+                adminTab()
+            }else {
+                if(adminTab!=null){
+                    val tab = adminTab
+                    Platform.runLater {
+                        AppController.getAppController().removeTab(tab, true)
+                    }
+                }
+                null
+            }
+        }
     }
 
     //todo - сделать если чел вошел, то при нажатии - меню, с выбором выйти. выйти со всех устройств.
@@ -96,6 +114,7 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
         isLogin = false
         logIn.text = "Войти"
         hideUserName()
+        println("SHOW LOGIN")
     }
 
 
@@ -104,6 +123,8 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
         isLogin = true
         logIn.text = "Выйти"
         showUserName()
+        println("SHOW LOGOUT")
+
     }
 
     override fun setName(name: String) {
@@ -133,5 +154,19 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
         val link = root.children[0] as Hyperlink
         link.onAction = null
         root.children.remove(link)
+    }
+
+    private fun adminTab(): Tab {
+        val tab = Tab("Admin")
+
+       val node = try {
+            loadContent("/fxml/Admin.fxml")
+        } catch (exception: Exception) {
+            throw RuntimeException(exception)
+        }
+        tab.content = node
+        tab.isClosable = false
+       Platform.runLater { AppController.getAppController().addTab(tab) }
+        return tab
     }
 }

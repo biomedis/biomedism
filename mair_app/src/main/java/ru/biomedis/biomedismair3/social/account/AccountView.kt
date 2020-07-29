@@ -155,3 +155,8 @@ class ActiveSession {
     var region: String = ""
 
 }
+
+class AccountWithRoles{
+    lateinit var  smallView: AccountSmallView
+    lateinit var  roles: List<String>
+}

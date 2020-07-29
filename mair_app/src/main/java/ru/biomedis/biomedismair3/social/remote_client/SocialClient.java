@@ -54,7 +54,7 @@ public class SocialClient {
   private  TokenHolder tokenHolder = null;
   private Consumer<String> errorAction;
 
-  private SimpleBooleanProperty logged = new SimpleBooleanProperty(false);
+
   private SimpleBooleanProperty completeLoginRequest = new SimpleBooleanProperty(false);
 
   public static SocialClient INSTANCE = null;
@@ -67,6 +67,11 @@ public class SocialClient {
     apiURL = _apiURL;
 
     INSTANCE = new SocialClient(tokenRepository);
+
+  }
+
+  public boolean isAdmin(){
+   return getToken().map(token -> token.getRoles().contains(Role.ADMIN)).orElse(false);
   }
 
   public boolean isIsAuth() {
@@ -82,6 +87,10 @@ public class SocialClient {
   }
 
   private SocialClient(TokenRepository tokenRepository) {
+    isAuth.addListener((observable, oldValue, newValue) -> {
+      if(newValue)log.info("Пользователь аутентифицировался");
+      else log.info("Пользователь потерял аутентификацию");
+    });
     Supplier<String> tokenProvider =  () -> tokenHolder==null?"":tokenHolder.getAccessToken();
 
     LoginErrorDecoder loginErrorDecoder = new LoginErrorDecoder();
@@ -230,17 +239,6 @@ public class SocialClient {
     return res;
   }
 
-  public boolean isLogged() {
-    return logged.get();
-  }
-
-  public SimpleBooleanProperty loggedProperty() {
-    return logged;
-  }
-
-  public void setLogged(boolean logged) {
-    this.logged.set(logged);
-  }
 
   public boolean isCompleteLoginRequest() {
     return completeLoginRequest.get();
@@ -289,6 +287,7 @@ public class SocialClient {
 
           initProcessToken();//в случае ошибки инициирует процессинг токена
           //повтор запроса, если успешно обновлен токен
+
           return new RetryableException(
               response.status(),
               "Token is invalid",

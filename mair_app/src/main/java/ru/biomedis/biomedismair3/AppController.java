@@ -21,6 +21,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -304,6 +305,15 @@ public class AppController  extends BaseController {
 
 
 
+    public void addTab(Tab tab){
+        therapyTabPane.getTabs().add(tab);
+    }
+
+    public void removeTab(Tab tab, boolean focusToProfile){
+        if(focusToProfile)therapyTabPane.getSelectionModel().select(0);
+        therapyTabPane.getTabs().remove(tab);
+
+    }
     private void initSocialActions() {
 
         SocialClient.INSTANCE.setErrorAction(m -> {

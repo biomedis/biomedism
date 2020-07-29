@@ -48,6 +48,11 @@ import org.jetbrains.annotations.NotNull;
 @Slf4j
 public abstract class BaseController implements Initializable {
     protected static App app = null;
+
+    public static AppController getAppController() {
+        return mdc;
+    }
+
     protected static AppController mdc = null;
     protected Stage window = null;
 
@@ -336,6 +341,23 @@ public abstract class BaseController implements Initializable {
         controller.onCompletedInitialization();
         if(controller==null) throw new RuntimeException("Controller must be not null");
         return (Initializable) controller;
+    }
+
+
+
+    @NotNull
+    public Node loadContent(@NotNull String fxml, Object... params) throws Exception {
+
+        URL location = app.getClass().getResource(fxml);
+        FXMLLoader fxmlLoader = new FXMLLoader(location, app.strings);
+        fxmlLoader.setBuilderFactory(new JavaFXBuilderFactory());
+        Parent root = fxmlLoader.load();
+        BaseController controller = (BaseController) fxmlLoader.getController();
+        controller.setWindow(this.window);
+        controller.setParams(params);//до открытия окна в show можно устанавливать любые параметры
+        controller.onCompletedInitialization();
+        if(controller==null) throw new RuntimeException("Controller must be not null");
+        return root;
     }
 
     /**
