@@ -134,6 +134,8 @@ class AccountSmallView {
     var surname: String = ""
     var skype: String = ""
     var email: String = ""
+    var city: String = ""
+    var country: String = ""
     var isPartner: Boolean = false
     var isDoctor: Boolean = false
     var isCompany: Boolean = false
@@ -156,7 +158,7 @@ class ActiveSession {
 
 }
 
-class AccountWithRoles{
-    lateinit var  smallView: AccountSmallView
-    lateinit var  roles: List<String>
+class AccountWithRoles {
+    lateinit var userSmallView: AccountSmallView
+    lateinit var roles: List<String>
 }

@@ -160,7 +160,7 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
         val tab = Tab("Admin")
 
        val node = try {
-            loadContent("/fxml/Admin.fxml")
+            loadContent("/fxml/Admin.fxml").key
         } catch (exception: Exception) {
             throw RuntimeException(exception)
         }

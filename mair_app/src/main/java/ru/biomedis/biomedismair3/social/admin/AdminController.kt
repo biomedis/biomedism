@@ -1,11 +1,22 @@
 package ru.biomedis.biomedismair3.social.admin
 
+import javafx.fxml.FXML
+import javafx.scene.Node
+import javafx.scene.control.Tab
+import javafx.scene.control.TabPane
 import javafx.stage.WindowEvent
 import ru.biomedis.biomedismair3.BaseController
+import java.lang.RuntimeException
 import java.net.URL
 import java.util.*
 
-class AdminController: BaseController(){
+class AdminController : BaseController() {
+
+    @FXML
+    private lateinit var tabs: TabPane
+
+    private val controllersMap = mutableMapOf<String, Selected>()
+
     override fun setParams(vararg params: Any?) {
 
     }
@@ -19,6 +30,33 @@ class AdminController: BaseController(){
     }
 
     override fun initialize(location: URL, resources: ResourceBundle) {
+        tabs.selectionModel.selectedItemProperty().addListener {
+            _, oldValue, newValue ->
+            if(oldValue==newValue) return@addListener
+            controllersMap[newValue.id]?.onSelected()
+        }
 
+        addTab("Рассылки", "/fxml/AdminMessages.fxml", "admin_messages")
+        addTab("Пользователи", "/fxml/Users.fxml", "users")
+
+        tabs.selectionModel.select(0)
     }
+
+    private fun addTab(tabName: String, fxml: String, fxId: String,  vararg arg: Any): Pair<Node, Selected>{
+        val result = loadContent(fxml, arg)
+        if(result.value !is Selected) throw RuntimeException("Контроллер должен реализовывать интерфейс Selected")
+        Tab(tabName).apply {
+            content = result.key
+            isClosable = false
+            id=fxId
+        }.also {
+            tabs.tabs.add(it)
+        }
+        controllersMap[fxId] = result.value as Selected
+        return result.key to controllersMap[fxId]!!
+    }
+}
+
+interface Selected{
+    fun onSelected()
 }

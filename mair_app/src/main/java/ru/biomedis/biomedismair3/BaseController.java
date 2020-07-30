@@ -41,6 +41,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
+import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
@@ -344,9 +345,8 @@ public abstract class BaseController implements Initializable {
     }
 
 
-
     @NotNull
-    public Node loadContent(@NotNull String fxml, Object... params) throws Exception {
+    public Pair<Node, BaseController> loadContent(@NotNull String fxml, Object... params) throws Exception {
 
         URL location = app.getClass().getResource(fxml);
         FXMLLoader fxmlLoader = new FXMLLoader(location, app.strings);
@@ -357,7 +357,7 @@ public abstract class BaseController implements Initializable {
         controller.setParams(params);//до открытия окна в show можно устанавливать любые параметры
         controller.onCompletedInitialization();
         if(controller==null) throw new RuntimeException("Controller must be not null");
-        return root;
+        return new Pair<>(root, controller);
     }
 
     /**
@@ -465,7 +465,7 @@ public abstract class BaseController implements Initializable {
         alert.showAndWait();
     }
 
-    public static void showExceptionDialog(@NotNull String title, @NotNull String header, @NotNull String content,@NotNull  Exception ex, @NotNull Window owner, Modality modal) {
+    public static void showExceptionDialog(@NotNull String title, @NotNull String header, @NotNull String content,@NotNull  Throwable ex, @NotNull Window owner, Modality modal) {
 
         Alert alert = new Alert(AlertType.ERROR);
         alert.setTitle(title);
