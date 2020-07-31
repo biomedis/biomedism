@@ -87,16 +87,31 @@ public interface AccountClient {
   @RequestLine("PUT /bris/{param}")
   void setBris(@Param("param") boolean bris);
 
+  @RequestLine("PUT /depot/{param}")
+  void setDepot(@Param("param") boolean depot);
+
+
+
+  @RequestLine("PUT /doctor/{userId}/{param}")
+  void setDoctor(@Param("param") boolean doctor, @Param("userId") long userId);
+
+  @RequestLine("PUT /partner/{userId}/{param}")
+  void setPartner(@Param("param") boolean partner, @Param("userId") long userId);
+
+  @RequestLine("PUT /bris/{userId}/{param}")
+  void setBris(@Param("param") boolean bris, @Param("userId") long userId);
 
   @RequestLine("PUT /support/{userId}/{param}")
-  void setSupport(@Param("param") boolean support, @Param("userId") String userId);
+  void setSupport(@Param("param") boolean support, @Param("userId") long userId);
 
 
   @RequestLine("PUT /company/{userId}/{param}")
-  void setCompany(@Param("param") boolean company, @Param("userId") String userId);
+  void setCompany(@Param("param") boolean company, @Param("userId") long userId);
 
-  @RequestLine("PUT /depot/{param}")
-  void setDepot(@Param("param") boolean depot);
+
+  @RequestLine("PUT /depot/{userId}/{param}")
+  void setDepot(@Param("param") boolean depot, @Param("userId") long userId);
+
 
   @RequestLine("GET /send_code_change_email?email={email}")
   void sendCodeToChangeEmail(@Param("email") String email);
