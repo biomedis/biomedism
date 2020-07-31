@@ -1,8 +1,6 @@
 package ru.biomedis.biomedismair3.social.admin
 
 import javafx.beans.property.ReadOnlyObjectWrapper
-import javafx.beans.property.SimpleObjectProperty
-import javafx.beans.value.ChangeListener
 import javafx.collections.FXCollections
 import javafx.collections.transformation.FilteredList
 import javafx.fxml.FXML
@@ -15,12 +13,21 @@ import javafx.stage.Modality
 import javafx.stage.WindowEvent
 import javafx.util.Callback
 import ru.biomedis.biomedismair3.BaseController
-import ru.biomedis.biomedismair3.BlockingAction
+import ru.biomedis.biomedismair3.BlockingAction.actionNoResult
+import ru.biomedis.biomedismair3.BlockingAction.actionResult
 import ru.biomedis.biomedismair3.social.account.AccountWithRoles
+import ru.biomedis.biomedismair3.social.admin.UsersController.ColumnId.BRIS
+import ru.biomedis.biomedismair3.social.admin.UsersController.ColumnId.COMPANY
+import ru.biomedis.biomedismair3.social.admin.UsersController.ColumnId.DEPOT
+import ru.biomedis.biomedismair3.social.admin.UsersController.ColumnId.DOCTOR
+import ru.biomedis.biomedismair3.social.admin.UsersController.ColumnId.PARTNER
+import ru.biomedis.biomedismair3.social.admin.UsersController.ColumnId.SUPPORT
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import java.net.URL
 import java.util.*
+import kotlin.reflect.KMutableProperty0
+import ru.biomedis.biomedismair3.utils.Other.Result as ResultAction
 
 
 class UsersController : BaseController(), Selected {
@@ -66,12 +73,12 @@ class UsersController : BaseController(), Selected {
         this += addCol("Имя", ColumnId.NAME, CallbackCenteredTextTableCell()) { userSmallView.name }
         this += addCol("Фамилия", ColumnId.SURNAME, CallbackCenteredTextTableCell()) { userSmallView.surname }
         this += addCol("Skype", ColumnId.SKYPE, CallbackCenteredTextTableCell()) { userSmallView.skype }
-        this += addCol("Партнер", ColumnId.PARTNER, booleanCell) { userSmallView.isPartner }
-        this += addCol("Доктор", ColumnId.DOCTOR, booleanCell) { userSmallView.isDoctor }
-        this += addCol("Компания", ColumnId.COMPANY, booleanCell) { userSmallView.isCompany }
-        this += addCol("Склад", ColumnId.DEPOT, booleanCell) { userSmallView.isDepot }
-        this += addCol("Поддержка", ColumnId.SUPPORT, booleanCell) { userSmallView.isSupport }
-        this += addCol("Диагност", ColumnId.BRIS, booleanCell) { userSmallView.isBris }
+        this += addCol("Партнер", PARTNER, booleanCell) { userSmallView.isPartner }
+        this += addCol("Доктор", DOCTOR, booleanCell) { userSmallView.isDoctor }
+        this += addCol("Компания", COMPANY, booleanCell) { userSmallView.isCompany }
+        this += addCol("Склад", DEPOT, booleanCell) { userSmallView.isDepot }
+        this += addCol("Поддержка", SUPPORT, booleanCell) { userSmallView.isSupport }
+        this += addCol("Диагност", BRIS, booleanCell) { userSmallView.isBris }
     }
 
     /**
@@ -89,31 +96,41 @@ class UsersController : BaseController(), Selected {
 
 
     private fun onBooleanEditField(item: AccountWithRoles, fxId: String, value: Boolean): Boolean{
+
+        fun ResultAction<*>.setValue(property: KMutableProperty0<Boolean>):ResultAction<*>{
+            if(!this.isError) property.set(value)
+            return this
+        }
+
         val client = SocialClient.INSTANCE.accountClient
         val id = item.userSmallView.id
 
-        val result = when (fxId) {
-            ColumnId.BRIS -> BlockingAction.actionNoResult(controllerWindow) { client.setBris(value, id) }
-            ColumnId.COMPANY -> BlockingAction.actionNoResult(controllerWindow) { client.setCompany(value, id) }
-            ColumnId.SUPPORT -> BlockingAction.actionNoResult(controllerWindow) { client.setSupport(value, id) }
-            ColumnId.DOCTOR -> BlockingAction.actionNoResult(controllerWindow) { client.setDoctor(value, id) }
-            ColumnId.DEPOT -> BlockingAction.actionNoResult(controllerWindow) { client.setDepot(value, id) }
-            ColumnId.PARTNER -> BlockingAction.actionNoResult(controllerWindow) { client.setPartner(value, id) }
+        val uitem = item.userSmallView
+        val result: ResultAction<*> = when (fxId) {
+            BRIS -> actionNoResult(controllerWindow) { client.setBris(value, id) }.setValue(uitem::isBris)
+            COMPANY -> actionNoResult(controllerWindow) { client.setCompany(value, id) }.setValue(uitem::isBris)
+            SUPPORT -> actionNoResult(controllerWindow) { client.setSupport(value, id) }.setValue(uitem::isBris)
+            DOCTOR -> actionNoResult(controllerWindow) { client.setDoctor(value, id) }.setValue(uitem::isBris)
+            DEPOT -> actionNoResult(controllerWindow) { client.setDepot(value, id) }.setValue(uitem::isBris)
+            PARTNER -> actionNoResult(controllerWindow) { client.setPartner(value, id) }.setValue(uitem::isBris)
             else -> throw RuntimeException("$fxId has not handler")
         }
 
-        if(result.isError){
-            showExceptionDialog("Изменение значений","","Неудачно",result.error,controllerWindow, Modality.WINDOW_MODAL)
+        return if(result.isError){
+            showExceptionDialog(
+                    "Изменение значений",
+                    "",
+                    "Неудачно",
+                    result.error,
+                    controllerWindow,
+                    Modality.WINDOW_MODAL)
             log.error("",result.error)
-            return false
-        }
-
-
-        TODO("Сделать на сервере эндпоинты админа для изменения булеанов")
+            false
+        }else true
     }
 
     private fun loadData() {
-        val result = BlockingAction.actionResult(controllerWindow) {
+        val result = actionResult(controllerWindow) {
             SocialClient.INSTANCE.accountClient.allUsers()
         }
 
