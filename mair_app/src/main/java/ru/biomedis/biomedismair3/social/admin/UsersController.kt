@@ -1,13 +1,18 @@
 package ru.biomedis.biomedismair3.social.admin
 
 import javafx.beans.property.ReadOnlyObjectWrapper
+import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
 import javafx.collections.transformation.FilteredList
 import javafx.fxml.FXML
+import javafx.geometry.Pos
+import javafx.scene.control.CheckBox
+import javafx.scene.control.TableCell
 import javafx.scene.control.TableColumn
 import javafx.scene.control.TableView
 import javafx.stage.Modality
 import javafx.stage.WindowEvent
+import javafx.util.Callback
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.social.account.AccountWithRoles
@@ -51,26 +56,33 @@ class UsersController : BaseController(), Selected {
     }
 
     private fun createColumns(): List<TableColumn<AccountWithRoles, *>> = mutableListOf<TableColumn<AccountWithRoles, *>>().apply {
-        this += addCol("ID") { userSmallView.id }
-        this += addCol("Email") { userSmallView.email }
-        this += addCol("Login") { userSmallView.login }
-        this += addCol("Имя") { userSmallView.name }
-        this += addCol("Фамилия") { userSmallView.surname }
-        this += addCol("Skype") { userSmallView.skype }
-        this += addCol("Партнер") { userSmallView.isPartner }
-        this += addCol("Доктор") { userSmallView.isDoctor }
-        this += addCol("Компания") { userSmallView.isCompany }
-        this += addCol("Склад") { userSmallView.isDepot }
-        this += addCol("Поддержка") { userSmallView.isSupport }
-        this += addCol("Диагност") { userSmallView.isBris }
+
+
+        this += addCol("ID", CallbackCenteredTextTableCell()) { userSmallView.id }
+        this += addCol("Email", CallbackCenteredTextTableCell()) { userSmallView.email }
+        this += addCol("Login", CallbackCenteredTextTableCell()) { userSmallView.login }
+        this += addCol("Имя", CallbackCenteredTextTableCell()) { userSmallView.name }
+        this += addCol("Фамилия", CallbackCenteredTextTableCell()) { userSmallView.surname }
+        this += addCol("Skype", CallbackCenteredTextTableCell()) { userSmallView.skype }
+        this += addCol("Партнер", CallbackCenteredBooleanTableCell()) { userSmallView.isPartner }
+        this += addCol("Доктор", CallbackCenteredBooleanTableCell()) { userSmallView.isDoctor }
+        this += addCol("Компания", CallbackCenteredBooleanTableCell()) { userSmallView.isCompany }
+        this += addCol("Склад", CallbackCenteredBooleanTableCell()) { userSmallView.isDepot }
+        this += addCol("Поддержка", CallbackCenteredBooleanTableCell()) { userSmallView.isSupport }
+        this += addCol("Диагност", CallbackCenteredBooleanTableCell()) { userSmallView.isBris }
     }
 
-
-    private inline fun <reified T> addCol(name: String, crossinline field: AccountWithRoles.() -> T): TableColumn<AccountWithRoles, T> =
+    /**
+     * [name] имя столбца, [maxWidth] макс. ширина столбца, если < 0, то столбец не ограничивается.
+     * [field] лямбда возвращает поле, из модели, которое должно отображаться, оно будет обернуто в ObservableObject
+     */
+    private inline fun <reified T> addCol(name: String, tableCellFactory: Callback<TableColumn<AccountWithRoles, T>, TableCell<AccountWithRoles, T>>, crossinline field: AccountWithRoles.() -> T): TableColumn<AccountWithRoles, T> =
             TableColumn<AccountWithRoles, T>(name).apply {
                 setCellValueFactory {
                     ReadOnlyObjectWrapper<T>(it.value.field())
                 }
+                setCellFactory(tableCellFactory)
+
             }
 
     private fun loadData() {
@@ -94,7 +106,54 @@ class UsersController : BaseController(), Selected {
     }
 
     override fun onSelected() {
-        if(_data.isEmpty())refresh()
+        if (_data.isEmpty()) refresh()
     }
 
 }
+
+
+class CallbackCenteredTextTableCell<T> : Callback<TableColumn<AccountWithRoles, T>, TableCell<AccountWithRoles, T>> {
+    override fun call(param: TableColumn<AccountWithRoles, T>?): TableCell<AccountWithRoles, T> {
+        return CenteredTextTableCell()
+    }
+}
+
+class CallbackCenteredBooleanTableCell(private val disabled: Boolean = false) : Callback<TableColumn<AccountWithRoles, Boolean>, TableCell<AccountWithRoles, Boolean>> {
+    override fun call(param: TableColumn<AccountWithRoles, Boolean>?): TableCell<AccountWithRoles, Boolean> {
+        return CenteredBooleanTableCell(disabled)
+    }
+}
+
+class CenteredTextTableCell<T> : TableCell<AccountWithRoles, T>() {
+    init {
+        alignment = Pos.CENTER
+    }
+
+    override fun updateItem(item: T?, empty: Boolean) {
+        super.updateItem(item, empty)
+        if (item != null && !empty) text = item.toString()
+    }
+}
+
+class CenteredBooleanTableCell(private val disabled: Boolean = false) : TableCell<AccountWithRoles, Boolean>() {
+    private val checkBox: CheckBox = CheckBox()
+
+    init {
+        alignment = Pos.CENTER
+        checkBox.isDisable = disabled
+    }
+
+    override fun updateItem(item: Boolean?, empty: Boolean) {
+        super.updateItem(item, empty)
+
+        if (item != null && !empty) {
+            checkBox.isSelected = item
+            graphic = checkBox
+        } else {
+            text = null
+            graphic = null
+        }
+    }
+}
+
+

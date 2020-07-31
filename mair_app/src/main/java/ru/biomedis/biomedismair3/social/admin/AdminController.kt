@@ -6,12 +6,14 @@ import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
 import javafx.stage.WindowEvent
 import ru.biomedis.biomedismair3.BaseController
+import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import java.lang.RuntimeException
 import java.net.URL
 import java.util.*
 
 class AdminController : BaseController() {
 
+    private val log by LoggerDelegate()
     @FXML
     private lateinit var tabs: TabPane
 
@@ -35,9 +37,14 @@ class AdminController : BaseController() {
             if(oldValue==newValue) return@addListener
             controllersMap[newValue.id]?.onSelected()
         }
+        try{
+            addTab("Рассылки", "/fxml/AdminMessages.fxml", "admin_messages")
+            addTab("Пользователи", "/fxml/Users.fxml", "users")
+        }catch (e: Exception){
+            log.error("", e)
+            throw e
+        }
 
-        addTab("Рассылки", "/fxml/AdminMessages.fxml", "admin_messages")
-        addTab("Пользователи", "/fxml/Users.fxml", "users")
 
         tabs.selectionModel.select(0)
     }
