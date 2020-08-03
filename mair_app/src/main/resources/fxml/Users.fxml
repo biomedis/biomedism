@@ -2,9 +2,13 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.social.admin.UsersController">
   <padding>
@@ -23,9 +27,67 @@
     <TableView fx:id="table" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER" />
   </center>
    <top>
-      <HBox spacing="8.0" BorderPane.alignment="CENTER">
+      <HBox maxWidth="1.7976931348623157E308" spacing="8.0" BorderPane.alignment="CENTER">
          <children>
-            <Button mnemonicParsing="false" text="Обновить" onAction="#refresh" />
+            <Button mnemonicParsing="false" onAction="#refresh" text="Обновить" />
+            <VBox>
+               <children>
+                 <Label alignment="TOP_LEFT" maxWidth="1.7976931348623157E308" text="Фильтр пользователей:" textFill="#0c1be1">
+                     <font>
+                        <Font name="System Bold Italic" size="13.0" />
+                     </font></Label>
+                  <HBox alignment="BOTTOM_LEFT" spacing="8.0">
+                     <children>
+                        <HBox alignment="CENTER_LEFT">
+                           <children>
+                             <Label alignment="TOP_LEFT" maxWidth="1.7976931348623157E308" text="Партнер: " />
+                             <CheckBox fx:id="partnerBtn" />
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT">
+                           <children>
+                              <Label alignment="TOP_LEFT" maxWidth="1.7976931348623157E308" text="Доктор: " />
+                             <CheckBox fx:id="doctorBtn" />
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT">
+                           <children>
+                             <Label alignment="TOP_LEFT" maxWidth="1.7976931348623157E308" text="Представитель компании: " />
+                             <CheckBox fx:id="companyBtn" />
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT">
+                           <children>
+                             <Label alignment="TOP_LEFT" maxWidth="1.7976931348623157E308" text="Склад: " />
+                             <CheckBox fx:id="depotBtn" />
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT">
+                           <children>
+                             <Label alignment="TOP_LEFT" maxWidth="1.7976931348623157E308" text="Поддержка: " />
+                             <CheckBox fx:id="supportBtn" />
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT">
+                           <children>
+                             <Label alignment="TOP_LEFT" maxWidth="1.7976931348623157E308" text="Диагност: " />
+                             <CheckBox fx:id="brisBtn" />
+                           </children>
+                        </HBox>
+                        <HBox alignment="CENTER_LEFT">
+                           <children>
+                             <Label alignment="TOP_LEFT" maxWidth="1.7976931348623157E308" text="Другие: " />
+                             <CheckBox fx:id="othersBtn" />
+                           </children>
+                        </HBox>
+                        <Button mnemonicParsing="false" text="Выбрать всех" onAction="#checkAll"/>
+                     </children>
+                     <padding>
+                        <Insets right="8.0" />
+                     </padding>
+                  </HBox>
+               </children>
+            </VBox>
          </children>
          <padding>
             <Insets bottom="5.0" top="5.0" />

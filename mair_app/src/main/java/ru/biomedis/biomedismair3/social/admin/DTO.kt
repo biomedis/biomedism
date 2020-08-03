@@ -1,12 +1,11 @@
-package ru.biomedis.biomedismair3.social.account
+package ru.biomedis.biomedismair3.social.admin
 
-import javafx.beans.property.*
-import java.time.Instant
-import java.time.LocalDateTime
-import java.util.*
+import javafx.beans.property.BooleanProperty
+import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.SimpleStringProperty
+import javafx.beans.property.StringProperty
 
-
-class AccountView {
+class AccountSmallViewObserved {
     var id: Long = -1
 
     private var _login: StringProperty = SimpleStringProperty(this, "login", "")
@@ -58,102 +57,50 @@ class AccountView {
 
     fun skypeProperty() = _skype
 
-    private var _about: StringProperty = SimpleStringProperty(this, "about", "")
-    var about: String
-        get() = _about.get()
-        set(s) = _about.set(s)
-
-    fun aboutProperty() = _about
-
     private var _depot: BooleanProperty = SimpleBooleanProperty(this, "depot", false)
-    var depot: Boolean
+    var isDepot: Boolean
         get() = _depot.get()
         set(s) = _depot.set(s)
 
     fun depotProperty() = _depot
 
     private var _doctor: BooleanProperty = SimpleBooleanProperty(this, "doctor", false)
-    var doctor: Boolean
+    var isDoctor: Boolean
         get() = _doctor.get()
         set(s) = _doctor.set(s)
 
     fun doctorProperty() = _doctor
 
     private var _partner: BooleanProperty = SimpleBooleanProperty(this, "partner", false)
-    var partner: Boolean
+    var isPartner: Boolean
         get() = _partner.get()
         set(s) = _partner.set(s)
 
     fun partnerProperty() = _partner
 
     private var _bris: BooleanProperty = SimpleBooleanProperty(this, "bris", false)
-    var bris: Boolean
+    var isBris: Boolean
         get() = _bris.get()
         set(s) = _bris.set(s)
 
     fun brisProperty() = _bris
 
     private var _company: BooleanProperty = SimpleBooleanProperty(this, "company", false)
-    var company: Boolean
+    var isCompany: Boolean
         get() = _company.get()
         set(s) = _company.set(s)
 
     fun companyProperty() = _company
 
     private var _support: BooleanProperty = SimpleBooleanProperty(this, "support", false)
-    var support: Boolean
+    var isSupport: Boolean
         get() = _support.get()
         set(s) = _support.set(s)
 
     fun supportProperty() = _support
 }
 
-class FindData {
-    var name: String = ""
-    var surname: String = ""
-    var skype: String = ""
-    var about: String = ""
-    var isPartner: BooleanFind = BooleanFind()
-    var isDoctor: BooleanFind = BooleanFind()
-    var isCompany: BooleanFind = BooleanFind()
-    var isDepot: BooleanFind = BooleanFind()
-    var isSupport: BooleanFind = BooleanFind()
-    var isBris: BooleanFind = BooleanFind()
-}
-
-class BooleanFind {
-    var use: Boolean = false
-    var value: Boolean = false
-}
-
-
-class AccountSmallView {
-    var id: Long = -1
-    var login: String = ""
-    var name: String = ""
-    var surname: String = ""
-    var skype: String = ""
-    var email: String = ""
-    var city: String = ""
-    var country: String = ""
-    var isPartner: Boolean = false
-    var isDoctor: Boolean = false
-    var isCompany: Boolean = false
-    var isDepot: Boolean = false
-    var isSupport: Boolean = false
-    var isBris: Boolean = false
-}
-
-class ActiveSession {
-    var id: Long = -1
-    var expired: Date = Date.from(Instant.now())
-    var expiredRefresh: Date = Date.from(Instant.now())
-    var created: Date = Date.from(Instant.now())
-    var ip: String = ""
-    var os: String = ""
-    var browser: String = ""
-    var city: String = ""
-    var country: String = ""
-    var region: String = ""
-
+class AccountWithRoles {
+    lateinit var userSmallView: AccountSmallViewObserved
+    lateinit var roles: List<String>
 }

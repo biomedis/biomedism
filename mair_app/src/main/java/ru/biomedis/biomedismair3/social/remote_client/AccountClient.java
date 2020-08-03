@@ -6,9 +6,9 @@ import feign.RequestLine;
 import java.util.List;
 import ru.biomedis.biomedismair3.social.account.AccountSmallView;
 import ru.biomedis.biomedismair3.social.account.AccountView;
-import ru.biomedis.biomedismair3.social.account.AccountWithRoles;
 import ru.biomedis.biomedismair3.social.account.ActiveSession;
 import ru.biomedis.biomedismair3.social.account.FindData;
+import ru.biomedis.biomedismair3.social.admin.AccountWithRoles;
 
 
 public interface AccountClient {
