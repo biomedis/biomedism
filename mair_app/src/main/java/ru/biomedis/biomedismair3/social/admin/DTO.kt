@@ -1,9 +1,15 @@
 package ru.biomedis.biomedismair3.social.admin
 
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.JavaType
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.beans.property.StringProperty
+import ru.biomedis.biomedismair3.social.remote_client.Role
 
 class AccountSmallViewObserved {
     var id: Long = -1
@@ -102,5 +108,20 @@ class AccountSmallViewObserved {
 
 class AccountWithRoles {
     lateinit var userSmallView: AccountSmallViewObserved
-    lateinit var roles: List<String>
+
+    @JsonDeserialize(using = CustomRoleDeserializer::class)
+    lateinit var roles: List<Role>
+}
+
+class CustomRoleDeserializer: StdDeserializer<List<Role>> {
+    constructor():this(null as Class<*>?)
+    constructor(vc: Class<*>?) : super(vc)
+    constructor(valueType: JavaType?) : super(valueType)
+    constructor(src: StdDeserializer<*>?) : super(src)
+
+    override fun deserialize(p: JsonParser, ctxt: DeserializationContext): List<Role> {
+        val values: Array<String> = p.readValueAs(Array<String>::class.java)
+       return Role.listByArrayNames(values)
+    }
+
 }

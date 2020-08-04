@@ -26,9 +26,27 @@ enum class Role(val value: String, val roleName: String ) {
             return values().filter { namesSet.contains(it.value) }.toSet()
         }
         @JvmStatic
-        fun byListNames(names:List<String>): Set<Role> {
+        fun setByListNames(names:Iterable<String>): Set<Role> {
             val namesSet = names.toHashSet()
             return values().filter { namesSet.contains(it.value) }.toSet()
+        }
+
+        @JvmStatic
+        fun listByListNames(names:Iterable<String>): List<Role> {
+            val namesSet = names.toHashSet()
+            return values().filter { namesSet.contains(it.value) }.distinct().toList()
+        }
+
+        @JvmStatic
+        fun setByArrayNames(names:Array<String>): Set<Role> {
+            val namesSet = names.toHashSet()
+            return values().filter { namesSet.contains(it.value) }.toSet()
+        }
+
+        @JvmStatic
+        fun listByArrayNames(names:Array<String>): List<Role> {
+            val namesSet = names.toHashSet()
+            return values().filter { namesSet.contains(it.value) }.distinct().toList()
         }
 
         @JvmStatic

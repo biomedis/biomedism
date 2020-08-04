@@ -1,15 +1,14 @@
 package ru.biomedis.biomedismair3.social.admin
 
+import javafx.beans.InvalidationListener
 import javafx.beans.Observable
 import javafx.beans.property.ReadOnlyObjectWrapper
 import javafx.collections.FXCollections
+import javafx.collections.ListChangeListener
 import javafx.collections.transformation.FilteredList
 import javafx.fxml.FXML
 import javafx.geometry.Pos
-import javafx.scene.control.CheckBox
-import javafx.scene.control.TableCell
-import javafx.scene.control.TableColumn
-import javafx.scene.control.TableView
+import javafx.scene.control.*
 import javafx.stage.Modality
 import javafx.stage.WindowEvent
 import javafx.util.Callback
@@ -22,6 +21,7 @@ import ru.biomedis.biomedismair3.social.admin.UsersController.ColumnId.DEPOT
 import ru.biomedis.biomedismair3.social.admin.UsersController.ColumnId.DOCTOR
 import ru.biomedis.biomedismair3.social.admin.UsersController.ColumnId.PARTNER
 import ru.biomedis.biomedismair3.social.admin.UsersController.ColumnId.SUPPORT
+import ru.biomedis.biomedismair3.social.remote_client.Role
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import java.net.URL
@@ -116,11 +116,15 @@ class UsersController : BaseController(), Selected {
 
         val booleanCell = CallbackCenteredBooleanTableCell(false, this@UsersController::onBooleanEditField)
 
+
         this += addCol("ID", ColumnId.ID, CallbackCenteredTextTableCell()) { userSmallView.id }
+        this += addCol("Статус", ColumnId.ROLES, CallbackRolesTableCell()) { roles }
         this += addCol("Email", ColumnId.EMAIL, CallbackCenteredTextTableCell()) { userSmallView.email }
         this += addCol("Login", ColumnId.LOGIN, CallbackCenteredTextTableCell()) { userSmallView.login }
         this += addCol("Имя", ColumnId.NAME, CallbackCenteredTextTableCell()) { userSmallView.name }
         this += addCol("Фамилия", ColumnId.SURNAME, CallbackCenteredTextTableCell()) { userSmallView.surname }
+        this += addCol("Страна", ColumnId.COUNTRY, CallbackCenteredTextTableCell()) { userSmallView.country }
+        this += addCol("Город", ColumnId.CITY, CallbackCenteredTextTableCell()) { userSmallView.city }
         this += addCol("Skype", ColumnId.SKYPE, CallbackCenteredTextTableCell()) { userSmallView.skype }
         this += addCol("Партнер", PARTNER, booleanCell) { userSmallView.isPartner }
         this += addCol("Доктор", DOCTOR, booleanCell) { userSmallView.isDoctor }
@@ -143,6 +147,9 @@ class UsersController : BaseController(), Selected {
                 id = fxId
             }
 
+    private fun onBooleanEditField(item: AccountWithRoles, value: List<Role>): Boolean{
+            return true
+    }
 
     private fun onBooleanEditField(item: AccountWithRoles, fxId: String, value: Boolean): Boolean {
 
@@ -217,6 +224,7 @@ class UsersController : BaseController(), Selected {
         const val DEPOT = "DEPOT_col"
         const val DOCTOR = "DOCTOR_col"
         const val SUPPORT = "SUPPORT_col"
+        const val ROLES = "ROLES_col"
     }
 
     /**
@@ -275,6 +283,11 @@ class UsersController : BaseController(), Selected {
     }
 }
 
+class CallbackRolesTableCell() : Callback<TableColumn<AccountWithRoles, List<Role>>, TableCell<AccountWithRoles, List<Role>>> {
+    override fun call(param: TableColumn<AccountWithRoles, List<Role>>?): TableCell<AccountWithRoles, List<Role>> {
+        return CenteredRoleTableCell()
+    }
+}
 
 class CallbackCenteredTextTableCell<T> : Callback<TableColumn<AccountWithRoles, T>, TableCell<AccountWithRoles, T>> {
     override fun call(param: TableColumn<AccountWithRoles, T>?): TableCell<AccountWithRoles, T> {
@@ -327,4 +340,27 @@ class CenteredBooleanTableCell(private val disabled: Boolean = false, private va
     }
 }
 
+class CenteredRoleTableCell() : TableCell<AccountWithRoles, List<Role>>() {
 
+    init {
+        alignment = Pos.CENTER
+    }
+
+    override fun updateItem(item: List<Role>?, empty: Boolean) {
+        super.updateItem(item, empty)
+
+        if (item != null && !empty) {
+            when {
+                item.contains(Role.ADMIN) -> text = Role.ADMIN.roleName
+                item.contains(Role.DELETED) -> text = Role.DELETED.roleName
+                item.contains(Role.BANNED) -> text = Role.BANNED.roleName
+                item.contains(Role.USER) -> text = Role.USER.roleName
+                item.contains(Role.NOT_APPROVED) -> text = Role.NOT_APPROVED.roleName
+            }
+        } else {
+            text = null
+            graphic = null
+        }
+
+    }
+}

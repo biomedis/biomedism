@@ -101,13 +101,13 @@ public class Token {
   public void setRolesNames(List<String> rolesNames) {
     this.rolesNames = rolesNames;
     roles.clear();
-    roles.addAll(Role.byListNames(rolesNames));
+    roles.addAll(Role.setByListNames(rolesNames));
   }
 
   @JsonIgnore
   public Set<Role> getRoles() {
     if(!rolesNames.isEmpty() && roles.isEmpty()){
-      roles.addAll(Role.byListNames(rolesNames));
+      roles.addAll(Role.setByListNames(rolesNames));
     }
     return roles;
   }
