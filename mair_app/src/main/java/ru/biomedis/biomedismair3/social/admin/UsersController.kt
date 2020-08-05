@@ -2,7 +2,9 @@ package ru.biomedis.biomedismair3.social.admin
 
 import javafx.beans.Observable
 import javafx.beans.property.ReadOnlyObjectWrapper
+import javafx.beans.value.ObservableValue
 import javafx.collections.FXCollections
+import javafx.collections.ObservableList
 import javafx.collections.transformation.FilteredList
 import javafx.fxml.FXML
 import javafx.geometry.Pos
@@ -145,31 +147,43 @@ class UsersController : BaseController(), Selected {
         val booleanCell = CallbackCenteredBooleanTableCell(false, this@UsersController::onBooleanEditField)
 
 
-        this += addCol("ID", ColumnId.ID, CallbackIdTableCell(this@UsersController::onRolesEditField)) { userSmallView.id }
-        this += addCol("Статус", ColumnId.ROLES, CallbackRolesTableCell()) { roles }
-        this += addCol("Email", ColumnId.EMAIL, CallbackCenteredTextTableCell()) { userSmallView.email }
-        this += addCol("Login", ColumnId.LOGIN, CallbackCenteredTextTableCell()) { userSmallView.login }
-        this += addCol("Имя", ColumnId.NAME, CallbackCenteredTextTableCell()) { userSmallView.name }
-        this += addCol("Фамилия", ColumnId.SURNAME, CallbackCenteredTextTableCell()) { userSmallView.surname }
-        this += addCol("Страна", ColumnId.COUNTRY, CallbackCenteredTextTableCell()) { userSmallView.country }
-        this += addCol("Город", ColumnId.CITY, CallbackCenteredTextTableCell()) { userSmallView.city }
-        this += addCol("Skype", ColumnId.SKYPE, CallbackCenteredTextTableCell()) { userSmallView.skype }
-        this += addCol("Партнер", PARTNER, booleanCell) { userSmallView.isPartner }
-        this += addCol("Доктор", DOCTOR, booleanCell) { userSmallView.isDoctor }
-        this += addCol("Компания", COMPANY, booleanCell) { userSmallView.isCompany }
-        this += addCol("Склад", DEPOT, booleanCell) { userSmallView.isDepot }
-        this += addCol("Поддержка", SUPPORT, booleanCell) { userSmallView.isSupport }
-        this += addCol("Диагност", BRIS, booleanCell) { userSmallView.isBris }
+        this += addCol("ID", ColumnId.ID, CallbackIdTableCell(this@UsersController::onRolesEditField)){ReadOnlyObjectWrapper(userSmallView.id)}
+        this += addColList("Статус", ColumnId.ROLES, CallbackRolesTableCell()) { rolesProperty() }
+        this += addCol("Email", ColumnId.EMAIL, CallbackCenteredTextTableCell()) { userSmallView.emailProperty() }
+        this += addCol("Login", ColumnId.LOGIN, CallbackCenteredTextTableCell()) { userSmallView.loginProperty() }
+        this += addCol("Имя", ColumnId.NAME, CallbackCenteredTextTableCell()) { userSmallView.nameProperty() }
+        this += addCol("Фамилия", ColumnId.SURNAME, CallbackCenteredTextTableCell()) { userSmallView.surnameProperty() }
+        this += addCol("Страна", ColumnId.COUNTRY, CallbackCenteredTextTableCell()) { userSmallView.countryProperty() }
+        this += addCol("Город", ColumnId.CITY, CallbackCenteredTextTableCell()) { userSmallView.cityProperty() }
+        this += addCol("Skype", ColumnId.SKYPE, CallbackCenteredTextTableCell()) { userSmallView.skypeProperty() }
+        this += addCol("Партнер", PARTNER, booleanCell) { userSmallView.partnerProperty() }
+        this += addCol("Доктор", DOCTOR, booleanCell) { userSmallView.doctorProperty() }
+        this += addCol("Компания", COMPANY, booleanCell) { userSmallView.companyProperty() }
+        this += addCol("Склад", DEPOT, booleanCell) { userSmallView.depotProperty() }
+        this += addCol("Поддержка", SUPPORT, booleanCell) { userSmallView.supportProperty() }
+        this += addCol("Диагност", BRIS, booleanCell) { userSmallView.brisProperty() }
     }
 
     /**
      * [name] имя столбца, [maxWidth] макс. ширина столбца, если < 0, то столбец не ограничивается.
      * [field] лямбда возвращает поле, из модели, которое должно отображаться, оно будет обернуто в ObservableObject
      */
-    private inline fun <reified T> addCol(name: String, fxId: String, tableCellFactory: Callback<TableColumn<AccountWithRoles, T>, TableCell<AccountWithRoles, T>>, crossinline field: AccountWithRoles.() -> T): TableColumn<AccountWithRoles, T> =
+    private inline fun <reified T> addCol(name: String, fxId: String, tableCellFactory: Callback<TableColumn<AccountWithRoles, T>, TableCell<AccountWithRoles, T>> , crossinline field: AccountWithRoles.() -> ObservableValue<T>): TableColumn<AccountWithRoles, T> =
             TableColumn<AccountWithRoles, T>(name).apply {
                 setCellValueFactory {
-                    ReadOnlyObjectWrapper<T>(it.value.field())
+                    it.value.field()
+                }
+                cellFactory = tableCellFactory
+                id = fxId
+            }
+
+    private inline fun <reified T> addColList(name: String,
+                                              fxId: String,
+                                              tableCellFactory: Callback<TableColumn<AccountWithRoles, ObservableList<T>>, TableCell<AccountWithRoles, ObservableList<T>>> ,
+                                              crossinline field: AccountWithRoles.() -> ObservableValue<ObservableList<T>>): TableColumn<AccountWithRoles, ObservableList<T>> =
+            TableColumn<AccountWithRoles, ObservableList<T>>(name).apply {
+                setCellValueFactory {
+                    it.value.field()
                 }
                 cellFactory = tableCellFactory
                 id = fxId
@@ -178,12 +192,13 @@ class UsersController : BaseController(), Selected {
     private fun onRolesEditField(item: AccountWithRoles) {
         val result = RolesController.openRolesDialog(controllerWindow, item.roles)
         val set = item.roles.toSet()
+
         //списки одинаковы, изменений нет
         if (set == result.toSet()) return
         else {
             item.roles.clear()
             result.forEach { item.roles.add(it) }
-            table.refresh()
+            //table.refresh()
         }
 
     }
@@ -219,7 +234,7 @@ class UsersController : BaseController(), Selected {
                     controllerWindow,
                     Modality.WINDOW_MODAL)
             log.error("", result.error)
-            table.refresh()
+            //table.refresh()
             false
         } else true
     }
@@ -332,8 +347,8 @@ class UsersController : BaseController(), Selected {
     }
 }
 
-class CallbackRolesTableCell() : Callback<TableColumn<AccountWithRoles, List<Role>>, TableCell<AccountWithRoles, List<Role>>> {
-    override fun call(param: TableColumn<AccountWithRoles, List<Role>>?): TableCell<AccountWithRoles, List<Role>> {
+class CallbackRolesTableCell() : Callback<TableColumn<AccountWithRoles, ObservableList<Role>>, TableCell<AccountWithRoles, ObservableList<Role>>> {
+    override fun call(param: TableColumn<AccountWithRoles, ObservableList<Role>>?): TableCell<AccountWithRoles, ObservableList<Role>> {
         return CenteredRoleTableCell()
     }
 }
@@ -395,13 +410,13 @@ class CenteredBooleanTableCell(private val disabled: Boolean = false, private va
     }
 }
 
-class CenteredRoleTableCell() : TableCell<AccountWithRoles, List<Role>>() {
+class CenteredRoleTableCell() : TableCell<AccountWithRoles, ObservableList<Role>>() {
 
     init {
         alignment = Pos.CENTER
     }
 
-    override fun updateItem(item: List<Role>?, empty: Boolean) {
+    override fun updateItem(item: ObservableList<Role>?, empty: Boolean) {
         super.updateItem(item, empty)
 
         if (item != null && !empty) {
