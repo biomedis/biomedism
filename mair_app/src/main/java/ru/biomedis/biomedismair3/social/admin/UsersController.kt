@@ -1,10 +1,8 @@
 package ru.biomedis.biomedismair3.social.admin
 
-import javafx.beans.InvalidationListener
 import javafx.beans.Observable
 import javafx.beans.property.ReadOnlyObjectWrapper
 import javafx.collections.FXCollections
-import javafx.collections.ListChangeListener
 import javafx.collections.transformation.FilteredList
 import javafx.fxml.FXML
 import javafx.geometry.Pos
@@ -14,6 +12,7 @@ import javafx.scene.layout.Priority
 import javafx.stage.Modality
 import javafx.stage.WindowEvent
 import javafx.util.Callback
+import javafx.util.StringConverter
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction.actionNoResult
 import ru.biomedis.biomedismair3.BlockingAction.actionResult
@@ -38,6 +37,9 @@ class UsersController : BaseController(), Selected {
     private lateinit var table: TableView<AccountWithRoles>
 
     @FXML
+    private lateinit var rolesChoice: ChoiceBox<Role?>
+
+    @FXML
     private lateinit var supportBtn: CheckBox
 
     @FXML
@@ -60,7 +62,8 @@ class UsersController : BaseController(), Selected {
 
     private val filterCheckboxes = mutableListOf<CheckBox>()
     private val _data = FXCollections.observableArrayList<AccountWithRoles>(extractor())
-    private val data: FilteredList<AccountWithRoles> = FilteredList(_data)
+    private val dataRolesFiltered: FilteredList<AccountWithRoles> = FilteredList(_data)
+    private val data: FilteredList<AccountWithRoles> = FilteredList(dataRolesFiltered)
 
     private val log by LoggerDelegate()
 
@@ -82,7 +85,30 @@ class UsersController : BaseController(), Selected {
         table.tableMenuButtonVisibleProperty().value = true
         initViewFilterControls()
         table.items = data
+        initRolesChoice()
     }
+
+
+    private fun initRolesChoice() {
+        rolesChoice.converter = object : StringConverter<Role?>() {
+            override fun toString(item: Role?): String {
+                return item?.roleName ?: "Все"
+            }
+
+            override fun fromString(itemString: String?): Role {
+                throw RuntimeException("Редактирование не планировалось")
+            }
+        }
+        rolesChoice.items.add(null)
+        Role.allRoles().forEach { rolesChoice.items.add(it) }
+        rolesChoice.selectionModel.select(0)
+        rolesChoice.setOnAction { onRolesFilterAction() }
+    }
+
+    private fun onRolesFilterAction() {
+        data.predicate = DataRolesFilterPredicate()
+    }
+
 
     private fun initViewFilterControls() {
         fun CheckBox.setup() {
@@ -107,7 +133,7 @@ class UsersController : BaseController(), Selected {
     }
 
     private fun onChangeFilter() {
-        data.predicate = DataFilterPredicate()
+        dataRolesFiltered.predicate = DataFilterPredicate()
     }
 
     fun refresh() {
@@ -149,8 +175,17 @@ class UsersController : BaseController(), Selected {
                 id = fxId
             }
 
-    private fun onRolesEditField(item: AccountWithRoles): Unit{
-        println("!!!!!")
+    private fun onRolesEditField(item: AccountWithRoles) {
+        val result = RolesController.openRolesDialog(controllerWindow, item.roles)
+        val set = item.roles.toSet()
+        //списки одинаковы, изменений нет
+        if (set == result.toSet()) return
+        else {
+            item.roles.clear()
+            result.forEach { item.roles.add(it) }
+            table.refresh()
+        }
+
     }
 
 
@@ -184,6 +219,7 @@ class UsersController : BaseController(), Selected {
                     controllerWindow,
                     Modality.WINDOW_MODAL)
             log.error("", result.error)
+            table.refresh()
             false
         } else true
     }
@@ -265,6 +301,14 @@ class UsersController : BaseController(), Selected {
 
     }
 
+    private inner class DataRolesFilterPredicate : Predicate<AccountWithRoles> {
+        override fun test(t: AccountWithRoles): Boolean {
+            val selectedRole: Role = rolesChoice.selectionModel.selectedItem ?: return true
+            return t.roles.contains(selectedRole)
+        }
+
+    }
+
     /**
      * Позволяет генерировать события изменения списка при изменени указанных свойств объекта
      */
@@ -276,7 +320,9 @@ class UsersController : BaseController(), Selected {
                     p.userSmallView.supportProperty(),
                     p.userSmallView.partnerProperty(),
                     p.userSmallView.depotProperty(),
-                    p.userSmallView.doctorProperty())
+                    p.userSmallView.doctorProperty(),
+                    p.userSmallView.emailProperty(),
+                    p.rolesProperty())
         }
     }
 

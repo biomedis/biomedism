@@ -5,10 +5,8 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JavaType
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer
-import javafx.beans.property.BooleanProperty
-import javafx.beans.property.SimpleBooleanProperty
-import javafx.beans.property.SimpleStringProperty
-import javafx.beans.property.StringProperty
+import javafx.beans.property.*
+import javafx.collections.FXCollections
 import ru.biomedis.biomedismair3.social.remote_client.Role
 
 class AccountSmallViewObserved {
@@ -109,8 +107,16 @@ class AccountSmallViewObserved {
 class AccountWithRoles {
     lateinit var userSmallView: AccountSmallViewObserved
 
-    @JsonDeserialize(using = CustomRoleDeserializer::class)
-    lateinit var roles: List<Role>
+
+    private val _roles: ListProperty<Role> = SimpleListProperty<Role>(this,"roles", FXCollections.observableArrayList())
+
+    @set:JsonDeserialize(using = CustomRoleDeserializer::class)
+    var roles: MutableList<Role>
+        get() = _roles.get()
+        set(s) {
+            _roles.addAll(s)
+        }
+     fun rolesProperty() = _roles
 }
 
 class CustomRoleDeserializer: StdDeserializer<List<Role>> {

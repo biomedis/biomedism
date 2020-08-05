@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
@@ -92,6 +93,19 @@
                      </padding>
                   </HBox>
                </children>
+            </VBox>
+            <VBox>
+               <children>
+                  <Label maxWidth="1.7976931348623157E308" text="Фильтр по ролям" textFill="#0c1be1">
+                     <font>
+                        <Font name="System Bold Italic" size="13.0" />
+                     </font>
+                  </Label>
+                  <ChoiceBox fx:id="rolesChoice" maxWidth="1.7976931348623157E308" />
+               </children>
+               <HBox.margin>
+                  <Insets left="8.0" />
+               </HBox.margin>
             </VBox>
          </children>
          <padding>
