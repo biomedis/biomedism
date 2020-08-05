@@ -9,6 +9,8 @@ import javafx.collections.transformation.FilteredList
 import javafx.fxml.FXML
 import javafx.geometry.Pos
 import javafx.scene.control.*
+import javafx.scene.layout.HBox
+import javafx.scene.layout.Priority
 import javafx.stage.Modality
 import javafx.stage.WindowEvent
 import javafx.util.Callback
@@ -117,7 +119,7 @@ class UsersController : BaseController(), Selected {
         val booleanCell = CallbackCenteredBooleanTableCell(false, this@UsersController::onBooleanEditField)
 
 
-        this += addCol("ID", ColumnId.ID, CallbackCenteredTextTableCell()) { userSmallView.id }
+        this += addCol("ID", ColumnId.ID, CallbackIdTableCell(this@UsersController::onRolesEditField)) { userSmallView.id }
         this += addCol("Статус", ColumnId.ROLES, CallbackRolesTableCell()) { roles }
         this += addCol("Email", ColumnId.EMAIL, CallbackCenteredTextTableCell()) { userSmallView.email }
         this += addCol("Login", ColumnId.LOGIN, CallbackCenteredTextTableCell()) { userSmallView.login }
@@ -147,9 +149,10 @@ class UsersController : BaseController(), Selected {
                 id = fxId
             }
 
-    private fun onBooleanEditField(item: AccountWithRoles, value: List<Role>): Boolean{
-            return true
+    private fun onRolesEditField(item: AccountWithRoles): Unit{
+        println("!!!!!")
     }
+
 
     private fun onBooleanEditField(item: AccountWithRoles, fxId: String, value: Boolean): Boolean {
 
@@ -289,6 +292,12 @@ class CallbackRolesTableCell() : Callback<TableColumn<AccountWithRoles, List<Rol
     }
 }
 
+class CallbackIdTableCell(private val onClick: (AccountWithRoles) -> Unit) : Callback<TableColumn<AccountWithRoles, Long>, TableCell<AccountWithRoles, Long>> {
+    override fun call(param: TableColumn<AccountWithRoles, Long>?): TableCell<AccountWithRoles, Long> {
+        return CenteredIdUserTableCell(onClick)
+    }
+}
+
 class CallbackCenteredTextTableCell<T> : Callback<TableColumn<AccountWithRoles, T>, TableCell<AccountWithRoles, T>> {
     override fun call(param: TableColumn<AccountWithRoles, T>?): TableCell<AccountWithRoles, T> {
         return CenteredTextTableCell()
@@ -357,6 +366,43 @@ class CenteredRoleTableCell() : TableCell<AccountWithRoles, List<Role>>() {
                 item.contains(Role.USER) -> text = Role.USER.roleName
                 item.contains(Role.NOT_APPROVED) -> text = Role.NOT_APPROVED.roleName
             }
+        } else {
+            text = null
+            graphic = null
+        }
+
+    }
+}
+
+
+class CenteredIdUserTableCell(private val onClick: (AccountWithRoles) -> Unit) : TableCell<AccountWithRoles, Long>() {
+    private val box = HBox()
+    private val label: Label = Label()
+    private val btn: Button = Button()
+
+    init {
+        alignment = Pos.CENTER
+        label.maxWidth = Double.MAX_VALUE
+        box.alignment = Pos.CENTER_LEFT
+        HBox.setHgrow(label, Priority.ALWAYS)
+        box.spacing = 5.0
+        box.maxWidth = Double.MAX_VALUE
+        box.children.addAll(label, btn)
+        btn.prefHeight = 24.0
+        btn.prefWidth = 24.0
+        btn.styleClass.addAll("EditSmallBtn")
+        btn.setOnAction {
+            onClick(tableRow.item as AccountWithRoles)
+        }
+    }
+
+    override fun updateItem(item: Long?, empty: Boolean) {
+        super.updateItem(item, empty)
+
+        if (item != null && !empty) {
+            label.text = item.toString()
+            graphic = box
+
         } else {
             text = null
             graphic = null

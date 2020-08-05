@@ -204,6 +204,8 @@
     -fx-background-insets: 0,1,2;
     -fx-background-radius: 3,2,1;
 }
+
+
 .ExportBtn
 {
     -fx-background-image: url("../images/export.png");
@@ -308,4 +310,15 @@
     -fx-border-style: solid;
     -fx-border-width: 1;
     -fx-border-radius: 5px;
+}
+
+
+.EditSmallBtn
+{
+    -fx-background-image: url("../images/edit_6969.png");
+    -fx-background-size: 24 24;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position:center;
+    -fx-background-insets: 0,1,2;
+    -fx-background-radius: 3,2,1;
 }

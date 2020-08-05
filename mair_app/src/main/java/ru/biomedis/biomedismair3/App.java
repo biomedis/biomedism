@@ -834,7 +834,7 @@ https://gist.github.com/DemkaAge/8999236
         stage.setMinWidth(800);
        // sceneResizeListner(scene);
 
-
+        stage.setMaximized(true);
 
         //перед закрытием произойдет уведомление всех подписчиков и закрытие глобальных контекстов
         stage.setOnCloseRequest(event -> {
