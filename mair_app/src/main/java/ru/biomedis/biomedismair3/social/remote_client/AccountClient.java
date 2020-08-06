@@ -108,6 +108,9 @@ public interface AccountClient {
   @RequestLine("PUT /company/{userId}/{param}")
   void setCompany(@Param("param") boolean company, @Param("userId") long userId);
 
+  @Headers(value = {"Content-Type: application/json"})
+  @RequestLine("PUT /user/{userId}/roles")
+  void setRoles(List<String> roles, @Param("userId") long userId);
 
   @RequestLine("PUT /depot/{userId}/{param}")
   void setDepot(@Param("param") boolean depot, @Param("userId") long userId);

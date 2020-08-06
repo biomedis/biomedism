@@ -16,6 +16,7 @@ import javafx.stage.WindowEvent
 import javafx.util.Callback
 import javafx.util.StringConverter
 import ru.biomedis.biomedismair3.BaseController
+import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.BlockingAction.actionNoResult
 import ru.biomedis.biomedismair3.BlockingAction.actionResult
 import ru.biomedis.biomedismair3.social.admin.UsersController.ColumnId.BRIS
@@ -196,9 +197,27 @@ class UsersController : BaseController(), Selected {
         //списки одинаковы, изменений нет
         if (set == result.toSet()) return
         else {
+            val res = BlockingAction.actionNoResult(controllerWindow) {
+                SocialClient.INSTANCE.accountClient.setRoles(
+                        result.map { it.value }.toList(),
+                        item.userSmallView.id
+                )
+            }
+            if(res.isError){
+                showExceptionDialog(
+                        "Сохранение новых ролей пользователя",
+                        "",
+                        "Значения не сохранены",
+                        res.error,
+                        controllerWindow,
+                        Modality.WINDOW_MODAL
+                )
+                log.error("",res.error)
+                return
+            }
             item.roles.clear()
             result.forEach { item.roles.add(it) }
-            //table.refresh()
+
         }
 
     }
