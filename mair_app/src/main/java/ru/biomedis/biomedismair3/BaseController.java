@@ -56,11 +56,17 @@ public abstract class BaseController implements Initializable {
 
     protected static AppController mdc = null;
     protected Stage window = null;
-
+    private boolean isInitialized = false;
 
     public Stage getControllerWindow() {
         if(window==null) return mdc.window;
         else return window;
+    }
+
+    public void onInitialized(){
+        if(isInitialized) return;
+        onCompletedInitialization();
+        isInitialized = true;
     }
     /**
      * Вызывается после завершиния инициализации контроллера
@@ -160,7 +166,7 @@ public abstract class BaseController implements Initializable {
         Scene scene = new Scene(root);
         scene.getStylesheets().add("/styles/Styles.css");
         dlg.setScene(scene);
-        controller.onCompletedInitialization();
+        controller.onInitialized();
         dlg.setTitle(title);
         dlg.setResizable(resizeble);
         if (minH != 0) dlg.setMinHeight(minH);
@@ -211,7 +217,7 @@ public abstract class BaseController implements Initializable {
         Scene scene = new Scene(root);
         scene.getStylesheets().add("/styles/Styles.css");
         dlg.setScene(scene);
-        controller.onCompletedInitialization();
+        controller.onInitialized();
         dlg.setTitle(title);
         dlg.setResizable(resizeble);
         if (minH != 0) dlg.setMinHeight(minH);
@@ -281,7 +287,7 @@ public abstract class BaseController implements Initializable {
         Scene scene = new Scene(root);
         if(cssResourcePath!="")scene.getStylesheets().add(cssResourcePath);
         dlg.setScene(scene);
-        controller.onCompletedInitialization();
+        controller.onInitialized();
         dlg.setTitle(title);
         dlg.setResizable(resizeble);
         if (minH != 0) dlg.setMinHeight(minH);
@@ -339,7 +345,7 @@ public abstract class BaseController implements Initializable {
         ObservableList<Node> children = content.getChildren();
         children.clear();
         children.add(root);
-        controller.onCompletedInitialization();
+        controller.onInitialized();
         if(controller==null) throw new RuntimeException("Controller must be not null");
         return (Initializable) controller;
     }
@@ -355,7 +361,7 @@ public abstract class BaseController implements Initializable {
         BaseController controller = (BaseController) fxmlLoader.getController();
         controller.setWindow(this.window);
         controller.setParams(params);//до открытия окна в show можно устанавливать любые параметры
-        controller.onCompletedInitialization();
+        controller.onInitialized();
         if(controller==null) throw new RuntimeException("Controller must be not null");
         return new Pair<>(root, controller);
     }
@@ -383,7 +389,7 @@ public abstract class BaseController implements Initializable {
 
         ObservableList<Node> children = content.getChildren();
         children.add(root);
-        controller.onCompletedInitialization();
+        controller.onInitialized();
         if(controller==null) throw new RuntimeException("Controller must be not null");
         return (Initializable) controller;
 
@@ -401,7 +407,7 @@ public abstract class BaseController implements Initializable {
         controller.setWindow(this.window);
         controller.setParams(params);//до открытия окна в show можно устанавливать любые параметры
         scrlbr.setContent(root);
-        controller.onCompletedInitialization();
+        controller.onInitialized();
         if(controller==null) throw new RuntimeException("Controller must be not null");
         return (Initializable) controller;
 

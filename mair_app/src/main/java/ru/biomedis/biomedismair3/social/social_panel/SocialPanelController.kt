@@ -24,6 +24,8 @@ import java.util.*
 
 class SocialPanelController : BaseController(), SocialPanelAPI {
 
+
+
     @FXML
     private lateinit var root: HBox
 
@@ -33,7 +35,7 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
     @FXML
     private lateinit var logIn: Button
 
-    private var adminTab: Tab? = null
+    private val tabs = mutableMapOf<String, Tab>()
 
     private lateinit var res: ResourceBundle
 
@@ -74,25 +76,17 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
             println("$oldV $newV")
             if (oldV == newV) return@addListener
             if (newV) showLogout() else showLogin()
-            adminTab = if(newV && client.isAdmin){
-                adminTab()
+            if(newV){
+                tabs["/fxml/social/Contacts.fxml"]  = addTab("/fxml/social/Contacts.fxml","Контакты")
+                tabs["/fxml/social/Registry.fxml"]  =  addTab("/fxml/social/Registry.fxml","Справочник")
+                if(client.isAdmin)  tabs["/fxml/Admin.fxml"]  =  addTab("/fxml/Admin.fxml","Admin")
             }else {
-                if(adminTab!=null){
-                    val tab = adminTab
-                    Platform.runLater {
-                        AppController.getAppController().removeTab(tab, true)
-                    }
-                }
-                null
+                tabs.forEach { (_, t) ->removeTab(t) }
             }
         }
     }
 
-    //todo - сделать если чел вошел, то при нажатии - меню, с выбором выйти. выйти со всех устройств.
-    // На сервере тоже сделать эти эндпоинты - в том месте где авторизация есть или вручную парсим?
-    // Проверить при запросе токена у нас куча новых плодится? Что с этим делать? Если рефреш не подошел,
-    // то нужно входить иначе новый создавать, тк мы уже вышли( протух рефреш? Есть тут проверка надо ли вводить, новый токен получать по неверному рефрешу?)
-    private fun login(event: ActionEvent) {
+   private fun login(event: ActionEvent) {
         if (!isLogin) {
             try {
                 client.performLogin(controllerWindow)
@@ -156,17 +150,26 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
         root.children.remove(link)
     }
 
-    private fun adminTab(): Tab {
-        val tab = Tab("Admin")
+    private fun addTab(fxml: String, name: String, isClosable: Boolean = false): Tab{
+        val tab = Tab(name)
 
-       val node = try {
-            loadContent("/fxml/Admin.fxml").key
+        val node = try {
+            loadContent(fxml).key
         } catch (exception: Exception) {
+            log.error("", exception)
             throw RuntimeException(exception)
         }
         tab.content = node
-        tab.isClosable = false
-       Platform.runLater { AppController.getAppController().addTab(tab) }
+        tab.isClosable = isClosable
+        Platform.runLater { AppController.getAppController().addTab(tab) }
         return tab
+    }
+
+    private fun removeTab(tab: Tab?){
+        if(tab!=null){
+            Platform.runLater {
+                AppController.getAppController().removeTab(tab, true)
+            }
+        }
     }
 }
