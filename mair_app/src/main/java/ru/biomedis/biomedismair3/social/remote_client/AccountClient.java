@@ -4,11 +4,12 @@ import feign.Headers;
 import feign.Param;
 import feign.RequestLine;
 import java.util.List;
-import ru.biomedis.biomedismair3.social.account.AccountSmallView;
 import ru.biomedis.biomedismair3.social.account.AccountView;
 import ru.biomedis.biomedismair3.social.account.ActiveSession;
-import ru.biomedis.biomedismair3.social.account.FindData;
+
 import ru.biomedis.biomedismair3.social.admin.AccountWithRoles;
+import ru.biomedis.biomedismair3.social.contacts.AccountSmallView;
+import ru.biomedis.biomedismair3.social.contacts.FindData;
 
 
 public interface AccountClient {

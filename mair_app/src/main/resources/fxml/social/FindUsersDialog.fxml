@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="700.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.social.contacts.FindUsersController">
+  <center>
+    <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="8.0" BorderPane.alignment="CENTER">
+      <children>
+        <ListView maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
+      </children>
+      <padding>
+        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+      </padding>
+    </VBox>
+  </center>
+  <left>
+    <VBox prefHeight="200.0" prefWidth="100.0" spacing="8.0" BorderPane.alignment="CENTER">
+      <children>
+
+        <Label text="Имя:" />
+        <TextField fx:id="firstNameInput" minWidth="250.0">
+          <VBox.margin>
+            <Insets bottom="5.0" />
+          </VBox.margin>
+        </TextField>
+
+        <Label text="Фамилия:" />
+        <TextField fx:id="lastNameInput" minWidth="250.0">
+          <VBox.margin>
+            <Insets bottom="5.0" />
+          </VBox.margin>
+        </TextField>
+
+        <Label text="Страна:" />
+        <TextField fx:id="countryInput" minWidth="250.0">
+          <VBox.margin>
+            <Insets bottom="5.0" />
+          </VBox.margin>
+        </TextField>
+
+        <Label text="Город:" />
+        <TextField fx:id="cityInput" minWidth="250.0">
+          <VBox.margin>
+            <Insets bottom="5.0" />
+          </VBox.margin>
+        </TextField>
+
+        <Label text="Skype:" />
+        <TextField fx:id="skypeInput" minWidth="250.0">
+          <VBox.margin>
+            <Insets bottom="5.0" />
+          </VBox.margin>
+        </TextField>
+
+        <Label text="БРТ-терапевт:" />
+        <CheckBox fx:id="doctorInput">
+          <VBox.margin>
+            <Insets bottom="5.0" />
+          </VBox.margin>
+        </CheckBox>
+
+        <Label text="Диагност:" />
+        <CheckBox fx:id="diagnostInput">
+          <VBox.margin>
+            <Insets bottom="5.0" />
+          </VBox.margin>
+        </CheckBox>
+
+        <Label text="Склад:" />
+        <CheckBox fx:id="depotInput">
+          <VBox.margin>
+            <Insets bottom="5.0" />
+          </VBox.margin>
+        </CheckBox>
+
+        <Label text="Партнер:" />
+        <CheckBox fx:id="partnerInput">
+          <VBox.margin>
+            <Insets bottom="5.0" />
+          </VBox.margin>
+        </CheckBox>
+
+
+        <Label text="О себе:" />
+
+        <TextArea fx:id="aboutInput" minWidth="250.0">
+          <VBox.margin>
+            <Insets bottom="8.0" />
+          </VBox.margin>
+        </TextArea>
+      </children>
+      <padding>
+        <Insets left="8.0" right="8.0" top="8.0" />
+      </padding>
+    </VBox>
+  </left>
+</BorderPane>

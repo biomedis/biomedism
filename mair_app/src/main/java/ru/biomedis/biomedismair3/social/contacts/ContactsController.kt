@@ -1,5 +1,6 @@
 package ru.biomedis.biomedismair3.social.contacts
 
+import javafx.event.ActionEvent
 import javafx.stage.WindowEvent
 import ru.biomedis.biomedismair3.BaseController
 import java.net.URL
@@ -14,11 +15,19 @@ class ContactsController: BaseController() {
 
     }
 
-    override fun setParams(vararg params: Any?) {
+    override fun setParams(vararg params: Any) {
 
     }
 
-    override fun initialize(location: URL?, resources: ResourceBundle?) {
+    override fun initialize(location: URL, resources: ResourceBundle) {
 
+    }
+
+    fun findUsers() {
+        FindUsersController.showFindUserDialog(controllerWindow)
+    }
+
+    fun addContact() {
+        AddUserController.showAddUserDialog(controllerWindow)
     }
 }
