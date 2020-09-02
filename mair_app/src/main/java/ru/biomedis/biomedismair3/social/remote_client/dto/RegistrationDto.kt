@@ -7,8 +7,8 @@ class RegistrationDto {
     var email = ""
     var firstName = ""
     var lastName = ""
-    var country = ""
-    var city = ""
+    var country = -1L
+    var city = -1L
     var skype = ""
     var about = ""
 }

@@ -10,6 +10,8 @@ import ru.biomedis.biomedismair3.social.account.ActiveSession;
 import ru.biomedis.biomedismair3.social.admin.AccountWithRoles;
 import ru.biomedis.biomedismair3.social.contacts.AccountSmallView;
 import ru.biomedis.biomedismair3.social.contacts.FindData;
+import ru.biomedis.biomedismair3.social.remote_client.dto.CityDto;
+import ru.biomedis.biomedismair3.social.remote_client.dto.CountryDto;
 
 
 public interface AccountClient {
@@ -52,11 +54,11 @@ public interface AccountClient {
    * Список стран
    */
   @RequestLine("GET /countries")
-  List<String> countriesList();
+  List<CountryDto> countriesList();
 
 
   @RequestLine("GET /country/{country}/cities")
-  List<String> citiesList(@Param("country") String country);
+  List<CityDto> citiesList(@Param("country") long country);
 
   @Headers(value = {"Content-Type: application/json"})
   @RequestLine("PUT /firstName")

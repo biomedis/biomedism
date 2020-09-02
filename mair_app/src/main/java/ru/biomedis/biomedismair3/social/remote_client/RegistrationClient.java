@@ -3,6 +3,9 @@ package ru.biomedis.biomedismair3.social.remote_client;
 import feign.Headers;
 import feign.Param;
 import feign.RequestLine;
+import java.util.List;
+import ru.biomedis.biomedismair3.social.remote_client.dto.CityDto;
+import ru.biomedis.biomedismair3.social.remote_client.dto.CountryDto;
 import ru.biomedis.biomedismair3.social.remote_client.dto.RegistrationDto;
 
 
@@ -47,4 +50,14 @@ public interface RegistrationClient {
    */
   @RequestLine("PUT /new_password?email={email}&password={password}&code={code}")
   void setNewPassword(@Param("email") String email, @Param("code") String code, @Param("password") String password);
+
+  /**
+   * Список стран
+   */
+  @RequestLine("GET /countries")
+  List<CountryDto> countriesList();
+
+
+  @RequestLine("GET /country/{country}/cities")
+  List<CityDto> citiesList(@Param("country") long country);
 }

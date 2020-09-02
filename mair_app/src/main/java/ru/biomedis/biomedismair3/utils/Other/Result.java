@@ -3,6 +3,7 @@ package ru.biomedis.biomedismair3.utils.Other;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 
 public class Result<T> {
@@ -88,5 +89,10 @@ public class Result<T> {
 
   public Throwable getError() {
     return error.get();
+  }
+
+  public void action(Consumer<Throwable> error, Consumer<T> action){
+      if(this.error.isPresent()) error.accept(this.error.get());
+      else action.accept(value.get());
   }
 }
