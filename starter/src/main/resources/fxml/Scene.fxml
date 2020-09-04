@@ -114,6 +114,16 @@
                      <padding>
                         <Insets bottom="4.0" />
                      </padding></Hyperlink>
+                  <Hyperlink fx:id="actiwayUtil" style="-fx-text-fill: green;" text="Actiway tool" underline="true">
+                     <font>
+                        <Font size="10.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets left="10.0" />
+                     </HBox.margin>
+                     <padding>
+                        <Insets bottom="4.0" />
+                     </padding></Hyperlink>
                </children>
                <padding>
                   <Insets left="5.0" />

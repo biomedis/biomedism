@@ -147,7 +147,7 @@ public class App extends Application {
     public void start(Stage stage) throws Exception {
 
         mainWindow=stage;
-        starterVersion = new Version(1,2,6);
+        starterVersion = new Version(1,3,0);
 
         openPersisenceContext();//откроем контекст работы с БД
 
@@ -337,43 +337,43 @@ public class App extends Application {
 
 
         boolean flag = false;
-        try{
-                EventBusServer busServer  = new EventBusServer.Builder()
-                    .id("starter")     // OPTIONAL: bus id
-                    .bind("localhost") // OPTIONAL: bind address
-                    .listen(56789)   // OPTIONAL: port to listen to. Default to 56789
-                    .build();
-
-                busServer.on("to_starter",e -> {
-                    String data = (String)e.getData();
-                    if(data==null) return;
-                    switch (data){
-                        case "run_completed":
-                            System.out.println("Приложение полностью запущено");
-                            busServer.trigger("to_main_app", "exit");
-                            busServer.unbind("to_starter");
-                            if(pipeMap.containsKey("in"))pipeMap.get("in").close();
-                            if(pipeMap.containsKey("err"))pipeMap.get("err").close();
-                            System.exit(0);
-                            break;
-                    }
-                });
-                flag  = true;
-            }catch (Exception e){
-                Log.logger.error("", e);
-            System.out.println("EVENT BUS DO NOT WORK");
-            }
+//        try{
+//                EventBusServer busServer  = new EventBusServer.Builder()
+//                    .id("starter")     // OPTIONAL: bus id
+//                    .bind("localhost") // OPTIONAL: bind address
+//                    .listen(56789)   // OPTIONAL: port to listen to. Default to 56789
+//                    .build();
+//
+//                busServer.on("to_starter",e -> {
+//                    String data = (String)e.getData();
+//                    if(data==null) return;
+//                    switch (data){
+//                        case "run_completed":
+//                            System.out.println("Приложение полностью запущено");
+//                            busServer.trigger("to_main_app", "exit");
+//                            busServer.unbind("to_starter");
+//                            if(pipeMap.containsKey("in"))pipeMap.get("in").close();
+//                            if(pipeMap.containsKey("err"))pipeMap.get("err").close();
+//                            System.exit(0);
+//                            break;
+//                    }
+//                });
+//                flag  = true;
+//            }catch (Exception e){
+//                Log.logger.error("", e);
+//            System.out.println("EVENT BUS DO NOT WORK");
+//            }
 
         try {
             Process process = processBuilder.get().start();
             pipeMap.put("in", new Pipe("from_main_app_in", new BufferedInputStream(process.getInputStream()), System.out));
             pipeMap.put("err",  new Pipe("from_main_app_err", new BufferedInputStream(process.getErrorStream()), System.err));
-            Waiter.openLayer(getMainWindow(), true);
-
+            if(!flag) System.exit(0);//остановить, тк eventbus не работает. Мы просто запускаем и останавливаем
+            else  Waiter.openLayer(getMainWindow(), true);
         } catch (IOException ioException) {
             throw new RuntimeException("Не удалось запустить приложение");
         }
-        if(!flag) System.exit(0);//остановить, тк eventbus не работает. Мы просто запускаем и останавливаем
+
 
     }
 

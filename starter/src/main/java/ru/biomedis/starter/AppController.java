@@ -53,7 +53,7 @@ public class AppController extends BaseController {
     @FXML private Label vStarter;
     @FXML private Label  antivirInfo;
     @FXML private Hyperlink trinityUtil;
-
+    @FXML private Hyperlink actiwayUtil;
     private Version version=null;
 
     @Override
@@ -136,7 +136,7 @@ public class AppController extends BaseController {
         hideCurrentFileProgress();
 
         trinityUtilInit();
-
+        actiwayUtilInit();
         initInfoStrings();
 
 
@@ -161,6 +161,18 @@ public class AppController extends BaseController {
 
     }
 
+    private void actiwayUtilInit() {
+        actiwayUtil.setOnAction(event -> {
+            actiwayUtil.setVisited(false);
+            try {
+                openDialog(getControllerWindow(),"/fxml/actiway_util.fxml","Actiway tool",true, StageStyle.DECORATED,0, 0,0,0);
+            } catch (Exception e) {
+                Log.logger.error("",e);
+            }
+        });
+
+
+    }
 
     public void onInstallUpdates(){
         setTextInfo(getRes().getString("downloading_files"));
