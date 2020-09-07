@@ -40,19 +40,9 @@ class AccountSmallViewObserved {
 
     fun surnameProperty() = _surname
 
-    private var _country: StringProperty = SimpleStringProperty(this, "country", "")
-    var country: String
-        get() = _country.get()
-        set(s) = _country.set(s)
+    lateinit var city: CityView
 
-    fun countryProperty() = _country
-
-    private var _city: StringProperty = SimpleStringProperty(this, "city", "")
-    var city: String
-        get() = _city.get()
-        set(s) = _city.set(s)
-
-    fun cityProperty() = _city
+    lateinit var country: CountryView
 
     private var _skype: StringProperty = SimpleStringProperty(this, "skype", "")
     var skype: String
@@ -103,6 +93,31 @@ class AccountSmallViewObserved {
 
     fun supportProperty() = _support
 }
+
+ class CityView{
+     var id: Long = -1
+
+     var country: Long=-1
+
+     private var _name: StringProperty = SimpleStringProperty(this, "name", "")
+     var name: String
+         get() = _name.get()
+         set(s) = _name.set(s)
+
+     fun nameProperty() = _name
+ }
+
+
+
+ class CountryView{
+     var id: Long = -1
+     private var _name: StringProperty = SimpleStringProperty(this, "name", "")
+     var name: String
+         get() = _name.get()
+         set(s) = _name.set(s)
+
+     fun nameProperty() = _name
+ }
 
 class AccountWithRoles {
     lateinit var userSmallView: AccountSmallViewObserved

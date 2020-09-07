@@ -154,8 +154,8 @@ class UsersController : BaseController(), Selected {
         this += addCol("Login", ColumnId.LOGIN, CallbackCenteredTextTableCell()) { userSmallView.loginProperty() }
         this += addCol("Имя", ColumnId.NAME, CallbackCenteredTextTableCell()) { userSmallView.nameProperty() }
         this += addCol("Фамилия", ColumnId.SURNAME, CallbackCenteredTextTableCell()) { userSmallView.surnameProperty() }
-        this += addCol("Страна", ColumnId.COUNTRY, CallbackCenteredTextTableCell()) { userSmallView.countryProperty() }
-        this += addCol("Город", ColumnId.CITY, CallbackCenteredTextTableCell()) { userSmallView.cityProperty() }
+        this += addCol("Страна", ColumnId.COUNTRY, CallbackCenteredTextTableCell()) { userSmallView.country.nameProperty() }
+        this += addCol("Город", ColumnId.CITY, CallbackCenteredTextTableCell()) { userSmallView.city.nameProperty() }
         this += addCol("Skype", ColumnId.SKYPE, CallbackCenteredTextTableCell()) { userSmallView.skypeProperty() }
         this += addCol("Партнер", PARTNER, booleanCell) { userSmallView.partnerProperty() }
         this += addCol("Доктор", DOCTOR, booleanCell) { userSmallView.doctorProperty() }
