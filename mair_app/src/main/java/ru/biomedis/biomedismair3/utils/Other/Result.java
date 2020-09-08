@@ -65,7 +65,7 @@ public class Result<T> {
     }else return value.get();
   }
 
-  public T orElseGet(Function<Throwable, T> action) throws Exception {
+  public T orElseGet(Function<Throwable, T> action) {
     if(error.isPresent()){
       return action.apply(error.get());
     }else return value.get();

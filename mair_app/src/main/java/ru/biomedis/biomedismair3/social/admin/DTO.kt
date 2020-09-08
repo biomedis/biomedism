@@ -8,6 +8,8 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer
 import javafx.beans.property.*
 import javafx.collections.FXCollections
 import ru.biomedis.biomedismair3.social.remote_client.Role
+import ru.biomedis.biomedismair3.social.remote_client.dto.CityView
+import ru.biomedis.biomedismair3.social.remote_client.dto.CountryView
 
 class AccountSmallViewObserved {
     var id: Long = -1
@@ -93,31 +95,6 @@ class AccountSmallViewObserved {
 
     fun supportProperty() = _support
 }
-
- class CityView{
-     var id: Long = -1
-
-     var country: Long=-1
-
-     private var _name: StringProperty = SimpleStringProperty(this, "name", "")
-     var name: String
-         get() = _name.get()
-         set(s) = _name.set(s)
-
-     fun nameProperty() = _name
- }
-
-
-
- class CountryView{
-     var id: Long = -1
-     private var _name: StringProperty = SimpleStringProperty(this, "name", "")
-     var name: String
-         get() = _name.get()
-         set(s) = _name.set(s)
-
-     fun nameProperty() = _name
- }
 
 class AccountWithRoles {
     lateinit var userSmallView: AccountSmallViewObserved

@@ -8,6 +8,7 @@ import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import javafx.collections.transformation.FilteredList
 import javafx.event.ActionEvent
+import javafx.event.Event
 import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.geometry.Orientation
@@ -18,6 +19,7 @@ import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.input.MouseEvent
 import javafx.stage.*
+import javafx.util.StringConverter
 import ru.biomedis.biomedismair3.AppController
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction
@@ -27,6 +29,10 @@ import ru.biomedis.biomedismair3.social.login.LoginController
 import ru.biomedis.biomedismair3.social.login.RestorePasswordController.Companion.openRestoreDialog
 import ru.biomedis.biomedismair3.social.remote_client.AccountClient
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
+import ru.biomedis.biomedismair3.social.remote_client.dto.CityDto
+import ru.biomedis.biomedismair3.social.remote_client.dto.CityView
+import ru.biomedis.biomedismair3.social.remote_client.dto.CountryDto
+import ru.biomedis.biomedismair3.social.remote_client.dto.CountryView
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError
 import ru.biomedis.biomedismair3.social.social_panel.SocialPanelAPI
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
@@ -35,14 +41,18 @@ import java.net.URL
 import java.time.Instant
 import java.util.*
 
-class AccountController: BaseController(){
+class AccountController : BaseController() {
 
     private lateinit var textFieldUtil: TextFieldUtil
 
-    @FXML private lateinit var activeSessionsTab: Tab
+    @FXML
+    private lateinit var activeSessionsTab: Tab
 
-    @FXML private lateinit var removeSelectedBtn: Button
-    @FXML private lateinit var removeAllBtn: Button
+    @FXML
+    private lateinit var removeSelectedBtn: Button
+
+    @FXML
+    private lateinit var removeAllBtn: Button
 
     @FXML
     private lateinit var sessionsList: ListView<ActiveSession>
@@ -73,10 +83,10 @@ class AccountController: BaseController(){
     private lateinit var lastNameInput: TextField
 
     @FXML
-    private lateinit var countryInput: TextField
+    private lateinit var countryInput: ComboBox<CountryDto>
 
     @FXML
-    private lateinit var cityInput: TextField
+    private lateinit var cityInput: ComboBox<CityDto>
 
     @FXML
     private lateinit var skypeInput: TextField
@@ -90,14 +100,14 @@ class AccountController: BaseController(){
     private lateinit var res: ResourceBundle
 
 
-
     private val log by LoggerDelegate()
 
     private lateinit var accountClient: AccountClient
 
-    private lateinit var account:AccountView
+    private lateinit var account: AccountView
     private lateinit var progressAPI: ProgressAPI
     private lateinit var socialPanelAPI: SocialPanelAPI
+
 
     override fun setParams(vararg params: Any?) {
 
@@ -122,19 +132,38 @@ class AccountController: BaseController(){
     //добавить поля по врачам, складам итп
     // для партнерства - выкл просто, а вкл с проверкой
     override fun onCompletedInitialization() {
+        Platform.runLater {
+            BlockingAction.actionResult<List<CountryDto>>(controllerWindow) {
+                SocialClient.INSTANCE.registrationClient.countriesList()
+            }.map {
+                it.sortedBy { country -> country.name }
+            }.action({ e ->
+                log.error("", e)
+                showWarningDialog(
+                        "Не удалось получить список стран",
+                        "",
+                        "Проверьте интернет-соединение или попробуйте позже",
+                        controllerWindow,
+                        Modality.WINDOW_MODAL)
 
+                controllerWindow.close()
+            }) { countries ->
+                countryInput.items.addAll(countries)
+                setCityAndCountryFromAccount()
+            }
+
+            setCountryAndCityOnChange()
+        }
 
     }
 
     private fun fillFields(value: AccountView) = account.apply {
         aboutInput.text = value.about
-        skypeInput.text  = value.skype
+        skypeInput.text = value.skype
         firstNameInput.text = value.name
         lastNameInput.text = value.surname
         nameText.text = value.login
         emailText.text = value.email
-        countryInput.text  = value.country
-        cityInput.text  = value.city
         depotInput.isSelected = value.depot
         diagnostInput.isSelected = value.bris
         doctorInput.isSelected = value.doctor
@@ -142,9 +171,8 @@ class AccountController: BaseController(){
     }
 
 
-
     override fun initialize(location: URL, resources: ResourceBundle) {
-       res = resources
+        res = resources
         accountClient = SocialClient.INSTANCE.accountClient
         progressAPI = AppController.getProgressAPI()
         textFieldUtil = TextFieldUtil(
@@ -169,8 +197,8 @@ class AccountController: BaseController(){
                 "редактирование профиля"
         )
 
-        if(!SocialClient.INSTANCE.token.isPresent){
-            Platform.runLater{
+        if (!SocialClient.INSTANCE.token.isPresent) {
+            Platform.runLater {
                 showErrorDialog(
                         "Аккаунт",
                         "",
@@ -189,7 +217,7 @@ class AccountController: BaseController(){
             accountClient.getAccount(SocialClient.INSTANCE.token.get().userId)
         }
 
-        if(result.isError){
+        if (result.isError) {
             showErrorDialog(
                     "Аккаунт",
                     "",
@@ -198,7 +226,7 @@ class AccountController: BaseController(){
                     Modality.WINDOW_MODAL
             )
             controllerWindow.close()
-        }else {
+        } else {
             fillFields(result.value)
             account = result.value
             onChangeForm()
@@ -208,8 +236,8 @@ class AccountController: BaseController(){
 
         activeSessionsTab.tabPane.selectionModel.selectedItemProperty()
                 .addListener { _, oldTab, newTab ->
-                   val id =  newTab.id?:""
-                    if(id==activeSessionsTab.id && sessionListSource.isEmpty()){
+                    val id = newTab.id ?: ""
+                    if (id == activeSessionsTab.id && sessionListSource.isEmpty()) {
                         loadSessions()
                     }
                 }
@@ -219,19 +247,51 @@ class AccountController: BaseController(){
 
         removeAllBtn.isDisable = true
 
+        countryInput.converter = object : StringConverter<CountryDto>() {
+            override fun toString(value: CountryDto?): String = value?.name ?: ""
+            override fun fromString(string: String?): CountryDto = throw NotImplementedError()
+        }
+        cityInput.converter = object : StringConverter<CityDto>() {
+            override fun toString(value: CityDto?): String = value?.name ?: ""
+            override fun fromString(string: String?): CityDto = throw NotImplementedError()
+        }
+
+
+    }
+
+    private fun getCities(country: Long): List<CityDto> {
+        val result = BlockingAction.actionResult<List<CityDto>>(controllerWindow) {
+            SocialClient.INSTANCE.registrationClient.citiesList(country)
+        }.map {
+            it.sortedBy { city -> city.name }
+        }
+
+        return if (result.isError) {
+            log.error("", result.error)
+            showWarningDialog(
+                    "Не удалось получить список городов",
+                    "",
+                    "Проверьте интернет-соединение или попробуйте позже",
+                    controllerWindow,
+                    Modality.WINDOW_MODAL)
+            listOf()
+
+        } else {
+            result.value
+        }
     }
 
     private fun loadSessions() {
-        val result: Result<List<ActiveSession>> = BlockingAction.actionResult(controllerWindow){
+        val result: Result<List<ActiveSession>> = BlockingAction.actionResult(controllerWindow) {
             accountClient.allTokens()
         }
-        if(result.isError){
+        if (result.isError) {
             showWarningDialog(
                     "Получение списка сессий",
-            "",
-            "Не удалось получить список сессий, попробуйте позже",
-            controllerWindow,
-            Modality.WINDOW_MODAL)
+                    "",
+                    "Не удалось получить список сессий, попробуйте позже",
+                    controllerWindow,
+                    Modality.WINDOW_MODAL)
             log.error("", result.error)
             return
         }
@@ -241,13 +301,14 @@ class AccountController: BaseController(){
         removeAllBtn.isDisable = sessionListObs.isEmpty()
     }
 
-    private val  sessionListSource: ObservableList<ActiveSession> = FXCollections.observableArrayList()
-    private val sessionListObs: FilteredList<ActiveSession>  = FilteredList(sessionListSource){
-         it.id != SocialClient.INSTANCE.token.map { token->token.id }.orElse(-2)
+    private val sessionListSource: ObservableList<ActiveSession> = FXCollections.observableArrayList()
+    private val sessionListObs: FilteredList<ActiveSession> = FilteredList(sessionListSource) {
+        it.id != SocialClient.INSTANCE.token.map { token -> token.id }.orElse(-2)
     }
+
     private fun initTokensList() {
 
-        sessionsList.selectionModel.selectionMode =SelectionMode.MULTIPLE
+        sessionsList.selectionModel.selectionMode = SelectionMode.MULTIPLE
         sessionsList.orientation = Orientation.VERTICAL
         sessionsList.placeholder = Label("Нет активных сессий на других устройствах")
         sessionsList.items = sessionListObs
@@ -257,7 +318,7 @@ class AccountController: BaseController(){
     /**
      * ДЛя передачи фокуса следующему контролу
      */
-    private fun tabEventFire(sourceEvent: InputEvent, node: Node){
+    private fun tabEventFire(sourceEvent: InputEvent, node: Node) {
         val newEvent = KeyEvent(
                 sourceEvent.source,
                 sourceEvent.target,
@@ -274,21 +335,20 @@ class AccountController: BaseController(){
         node.fireEvent(newEvent)
     }
 
-    private val eventHandlers: MutableList<Pair<Node,EventHandler<*>>> = mutableListOf()
+    private val eventHandlers: MutableList<Pair<Node, EventHandler<*>>> = mutableListOf()
 
     private fun textEventHandler(
             control: TextInputControl,
             modelProperty: StringProperty,
-            action:  (String)->Unit,
+            action: (String) -> Unit,
             shiftPressed: Boolean = false
-    ):EventHandler<KeyEvent>{
-       return  EventHandler { event->
-            if(event.code == KeyCode.ENTER && (event.isShiftDown || !shiftPressed)) {
-                if(!onChange(modelProperty.value, control.text, action)) {
+    ): EventHandler<KeyEvent> {
+        return EventHandler { event ->
+            if (event.code == KeyCode.ENTER && (event.isShiftDown || !shiftPressed)) {
+                if (!onChange(modelProperty.value, control.text, action)) {
                     control.text = modelProperty.value
-                }
-                else {
-                    if(modelProperty.value != control.text)tabEventFire(event, control)
+                } else {
+                    if (modelProperty.value != control.text) tabEventFire(event, control)
                     modelProperty.value = control.text
                 }
 
@@ -299,21 +359,19 @@ class AccountController: BaseController(){
     }
 
 
-
-    private  fun <T:InputEvent> booleanEventHandler(
+    private fun <T : InputEvent> booleanEventHandler(
             control: CheckBox,
             modelProperty: BooleanProperty,
-            action:  (Boolean)->Unit
-    ):EventHandler<T>{
-        return EventHandler { event->
-            if(event is KeyEvent && !(event.character=="\t" || event.character=="\r") ) {
-                   control.isSelected =!modelProperty.value
-            }else  if(event is KeyEvent) return@EventHandler
+            action: (Boolean) -> Unit
+    ): EventHandler<T> {
+        return EventHandler { event ->
+            if (event is KeyEvent && !(event.character == "\t" || event.character == "\r")) {
+                control.isSelected = !modelProperty.value
+            } else if (event is KeyEvent) return@EventHandler
 
-            if(!onChange(modelProperty.value, control.isSelected, action)) {
+            if (!onChange(modelProperty.value, control.isSelected, action)) {
                 control.isSelected = modelProperty.value
-            }
-            else {
+            } else {
                 modelProperty.value = control.isSelected
                 tabEventFire(event, control)
             }
@@ -322,23 +380,108 @@ class AccountController: BaseController(){
 
     }
 
-    private fun setTextEventFilter( control: TextInputControl,
-                                    modelProperty: StringProperty,
-                                    shiftPressed: Boolean,
-                                    action:  (String)->Unit){
 
-        var eh : EventHandler<KeyEvent> = textEventHandler(control, modelProperty, action, shiftPressed)
+    private fun setCityAndCountryFromAccount(){
+        val index = countryInput.items.indexOfFirst { it.id == account.country.id }
+        if (index >= 0) {
+            countryInput.selectionModel.select(index)
+
+            cityInput.items.apply {
+                clear()
+                addAll(getCities(account.country.id))
+                val index = indexOfFirst { it.id == account.city.id }
+                if (index >= 0) cityInput.selectionModel.select(index)
+            }
+        }else    {
+            countryInput.selectionModel.clearSelection()
+            cityInput.selectionModel.clearSelection()
+        }
+    }
+
+
+    private fun setCountryAndCityOnChange(){
+        cityInput.onAction = cityOnChange
+        countryInput.onAction = countryOnChange
+    }
+
+    private fun clearCountryAndCityOnChange(){
+        cityInput.onAction = null
+        countryInput.onAction = null
+    }
+
+    private val cityOnChange: EventHandler<ActionEvent> = object : EventHandler<ActionEvent>{
+        override fun handle(event: ActionEvent) {
+            if (cityInput.selectionModel.selectedItem == null) return
+
+            val result = BlockingAction.actionNoResult(controllerWindow) {
+                SocialClient.INSTANCE.accountClient.setCity(cityInput.selectionModel.selectedItem.id)
+                SocialClient.INSTANCE.accountClient.setCountry(countryInput.selectionModel.selectedItem.id)
+            }
+
+            if (result.isError) {
+                clearCountryAndCityOnChange()
+                setCityAndCountryFromAccount()
+                setCountryAndCityOnChange()
+                log.error("", result.error)
+                showWarningDialog(
+                        "Сохранение страны и города",
+                        "",
+                        "Не удалось сохранить, повторите позже",
+                        controllerWindow,
+                        Modality.WINDOW_MODAL
+                )
+
+            } else {
+
+                account.city = cityInput.selectionModel.selectedItem
+                account.country = countryInput.selectionModel.selectedItem
+            }
+
+
+        }
+
+    }
+
+    private val countryOnChange: EventHandler<ActionEvent> = object : EventHandler<ActionEvent>{
+        override fun handle(event: ActionEvent) {
+            clearCountryAndCityOnChange()
+            if (countryInput.selectionModel.selectedItem != null) {
+                cityInput.selectionModel.clearSelection()
+
+                cityInput.items.apply {
+                    clear()
+                    addAll(getCities(countryInput.selectionModel.selectedItem.id))
+                }
+            }
+            setCountryAndCityOnChange()
+        }
+
+    }
+
+
+
+
+    /**
+     * [modelProperty] свойство, которое будет обновлено
+     * [action] выполнится после нажатия на enter или shift+enter,если [shiftPressed] = true
+     */
+    private fun setTextEventFilter(control: TextInputControl,
+                                   modelProperty: StringProperty,
+                                   shiftPressed: Boolean,
+                                   action: (String) -> Unit) {
+
+        var eh: EventHandler<KeyEvent> = textEventHandler(control, modelProperty, action, shiftPressed)
         control.addEventFilter(KeyEvent.KEY_PRESSED, eh)
         eventHandlers.add(control to eh)
     }
 
-    private fun setBooleanEventFilter( control: CheckBox,
-                                    modelProperty: BooleanProperty,
-                                    action:  (Boolean)->Unit){
+    private fun setBooleanEventFilter(control: CheckBox,
+                                      modelProperty: BooleanProperty,
+                                      action: (Boolean) -> Unit) {
 
-        var eh : EventHandler<MouseEvent> = booleanEventHandler(control, modelProperty, action)
+        var eh: EventHandler<MouseEvent> = booleanEventHandler(control, modelProperty, action)
         control.addEventFilter(MouseEvent.MOUSE_CLICKED, eh)
-        var  ehk : EventHandler<KeyEvent> = booleanEventHandler(control, modelProperty, action)
+        var ehk: EventHandler<KeyEvent> = booleanEventHandler(control, modelProperty, action)
         control.addEventFilter(MouseEvent.MOUSE_CLICKED, eh)
         control.addEventFilter(KeyEvent.KEY_TYPED, ehk)
         eventHandlers.add(control to eh)
@@ -347,27 +490,21 @@ class AccountController: BaseController(){
 
     private fun onChangeForm() {
 
-        setTextEventFilter(skypeInput, account.skypeProperty(),false) {
+        setTextEventFilter(skypeInput, account.skypeProperty(), false) {
             accountClient.setSkype(it)
         }
 
-        setTextEventFilter(firstNameInput, account.nameProperty(),false) {
+        setTextEventFilter(firstNameInput, account.nameProperty(), false) {
             accountClient.setFirstName(it)
         }
 
-        setTextEventFilter(lastNameInput, account.surnameProperty(),false) {
+        setTextEventFilter(lastNameInput, account.surnameProperty(), false) {
             accountClient.setLastName(it)
         }
 
-        setTextEventFilter(cityInput, account.cityProperty(),false) {
-            accountClient.setCity(it)
-        }
 
-        setTextEventFilter(countryInput, account.countryProperty(),false) {
-            accountClient.setCountry(it)
-        }
 
-        setTextEventFilter(aboutInput, account.aboutProperty(),true) {
+        setTextEventFilter(aboutInput, account.aboutProperty(), true) {
             accountClient.setAbout(it)
         }
 
@@ -390,9 +527,8 @@ class AccountController: BaseController(){
     }
 
 
-
-    private fun checkError(result: Result<*>): Boolean{
-       if(!result.isError) return false
+    private fun checkError(result: Result<*>): Boolean {
+        if (!result.isError) return false
 
         showErrorDialog(
                 "Изменение данных",
@@ -401,13 +537,13 @@ class AccountController: BaseController(){
                 controllerWindow,
                 Modality.WINDOW_MODAL
         )
-        log.error("",result.error)
+        log.error("", result.error)
         return true
     }
 
 
-    private fun <T> onChange( oldValue: T, newValue: T, action: (T)->Unit): Boolean{
-        if(oldValue == newValue) return true
+    private fun <T> onChange(oldValue: T, newValue: T, action: (T) -> Unit): Boolean {
+        if (oldValue == newValue) return true
         val result: Result<Void> = BlockingAction.actionNoResult(controllerWindow) { action(newValue) }
         return !checkError(result)
     }
@@ -455,8 +591,8 @@ class AccountController: BaseController(){
     }
 
     fun onChangeEmail() {
-       val emailNew =  ChangeEmailController.showChangeEmailDialog(controllerWindow, account.email)
-        if(!emailNew.isPresent) {
+        val emailNew = ChangeEmailController.showChangeEmailDialog(controllerWindow, account.email)
+        if (!emailNew.isPresent) {
             showErrorDialog(
                     "Изменение email",
                     "",
@@ -472,8 +608,8 @@ class AccountController: BaseController(){
     }
 
     fun onChangeName() {
-       val newName = ChangeNameController.showChangeNameDialog(controllerWindow, account.login)
-        if(!newName.isPresent) {
+        val newName = ChangeNameController.showChangeNameDialog(controllerWindow, account.login)
+        if (!newName.isPresent) {
             showErrorDialog(
                     "Изменение имени",
                     "",
@@ -495,7 +631,7 @@ class AccountController: BaseController(){
             }
         }
         removeAllBtn.isDisable = sessionListObs.isEmpty()
-        if(result.isError) {
+        if (result.isError) {
             showWarningDialog(
                     "Удаление сессий",
                     "",
@@ -515,7 +651,7 @@ class AccountController: BaseController(){
             }
         }
         removeAllBtn.isDisable = sessionListObs.isEmpty()
-        if(result.isError) {
+        if (result.isError) {
             showWarningDialog(
                     "Удаление сессий",
                     "",
@@ -530,18 +666,19 @@ class AccountController: BaseController(){
         loadSessions()
     }
 
-    companion object{
+    companion object {
         private val log by LoggerDelegate()
+
         @JvmStatic
         fun showAccount(context: Stage) {
-             try {
+            try {
                 openDialogUserData<Unit>(
                         context,
                         "/fxml/AccountDialog.fxml",
                         "Аккаунт",
                         false,
                         StageStyle.UTILITY,
-                        (Screen.getPrimary().bounds.height*0.9).toInt(), 0, 0, 0,
+                        (Screen.getPrimary().bounds.height * 0.9).toInt(), 0, 0, 0,
                         Unit
                 )
             } catch (e: Exception) {

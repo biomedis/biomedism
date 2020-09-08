@@ -70,12 +70,12 @@ public interface AccountClient {
   @RequestLine("PUT /skype")
   void setSkype(String skype);
 
-  @RequestLine("PUT /country")
-  void setCountry(String country);
+  @RequestLine("PUT /country/{country}")
+  void setCountry(@Param("country") Long country);
 
 
-  @RequestLine("PUT /city")
-  void setCity(String city);
+  @RequestLine("PUT /city/{city}")
+  void setCity(@Param("city") Long city);
 
 
   @RequestLine("PUT /about")

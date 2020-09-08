@@ -1,6 +1,10 @@
 package ru.biomedis.biomedismair3.social.account
 
 import javafx.beans.property.*
+import ru.biomedis.biomedismair3.social.remote_client.dto.CityDto
+import ru.biomedis.biomedismair3.social.remote_client.dto.CityView
+import ru.biomedis.biomedismair3.social.remote_client.dto.CountryDto
+import ru.biomedis.biomedismair3.social.remote_client.dto.CountryView
 import java.time.Instant
 import java.time.LocalDateTime
 import java.util.*
@@ -37,19 +41,9 @@ class AccountView {
 
     fun surnameProperty() = _surname
 
-    private var _country: StringProperty = SimpleStringProperty(this, "country", "")
-    var country: String
-        get() = _country.get()
-        set(s) = _country.set(s)
+    lateinit var city: CityDto
 
-    fun countryProperty() = _country
-
-    private var _city: StringProperty = SimpleStringProperty(this, "city", "")
-    var city: String
-        get() = _city.get()
-        set(s) = _city.set(s)
-
-    fun cityProperty() = _city
+    lateinit var country: CountryDto
 
     private var _skype: StringProperty = SimpleStringProperty(this, "skype", "")
     var skype: String

@@ -9,11 +9,12 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
+<?import javafx.scene.control.ComboBox?>
 <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="700.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.social.contacts.FindUsersController">
   <center>
     <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="8.0" BorderPane.alignment="CENTER">
       <children>
-        <ListView maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
+        <ListView fx:id="foundList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
       </children>
       <padding>
         <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
@@ -39,18 +40,18 @@
         </TextField>
 
         <Label text="Страна:" />
-        <TextField fx:id="countryInput" minWidth="250.0">
+        <ComboBox fx:id="countryInput" minWidth="250.0">
           <VBox.margin>
             <Insets bottom="5.0" />
           </VBox.margin>
-        </TextField>
+        </ComboBox>
 
         <Label text="Город:" />
-        <TextField fx:id="cityInput" minWidth="250.0">
+        <ComboBox fx:id="cityInput" minWidth="250.0">
           <VBox.margin>
             <Insets bottom="5.0" />
           </VBox.margin>
-        </TextField>
+        </ComboBox>
 
         <Label text="Skype:" />
         <TextField fx:id="skypeInput" minWidth="250.0">
