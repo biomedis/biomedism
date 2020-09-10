@@ -109,7 +109,14 @@ class AccountController : BaseController() {
     private lateinit var socialPanelAPI: SocialPanelAPI
 
 
-    override fun setParams(vararg params: Any?) {
+    override fun setParams(vararg params: Any) {
+        val accountView: AccountView? = params[0] as? AccountView
+        if(accountView == null) {
+            log.error("НЕ передан параметр account")
+            throw RuntimeException("Следует передать параметр account")
+
+        }
+        account = accountView
 
     }
 
@@ -132,6 +139,7 @@ class AccountController : BaseController() {
     //добавить поля по врачам, складам итп
     // для партнерства - выкл просто, а вкл с проверкой
     override fun onCompletedInitialization() {
+        fillFields(account)
         Platform.runLater {
             BlockingAction.actionResult<List<CountryDto>>(controllerWindow) {
                 SocialClient.INSTANCE.registrationClient.countriesList()
@@ -153,6 +161,7 @@ class AccountController : BaseController() {
             }
 
             setCountryAndCityOnChange()
+            onChangeForm()
         }
 
     }
@@ -196,41 +205,6 @@ class AccountController : BaseController() {
                 controllerWindow,
                 "редактирование профиля"
         )
-
-        if (!SocialClient.INSTANCE.token.isPresent) {
-            Platform.runLater {
-                showErrorDialog(
-                        "Аккаунт",
-                        "",
-                        "Сессия потеряна, перезапустите программу. Если ошибка повториться обратитесь к разработчикам",
-                        controllerWindow,
-                        Modality.WINDOW_MODAL
-                )
-                controllerWindow.close()
-            }
-        }
-
-
-        account = AccountView()
-
-        val result: Result<AccountView> = BlockingAction.actionResult(controllerWindow) {
-            accountClient.getAccount(SocialClient.INSTANCE.token.get().userId)
-        }
-
-        if (result.isError) {
-            showErrorDialog(
-                    "Аккаунт",
-                    "",
-                    "Не удалось получить данные аккаунта. Перезапустите программу. Если ошибка повториться обратитесь к разработчикам",
-                    controllerWindow,
-                    Modality.WINDOW_MODAL
-            )
-            controllerWindow.close()
-        } else {
-            fillFields(result.value)
-            account = result.value
-            onChangeForm()
-        }
 
         socialPanelAPI = AppController.getSocialPanelAPI()
 
@@ -670,16 +644,18 @@ class AccountController : BaseController() {
         private val log by LoggerDelegate()
 
         @JvmStatic
-        fun showAccount(context: Stage) {
+        fun showAccount(context: Stage, account: AccountView) {
+
             try {
-                openDialogUserData<Unit>(
+                openDialogUserData(
                         context,
                         "/fxml/AccountDialog.fxml",
                         "Аккаунт",
                         false,
                         StageStyle.UTILITY,
                         (Screen.getPrimary().bounds.height * 0.9).toInt(), 0, 0, 0,
-                        Unit
+                        Unit,
+                        account
                 )
             } catch (e: Exception) {
                 log.error("Ошибка открытия диалога аккаунта", e)

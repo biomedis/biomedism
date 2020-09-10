@@ -12,12 +12,16 @@ import javafx.scene.control.Hyperlink
 import javafx.scene.control.Label
 import javafx.scene.control.Tab
 import javafx.scene.layout.HBox
+import javafx.stage.Modality
 import javafx.stage.WindowEvent
 import ru.biomedis.biomedismair3.AppController
 import ru.biomedis.biomedismair3.BaseController
+import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.social.account.AccountController
+import ru.biomedis.biomedismair3.social.account.AccountView
 import ru.biomedis.biomedismair3.social.remote_client.*
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
+import ru.biomedis.biomedismair3.utils.Other.Result
 import java.net.URL
 import java.util.*
 
@@ -130,7 +134,36 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
     }
 
     private fun onShowProfile(){
-        AccountController.showAccount(controllerWindow)
+
+        if (!SocialClient.INSTANCE.token.isPresent) {
+                showErrorDialog(
+                        "Аккаунт",
+                        "",
+                        "Сессия потеряна, перезапустите программу. Если ошибка повториться обратитесь к разработчикам",
+                        controllerWindow,
+                        Modality.WINDOW_MODAL
+                )
+            return
+        }
+
+        val result: Result<AccountView> = BlockingAction.actionResult(controllerWindow) {
+            SocialClient.INSTANCE.accountClient.getAccount(SocialClient.INSTANCE.token.get().userId)
+        }
+
+        if (result.isError) {
+            showErrorDialog(
+                    "Аккаунт",
+                    "",
+                    "Не удалось получить данные аккаунта. Перезапустите программу. Если ошибка повториться обратитесь к разработчикам",
+                    controllerWindow,
+                    Modality.WINDOW_MODAL
+            )
+
+        } else {
+            AccountController.showAccount(controllerWindow, result.value)
+        }
+
+
     }
 
     private fun showUserName(){
