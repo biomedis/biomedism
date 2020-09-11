@@ -100,6 +100,28 @@ class AccountView {
         set(s) = _support.set(s)
 
     fun supportProperty() = _support
+
+
+    private var _showEmail: BooleanProperty = SimpleBooleanProperty(this, "showEmail", false)
+    var showEmail: Boolean
+        get() = _showEmail.get()
+        set(s) = _showEmail.set(s)
+
+    fun showEmailProperty() = _showEmail
+
+    private var _showRealName: BooleanProperty = SimpleBooleanProperty(this, "showRealName", false)
+    var showRealName: Boolean
+        get() = _showRealName.get()
+        set(s) = _showRealName.set(s)
+
+    fun showRealNameProperty() = _showRealName
+
+    private var _showSkype: BooleanProperty = SimpleBooleanProperty(this, "showSkype", false)
+    var showSkype: Boolean
+        get() = _showSkype.get()
+        set(s) = _showSkype.set(s)
+
+    fun showSkypeProperty() = _showSkype
 }
 
 class ActiveSession {

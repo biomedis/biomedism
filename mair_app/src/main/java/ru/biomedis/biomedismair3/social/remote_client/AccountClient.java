@@ -93,7 +93,14 @@ public interface AccountClient {
   @RequestLine("PUT /depot/{param}")
   void setDepot(@Param("param") boolean depot);
 
+  @RequestLine("PUT /show_email/{param}")
+  void setShowEmail(@Param("param") boolean value);
 
+  @RequestLine("PUT /show_real_name/{param}")
+  void setRealName(@Param("param") boolean value);
+
+  @RequestLine("PUT /show_skype/{param}")
+  void setShowSkype(@Param("param") boolean value);
 
   @RequestLine("PUT /doctor/{userId}/{param}")
   void setDoctor(@Param("param") boolean doctor, @Param("userId") long userId);

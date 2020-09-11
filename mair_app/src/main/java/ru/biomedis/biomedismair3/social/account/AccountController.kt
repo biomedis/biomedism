@@ -46,6 +46,16 @@ class AccountController : BaseController() {
     private lateinit var textFieldUtil: TextFieldUtil
 
     @FXML
+    private lateinit var showEmailCb: CheckBox
+
+    @FXML
+    private lateinit var showRealNameCb: CheckBox
+
+    @FXML
+    private lateinit var showSkypeCb: CheckBox
+
+
+    @FXML
     private lateinit var activeSessionsTab: Tab
 
     @FXML
@@ -177,6 +187,9 @@ class AccountController : BaseController() {
         diagnostInput.isSelected = value.bris
         doctorInput.isSelected = value.doctor
         partnerInput.isSelected = value.partner
+        showEmailCb.isSelected = value.showEmail
+        showRealNameCb.isSelected = value.showRealName
+        showSkypeCb.isSelected = value.showSkype
     }
 
 
@@ -496,6 +509,18 @@ class AccountController : BaseController() {
 
         setBooleanEventFilter(partnerInput, account.partnerProperty()) {
             accountClient.setPartner(it)
+        }
+
+        setBooleanEventFilter(showEmailCb, account.showEmailProperty()) {
+            accountClient.setShowEmail(it)
+        }
+
+        setBooleanEventFilter(showRealNameCb, account.showRealNameProperty()) {
+            accountClient.setRealName(it)
+        }
+
+        setBooleanEventFilter(showSkypeCb, account.showSkypeProperty()) {
+            accountClient.setShowSkype(it)
         }
 
     }
