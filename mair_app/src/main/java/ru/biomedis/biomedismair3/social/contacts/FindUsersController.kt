@@ -42,6 +42,12 @@ class FindUsersController : BaseController() {
     private lateinit var depotInput: CheckBox
     @FXML
     private lateinit var partnerInput: CheckBox
+    @FXML
+    private lateinit var companyInput: CheckBox
+    @FXML
+    private lateinit var supportInput: CheckBox
+    @FXML
+    private lateinit var findBtn: Button
 
     private lateinit  var registrationClient: RegistrationClient
     private lateinit  var accountClient: AccountClient
@@ -126,6 +132,42 @@ class FindUsersController : BaseController() {
             result.value
         }
     }
+
+    fun find() {
+        val findData = FindData().apply {
+            name = firstNameInput.text
+            surname = lastNameInput.text
+            skype = skypeInput.text
+            about =aboutInput.text
+            city = cityInput.selectionModel.selectedItem?.id?:-1L
+            country = countryInput.selectionModel.selectedItem?.id?:-1L
+            bris = if(diagnostInput.isSelected) BooleanFind().apply {use = true; value = true  } else BooleanFind()
+            company = if(companyInput.isSelected) BooleanFind().apply {use = true; value = true  } else BooleanFind()
+            depot = if(depotInput.isSelected) BooleanFind().apply {use = true; value = true  } else BooleanFind()
+            doctor = if(doctorInput.isSelected) BooleanFind().apply {use = true; value = true  } else BooleanFind()
+            partner = if(partnerInput.isSelected) BooleanFind().apply {use = true; value = true  } else BooleanFind()
+            support = if(supportInput.isSelected) BooleanFind().apply {use = true; value = true  } else BooleanFind()
+
+        }
+        val result = BlockingAction.actionResult(controllerWindow) {
+            accountClient.findUsers(findData)
+        }
+        if(result.isError) {
+            showWarningDialog(
+                    "Поиск пользователей",
+                    "",
+                    "Произошла ошибка, попробуйте позже",
+                    controllerWindow,
+                    Modality.WINDOW_MODAL
+            )
+            log.error("", result.error)
+            return
+        }
+
+        result.value.forEach(::println)
+
+    }
+
     companion object {
         private val log by LoggerDelegate()
 
@@ -137,7 +179,7 @@ class FindUsersController : BaseController() {
         fun showFindUserDialog(context: Stage): List<AccountSmallView> {
             val users = AddedUsers()
             return try {
-                openDialogUserData<AddedUsers>(
+                openDialogUserData(
                         context,
                         "/fxml/social/FindUsersDialog.fxml",
                         "Поиск пользователей",

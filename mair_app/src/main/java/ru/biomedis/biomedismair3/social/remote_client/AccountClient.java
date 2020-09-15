@@ -40,7 +40,7 @@ public interface AccountClient {
   @RequestLine("GET /{id}")
   AccountView getAccount(@Param("id") long id);
 
-
+  @Headers(value = {"Content-Type: application/json"})
   @RequestLine("POST /find")
   List<AccountSmallView> findUsers(FindData findData);
 

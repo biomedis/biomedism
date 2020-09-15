@@ -33,14 +33,14 @@
     </TextField>
 
     <Label text="Фамилия:" />
-    <TextField fx:id="firstNameInput" minWidth="250.0">
+    <TextField fx:id="lastNameInput" minWidth="250.0">
       <VBox.margin>
         <Insets bottom="5.0" />
       </VBox.margin>
     </TextField>
 
     <Label text="Имя:" />
-    <TextField fx:id="lastNameInput" minWidth="250.0">
+    <TextField fx:id="firstNameInput" minWidth="250.0">
       <VBox.margin>
         <Insets bottom="5.0" />
       </VBox.margin>
@@ -68,7 +68,7 @@
     </TextField>
 
     <Label text="О себе:" />
-    <TextArea fx:id="aboutInput" minWidth="250.0">
+    <TextArea fx:id="aboutInput" minWidth="250.0" wrapText="true">
       <VBox.margin>
         <Insets bottom="8.0" />
       </VBox.margin>

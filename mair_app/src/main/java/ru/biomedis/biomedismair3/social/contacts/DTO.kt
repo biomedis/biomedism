@@ -1,9 +1,8 @@
 package ru.biomedis.biomedismair3.social.contacts
 
-import javafx.beans.property.*
-import java.time.Instant
-import java.time.LocalDateTime
-import java.util.*
+import ru.biomedis.biomedismair3.social.remote_client.dto.CityDto
+import ru.biomedis.biomedismair3.social.remote_client.dto.CityView
+import ru.biomedis.biomedismair3.social.remote_client.dto.CountryDto
 
 
 class FindData {
@@ -11,12 +10,14 @@ class FindData {
     var surname: String = ""
     var skype: String = ""
     var about: String = ""
-    var isPartner: BooleanFind = BooleanFind()
-    var isDoctor: BooleanFind = BooleanFind()
-    var isCompany: BooleanFind = BooleanFind()
-    var isDepot: BooleanFind = BooleanFind()
-    var isSupport: BooleanFind = BooleanFind()
-    var isBris: BooleanFind = BooleanFind()
+    var city: Long = -1
+    var country: Long = -1
+    var partner: BooleanFind = BooleanFind()
+    var doctor: BooleanFind = BooleanFind()
+    var company: BooleanFind = BooleanFind()
+    var depot: BooleanFind = BooleanFind()
+    var support: BooleanFind = BooleanFind()
+    var bris: BooleanFind = BooleanFind()
 }
 
 class BooleanFind {
@@ -32,12 +33,12 @@ class AccountSmallView {
     var surname: String = ""
     var skype: String = ""
     var email: String = ""
-    var city: String = ""
-    var country: String = ""
-    var isPartner: Boolean = false
-    var isDoctor: Boolean = false
-    var isCompany: Boolean = false
-    var isDepot: Boolean = false
-    var isSupport: Boolean = false
-    var isBris: Boolean = false
+    var city: CityDto? = null
+    var country: CountryDto? = null
+    var partner: Boolean = false
+    var doctor: Boolean = false
+    var company: Boolean = false
+    var depot: Boolean = false
+    var support: Boolean = false
+    var bris: Boolean = false
 }

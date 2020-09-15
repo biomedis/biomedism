@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextArea?>
@@ -9,7 +11,6 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.VBox?>
 
-<?import javafx.scene.control.ComboBox?>
 <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="700.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.social.contacts.FindUsersController">
   <center>
     <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="8.0" BorderPane.alignment="CENTER">
@@ -59,46 +60,41 @@
             <Insets bottom="5.0" />
           </VBox.margin>
         </TextField>
-
-        <Label text="БРТ-терапевт:" />
-        <CheckBox fx:id="doctorInput">
+        <CheckBox fx:id="doctorInput" text="БРТ-терапевт">
           <VBox.margin>
-            <Insets bottom="5.0" />
+            <Insets />
           </VBox.margin>
         </CheckBox>
-
-        <Label text="Диагност:" />
-        <CheckBox fx:id="diagnostInput">
+        <CheckBox fx:id="diagnostInput" text="Диагност">
           <VBox.margin>
-            <Insets bottom="5.0" />
+            <Insets />
           </VBox.margin>
         </CheckBox>
-
-        <Label text="Склад:" />
-        <CheckBox fx:id="depotInput">
+        <CheckBox fx:id="depotInput" text="Склад">
           <VBox.margin>
-            <Insets bottom="5.0" />
+            <Insets />
           </VBox.margin>
         </CheckBox>
-
-        <Label text="Партнер:" />
-        <CheckBox fx:id="partnerInput">
+        <CheckBox fx:id="partnerInput" text="Партнер">
           <VBox.margin>
-            <Insets bottom="5.0" />
+            <Insets />
           </VBox.margin>
         </CheckBox>
+        <CheckBox fx:id="supportInput" text="Поддержка" />
+        <CheckBox fx:id="companyInput"  text="Представитель компании" />
 
 
         <Label text="О себе:" />
 
-        <TextArea fx:id="aboutInput" minWidth="250.0">
+        <TextArea fx:id="aboutInput" minHeight="100.0" minWidth="250.0">
           <VBox.margin>
             <Insets bottom="8.0" />
           </VBox.margin>
         </TextArea>
+            <Button fx:id="findBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Найти" onAction="#find" />
       </children>
       <padding>
-        <Insets left="8.0" right="8.0" top="8.0" />
+        <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
       </padding>
     </VBox>
   </left>
