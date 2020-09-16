@@ -20,7 +20,7 @@ class FindUsersController : BaseController() {
 
     private lateinit var addedUsers: AddedUsers
     @FXML
-    private lateinit var foundList: ListView<*>
+    private lateinit var foundList: ListView<AccountSmallView>
     @FXML
     private lateinit var firstNameInput: TextField
     @FXML
@@ -91,6 +91,8 @@ class FindUsersController : BaseController() {
             cityInput.selectionModel.clearSelection()
 
         }
+
+        foundList.cellFactory = FoundUserCellFactory()
     }
 
     private fun getCountries():List<CountryDto>{
@@ -163,8 +165,8 @@ class FindUsersController : BaseController() {
             log.error("", result.error)
             return
         }
-
-        result.value.forEach(::println)
+        foundList.items.clear()
+        foundList.items.addAll(result.value)
 
     }
 
