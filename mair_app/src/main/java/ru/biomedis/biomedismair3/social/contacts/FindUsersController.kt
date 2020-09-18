@@ -1,6 +1,7 @@
 package ru.biomedis.biomedismair3.social.contacts
 
 import javafx.application.Platform
+import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.stage.*
@@ -92,7 +93,10 @@ class FindUsersController : BaseController() {
 
         }
 
-        foundList.cellFactory = FoundUserCellFactory()
+        foundList.apply {
+            cellFactory = FoundUserCellFactory()
+            selectionModel.selectionMode = SelectionMode.MULTIPLE
+        }
     }
 
     private fun getCountries():List<CountryDto>{
@@ -168,6 +172,11 @@ class FindUsersController : BaseController() {
         foundList.items.clear()
         foundList.items.addAll(result.value)
 
+    }
+
+    fun addContacts() {
+        addedUsers.users.addAll(foundList.selectionModel.selectedItems)
+        controllerWindow.close()
     }
 
     companion object {

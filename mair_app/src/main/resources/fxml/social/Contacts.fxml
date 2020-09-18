@@ -42,7 +42,7 @@
                      <center>
                         <SplitPane dividerPositions="0.9" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" orientation="VERTICAL">
                            <items>
-                             <ListView />
+                             <ListView fx:id="contactsList"/>
                               <TextArea maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
                            </items>
                         </SplitPane>

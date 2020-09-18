@@ -6,6 +6,7 @@ import javafx.scene.control.Tab
 import javafx.scene.control.TabPane
 import javafx.stage.WindowEvent
 import ru.biomedis.biomedismair3.BaseController
+import ru.biomedis.biomedismair3.utils.TabHolder
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import java.lang.RuntimeException
 import java.net.URL
@@ -17,7 +18,7 @@ class AdminController : BaseController() {
     @FXML
     private lateinit var tabs: TabPane
 
-    private val controllersMap = mutableMapOf<String, Selected>()
+    private val controllersMap = mutableMapOf<String, TabHolder.Selected>()
 
     override fun setParams(vararg params: Any?) {
 
@@ -49,9 +50,9 @@ class AdminController : BaseController() {
         tabs.selectionModel.select(0)
     }
 
-    private fun addTab(tabName: String, fxml: String, fxId: String,  vararg arg: Any): Pair<Node, Selected>{
+    private fun addTab(tabName: String, fxml: String, fxId: String,  vararg arg: Any): Pair<Node, TabHolder.Selected>{
         val result = loadContent(fxml, arg)
-        if(result.value !is Selected) throw RuntimeException("Контроллер должен реализовывать интерфейс Selected")
+        if(result.value !is TabHolder.Selected) throw RuntimeException("Контроллер должен реализовывать интерфейс Selected")
         Tab(tabName).apply {
             content = result.key
             isClosable = false
@@ -59,11 +60,8 @@ class AdminController : BaseController() {
         }.also {
             tabs.tabs.add(it)
         }
-        controllersMap[fxId] = result.value as Selected
+        controllersMap[fxId] = result.value as TabHolder.Selected
         return result.key to controllersMap[fxId]!!
     }
 }
 
-interface Selected{
-    fun onSelected()
-}

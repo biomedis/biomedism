@@ -1,16 +1,11 @@
 package ru.biomedis.biomedismair3.social.social_panel
 
-import javafx.application.Platform
-import javafx.beans.value.ChangeListener
-import javafx.beans.value.ObservableValue
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.fxml.FXML
-import javafx.scene.Node
 import javafx.scene.control.Button
 import javafx.scene.control.Hyperlink
 import javafx.scene.control.Label
-import javafx.scene.control.Tab
 import javafx.scene.layout.HBox
 import javafx.stage.Modality
 import javafx.stage.WindowEvent
@@ -22,6 +17,7 @@ import ru.biomedis.biomedismair3.social.account.AccountView
 import ru.biomedis.biomedismair3.social.remote_client.*
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import ru.biomedis.biomedismair3.utils.Other.Result
+import ru.biomedis.biomedismair3.utils.TabHolder
 import java.net.URL
 import java.util.*
 
@@ -39,7 +35,6 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
     @FXML
     private lateinit var logIn: Button
 
-    private val tabs = mutableMapOf<String, Tab>()
 
     private lateinit var res: ResourceBundle
 
@@ -48,6 +43,8 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
     private lateinit var client: SocialClient
     private var isLogin = false
     private lateinit var  tokenRepository: TokenRepository
+
+    private lateinit var tabHolder: TabHolder
 
     override fun onCompletedInitialization() {
         try {
@@ -74,18 +71,20 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
         client = SocialClient.INSTANCE
         logIn.onAction = EventHandler(this::login)
         tokenRepository = model
+        tabHolder = TabHolder(getApp().mainWindow, getAppController().tabPane)
 
         SocialClient.INSTANCE.isAuthProperty.addListener{
             _,oldV, newV->
-            println("$oldV $newV")
+
             if (oldV == newV) return@addListener
             if (newV) showLogout() else showLogin()
             if(newV){
-                tabs["/fxml/social/Contacts.fxml"]  = addTab("/fxml/social/Contacts.fxml","Контакты")
-                tabs["/fxml/social/Registry.fxml"]  =  addTab("/fxml/social/Registry.fxml","Справочник")
-                if(client.isAdmin)  tabs["/fxml/Admin.fxml"]  =  addTab("/fxml/Admin.fxml","Admin")
+                tabHolder.addTab("/fxml/social/Contacts.fxml", "Контакты", false)
+                tabHolder.addTab("/fxml/social/Registry.fxml", "Справочник", false)
+                if(client.isAdmin)  tabHolder.addTab("/fxml/Admin.fxml", "Admin", false)
+
             }else {
-                tabs.forEach { (_, t) ->removeTab(t) }
+                tabHolder.removeAllTabs()
             }
         }
     }
@@ -183,26 +182,4 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
         root.children.remove(link)
     }
 
-    private fun addTab(fxml: String, name: String, isClosable: Boolean = false): Tab{
-        val tab = Tab(name)
-
-        val node = try {
-            loadContent(fxml).key
-        } catch (exception: Exception) {
-            log.error("", exception)
-            throw RuntimeException(exception)
-        }
-        tab.content = node
-        tab.isClosable = isClosable
-        Platform.runLater { AppController.getAppController().addTab(tab) }
-        return tab
-    }
-
-    private fun removeTab(tab: Tab?){
-        if(tab!=null){
-            Platform.runLater {
-                AppController.getAppController().removeTab(tab, true)
-            }
-        }
-    }
 }

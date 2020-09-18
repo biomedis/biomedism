@@ -1,4 +1,4 @@
-package ru.biomedis.biomedismair3.social.remote_client
+package ru.biomedis.biomedismair3.utils
 
 import javafx.application.Platform
 import javafx.fxml.FXMLLoader
@@ -51,6 +51,9 @@ class TabHolder(private val context: Stage, private val tabPane: TabPane){
         return controllersMap[fxId]!!
     }
 
+    /**
+     * Удаляет таб, что добавлен этим холдером
+     */
     fun removeTab(fxId: String){
         tabs[fxId]?.let {
             Platform.runLater {
@@ -63,6 +66,9 @@ class TabHolder(private val context: Stage, private val tabPane: TabPane){
 
     }
 
+    /**
+     * Удаляет табы, что добавлены этим холдером
+     */
     fun removeAllTabs(){
         tabs.keys.toSet().forEach(this::removeTab)
     }

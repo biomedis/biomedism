@@ -220,7 +220,9 @@ public class AppController  extends BaseController {
         this.connectedDevice.set(connectedDevice);
     }
 
-
+public TabPane getTabPane(){
+       return therapyTabPane;
+}
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -235,7 +237,6 @@ public class AppController  extends BaseController {
         borderGlow.setColor(Color.GREEN);
         borderGlow.setWidth(20);
         borderGlow.setHeight(20);
-
 
         _therapyTabPane = therapyTabPane;
         dataPathMenuItem.setVisible(OSValidator.isWindows());//видимость пункта меню для введения пути к папки данных, только на винде!

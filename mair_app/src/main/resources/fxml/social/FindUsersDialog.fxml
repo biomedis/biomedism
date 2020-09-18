@@ -9,12 +9,18 @@
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
 <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefWidth="700.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.social.contacts.FindUsersController">
   <center>
     <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="8.0" BorderPane.alignment="CENTER">
       <children>
+            <HBox maxWidth="1.7976931348623157E308" spacing="8.0">
+               <children>
+                  <Button mnemonicParsing="false" text="Добавить в контакты"  onAction="#addContacts"/>
+               </children>
+            </HBox>
         <ListView fx:id="foundList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
       </children>
       <padding>
@@ -81,7 +87,7 @@
           </VBox.margin>
         </CheckBox>
         <CheckBox fx:id="supportInput" text="Поддержка" />
-        <CheckBox fx:id="companyInput"  text="Представитель компании" />
+        <CheckBox fx:id="companyInput" text="Представитель компании" />
 
 
         <Label text="О себе:" />
@@ -91,7 +97,7 @@
             <Insets bottom="8.0" />
           </VBox.margin>
         </TextArea>
-            <Button fx:id="findBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Найти" onAction="#find" />
+            <Button fx:id="findBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#find" text="Найти" />
       </children>
       <padding>
         <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
