@@ -18,7 +18,7 @@
       <children>
             <HBox maxWidth="1.7976931348623157E308" spacing="8.0">
                <children>
-                  <Button mnemonicParsing="false" text="Добавить в контакты"  onAction="#addContacts"/>
+                  <Button fx:id="addBtn" mnemonicParsing="false" text="Добавить в контакты"  onAction="#addContacts"/>
                </children>
             </HBox>
         <ListView fx:id="foundList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />

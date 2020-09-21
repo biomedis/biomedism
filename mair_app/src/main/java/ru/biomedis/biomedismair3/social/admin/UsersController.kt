@@ -28,6 +28,7 @@ import ru.biomedis.biomedismair3.social.admin.UsersController.ColumnId.SUPPORT
 import ru.biomedis.biomedismair3.social.remote_client.Role
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
+import ru.biomedis.biomedismair3.utils.TabHolder
 import java.net.URL
 import java.util.*
 import java.util.function.Predicate
@@ -35,7 +36,7 @@ import kotlin.reflect.KMutableProperty0
 import ru.biomedis.biomedismair3.utils.Other.Result as ResultAction
 
 
-class UsersController : BaseController(), Selected {
+class UsersController : BaseController(), TabHolder.Selected, TabHolder.Detached {
     @FXML
     private lateinit var table: TableView<AccountWithRoles>
 
@@ -363,6 +364,11 @@ class UsersController : BaseController(), Selected {
     fun checkAll() {
         filterCheckboxes.forEach { it.isSelected = true }
         onChangeFilter()
+    }
+
+    override fun onDetach() {
+
+
     }
 }
 

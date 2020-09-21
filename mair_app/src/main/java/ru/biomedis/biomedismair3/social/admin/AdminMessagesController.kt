@@ -3,11 +3,12 @@ package ru.biomedis.biomedismair3.social.admin
 import javafx.stage.WindowEvent
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
+import ru.biomedis.biomedismair3.utils.TabHolder
 import java.net.URL
 import java.util.*
 
 
-class AdminMessagesController : BaseController(), Selected {
+class AdminMessagesController : BaseController(), TabHolder.Selected, TabHolder.Detached {
 
     private val log by LoggerDelegate()
 
@@ -29,6 +30,11 @@ class AdminMessagesController : BaseController(), Selected {
 
 
     override fun onSelected() {
+    }
+
+    override fun onDetach() {
+
+        
     }
 
 }

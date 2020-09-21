@@ -51,6 +51,7 @@ class ContactsController: BaseController(), TabHolder.Selected, TabHolder.Detach
     }
 
     private fun addContacts(usersToContacts: List<AccountSmallView>){
+        if(usersToContacts.isEmpty()) return
         val result: Result<List<ContactDto>> = BlockingAction.actionResult(controllerWindow) {
             SocialClient.INSTANCE.contactsClient.addAllContact(usersToContacts.map { it.id })
         }

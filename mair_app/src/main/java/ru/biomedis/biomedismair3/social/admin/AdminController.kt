@@ -12,13 +12,15 @@ import java.lang.RuntimeException
 import java.net.URL
 import java.util.*
 
-class AdminController : BaseController() {
+class AdminController : BaseController(), TabHolder.Selected, TabHolder.Detached {
 
     private val log by LoggerDelegate()
     @FXML
     private lateinit var tabs: TabPane
 
     private val controllersMap = mutableMapOf<String, TabHolder.Selected>()
+
+    private lateinit var tabHolder: TabHolder
 
     override fun setParams(vararg params: Any?) {
 
@@ -29,18 +31,11 @@ class AdminController : BaseController() {
     }
 
     override fun onCompletedInitialization() {
+        tabHolder = TabHolder(controllerWindow, tabs)
 
-    }
-
-    override fun initialize(location: URL, resources: ResourceBundle) {
-        tabs.selectionModel.selectedItemProperty().addListener {
-            _, oldValue, newValue ->
-            if(oldValue==newValue) return@addListener
-            controllersMap[newValue.id]?.onSelected()
-        }
         try{
-            addTab("Рассылки", "/fxml/AdminMessages.fxml", "admin_messages")
-            addTab("Пользователи", "/fxml/Users.fxml", "users")
+            tabHolder.addTab( "/fxml/AdminMessages.fxml", "Рассылки",false, "admin_messages")
+            tabHolder.addTab( "/fxml/Users.fxml", "Пользователи",false,"users")
         }catch (e: Exception){
             log.error("", e)
             throw e
@@ -50,18 +45,17 @@ class AdminController : BaseController() {
         tabs.selectionModel.select(0)
     }
 
-    private fun addTab(tabName: String, fxml: String, fxId: String,  vararg arg: Any): Pair<Node, TabHolder.Selected>{
-        val result = loadContent(fxml, arg)
-        if(result.value !is TabHolder.Selected) throw RuntimeException("Контроллер должен реализовывать интерфейс Selected")
-        Tab(tabName).apply {
-            content = result.key
-            isClosable = false
-            id=fxId
-        }.also {
-            tabs.tabs.add(it)
-        }
-        controllersMap[fxId] = result.value as TabHolder.Selected
-        return result.key to controllersMap[fxId]!!
+    override fun initialize(location: URL, resources: ResourceBundle) {
+
+    }
+
+
+    override fun onSelected() {
+
+    }
+
+    override fun onDetach() {
+
     }
 }
 

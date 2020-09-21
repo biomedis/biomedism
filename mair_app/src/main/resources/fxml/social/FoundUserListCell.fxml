@@ -40,6 +40,23 @@
                   <Label fx:id="skype" />
                </children>
             </HBox>
+            <HBox alignment="CENTER_LEFT" layoutX="15.0" layoutY="15.0" maxWidth="1.7976931348623157E308">
+               <children>
+                  <Label fx:id="country">
+                     <HBox.margin>
+                        <Insets right="8.0" />
+                     </HBox.margin>
+                     <font>
+                        <Font name="System Bold" size="12.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="city">
+                     <HBox.margin>
+                        <Insets right="8.0" />
+                     </HBox.margin>
+                  </Label>
+               </children>
+            </HBox>
             <Separator prefWidth="200.0" />
             <FlowPane fx:id="bool_container" hgap="5.0" maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT" rowValignment="TOP" vgap="3.0">
                <children>

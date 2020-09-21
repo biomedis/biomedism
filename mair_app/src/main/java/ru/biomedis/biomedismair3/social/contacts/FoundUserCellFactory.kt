@@ -7,18 +7,17 @@ import javafx.scene.control.Label
 import javafx.scene.control.ListCell
 import javafx.scene.control.ListView
 import javafx.scene.layout.FlowPane
-import javafx.scene.layout.HBox
 import javafx.util.Callback
 import java.io.IOException
-import java.text.SimpleDateFormat
 
 
-class FoundUserCellFactory : Callback<ListView<AccountSmallView>, ListCell<AccountSmallView>> {
+class FoundUserCellFactory(val findDataContainer: FindUsersController.FindDataContainer) : Callback<ListView<AccountSmallView>, ListCell<AccountSmallView>> {
+
     override fun call(param: ListView<AccountSmallView>?): ListCell<AccountSmallView> {
-        return TaskCell()
+        return TaskCell(findDataContainer)
     }
 
-    class TaskCell : ListCell<AccountSmallView>() {
+    class TaskCell(val findDataContainer: FindUsersController.FindDataContainer) : ListCell<AccountSmallView>() {
 
         @FXML
         private lateinit var login: Label
@@ -35,6 +34,11 @@ class FoundUserCellFactory : Callback<ListView<AccountSmallView>, ListCell<Accou
         @FXML
         private lateinit var skype: Label
 
+        @FXML
+        private lateinit var city: Label
+
+        @FXML
+        private lateinit var country: Label
 
         @FXML
         private lateinit var support: Label
@@ -79,15 +83,19 @@ class FoundUserCellFactory : Callback<ListView<AccountSmallView>, ListCell<Accou
                 email.text = item.email
                 name.text = item.name
                 surname.text = item.surname
-                skype.text = if(!item.skype.isEmpty())"Skype: ${item.skype}" else ""
+                skype.text = if (!item.skype.isEmpty()) "Skype: ${item.skype}" else ""
+                city.text = item.city?.name ?: ""
+                country.text = item.country?.name ?: ""
 
-             if(item.support) support.text = "Тех.Поддержка | "
-             if(item.company)  company.text = "Представитель компании | "
-             if(item.doctor) doctor.text = "БРТ-терапевт | "
-             if(item.bris)  diagnost.text = "Диагност | "
-             if(item.partner)  partner.text = "Участник партнерской программы | "
-             if(item.depot)  depot.text = "Склад"
+                if (item.support) support.text = "Тех.Поддержка | " else support.text = ""
+                if (item.company) company.text = "Представитель компании | " else company.text = ""
+                if (item.doctor) doctor.text = "БРТ-терапевт | " else doctor.text = ""
+                if (item.bris) diagnost.text = "Диагност | " else diagnost.text = ""
+                if (item.partner) partner.text = "Участник партнерской программы | " else partner.text = ""
+                if (item.depot) depot.text = "Склад" else depot.text = ""
 
+                //подсветка зеленым, то что искали
+                applyFindData()
 
                 contentDisplay = ContentDisplay.GRAPHIC_ONLY
             }
@@ -95,6 +103,53 @@ class FoundUserCellFactory : Callback<ListView<AccountSmallView>, ListCell<Accou
 
         init {
             loadFXML()
+        }
+
+        private fun applyFindData() {
+            fun styled(label: Label) {
+                label.styleClass.apply {
+                    if (!contains("GreenText")) add("GreenText")
+                }
+            }
+
+            fun deStyled(label: Label) {
+                label.styleClass.apply {
+                    remove("GreenText")
+                }
+            }
+
+
+            fun boolFieldStyle(field: BooleanFind, label: Label) {
+                if (field.value) styled(label)
+                else deStyled(label)
+            }
+
+            fun cityOrCountryFieldStyle(field: Long, label: Label) {
+                if (field > 0) styled(label)
+                else deStyled(label)
+            }
+
+            fun textFieldStyle(field: String, label: Label) {
+                if (field.isNotEmpty()) styled(label)
+                else deStyled(label)
+            }
+
+            findDataContainer.findData.let {
+                boolFieldStyle(it.bris, diagnost)
+                boolFieldStyle(it.doctor, doctor)
+                boolFieldStyle(it.support, support)
+                boolFieldStyle(it.company, company)
+                boolFieldStyle(it.partner, partner)
+                boolFieldStyle(it.depot, depot)
+
+                cityOrCountryFieldStyle(it.city, city)
+                cityOrCountryFieldStyle(it.country, country)
+
+                textFieldStyle(it.name, name)
+                textFieldStyle(it.surname, surname)
+                textFieldStyle(it.skype, skype)
+
+            }
         }
     }
 }

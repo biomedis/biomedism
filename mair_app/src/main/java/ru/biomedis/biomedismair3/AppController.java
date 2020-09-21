@@ -227,7 +227,7 @@ public TabPane getTabPane(){
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         eventBusClient = buildEventBusClient();
-
+        mdc = this;
         res = rb;
         initNamesTables();
 

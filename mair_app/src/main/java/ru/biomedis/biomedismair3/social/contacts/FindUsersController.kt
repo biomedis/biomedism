@@ -1,7 +1,6 @@
 package ru.biomedis.biomedismair3.social.contacts
 
 import javafx.application.Platform
-import javafx.event.ActionEvent
 import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.stage.*
@@ -49,9 +48,15 @@ class FindUsersController : BaseController() {
     private lateinit var supportInput: CheckBox
     @FXML
     private lateinit var findBtn: Button
+    @FXML
+    private lateinit var addBtn: Button
 
     private lateinit  var registrationClient: RegistrationClient
     private lateinit  var accountClient: AccountClient
+
+    class FindDataContainer(var findData: FindData)
+
+    private val findDataContainer: FindDataContainer = FindDataContainer(FindData())
 
     override fun onCompletedInitialization() {
         addedUsers = inputDialogData as AddedUsers
@@ -94,9 +99,10 @@ class FindUsersController : BaseController() {
         }
 
         foundList.apply {
-            cellFactory = FoundUserCellFactory()
+            cellFactory = FoundUserCellFactory(findDataContainer)
             selectionModel.selectionMode = SelectionMode.MULTIPLE
         }
+        addBtn.disableProperty().bind(foundList.selectionModel.selectedItemProperty().isNull)
     }
 
     private fun getCountries():List<CountryDto>{
@@ -169,6 +175,7 @@ class FindUsersController : BaseController() {
             log.error("", result.error)
             return
         }
+        findDataContainer.findData = findData//позволит ячейкам использовать инф о поиске и изменить отображение
         foundList.items.clear()
         foundList.items.addAll(result.value)
 
