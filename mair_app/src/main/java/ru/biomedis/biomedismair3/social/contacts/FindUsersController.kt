@@ -99,7 +99,23 @@ class FindUsersController : BaseController() {
         }
 
         foundList.apply {
-            cellFactory = FoundUserCellFactory(findDataContainer)
+            cellFactory = FoundUserCellFactory(findDataContainer){
+               val result =  BlockingAction.actionResult(controllerWindow){
+                    SocialClient.INSTANCE.accountClient.getAbout(it)
+                }
+                if(result.isError){
+                    showWarningDialog(
+                            "Загрузка данных о пользователе",
+                            "Загрузка данных не удалась",
+                            "Перезапустите программу или попробуйте позже",
+                            controllerWindow,
+                            Modality.WINDOW_MODAL
+                    )
+                    log.error("", result.error)
+
+                }
+                if(!result.isError) result.value else ""
+            }
             selectionModel.selectionMode = SelectionMode.MULTIPLE
         }
         addBtn.disableProperty().bind(foundList.selectionModel.selectedItemProperty().isNull)

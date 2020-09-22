@@ -1,7 +1,6 @@
 package ru.biomedis.biomedismair3.social.contacts
 
 import ru.biomedis.biomedismair3.social.remote_client.dto.CityDto
-import ru.biomedis.biomedismair3.social.remote_client.dto.CityView
 import ru.biomedis.biomedismair3.social.remote_client.dto.CountryDto
 
 
@@ -41,4 +40,5 @@ class AccountSmallView {
     var depot: Boolean = false
     var support: Boolean = false
     var bris: Boolean = false
+    var emptyAbout: Boolean = false
 }

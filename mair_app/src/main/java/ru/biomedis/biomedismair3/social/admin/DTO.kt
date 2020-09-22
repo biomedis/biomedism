@@ -94,6 +94,13 @@ class AccountSmallViewObserved {
         set(s) = _support.set(s)
 
     fun supportProperty() = _support
+
+    private var _emptyAbout: BooleanProperty = SimpleBooleanProperty(this, "support", false)
+    var emptyAbout: Boolean
+        get() = _emptyAbout.get()
+        set(s) = _emptyAbout.set(s)
+
+    fun emptyAboutProperty() = _emptyAbout
 }
 
 class AccountWithRoles {

@@ -16,6 +16,9 @@ import ru.biomedis.biomedismair3.social.remote_client.dto.CountryDto;
 
 public interface AccountClient {
 
+  @RequestLine("GET /about/{id}")
+  String getAbout(@Param("id") long id);
+
   @RequestLine("GET /roles")
   List<String> allRoles();
 

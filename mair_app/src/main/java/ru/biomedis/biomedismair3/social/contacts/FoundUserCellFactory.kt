@@ -2,22 +2,25 @@ package ru.biomedis.biomedismair3.social.contacts
 
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
-import javafx.scene.control.ContentDisplay
-import javafx.scene.control.Label
-import javafx.scene.control.ListCell
-import javafx.scene.control.ListView
+import javafx.scene.control.*
 import javafx.scene.layout.FlowPane
+import javafx.scene.layout.VBox
 import javafx.util.Callback
 import java.io.IOException
 
 
-class FoundUserCellFactory(val findDataContainer: FindUsersController.FindDataContainer) : Callback<ListView<AccountSmallView>, ListCell<AccountSmallView>> {
+class FoundUserCellFactory(val findDataContainer: FindUsersController.FindDataContainer, val aboutService:(user:Long)->String) : Callback<ListView<AccountSmallView>, ListCell<AccountSmallView>> {
 
     override fun call(param: ListView<AccountSmallView>?): ListCell<AccountSmallView> {
-        return TaskCell(findDataContainer)
+        return TaskCell(findDataContainer, aboutService)
     }
 
-    class TaskCell(val findDataContainer: FindUsersController.FindDataContainer) : ListCell<AccountSmallView>() {
+    class TaskCell(val findDataContainer: FindUsersController.FindDataContainer , val aboutService:(user:Long)->String) : ListCell<AccountSmallView>() {
+        @FXML
+        private lateinit var  showAboutBtn: Hyperlink
+
+        @FXML
+        private lateinit var rootBox: VBox
 
         @FXML
         private lateinit var login: Label
@@ -94,11 +97,34 @@ class FoundUserCellFactory(val findDataContainer: FindUsersController.FindDataCo
                 if (item.partner) partner.text = "Участник партнерской программы | " else partner.text = ""
                 if (item.depot) depot.text = "Склад" else depot.text = ""
 
+                showAboutBtn.isVisible = !item.emptyAbout
                 //подсветка зеленым, то что искали
                 applyFindData()
 
                 contentDisplay = ContentDisplay.GRAPHIC_ONLY
             }
+        }
+
+        fun showAbout() {
+            val foundTextArea = rootBox.children.lastOrNull { it.id == "about" }
+            if(foundTextArea!=null){
+                rootBox.children.remove(foundTextArea)
+                rootBox.requestLayout()
+                return
+            }
+            val aboutText  = aboutService(item.id)
+            if(aboutText.isNotEmpty()) return
+
+            val textArea = TextArea().apply {
+                        id = "about"
+                        maxWidth = Double.MAX_VALUE
+                        this.isWrapText = true
+                        this.isEditable = false
+                    }
+            textArea.text = aboutService(item.id)
+
+            rootBox.children.add(textArea)
+
         }
 
         init {
