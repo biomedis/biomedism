@@ -20,10 +20,10 @@ import java.util.*
 
 class ContactsController: BaseController(), TabHolder.Selected, TabHolder.Detached {
     private val log by LoggerDelegate()
-   @FXML private lateinit var contactsList: ListView<SmallContactViewDto>
+   @FXML private lateinit var contactsList: ListView<UserContact>
+    @FXML private lateinit var messages: ListView<*>
 
-
-    private val contacts: ObservableList<SmallContactViewDto> = FXCollections.observableArrayList()
+    private val contacts: ObservableList<UserContact> = FXCollections.observableArrayList()
 
     override fun onCompletedInitialization() {
 
@@ -38,7 +38,26 @@ class ContactsController: BaseController(), TabHolder.Selected, TabHolder.Detach
     }
 
     override fun initialize(location: URL, resources: ResourceBundle) {
+
+        contactsList.cellFactory = ContactUserCellFactory(){
+            val result =  BlockingAction.actionResult(controllerWindow){
+                SocialClient.INSTANCE.accountClient.getAbout(it)
+            }
+            if(result.isError){
+                showWarningDialog(
+                        "Загрузка данных о пользователе",
+                        "Загрузка данных не удалась",
+                        "Перезапустите программу или попробуйте позже",
+                        controllerWindow,
+                        Modality.WINDOW_MODAL
+                )
+                log.error("", result.error)
+
+            }
+            if(!result.isError) result.value else ""
+        }
         contactsList.items = contacts
+
     }
 
     /**
@@ -78,19 +97,11 @@ class ContactsController: BaseController(), TabHolder.Selected, TabHolder.Detach
             )
             return
         }
-        val contactsMap = result.value.groupBy { it.user }
+        val contactsMap = result.value.groupBy { it.contact }
 
         contacts.addAll(usersToContacts.map {
-            SmallContactViewDto().apply{
-                val contact =  contactsMap[it.id]?.get(0)?:throw RuntimeException("Не верное сопоставление id")
-                id = contact.id
-                userId = contact.user
-                contactUserId = contact.contact
-                login = it.login
-                name = it.name
-                surname = it.surname
-                isFollowing = contact.following
-            }
+            val contact =  contactsMap[it.id]?.get(0)?:throw RuntimeException("Не верное сопоставление id")
+            UserContact(it, contact)
         })
     }
 
@@ -102,8 +113,8 @@ class ContactsController: BaseController(), TabHolder.Selected, TabHolder.Detach
         addContacts(listOf(user))
     }
 
-    private fun loadContacts(): List<SmallContactViewDto>{
-        val result: Result<List<SmallContactViewDto>> = BlockingAction.actionResult(controllerWindow) {
+    private fun loadContacts(): List<UserContact>{
+        val result: Result<List<UserContact>> = BlockingAction.actionResult(controllerWindow) {
             SocialClient.INSTANCE.contactsClient.allContacts()
         }
         if(result.isError){

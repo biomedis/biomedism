@@ -121,7 +121,7 @@ class FoundUserCellFactory(val findDataContainer: FindUsersController.FindDataCo
                         this.isWrapText = true
                         this.isEditable = false
                     }
-            textArea.text = aboutService(item.id)
+            textArea.text = aboutText
 
             rootBox.children.add(textArea)
 

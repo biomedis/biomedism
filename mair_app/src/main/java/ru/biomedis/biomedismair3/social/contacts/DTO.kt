@@ -1,6 +1,7 @@
 package ru.biomedis.biomedismair3.social.contacts
 
 import ru.biomedis.biomedismair3.social.remote_client.dto.CityDto
+import ru.biomedis.biomedismair3.social.remote_client.dto.ContactDto
 import ru.biomedis.biomedismair3.social.remote_client.dto.CountryDto
 
 
@@ -41,4 +42,18 @@ class AccountSmallView {
     var support: Boolean = false
     var bris: Boolean = false
     var emptyAbout: Boolean = false
+}
+
+
+class UserContact() {
+    lateinit var account: AccountSmallView
+        private set
+    lateinit var contact: ContactDto
+        private set
+    constructor(account: AccountSmallView, contact: ContactDto) : this() {
+        this.account = account
+        this.contact = contact
+    }
+
+
 }
