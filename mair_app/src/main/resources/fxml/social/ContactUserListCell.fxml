@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListCell?>
 <?import javafx.scene.control.Separator?>
@@ -10,10 +11,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<?import javafx.scene.control.Hyperlink?>
 <fx:root maxWidth="1.7976931348623157E308" type="javafx.scene.control.ListCell" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
   <graphic>
-    <VBox maxWidth="1.7976931348623157E308" fx:id="rootBox">
+    <VBox fx:id="rootBox" maxWidth="1.7976931348623157E308">
       <children>
             <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
                <children>
@@ -59,7 +59,7 @@
                   </Label>
                </children>
             </HBox>
-            <Separator prefWidth="200.0" />
+            <Separator maxWidth="Infinity" />
             <FlowPane fx:id="bool_container" hgap="5.0" maxWidth="1.7976931348623157E308" nodeOrientation="LEFT_TO_RIGHT" rowValignment="TOP" vgap="3.0">
                <children>
                   <Label fx:id="support">
@@ -87,7 +87,15 @@
                         <Font name="System Italic" size="12.0" />
                      </font></Label>
                </children></FlowPane>
-            <Hyperlink mnemonicParsing="false" text="О себе" onAction="#showAbout" fx:id="showAboutBtn"/>
+            <HBox maxWidth="1.7976931348623157E308" spacing="10.0">
+               <children>
+                  <Hyperlink fx:id="showAboutBtn" mnemonicParsing="false" onAction="#showAbout" text="О себе" />
+                  <CheckBox fx:id="followCheckBox" mnemonicParsing="false" onAction="#onFollowAction" text="Подписка">
+                     <padding>
+                        <Insets top="3.0" />
+                     </padding></CheckBox>
+               </children>
+            </HBox>
       </children>
          <padding>
             <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />

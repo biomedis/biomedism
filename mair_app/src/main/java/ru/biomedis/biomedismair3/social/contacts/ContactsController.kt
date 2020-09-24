@@ -39,14 +39,34 @@ class ContactsController: BaseController(), TabHolder.Selected, TabHolder.Detach
 
     override fun initialize(location: URL, resources: ResourceBundle) {
 
-        contactsList.cellFactory = ContactUserCellFactory(){
-            val result =  BlockingAction.actionResult(controllerWindow){
-                SocialClient.INSTANCE.accountClient.getAbout(it)
+        contactsList.cellFactory = ContactUserCellFactory(
+                {
+                    val result =  BlockingAction.actionResult(controllerWindow){
+                        SocialClient.INSTANCE.accountClient.getAbout(it)
+                    }
+                    if(result.isError){
+                        showWarningDialog(
+                                "Загрузка данных о пользователе",
+                                "Загрузка данных не удалась",
+                                "Перезапустите программу или попробуйте позже",
+                                controllerWindow,
+                                Modality.WINDOW_MODAL
+                        )
+                        log.error("", result.error)
+
+                    }
+                    if(!result.isError) result.value else ""
+                }
+        ){
+            contact, follow ->
+            val result =  BlockingAction.actionNoResult(controllerWindow){
+                if(follow)SocialClient.INSTANCE.contactsClient.follow(contact)
+                else SocialClient.INSTANCE.contactsClient.unFollow(contact)
             }
             if(result.isError){
                 showWarningDialog(
-                        "Загрузка данных о пользователе",
-                        "Загрузка данных не удалась",
+                        "Подписка",
+                        "Подписка не удалась",
                         "Перезапустите программу или попробуйте позже",
                         controllerWindow,
                         Modality.WINDOW_MODAL
@@ -54,7 +74,7 @@ class ContactsController: BaseController(), TabHolder.Selected, TabHolder.Detach
                 log.error("", result.error)
 
             }
-            if(!result.isError) result.value else ""
+            !result.isError
         }
         contactsList.items = contacts
 

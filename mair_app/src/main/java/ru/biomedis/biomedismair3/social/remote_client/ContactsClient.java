@@ -4,6 +4,7 @@ import feign.Headers;
 import feign.Param;
 import feign.RequestLine;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 import ru.biomedis.biomedismair3.social.contacts.UserContact;
 import ru.biomedis.biomedismair3.social.remote_client.dto.ContactDto;
 import ru.biomedis.biomedismair3.social.remote_client.dto.ContactView;
@@ -25,4 +26,12 @@ public interface ContactsClient {
 
   @RequestLine("DELETE /contacts")
   void deleteContacts(List<Long> ids);
+
+  @RequestLine("PUT /contacts/follow/contact/{id}")
+  void follow(@Param("id") long contact);
+
+  @RequestLine("PUT /contacts/un_follow/contact/{id}")
+  void unFollow(@Param("id") long contact);
+
+
 }

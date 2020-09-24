@@ -113,7 +113,7 @@ class FoundUserCellFactory(val findDataContainer: FindUsersController.FindDataCo
                 return
             }
             val aboutText  = aboutService(item.id)
-            if(aboutText.isNotEmpty()) return
+            if(aboutText.isEmpty()) return
 
             val textArea = TextArea().apply {
                         id = "about"

@@ -2,20 +2,29 @@ package ru.biomedis.biomedismair3.social.contacts
 
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
+import javafx.geometry.Insets
 import javafx.scene.control.*
 import javafx.scene.layout.FlowPane
+import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.util.Callback
 import java.io.IOException
 
 
-class ContactUserCellFactory(val aboutService: (user: Long) -> String) : Callback<ListView<UserContact>, ListCell<UserContact>> {
+class ContactUserCellFactory(
+        val aboutService: (user: Long) -> String,
+        val followService: (contact: Long, follow: Boolean) -> Boolean
+) : Callback<ListView<UserContact>, ListCell<UserContact>> {
 
     override fun call(param: ListView<UserContact>?): ListCell<UserContact> {
-        return TaskCell(aboutService)
+        return TaskCell(aboutService, followService)
     }
 
-    class TaskCell(val aboutService: (user: Long) -> String) : ListCell<UserContact>() {
+    class TaskCell(val aboutService: (user: Long) -> String,
+                   val followService: (contact: Long, follow: Boolean) -> Boolean) : ListCell<UserContact>() {
+
+        @FXML
+        private lateinit var followCheckBox: CheckBox
         @FXML
         private lateinit var showAboutBtn: Hyperlink
 
@@ -99,11 +108,18 @@ class ContactUserCellFactory(val aboutService: (user: Long) -> String) : Callbac
             if (account.bris) diagnost.text = "Диагност | " else diagnost.text = ""
             if (account.partner) partner.text = "Участник партнерской программы | " else partner.text = ""
             if (account.depot) depot.text = "Склад" else depot.text = ""
-
+            followCheckBox.isSelected = contact.contact.following
             showAboutBtn.isVisible = !account.emptyAbout
 
             contentDisplay = ContentDisplay.GRAPHIC_ONLY
 
+        }
+
+        fun onFollowAction(){
+            val prev = !followCheckBox.isSelected
+            if(!followService(item.contact.id, followCheckBox.isSelected)){
+                followCheckBox.isSelected = prev
+            }
         }
 
         fun showAbout() {
@@ -114,13 +130,17 @@ class ContactUserCellFactory(val aboutService: (user: Long) -> String) : Callbac
                 return
             }
             val aboutText = aboutService(item.account.id)
-            if (aboutText.isNotEmpty()) return
+            if (aboutText.isEmpty()) return
 
             val textArea = TextArea().apply {
                 id = "about"
                 maxWidth = Double.MAX_VALUE
+
                 this.isWrapText = true
                 this.isEditable = false
+                this.prefColumnCount =0
+
+
             }
             textArea.text = aboutText
 
