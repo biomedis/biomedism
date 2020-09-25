@@ -47,11 +47,12 @@ public interface AccountClient {
   @RequestLine("POST /find")
   List<AccountSmallView> findUsers(FindData findData);
 
-  @RequestLine("POST /find_by_login")
-  AccountSmallView findUserByLogin(String login);
 
-  @RequestLine("POST /find_by_email")
-  AccountSmallView findUserByEmail(String email);
+  @RequestLine("GET /find_by_login/{login}")
+  AccountSmallView findUserByLogin(@Param("login")String login);
+
+  @RequestLine("GET /find_by_email/{email}")
+  AccountSmallView findUserByEmail(@Param("email")String email);
 
   /**
    * Список стран

@@ -77,18 +77,25 @@ class FindUsersController : BaseController() {
          registrationClient = SocialClient.INSTANCE.registrationClient
          accountClient = SocialClient.INSTANCE.accountClient
 
+        initCountryAndCityInputs()
+        initFoundList()
+
+        addBtn.disableProperty().bind(foundList.selectionModel.selectedItemProperty().isNull)
+    }
+
+    private fun initCountryAndCityInputs() {
         countryInput.converter = object : StringConverter<CountryDto>() {
-            override fun toString(value: CountryDto?): String =  value?.name?:""
+            override fun toString(value: CountryDto?): String = value?.name ?: ""
             override fun fromString(string: String?): CountryDto = throw NotImplementedError()
         }
         cityInput.converter = object : StringConverter<CityDto>() {
-            override fun toString(value: CityDto?): String =  value?.name?:""
+            override fun toString(value: CityDto?): String = value?.name ?: ""
             override fun fromString(string: String?): CityDto = throw NotImplementedError()
         }
 
 
-        countryInput.selectionModel.selectedItemProperty().addListener{_, oldValue, newValue ->
-            if(oldValue===newValue) return@addListener
+        countryInput.selectionModel.selectedItemProperty().addListener { _, oldValue, newValue ->
+            if (oldValue === newValue) return@addListener
             cityInput.items.apply {
                 clear()
                 addAll(getCities(newValue.id))
@@ -97,13 +104,15 @@ class FindUsersController : BaseController() {
             cityInput.selectionModel.clearSelection()
 
         }
+    }
 
+    private fun initFoundList() {
         foundList.apply {
-            cellFactory = FoundUserCellFactory(findDataContainer){
-               val result =  BlockingAction.actionResult(controllerWindow){
+            cellFactory = FoundUserCellFactory(findDataContainer) {
+                val result = BlockingAction.actionResult(controllerWindow) {
                     SocialClient.INSTANCE.accountClient.getAbout(it)
                 }
-                if(result.isError){
+                if (result.isError) {
                     showWarningDialog(
                             "Загрузка данных о пользователе",
                             "Загрузка данных не удалась",
@@ -114,11 +123,10 @@ class FindUsersController : BaseController() {
                     log.error("", result.error)
 
                 }
-                if(!result.isError) result.value else ""
+                if (!result.isError) result.value else ""
             }
             selectionModel.selectionMode = SelectionMode.MULTIPLE
         }
-        addBtn.disableProperty().bind(foundList.selectionModel.selectedItemProperty().isNull)
     }
 
     private fun getCountries():List<CountryDto>{

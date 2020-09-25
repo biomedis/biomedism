@@ -18,10 +18,14 @@ import ru.biomedis.biomedismair3.utils.Other.Result
 import java.net.URL
 import java.util.*
 
-class ContactsController: BaseController(), TabHolder.Selected, TabHolder.Detached {
+class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detached {
     private val log by LoggerDelegate()
-   @FXML private lateinit var contactsList: ListView<UserContact>
-    @FXML private lateinit var messages: ListView<*>
+
+    @FXML
+    private lateinit var contactsList: ListView<UserContact>
+
+    @FXML
+    private lateinit var messages: ListView<*>
 
     private val contacts: ObservableList<UserContact> = FXCollections.observableArrayList()
 
@@ -41,10 +45,10 @@ class ContactsController: BaseController(), TabHolder.Selected, TabHolder.Detach
 
         contactsList.cellFactory = ContactUserCellFactory(
                 {
-                    val result =  BlockingAction.actionResult(controllerWindow){
+                    val result = BlockingAction.actionResult(controllerWindow) {
                         SocialClient.INSTANCE.accountClient.getAbout(it)
                     }
-                    if(result.isError){
+                    if (result.isError) {
                         showWarningDialog(
                                 "Загрузка данных о пользователе",
                                 "Загрузка данных не удалась",
@@ -55,15 +59,14 @@ class ContactsController: BaseController(), TabHolder.Selected, TabHolder.Detach
                         log.error("", result.error)
 
                     }
-                    if(!result.isError) result.value else ""
+                    if (!result.isError) result.value else ""
                 }
-        ){
-            contact, follow ->
-            val result =  BlockingAction.actionNoResult(controllerWindow){
-                if(follow)SocialClient.INSTANCE.contactsClient.follow(contact)
+        ) { contact, follow ->
+            val result = BlockingAction.actionNoResult(controllerWindow) {
+                if (follow) SocialClient.INSTANCE.contactsClient.follow(contact)
                 else SocialClient.INSTANCE.contactsClient.unFollow(contact)
             }
-            if(result.isError){
+            if (result.isError) {
                 showWarningDialog(
                         "Подписка",
                         "Подписка не удалась",
@@ -89,17 +92,17 @@ class ContactsController: BaseController(), TabHolder.Selected, TabHolder.Detach
 
     }
 
-    private fun addContacts(usersToContacts: List<AccountSmallView>){
-        if(usersToContacts.isEmpty()) return
+    private fun addContacts(usersToContacts: List<AccountSmallView>) {
+        if (usersToContacts.isEmpty()) return
         val result: Result<List<ContactDto>> = BlockingAction.actionResult(controllerWindow) {
             SocialClient.INSTANCE.contactsClient.addAllContact(usersToContacts.map { it.id })
         }
 
-        if(result.isError){
+        if (result.isError) {
             log.error("", result.error)
-            if(result.error is ApiError){
+            if (result.error is ApiError) {
                 val err = result.error as ApiError
-                if(err.statusCode==404){
+                if (err.statusCode == 404) {
                     showErrorDialog(
                             "Добавление контактов",
                             "Ошибка добавления контактов",
@@ -108,7 +111,7 @@ class ContactsController: BaseController(), TabHolder.Selected, TabHolder.Detach
                             Modality.WINDOW_MODAL
                     )
                 }
-            }else   showErrorDialog(
+            } else showErrorDialog(
                     "Добавление контактов",
                     "Ошибка добавления контактов",
                     "",
@@ -118,11 +121,17 @@ class ContactsController: BaseController(), TabHolder.Selected, TabHolder.Detach
             return
         }
         val contactsMap = result.value.groupBy { it.contact }
+        //учитываем, что не все контакты могут добавиться - дублирование исключается, и список может вернуться пустым итп, отфильтруем не добавленные
 
-        contacts.addAll(usersToContacts.map {
-            val contact =  contactsMap[it.id]?.get(0)?:throw RuntimeException("Не верное сопоставление id")
-            UserContact(it, contact)
-        })
+        usersToContacts
+                .filter { contactsMap.containsKey(it.id) }
+                .map {
+                    val contact = contactsMap[it.id]?.get(0)
+                            ?: throw RuntimeException("Не верное сопоставление id")
+                    UserContact(it, contact)
+                }.let {
+                    contacts.addAll(it)
+                }
     }
 
     /**
@@ -133,12 +142,12 @@ class ContactsController: BaseController(), TabHolder.Selected, TabHolder.Detach
         addContacts(listOf(user))
     }
 
-    private fun loadContacts(): List<UserContact>{
+    private fun loadContacts(): List<UserContact> {
         val result: Result<List<UserContact>> = BlockingAction.actionResult(controllerWindow) {
             SocialClient.INSTANCE.contactsClient.allContacts()
         }
-        if(result.isError){
-            log.error("",result.error)
+        if (result.isError) {
+            log.error("", result.error)
             showErrorDialog(
                     "Загрузка контактов",
                     "Ошибка загрузки контактов",
@@ -153,11 +162,10 @@ class ContactsController: BaseController(), TabHolder.Selected, TabHolder.Detach
     }
 
 
-
     private var isContactsLoaded = false
 
     override fun onSelected() {
-        if(!isContactsLoaded){
+        if (!isContactsLoaded) {
             contacts.addAll(loadContacts())
             isContactsLoaded = true
         }

@@ -4,17 +4,18 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" prefWidth="250.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.social.contacts.AddUserController">
+<VBox minWidth="400.0" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.social.contacts.AddUserController">
    <children>
       <Label maxWidth="1.7976931348623157E308" text="Введите логин пользователя" textAlignment="CENTER" />
       <HBox spacing="8.0">
          <children>
-            <TextField maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
-           <Button mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0">
+            <TextField fx:id="loginInput" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+           <Button fx:id="searchBtn" mnemonicParsing="false" onAction="#search" prefHeight="24.0" prefWidth="24.0">
              <styleClass>
                <String fx:value="searchButton2" />
                <String fx:value="GenericBtn" />
@@ -22,9 +23,9 @@
            </Button>
          </children>
       </HBox>
-      <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Добавить в контакты" />
+      <Button fx:id="addBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#addUser" text="Добавить в контакты" />
       <Label text="Найденный пользователь:" />
-      <Label alignment="CENTER" contentDisplay="CENTER" maxWidth="1.7976931348623157E308" prefHeight="70.0" text="Пусто" />
+      <ListView fx:id="foundUserList" maxWidth="-Infinity" prefHeight="350.0" prefWidth="600.0" VBox.vgrow="NEVER" />
    </children>
    <padding>
       <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />

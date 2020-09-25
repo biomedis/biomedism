@@ -9,13 +9,16 @@ import javafx.util.Callback
 import java.io.IOException
 
 
-class FoundUserCellFactory(val findDataContainer: FindUsersController.FindDataContainer, val aboutService:(user:Long)->String) : Callback<ListView<AccountSmallView>, ListCell<AccountSmallView>> {
+class FoundUserCellFactory(
+        val findDataContainer: FindUsersController.FindDataContainer?,
+        val aboutService:(user:Long)->String) : Callback<ListView<AccountSmallView>, ListCell<AccountSmallView>> {
 
     override fun call(param: ListView<AccountSmallView>?): ListCell<AccountSmallView> {
         return TaskCell(findDataContainer, aboutService)
     }
 
-    class TaskCell(val findDataContainer: FindUsersController.FindDataContainer , val aboutService:(user:Long)->String) : ListCell<AccountSmallView>() {
+    class TaskCell(val findDataContainer: FindUsersController.FindDataContainer? ,
+                   val aboutService:(user:Long)->String) : ListCell<AccountSmallView>() {
         @FXML
         private lateinit var  showAboutBtn: Hyperlink
 
@@ -99,7 +102,7 @@ class FoundUserCellFactory(val findDataContainer: FindUsersController.FindDataCo
 
                 showAboutBtn.isVisible = !item.emptyAbout
                 //подсветка зеленым, то что искали
-                applyFindData()
+               applyFindData()
 
                 contentDisplay = ContentDisplay.GRAPHIC_ONLY
             }
@@ -132,6 +135,7 @@ class FoundUserCellFactory(val findDataContainer: FindUsersController.FindDataCo
         }
 
         private fun applyFindData() {
+            if(findDataContainer==null) return
             fun styled(label: Label) {
                 label.styleClass.apply {
                     if (!contains("GreenText")) add("GreenText")
