@@ -33,10 +33,13 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.stage.Stage;
 import lombok.extern.log4j.Log4j2;
 import ru.biomedis.biomedismair3.App;
+import ru.biomedis.biomedismair3.BlockingAction;
+import ru.biomedis.biomedismair3.Waiter;
 import ru.biomedis.biomedismair3.social.login.LoginController;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Token;
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError;
 import ru.biomedis.biomedismair3.utils.OS.OSValidator;
+import ru.biomedis.biomedismair3.utils.Other.Result;
 import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
 @Log4j2
@@ -203,7 +206,16 @@ public class SocialClient {
    */
   public boolean performLogin(Stage ctx)  throws RequestClientException, ServerProblemException{
     try {
-      initProcessToken();
+      Result<Void> result = BlockingAction.actionNoResult(ctx, this::initProcessToken);
+      if(result.isError()){
+        if(result.getError() instanceof  NeedAuthByLogin){
+          throw (NeedAuthByLogin)result.getError();
+        }else if(result.getError() instanceof  ServerProblemException ){
+          throw (ServerProblemException)result.getError();
+        }else if(result.getError() instanceof  RequestClientException ){
+          throw (RequestClientException)result.getError();
+        }
+      }
       return true;
     } catch (NeedAuthByLogin e) {
       Optional<Token> token = LoginController.openLoginDialog(ctx);
@@ -211,6 +223,7 @@ public class SocialClient {
       isAuth.set(tokenHolder.hasToken());
       return token.isPresent();
     } catch (ServerProblemException  | RequestClientException e) {
+
       isAuth.set(false);
       log.error("", e);
       throw e;
