@@ -13,20 +13,28 @@ import java.io.IOException
 
 class ContactUserCellFactory(
         val aboutService: (user: Long) -> String,
-        val followService: (contact: Long, follow: Boolean) -> Boolean
+        val followService: (contact: Long, follow: Boolean) -> Boolean,
+        val deleteService:(contact: UserContact)->Unit
 ) : Callback<ListView<UserContact>, ListCell<UserContact>> {
 
     override fun call(param: ListView<UserContact>?): ListCell<UserContact> {
-        return TaskCell(aboutService, followService)
+        return TaskCell(aboutService, followService, deleteService)
     }
 
-    class TaskCell(val aboutService: (user: Long) -> String,
-                   val followService: (contact: Long, follow: Boolean) -> Boolean) : ListCell<UserContact>() {
+    class TaskCell(
+            val aboutService: (user: Long) -> String,
+            val followService: (contact: Long, follow: Boolean) -> Boolean,
+            val deleteService:(contact: UserContact)->Unit
+    ) : ListCell<UserContact>() {
 
         @FXML
         private lateinit var followCheckBox: CheckBox
+
         @FXML
         private lateinit var showAboutBtn: Hyperlink
+
+        @FXML
+        private lateinit var deleteBtn: Button
 
         @FXML
         private lateinit var rootBox: VBox
@@ -115,11 +123,15 @@ class ContactUserCellFactory(
 
         }
 
-        fun onFollowAction(){
+        fun onFollowAction() {
             val prev = !followCheckBox.isSelected
-            if(!followService(item.contact.id, followCheckBox.isSelected)){
+            if (!followService(item.contact.id, followCheckBox.isSelected)) {
                 followCheckBox.isSelected = prev
             }
+        }
+
+        fun delete() {
+            deleteService(item)
         }
 
         fun showAbout() {
@@ -138,7 +150,7 @@ class ContactUserCellFactory(
 
                 this.isWrapText = true
                 this.isEditable = false
-                this.prefColumnCount =0
+                this.prefColumnCount = 0
 
 
             }

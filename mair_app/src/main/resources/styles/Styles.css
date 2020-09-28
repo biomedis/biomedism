@@ -323,6 +323,16 @@
     -fx-background-radius: 3,2,1;
 }
 
+.deleteSmallBtn
+{
+    -fx-background-image: url("../images/delete2.png");
+    -fx-background-size: 16 16;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position:center;
+    -fx-background-insets: 0,1,2;
+    -fx-background-radius: 3,2,1;
+}
+
 .GreenText{
     -fx-text-fill: green;
 }

@@ -60,24 +60,54 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
 
                     }
                     if (!result.isError) result.value else ""
-                }
-        ) { contact, follow ->
+                },
+                { contact, follow ->
+                    val result = BlockingAction.actionNoResult(controllerWindow) {
+                        if (follow) SocialClient.INSTANCE.contactsClient.follow(contact)
+                        else SocialClient.INSTANCE.contactsClient.unFollow(contact)
+                    }
+                    if (result.isError) {
+                        showWarningDialog(
+                                "Подписка",
+                                "Подписка не удалась",
+                                "Перезапустите программу или попробуйте позже",
+                                controllerWindow,
+                                Modality.WINDOW_MODAL
+                        )
+                        log.error("", result.error)
+
+                    }
+                    !result.isError
+                }) {
+
+                val dialogResult = showConfirmationDialog(
+                        "Удаление контакта",
+                        "Контакт: ${it.account.login} будет удален.",
+                        "Вы уверены?",
+                        controllerWindow,
+                        Modality.WINDOW_MODAL
+
+                )
+            if(dialogResult.isPresent) {
+                if(dialogResult.get() != okButtonType) return@ContactUserCellFactory
+            }else return@ContactUserCellFactory
+
             val result = BlockingAction.actionNoResult(controllerWindow) {
-                if (follow) SocialClient.INSTANCE.contactsClient.follow(contact)
-                else SocialClient.INSTANCE.contactsClient.unFollow(contact)
+                SocialClient.INSTANCE.contactsClient.deleteContact(it.contact.id)
             }
             if (result.isError) {
                 showWarningDialog(
-                        "Подписка",
-                        "Подписка не удалась",
+                        "Удаление контакта",
+                        "Удаление не удалась",
                         "Перезапустите программу или попробуйте позже",
                         controllerWindow,
                         Modality.WINDOW_MODAL
                 )
                 log.error("", result.error)
 
+            } else {
+                contacts.remove(it)
             }
-            !result.isError
         }
         contactsList.items = contacts
 

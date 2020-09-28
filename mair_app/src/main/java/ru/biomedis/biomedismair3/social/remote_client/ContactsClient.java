@@ -24,8 +24,8 @@ public interface ContactsClient {
   @RequestLine("GET /contacts/contact/{id}")
   ContactView getContactInfo(@Param("id") long id);
 
-  @RequestLine("DELETE /contacts")
-  void deleteContacts(List<Long> ids);
+  @RequestLine("DELETE /contacts/{id}")
+  void deleteContact(@Param("id") long id);
 
   @RequestLine("PUT /contacts/follow/contact/{id}")
   void follow(@Param("id") long contact);
