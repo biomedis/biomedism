@@ -1,9 +1,13 @@
 package ru.biomedis.biomedismair3.social.contacts
 
+import javafx.beans.property.SimpleIntegerProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
+import javafx.collections.transformation.FilteredList
 import javafx.collections.transformation.SortedList
 import javafx.fxml.FXML
+import javafx.scene.control.CheckBox
+import javafx.scene.control.Label
 import javafx.scene.control.ListView
 import javafx.stage.Modality
 import javafx.stage.WindowEvent
@@ -25,13 +29,29 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
     private lateinit var contactsList: ListView<UserContact>
 
     @FXML
+    private lateinit var followersCount: Label
+
+    @FXML
+    private lateinit var contactsCount: Label
+
+    @FXML
+    private lateinit var followersFilter: CheckBox
+
+    @FXML
     private lateinit var messages: ListView<*>
 
+    private val countContacts: SimpleIntegerProperty = SimpleIntegerProperty(0)
+
     private val contacts: ObservableList<UserContact> = FXCollections.observableArrayList()
-    private val sortedContacts: SortedList<UserContact> = SortedList(contacts){
+    private val filteredContacts: FilteredList<UserContact> = FilteredList(contacts){
+        if(!followersFilter.isSelected) true
+        else it.contact.following
+    }
+    private val sortedContacts: SortedList<UserContact> = SortedList(filteredContacts){
         o1,o2 ->
         o2.contact.created.compareTo(o1.contact.created)
     }
+
 
     override fun onCompletedInitialization() {
 
@@ -111,9 +131,13 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
 
             } else {
                 contacts.remove(it)
+                countContacts.set(contacts.size)
             }
         }
         contactsList.items = sortedContacts
+
+        contactsCount.textProperty().bind(countContacts.asString())
+        countContacts.set(contacts.size)
 
     }
 
@@ -166,6 +190,8 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
                 }.let {
                     contacts.addAll(it)
                 }
+
+        countContacts.set(contacts.size)
     }
 
     /**
@@ -176,9 +202,14 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
         addContacts(listOf(user))
     }
 
-    private fun loadContacts(): List<UserContact> {
-        val result: Result<List<UserContact>> = BlockingAction.actionResult(controllerWindow) {
-            SocialClient.INSTANCE.contactsClient.allContacts()
+    private data class Contacts(val contacts: List<UserContact>, val countFollowers: Int)
+    private fun loadContacts(): Contacts? {
+        val result: Result<Contacts> = BlockingAction.actionResult(controllerWindow) {
+            Contacts(
+                    SocialClient.INSTANCE.contactsClient.allContacts(),
+                    SocialClient.INSTANCE.contactsClient.followersCount()
+            )
+
         }
         if (result.isError) {
             log.error("", result.error)
@@ -189,7 +220,7 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
                     controllerWindow,
                     Modality.WINDOW_MODAL
             )
-            return listOf()
+            return null
         }
 
         return result.value
@@ -200,7 +231,11 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
 
     override fun onSelected() {
         if (!isContactsLoaded) {
-            contacts.addAll(loadContacts())
+            val c  = loadContacts()
+            if(c!=null){
+                contacts.addAll(c.contacts)
+                followersCount.text = c.countFollowers.toString()
+            }
             isContactsLoaded = true
         }
     }

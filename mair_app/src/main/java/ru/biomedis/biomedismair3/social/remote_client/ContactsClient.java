@@ -33,5 +33,6 @@ public interface ContactsClient {
   @RequestLine("PUT /contacts/un_follow/contact/{id}")
   void unFollow(@Param("id") long contact);
 
-
+  @RequestLine("GET /contacts/followers_count")
+  int followersCount();
 }

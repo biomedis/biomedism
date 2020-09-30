@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.SplitPane?>
@@ -9,6 +10,7 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
 
 <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.social.contacts.ContactsController">
    <children>
@@ -24,15 +26,52 @@
                         <ListView fx:id="contactsList" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER" />
                      </center>
                      <top>
-                        <HBox maxWidth="1.7976931348623157E308" spacing="8.0" BorderPane.alignment="CENTER">
+                        <VBox spacing="5.0" BorderPane.alignment="CENTER">
                            <children>
-                              <Button mnemonicParsing="false" onAction="#findUsers" text="Найти и добавить" />
-                             <Button mnemonicParsing="false" onAction="#addContact" text="Добавить контакт" />
+                              <HBox maxWidth="1.7976931348623157E308" spacing="8.0">
+                                 <children>
+                                    <Button mnemonicParsing="false" onAction="#findUsers" text="Найти и добавить" />
+                                   <Button mnemonicParsing="false" onAction="#addContact" text="Добавить контакт" />
+                                    <Button mnemonicParsing="false" text="Написать всем подписчикам" />
+                                 </children>
+                                 <padding>
+                                    <Insets left="5.0" right="5.0" />
+                                 </padding>
+                              </HBox>
+                              <HBox maxWidth="1.7976931348623157E308" spacing="8.0">
+                                 <padding>
+                                    <Insets top="5.0" />
+                                 </padding>
+                                 <children>
+                                    <HBox spacing="3.0">
+                                       <children>
+                                          <Label text="Контактов:" />
+                                          <Label fx:id="contactsCount" text="Label" />
+                                       </children>
+                                       <HBox.margin>
+                                          <Insets right="8.0" />
+                                       </HBox.margin>
+                                    </HBox>
+                                    <HBox spacing="3.0">
+                                       <children>
+                                          <Label text="Подписчиков" />
+                                          <Label fx:id="followersCount" text="Label" />
+                                       </children>
+                                       <HBox.margin>
+                                          <Insets right="8.0" />
+                                       </HBox.margin>
+                                    </HBox>
+                                    <CheckBox fx:id="followersFilter" mnemonicParsing="false" text="Только подписки" />
+                                 </children>
+                              </HBox>
                            </children>
                            <padding>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                              <Insets bottom="5.0" top="5.0" />
                            </padding>
-                        </HBox>
+                           <BorderPane.margin>
+                              <Insets />
+                           </BorderPane.margin>
+                        </VBox>
                      </top>
                   </BorderPane>
                </children>
