@@ -2,6 +2,7 @@ package ru.biomedis.biomedismair3.social.contacts
 
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
+import javafx.collections.transformation.SortedList
 import javafx.fxml.FXML
 import javafx.scene.control.ListView
 import javafx.stage.Modality
@@ -9,12 +10,11 @@ import javafx.stage.WindowEvent
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
-import ru.biomedis.biomedismair3.utils.TabHolder
 import ru.biomedis.biomedismair3.social.remote_client.dto.ContactDto
-import ru.biomedis.biomedismair3.social.remote_client.dto.SmallContactViewDto
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import ru.biomedis.biomedismair3.utils.Other.Result
+import ru.biomedis.biomedismair3.utils.TabHolder
 import java.net.URL
 import java.util.*
 
@@ -28,6 +28,10 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
     private lateinit var messages: ListView<*>
 
     private val contacts: ObservableList<UserContact> = FXCollections.observableArrayList()
+    private val sortedContacts: SortedList<UserContact> = SortedList(contacts){
+        o1,o2 ->
+        o2.contact.created.compareTo(o1.contact.created)
+    }
 
     override fun onCompletedInitialization() {
 
@@ -109,7 +113,7 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
                 contacts.remove(it)
             }
         }
-        contactsList.items = contacts
+        contactsList.items = sortedContacts
 
     }
 
