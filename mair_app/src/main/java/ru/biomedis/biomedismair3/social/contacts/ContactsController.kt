@@ -34,8 +34,6 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
     @FXML
     private lateinit var contactsCount: Label
 
-    @FXML
-    private lateinit var followersFilter: CheckBox
 
     @FXML
     private lateinit var messages: ListView<*>
@@ -43,11 +41,7 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
     private val countContacts: SimpleIntegerProperty = SimpleIntegerProperty(0)
 
     private val contacts: ObservableList<UserContact> = FXCollections.observableArrayList()
-    private val filteredContacts: FilteredList<UserContact> = FilteredList(contacts){
-        if(!followersFilter.isSelected) true
-        else it.contact.following
-    }
-    private val sortedContacts: SortedList<UserContact> = SortedList(filteredContacts){
+    private val sortedContacts: SortedList<UserContact> = SortedList(contacts){
         o1,o2 ->
         o2.contact.created.compareTo(o1.contact.created)
     }
@@ -235,6 +229,7 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
             if(c!=null){
                 contacts.addAll(c.contacts)
                 followersCount.text = c.countFollowers.toString()
+                countContacts.set(contacts.size)
             }
             isContactsLoaded = true
         }

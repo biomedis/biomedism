@@ -40,7 +40,7 @@
                               </HBox>
                               <HBox maxWidth="1.7976931348623157E308" spacing="8.0">
                                  <padding>
-                                    <Insets top="5.0" />
+                                    <Insets left="5.0" right="5.0" top="5.0" />
                                  </padding>
                                  <children>
                                     <HBox spacing="3.0">
@@ -61,7 +61,6 @@
                                           <Insets right="8.0" />
                                        </HBox.margin>
                                     </HBox>
-                                    <CheckBox fx:id="followersFilter" mnemonicParsing="false" text="Только подписки" />
                                  </children>
                               </HBox>
                            </children>
