@@ -31,8 +31,8 @@
                               <HBox maxWidth="1.7976931348623157E308" spacing="8.0">
                                  <children>
                                     <Button mnemonicParsing="false" onAction="#findUsers" text="Найти и добавить" />
-                                   <Button mnemonicParsing="false" onAction="#addContact" text="Добавить контакт" />
-                                    <Button mnemonicParsing="false" text="Написать всем подписчикам" />
+                                    <Button mnemonicParsing="false" onAction="#addContact" text="Добавить контакт" />
+                                    <Button mnemonicParsing="false" text="Лента" onAction="#showLenta"/>
                                  </children>
                                  <padding>
                                     <Insets left="5.0" right="5.0" />

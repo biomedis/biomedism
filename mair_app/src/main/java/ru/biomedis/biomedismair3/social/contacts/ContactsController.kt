@@ -3,16 +3,15 @@ package ru.biomedis.biomedismair3.social.contacts
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
-import javafx.collections.transformation.FilteredList
 import javafx.collections.transformation.SortedList
 import javafx.fxml.FXML
-import javafx.scene.control.CheckBox
 import javafx.scene.control.Label
 import javafx.scene.control.ListView
 import javafx.stage.Modality
 import javafx.stage.WindowEvent
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction
+import ru.biomedis.biomedismair3.social.contacts.lenta.LentaController
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
 import ru.biomedis.biomedismair3.social.remote_client.dto.ContactDto
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError
@@ -46,6 +45,7 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
         o2.contact.created.compareTo(o1.contact.created)
     }
 
+    private var isContactsLoaded = false
 
     override fun onCompletedInitialization() {
 
@@ -220,8 +220,13 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
         return result.value
     }
 
+    fun showLenta() {
+        LentaController.showLentaDialog(controllerWindow)
+    }
 
-    private var isContactsLoaded = false
+
+
+
 
     override fun onSelected() {
         if (!isContactsLoaded) {
@@ -238,4 +243,6 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
     override fun onDetach() {
 
     }
+
+
 }
