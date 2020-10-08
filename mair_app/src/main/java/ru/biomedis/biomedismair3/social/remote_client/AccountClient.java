@@ -3,13 +3,17 @@ package ru.biomedis.biomedismair3.social.remote_client;
 import feign.Headers;
 import feign.Param;
 import feign.RequestLine;
+import java.util.Date;
 import java.util.List;
+import org.jetbrains.annotations.NotNull;
 import ru.biomedis.biomedismair3.social.account.AccountView;
 import ru.biomedis.biomedismair3.social.account.ActiveSession;
 
 import ru.biomedis.biomedismair3.social.admin.AccountWithRoles;
 import ru.biomedis.biomedismair3.social.contacts.AccountSmallView;
 import ru.biomedis.biomedismair3.social.contacts.FindData;
+import ru.biomedis.biomedismair3.social.contacts.lenta.ShortStory;
+import ru.biomedis.biomedismair3.social.contacts.lenta.Story;
 import ru.biomedis.biomedismair3.social.remote_client.dto.CityDto;
 import ru.biomedis.biomedismair3.social.remote_client.dto.CountryDto;
 
@@ -138,4 +142,22 @@ public interface AccountClient {
 
   @RequestLine("GET /all_tokens")
   List<ActiveSession> allTokens();
+
+  @RequestLine("POST /story")
+  Long createStory(Story story);
+
+  @RequestLine("PUT /story")
+  void updateStory(Story story);
+
+  @RequestLine("GET /story/{id}")
+  String getStoryContent(@Param("id")Long story);
+
+  @RequestLine("GET /story/user/{user}/all")
+  List<ShortStory> getStories(@Param("id")Long user);
+
+  @RequestLine("GET /story/user/{user}/all?from={from}&to={to}")
+  List<ShortStory> getStories(@Param("id")Long user, @Param("from") Date from, @Param("to") Date to);
+
+  @RequestLine("GET /story/all?from={from}&to={to}")
+  List<ShortStory> getStories(@Param("from") Date from, @Param("to") Date to);
 }

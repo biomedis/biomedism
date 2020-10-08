@@ -1,12 +1,11 @@
 package ru.biomedis.biomedismair3.social.contacts.lenta
 
+
 import javafx.fxml.FXML
-import javafx.scene.control.Button
-import javafx.scene.control.ListView
-import javafx.scene.control.TextArea
-import javafx.scene.control.TextField
+import javafx.scene.control.*
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
+import javafx.scene.input.KeyEvent
 import javafx.scene.web.HTMLEditor
 import javafx.stage.FileChooser
 import javafx.stage.Stage
@@ -14,12 +13,17 @@ import javafx.stage.StageStyle
 import javafx.stage.WindowEvent
 import org.jsoup.Jsoup
 import ru.biomedis.biomedismair3.BaseController
+import ru.biomedis.biomedismair3.BlockingAction
+import ru.biomedis.biomedismair3.social.remote_client.SocialClient
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
+import ru.biomedis.biomedismair3.utils.Other.Result
 import ru.biomedis.biomedismair3.utils.imageViewToBase64
 import java.io.File
 import java.net.URL
 import java.util.*
 
+private const val MAX_DESCR_LENGTH: Int = 400
+private const val MAX_TITLE_LENGTH: Int = 120
 
 class LentaController : BaseController() {
     private val log by LoggerDelegate()
@@ -49,7 +53,6 @@ class LentaController : BaseController() {
     private lateinit var deleteBtn: Button
 
 
-
     override fun onCompletedInitialization() {
 
     }
@@ -63,14 +66,33 @@ class LentaController : BaseController() {
     }
 
     override fun initialize(location: URL, resources: ResourceBundle) {
-            sendBtn.disableProperty().bind(
-                    title.textProperty().isEmpty
-                            .or(shortText.textProperty().isEmpty)
-                            .or(image.imageProperty().isNull))
+        sendBtn.disableProperty().bind(
+                title.textProperty().isEmpty
+                        .or(shortText.textProperty().isEmpty)
+                        .or(image.imageProperty().isNull))
+
+        initTextFieldsEventConstraints()
+    }
+
+    private fun initTextFieldsEventConstraints() {
+        fun constraint(input: TextInputControl, maxLength: Int) {
+            input.addEventFilter(KeyEvent.KEY_TYPED) { event ->
+                if (input.text.length > maxLength) event.consume()
+            }
+            input.textProperty().addListener { _, _, newValue ->
+                if (newValue.length > maxLength) input.text = newValue.substring(0, maxLength)
+            }
+        }
+
+        constraint(shortText, MAX_DESCR_LENGTH)
+        constraint(title, MAX_TITLE_LENGTH)
     }
 
     fun send() {
-        println(createStory())
+        val actionResult: Result<Long> = BlockingAction.actionResult(controllerWindow) {
+            SocialClient.INSTANCE.accountClient.createStory(createStory())
+        }
+
     }
 
     fun edit() {
@@ -95,16 +117,15 @@ class LentaController : BaseController() {
 
     private fun createStory(): Story = Story().also {
         it.image = imageViewToBase64(image, (image.userData as String).equals("png", true))
-        it.title =title.text.trim()
+        it.title = title.text.trim()
         it.description = shortText.text.trim()
         it.content = getHtmlContent()
     }
 
-    private fun getHtmlContent(): String{
+    private fun getHtmlContent(): String {
         val doc = Jsoup.parse(htmlEditor.htmlText)
         return doc.select("body").html()
     }
-
 
 
     /*
@@ -140,7 +161,6 @@ class LentaController : BaseController() {
             }
         }
     }
-
 
 
 }
