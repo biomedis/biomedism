@@ -12,6 +12,7 @@ import ru.biomedis.biomedismair3.social.account.ActiveSession;
 import ru.biomedis.biomedismair3.social.admin.AccountWithRoles;
 import ru.biomedis.biomedismair3.social.contacts.AccountSmallView;
 import ru.biomedis.biomedismair3.social.contacts.FindData;
+import ru.biomedis.biomedismair3.social.contacts.lenta.PageShortStoryDto;
 import ru.biomedis.biomedismair3.social.contacts.lenta.ShortStory;
 import ru.biomedis.biomedismair3.social.contacts.lenta.Story;
 import ru.biomedis.biomedismair3.social.remote_client.dto.CityDto;
@@ -155,9 +156,28 @@ public interface AccountClient {
   @RequestLine("GET /story/user/{user}/all")
   List<ShortStory> getStories(@Param("id")Long user);
 
-  @RequestLine("GET /story/user/{user}/all?from={from}&to={to}")
+  @RequestLine("GET /story/user/{user}/all_by_date?from={from}&to={to}")
   List<ShortStory> getStories(@Param("id")Long user, @Param("from") Date from, @Param("to") Date to);
 
-  @RequestLine("GET /story/all?from={from}&to={to}")
+  @RequestLine("GET /story/all_by_date?from={from}&to={to}")
   List<ShortStory> getStories(@Param("from") Date from, @Param("to") Date to);
+
+  /**
+   * Извлекает данные постранично.
+   * @param user
+   * @param page
+   * @param count
+   * @return
+   */
+  @RequestLine("GET /story/user/{user}/all?page={page}&count={count}")
+  PageShortStoryDto getStories(@Param("id")Long user, @Param("page") int page, @Param("count") int count);
+
+  /**
+   * Извлекает данные постранично.
+   * @param page
+   * @param count
+   * @return
+   */
+  @RequestLine("GET /story/all?page={page}&count={count}")
+  PageShortStoryDto getStories(@Param("page") int page, @Param("count") int count);
 }

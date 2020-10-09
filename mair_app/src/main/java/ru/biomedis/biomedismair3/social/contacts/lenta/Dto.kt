@@ -1,5 +1,6 @@
 package ru.biomedis.biomedismair3.social.contacts.lenta
 
+import com.fasterxml.jackson.annotation.JsonProperty
 import java.time.Instant
 import java.util.*
 
@@ -16,7 +17,8 @@ class Story {
 
 
 }
-class  ShortStory{
+
+class ShortStory {
     var id = 0L
     var title: String = ""
     var image: String = ""
@@ -43,4 +45,17 @@ class  ShortStory{
     }
 
 
+}
+
+class PageShortStoryDto {
+    @JsonProperty("total_pages")
+    var totalPages: Int = 0
+
+    @JsonProperty("current_page")
+    var currentPage: Int = 0
+
+    @JsonProperty("requested_count")
+    var requestedCount: Int = 0
+
+    var stories: List<Story> = listOf()
 }
