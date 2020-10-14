@@ -17,6 +17,7 @@ import ru.biomedis.biomedismair3.UpdateUtils.FrequenciesBase.LoadUUIDs;
 import ru.biomedis.biomedismair3.UserUtils.Import.ImportUserBase;
 import ru.biomedis.biomedismair3.entity.*;
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient;
+import ru.biomedis.biomedismair3.url.MyURLStreamHandlerFactory;
 import ru.biomedis.biomedismair3.utils.Files.ResourceUtil;
 import ru.biomedis.biomedismair3.utils.USB.USBHelper;
 import ru.biomedis.biomedismair3.utils.UTF8Control;
@@ -291,7 +292,7 @@ public class App extends Application {
 
             openPersisenceContext();//откроем контекст работы с БД
 
-
+    URL.setURLStreamHandlerFactory(new MyURLStreamHandlerFactory());
 
         String version= System.getProperty("java.version");
             String[] split = version.split("\\.");

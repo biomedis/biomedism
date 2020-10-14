@@ -51,6 +51,10 @@ class StoriesLoader private constructor(val count: Int, val stage: Stage, val lo
         return result.value.stories.isNotEmpty()
     }
 
+    fun add(story: Story) {
+        stories.add(story)
+    }
+
     companion object {
         fun selfUsed(count: Int, stage: Stage): StoriesLoader {
             return StoriesLoader(count, stage,

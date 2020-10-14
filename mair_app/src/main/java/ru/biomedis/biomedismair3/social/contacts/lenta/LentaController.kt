@@ -9,9 +9,9 @@ import javafx.scene.control.*
 import javafx.scene.image.Image
 import javafx.scene.image.ImageView
 import javafx.scene.input.KeyEvent
-import javafx.scene.web.HTMLEditor
+import javafx.scene.web.WebEngine
+import javafx.scene.web.WebView
 import javafx.stage.*
-import org.jsoup.Jsoup
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
@@ -29,6 +29,8 @@ private const val REQUEST_COUNT_BY_PAGE: Int = 3
 //TODO: Замена html-редактора на markdown или просто текст. Отображение списка, редактирование,
 // удаление, подгрузка новых элементов( элемент списка вверху, показывает кнопку подгрузки). Двойной клик открывает редактирование
 class LentaController : BaseController() {
+
+
     private val log by LoggerDelegate()
 
     @FXML
@@ -44,7 +46,7 @@ class LentaController : BaseController() {
     private lateinit var shortText: TextArea
 
     @FXML
-    private lateinit var htmlEditor: HTMLEditor
+    private lateinit var editor: WebView
 
     @FXML
     private lateinit var sendBtn: Button
@@ -55,14 +57,33 @@ class LentaController : BaseController() {
     @FXML
     private lateinit var deleteBtn: Button
 
-    private lateinit var stories: ObservableList<Story>
+    @FXML
+    private lateinit var listPane: TitledPane
+
+    @FXML
+    private lateinit var editPane: TitledPane
+
+    @FXML
+    private lateinit var accordion: Accordion
+
     private lateinit var storiesLoader: StoriesLoader
 
     private val hasDataToLoad: SimpleBooleanProperty = SimpleBooleanProperty(true)
 
+    private lateinit var engine: WebEngine
+
     override fun onCompletedInitialization() {
         storiesLoader = StoriesLoader.selfUsed(REQUEST_COUNT_BY_PAGE, controllerWindow)
         elementsList.items = storiesLoader.observableList
+
+
+        Platform.runLater {
+            controllerWindow.isMaximized = true
+            initEditor()
+            nextLoadStories()
+            if(elementsList.items.size==0)  accordion.expandedPane = editPane
+            else accordion.expandedPane = listPane
+        }
 
     }
 
@@ -82,8 +103,8 @@ class LentaController : BaseController() {
 
         initTextFieldsEventConstraints()
 
-        hasDataToLoad.addListener{_, _, newValue ->
-            if(newValue==false) showInfoDialog(
+        hasDataToLoad.addListener { _, _, newValue ->
+            if (newValue == false) showInfoDialog(
                     "Загрузка публикаций",
                     "",
                     "Отсутствуют публикации для загрузки",
@@ -91,6 +112,15 @@ class LentaController : BaseController() {
                     Modality.WINDOW_MODAL
             )
         }
+
+
+    }
+
+    private fun initEditor() {
+        engine = editor.engine
+        engine.isJavaScriptEnabled = true
+        val html = javaClass.getResourceAsStream("/html/editor.html").bufferedReader().use { it.readText() }
+        engine.loadContent(html)
     }
 
 
@@ -123,15 +153,36 @@ class LentaController : BaseController() {
 
         constraint(shortText, MAX_DESCR_LENGTH)
         constraint(title, MAX_TITLE_LENGTH)
-
-        elementsList.items = stories
     }
+
+    /**
+     * Установить контент
+     * @param content контент
+     * @param actionListener листнер событий
+     */
+    fun setEditorContent(content: String) {
+        var content = content
+        content = content.replace("'", "\\'")
+        content = content.replace(System.getProperty("line.separator"), "\\n")
+        content = content.replace("\n", "\\n")
+        content = content.replace("\r", "\\n")
+        engine.executeScript("setContent('$content')")
+    }
+
+    /**
+     * Получить контент
+     * @return
+     */
+    fun getEditorContent(): String {
+        return engine.executeScript("getContent()") as String
+    }
+
 
     private fun clearForm() {
         title.text = ""
         shortText.text = ""
         image.image = null
-        htmlEditor.htmlText = ""
+        setEditorContent("")
     }
 
     fun send() {
@@ -151,7 +202,7 @@ class LentaController : BaseController() {
             return
         }
         story.id = actionResult.value
-        stories.add(story)
+        storiesLoader.add(story)
         clearForm()
     }
 
@@ -179,20 +230,12 @@ class LentaController : BaseController() {
         it.image = imageViewToBase64(image, (image.userData as String).equals("png", true))
         it.title = title.text.trim()
         it.description = shortText.text.trim()
-        it.content = getHtmlContent()
+        it.content = getMarkDownContent()
     }
 
-    private fun getHtmlContent(): String {
-        val doc = Jsoup.parse(htmlEditor.htmlText)
-        return doc.select("body").html()
+    private fun getMarkDownContent(): String {
+        return getEditorContent()
     }
-
-
-    /*
-     log.error("Ошибка записи изображения", e)
-                    showExceptionDialog("Ошибка записи изображения", "", "", e, controllerWindow, Modality.WINDOW_MODAL)
-
-     */
 
 
     companion object {
@@ -210,8 +253,8 @@ class LentaController : BaseController() {
                         context,
                         "/fxml/social/Lenta.fxml",
                         "Лента событий",
-                        false,
-                        StageStyle.UTILITY,
+                        true,
+                        StageStyle.UNIFIED,
                         0, 0, 0, 0,
                         Unit
                 )
