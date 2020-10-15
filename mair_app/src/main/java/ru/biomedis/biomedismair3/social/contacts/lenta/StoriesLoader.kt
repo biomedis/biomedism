@@ -11,7 +11,7 @@ import ru.biomedis.biomedismair3.utils.Other.Result
 class StoriesLoader private constructor(val count: Int, val stage: Stage, val loadFunc: (Int, Int) -> PageShortStoryDto) {
 
     private val idSet: MutableSet<Long> = mutableSetOf()
-    private val stories: ObservableList<Story> = FXCollections.observableArrayList()
+    private val stories: ObservableList<ShortStory> = FXCollections.observableArrayList()
     private var currentPage: Int = 0
     private val log by LoggerDelegate()
 
@@ -19,7 +19,7 @@ class StoriesLoader private constructor(val count: Int, val stage: Stage, val lo
      * Observable для передачи в контролы, которые требуют список.
      * Список не изменяемый, загрузчик сам добавляет новые элементы по next()
      */
-    val observableList: ObservableList<Story> = FXCollections.unmodifiableObservableList(stories)
+    val observableList: ObservableList<ShortStory> = FXCollections.unmodifiableObservableList(stories)
 
 
 
@@ -51,7 +51,7 @@ class StoriesLoader private constructor(val count: Int, val stage: Stage, val lo
         return result.value.stories.isNotEmpty()
     }
 
-    fun add(story: Story) {
+    fun add(story: ShortStory) {
         stories.add(story)
     }
 

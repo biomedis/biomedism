@@ -1,39 +1,33 @@
 var editor;
 
-function getContent()
-{
-	return editor.getMarkdown();
+function getContent() {
+  return editor.getMarkdown();
+}
+
+function setContent(data) {
+  editor.reset()
+  editor.setMarkdown(data);
+  return true;
+}
+
+function initEditor(height) {
+  return new tui.Editor({
+    el: document.querySelector('#content'),
+    initialEditType: 'wysiwyg',
+    viewer: true,
+    previewStyle: 'vertical',
+    height: height + "px",
+    usageStatistics: false,
+    initialValue: ""
+  });
 }
 
 
-function setContent(data)
-{
-	editor.reset()
-	editor.setMarkdown(data);
-	return true;
-}
+$(document).ready(function () {
 
+ editor = initEditor(document.documentElement.clientHeight-15)
 
-
-$(function() {
-	$("#privet").text("Привет")
-	editor = init();
-});
-
-
-function init()
-{
-	return  new tui.Editor({
-		el: document.querySelector('#content'),
-		initialEditType: 'wysiwyg',
-		viewer: true,
-		previewStyle: 'vertical',
-		height: "600px",
-		usageStatistics: false,
-		initialValue: ""
-	});
-
-}
+})
 
 
 

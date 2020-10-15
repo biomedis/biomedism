@@ -3,7 +3,6 @@ package ru.biomedis.biomedismair3.social.contacts.lenta
 
 import javafx.application.Platform
 import javafx.beans.property.SimpleBooleanProperty
-import javafx.collections.ObservableList
 import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.scene.image.Image
@@ -21,20 +20,22 @@ import ru.biomedis.biomedismair3.utils.imageViewToBase64
 import java.io.File
 import java.net.URL
 import java.util.*
+import javax.management.remote.rmi._RMIConnectionImpl_Tie
 
 private const val MAX_DESCR_LENGTH: Int = 400
 private const val MAX_TITLE_LENGTH: Int = 120
 private const val REQUEST_COUNT_BY_PAGE: Int = 3
 
-//TODO: Замена html-редактора на markdown или просто текст. Отображение списка, редактирование,
-// удаление, подгрузка новых элементов( элемент списка вверху, показывает кнопку подгрузки). Двойной клик открывает редактирование
+
 class LentaController : BaseController() {
 
+
+    private var editorInited: Boolean = false
 
     private val log by LoggerDelegate()
 
     @FXML
-    private lateinit var elementsList: ListView<Story>
+    private lateinit var elementsList: ListView<ShortStory>
 
     @FXML
     private lateinit var title: TextField
@@ -51,11 +52,6 @@ class LentaController : BaseController() {
     @FXML
     private lateinit var sendBtn: Button
 
-    @FXML
-    private lateinit var editBtn: Button
-
-    @FXML
-    private lateinit var deleteBtn: Button
 
     @FXML
     private lateinit var listPane: TitledPane
@@ -79,10 +75,16 @@ class LentaController : BaseController() {
 
         Platform.runLater {
             controllerWindow.isMaximized = true
-            initEditor()
             nextLoadStories()
-            if(elementsList.items.size==0)  accordion.expandedPane = editPane
-            else accordion.expandedPane = listPane
+            if (elementsList.items.size == 0) {
+                accordion.expandedPane = editPane
+                //редактор должен инициироваться при открытой вкладке редактирования, иначе у него высота будет нулевая
+                //другой вариант ниже, при открытии вкладки редактирования
+                Platform.runLater {
+                    initEditor()
+                }
+            } else accordion.expandedPane = listPane
+
         }
 
     }
@@ -96,6 +98,7 @@ class LentaController : BaseController() {
     }
 
     override fun initialize(location: URL, resources: ResourceBundle) {
+        elementsList.cellFactory = StoryCellFactory()
         sendBtn.disableProperty().bind(
                 title.textProperty().isEmpty
                         .or(shortText.textProperty().isEmpty)
@@ -107,13 +110,15 @@ class LentaController : BaseController() {
             if (newValue == false) showInfoDialog(
                     "Загрузка публикаций",
                     "",
-                    "Отсутствуют публикации для загрузки",
+                    "Список публикаций пуст",
                     controllerWindow,
                     Modality.WINDOW_MODAL
             )
         }
 
-
+        accordion.expandedPaneProperty().addListener { _, _, newValue ->
+            if(newValue==editPane && !editorInited) Platform.runLater {  initEditor() }
+        }
     }
 
     private fun initEditor() {
@@ -121,6 +126,7 @@ class LentaController : BaseController() {
         engine.isJavaScriptEnabled = true
         val html = javaClass.getResourceAsStream("/html/editor.html").bufferedReader().use { it.readText() }
         engine.loadContent(html)
+        editorInited = true
     }
 
 
@@ -177,7 +183,6 @@ class LentaController : BaseController() {
         return engine.executeScript("getContent()") as String
     }
 
-
     private fun clearForm() {
         title.text = ""
         shortText.text = ""
@@ -202,16 +207,13 @@ class LentaController : BaseController() {
             return
         }
         story.id = actionResult.value
-        storiesLoader.add(story)
+        val shortStory = story.toShortStory()
+
+        storiesLoader.add(shortStory)
         clearForm()
-    }
-
-    fun edit() {
-
-    }
-
-    fun delete() {
-
+        accordion.expandedPane = listPane
+        elementsList.scrollTo(elementsList.items.size - 1)
+        elementsList.selectionModel.select(shortStory)
     }
 
 

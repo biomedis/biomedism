@@ -144,6 +144,7 @@ public interface AccountClient {
   @RequestLine("GET /all_tokens")
   List<ActiveSession> allTokens();
 
+  @Headers(value = {"Content-Type: application/json"})
   @RequestLine("POST /story")
   Long createStory(Story story);
 

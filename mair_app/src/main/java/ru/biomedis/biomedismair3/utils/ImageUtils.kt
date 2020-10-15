@@ -19,6 +19,8 @@ fun fromBase64ToInputStream(encodedString: String): InputStream = ByteArrayInput
 
 fun inputStreamToImage(inputStream: InputStream) = Image(inputStream)
 
+fun imageFromBase64(src: String)= inputStreamToImage(fromBase64ToInputStream(src))
+
 fun imageViewToBase64(imageView: ImageView, isPng: Boolean) = writableImageToBase64(writableImageFromImageView(imageView, isPng), isPng)
 
 fun writableImageFromImageView(imageView: ImageView, isPng: Boolean): WritableImage {
