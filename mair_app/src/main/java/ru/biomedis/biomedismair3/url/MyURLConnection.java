@@ -107,13 +107,14 @@ public class MyURLConnection extends URLConnection
         {
             return;
         }
+        String path="";
         try
         {
             int timeout = this.getConnectTimeout();
             long start = System.currentTimeMillis();
             URL url = getURL();
 
-            String path = url.toExternalForm();
+            path = url.toExternalForm();
             path = path.startsWith("myapp://") ? path.substring("myapp://".length()) : path.substring("myapp:".length()); // attention: triple '/' is reduced to a single '/'
 
             /*
@@ -167,7 +168,7 @@ public class MyURLConnection extends URLConnection
         }
         catch (Exception e)
         {
-            log.error("",e);
+            log.error(path,e);
         }
     }
 

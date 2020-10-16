@@ -74,7 +74,10 @@ class LentaController : BaseController() {
 
 
         Platform.runLater {
-            controllerWindow.isMaximized = true
+            //controllerWindow.isMaximized = true
+            //controllerWindow.width = 850.0
+            //controllerWindow.height = controllerWindow.owner.height-30
+
             nextLoadStories()
             if (elementsList.items.size == 0) {
                 accordion.expandedPane = editPane
@@ -257,7 +260,7 @@ class LentaController : BaseController() {
                         "Лента событий",
                         true,
                         StageStyle.UNIFIED,
-                        0, 0, 0, 0,
+                        400, 850, 0, 0,
                         Unit
                 )
             } catch (e: Exception) {

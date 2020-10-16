@@ -27,7 +27,13 @@ $(document).ready(function () {
 
  editor = initEditor(document.documentElement.clientHeight-15)
 
+
+
 })
+
+$(window).resize(function() {
+  $("#content").css("height", (window.innerHeight-20)+"px")
+});
 
 
 
