@@ -10,13 +10,27 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 
 
-class StoryCellFactory() : Callback<ListView<ShortStory>, ListCell<ShortStory>> {
+class StoryCellFactory private constructor(
+        val owner: Boolean,
+        val deleteAction: (item: ShortStory) -> Unit = { _ -> Unit },
+        val editAction: (item: ShortStory) -> Unit = { _ -> Unit }
+) : Callback<ListView<ShortStory>, ListCell<ShortStory>> {
 
-    override fun call(param: ListView<ShortStory>?): ListCell<ShortStory> {
-        return TaskCell()
+    companion object {
+        fun forOwner(deleteAction: (item: ShortStory) -> Unit, editAction: (item: ShortStory) -> Unit): StoryCellFactory {
+            return StoryCellFactory(true, editAction, deleteAction)
+        }
+
+        fun forOthers(): StoryCellFactory {
+            return StoryCellFactory(false)
+        }
     }
 
-    class TaskCell() : ListCell<ShortStory>() {
+    override fun call(param: ListView<ShortStory>?): ListCell<ShortStory> {
+        return TaskCell(owner, editAction, deleteAction)
+    }
+
+    class TaskCell(val owner: Boolean, deleteAction: (item: ShortStory) -> Unit, editAction: (item: ShortStory) -> Unit) : ListCell<ShortStory>() {
         @FXML
         private lateinit var date: Label
 
@@ -53,6 +67,11 @@ class StoryCellFactory() : Callback<ListView<ShortStory>, ListCell<ShortStory>> 
 
         override fun updateItem(item: ShortStory?, empty: Boolean) {
             super.updateItem(item, empty)
+            if (!owner) {
+                editBtn.isVisible = false
+                deleteBtn.isVisible = false
+            }
+
             if (empty || item == null) {
                 text = null
                 contentDisplay = ContentDisplay.TEXT_ONLY
@@ -68,8 +87,12 @@ class StoryCellFactory() : Callback<ListView<ShortStory>, ListCell<ShortStory>> 
         }
 
 
+
+
         init {
             loadFXML()
+            editBtn.setOnAction { editAction(item) }
+            deleteBtn.setOnAction { deleteAction(item) }
         }
 
 

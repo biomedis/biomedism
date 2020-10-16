@@ -101,7 +101,7 @@ class LentaController : BaseController() {
     }
 
     override fun initialize(location: URL, resources: ResourceBundle) {
-        elementsList.cellFactory = StoryCellFactory()
+        elementsList.cellFactory = StoryCellFactory.forOwner(this::editAction, this::deleteAction)
         sendBtn.disableProperty().bind(
                 title.textProperty().isEmpty
                         .or(shortText.textProperty().isEmpty)
@@ -123,6 +123,16 @@ class LentaController : BaseController() {
             if(newValue==editPane && !editorInited) Platform.runLater {  initEditor() }
         }
     }
+
+    private fun deleteAction(item: ShortStory){
+        println(item.id)
+
+    }
+
+    private fun editAction(item: ShortStory){
+        println(item.id)
+    }
+
 
     private fun initEditor() {
         engine = editor.engine

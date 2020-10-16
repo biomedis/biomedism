@@ -41,13 +41,13 @@
                <children>
                   <HBox maxWidth="1.7976931348623157E308" spacing="5.0" HBox.hgrow="ALWAYS">
                      <children>
-                        <Button fx:id="editBtn" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0">
+                        <Button fx:id="editBtn" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" >
                            <styleClass>
                               <String fx:value="GenericBtn" />
                               <String fx:value="EditSmallBtn" />
                            </styleClass>
                         </Button>
-                        <Button fx:id="deleteBtn" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0">
+                        <Button fx:id="deleteBtn" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" >
                            <styleClass>
                               <String fx:value="GenericBtn" />
                               <String fx:value="deleteSmallBtn" />
