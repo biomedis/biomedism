@@ -8,60 +8,77 @@
 <?import javafx.scene.control.ListCell?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<fx:root maxWidth="1.7976931348623157E308" type="javafx.scene.control.ListCell" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<fx:root maxWidth="1.7976931348623157E308" prefHeight="170.0" type="javafx.scene.control.ListCell" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
   <graphic>
-    <VBox fx:id="rootBox" maxWidth="1.7976931348623157E308" spacing="7.0">
-         <padding>
-            <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-         </padding>
+      <StackPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="170.0">
          <children>
-            <HBox maxWidth="1.7976931348623157E308" spacing="18.0">
+          <VBox fx:id="rootBox" maxWidth="1.7976931348623157E308" spacing="7.0" StackPane.alignment="CENTER">
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
                <children>
-                  <Label fx:id="date" maxHeight="1.7976931348623157E308" text="20.02.2020" HBox.hgrow="NEVER" />
-                  <Label fx:id="title" prefWidth="600.0" maxWidth="600.0" text="Название" HBox.hgrow="ALWAYS">
-                     <font>
-                        <Font name="System Bold" size="14.0" />
-                     </font>
-                  </Label>
-               </children>
-            </HBox>
-            <HBox maxWidth="1.7976931348623157E308" minHeight="100.0" prefHeight="100.0" spacing="8.0" VBox.vgrow="NEVER">
-               <children>
-                  <ImageView fx:id="image" fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="NEVER" />
-                  <Label fx:id="description" alignment="TOP_LEFT" maxHeight="-Infinity" prefHeight="100.0" prefWidth="600.0" text="Label" wrapText="true" HBox.hgrow="ALWAYS" />
-               </children>
-               <VBox.margin>
-                  <Insets bottom="4.0" />
-               </VBox.margin>
-            </HBox>
-            <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" VBox.vgrow="NEVER">
-               <children>
-                  <HBox maxWidth="1.7976931348623157E308" spacing="5.0" HBox.hgrow="ALWAYS">
+                  <HBox maxWidth="1.7976931348623157E308" spacing="18.0">
                      <children>
-                        <Button fx:id="editBtn" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" >
-                           <styleClass>
-                              <String fx:value="GenericBtn" />
-                              <String fx:value="EditSmallBtn" />
-                           </styleClass>
-                        </Button>
-                        <Button fx:id="deleteBtn" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" >
-                           <styleClass>
-                              <String fx:value="GenericBtn" />
-                              <String fx:value="deleteSmallBtn" />
-                           </styleClass>
-                        </Button>
+                        <Label fx:id="date" maxHeight="1.7976931348623157E308" text="20.02.2020" HBox.hgrow="NEVER" />
+                        <Label fx:id="title" maxWidth="600.0" prefWidth="600.0" text="Название" HBox.hgrow="ALWAYS">
+                           <font>
+                              <Font name="System Bold" size="14.0" />
+                           </font>
+                        </Label>
                      </children>
-                     <HBox.margin>
-                        <Insets left="8.0" />
-                     </HBox.margin>
                   </HBox>
-                  <Hyperlink fx:id="fullContent" text="Подробнее" HBox.hgrow="NEVER" />
+                  <HBox maxWidth="1.7976931348623157E308" minHeight="100.0" prefHeight="100.0" spacing="8.0" VBox.vgrow="NEVER">
+                     <children>
+                        <ImageView fx:id="image" fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true" HBox.hgrow="NEVER" />
+                        <Label fx:id="description" alignment="TOP_LEFT" maxHeight="-Infinity" prefHeight="100.0" prefWidth="600.0" text="Label" wrapText="true" HBox.hgrow="ALWAYS" />
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="4.0" />
+                     </VBox.margin>
+                  </HBox>
+                  <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" VBox.vgrow="NEVER">
+                     <children>
+                        <HBox maxWidth="1.7976931348623157E308" spacing="5.0" HBox.hgrow="ALWAYS">
+                           <children>
+                              <Button fx:id="editBtn" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0">
+                                 <styleClass>
+                                    <String fx:value="GenericBtn" />
+                                    <String fx:value="EditSmallBtn" />
+                                 </styleClass>
+                              </Button>
+                              <Button fx:id="deleteBtn" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0">
+                                 <styleClass>
+                                    <String fx:value="GenericBtn" />
+                                    <String fx:value="deleteSmallBtn" />
+                                 </styleClass>
+                              </Button>
+                           </children>
+                           <HBox.margin>
+                              <Insets left="8.0" />
+                           </HBox.margin>
+                        </HBox>
+                        <Hyperlink fx:id="fullContent" text="Подробнее" HBox.hgrow="NEVER" />
+                     </children>
+                  </HBox>
+               </children>
+          </VBox>
+            <HBox fx:id="loadBox" maxWidth="1.7976931348623157E308" prefHeight="170.0">
+               <children>
+                  <Button fx:id="loadBtn" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" text="Загрузить ранние публикации" HBox.hgrow="ALWAYS">
+                     <styleClass>
+                        <String fx:value="LoadNewStoryButton" />
+                     </styleClass>
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Button>
                </children>
             </HBox>
          </children>
-    </VBox>
+      </StackPane>
   </graphic>
 </fx:root>

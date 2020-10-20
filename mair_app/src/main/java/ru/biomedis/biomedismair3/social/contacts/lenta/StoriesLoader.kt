@@ -7,6 +7,7 @@ import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import ru.biomedis.biomedismair3.utils.Other.Result
+import java.util.function.Predicate
 
 class StoriesLoader private constructor(val count: Int, val stage: Stage, val loadFunc: (Int, Int) -> PageShortStoryDto) {
 
@@ -32,6 +33,11 @@ class StoriesLoader private constructor(val count: Int, val stage: Stage, val lo
         stories.clear()
         currentPage = 0
     }
+
+    fun remove(item: ShortStory): Boolean = stories.remove(item)
+
+
+    fun remove(predicate: Predicate<ShortStory>): Boolean = stories.removeIf(predicate)
 
     /**
      * Загрузит в Observable новую партию данных.

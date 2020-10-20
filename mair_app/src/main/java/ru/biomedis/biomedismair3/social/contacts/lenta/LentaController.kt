@@ -1,8 +1,10 @@
 package ru.biomedis.biomedismair3.social.contacts.lenta
 
 
+import com.sun.beans.editors.ShortEditor
 import javafx.application.Platform
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.collections.transformation.SortedList
 import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.scene.image.Image
@@ -20,7 +22,8 @@ import ru.biomedis.biomedismair3.utils.imageViewToBase64
 import java.io.File
 import java.net.URL
 import java.util.*
-import javax.management.remote.rmi._RMIConnectionImpl_Tie
+import java.util.function.Predicate
+
 
 private const val MAX_DESCR_LENGTH: Int = 400
 private const val MAX_TITLE_LENGTH: Int = 120
@@ -70,15 +73,17 @@ class LentaController : BaseController() {
 
     override fun onCompletedInitialization() {
         storiesLoader = StoriesLoader.selfUsed(REQUEST_COUNT_BY_PAGE, controllerWindow)
-        elementsList.items = storiesLoader.observableList
-
+        elementsList.items = SortedList(storiesLoader.observableList){ o1, o2 ->
+            o1.id.compareTo(o2.id)
+        }
 
         Platform.runLater {
-            //controllerWindow.isMaximized = true
-            //controllerWindow.width = 850.0
-            //controllerWindow.height = controllerWindow.owner.height-30
 
             nextLoadStories()
+            storiesLoader.add(ShortStory().apply {
+                id=ShortStory.NEXT_LOAD_ID
+            })
+            elementsList.scrollTo(elementsList.items.lastIndex)
             if (elementsList.items.size == 0) {
                 accordion.expandedPane = editPane
                 //редактор должен инициироваться при открытой вкладке редактирования, иначе у него высота будет нулевая
@@ -100,8 +105,13 @@ class LentaController : BaseController() {
 
     }
 
+    private var lastElementForLoading: ShortStory?=null
+
     override fun initialize(location: URL, resources: ResourceBundle) {
-        elementsList.cellFactory = StoryCellFactory.forOwner(this::editAction, this::deleteAction)
+        elementsList.cellFactory = StoryCellFactory.forOwner(this::editAction, this::deleteAction){
+                nextLoadStories()
+        }
+
         sendBtn.disableProperty().bind(
                 title.textProperty().isEmpty
                         .or(shortText.textProperty().isEmpty)
@@ -110,18 +120,30 @@ class LentaController : BaseController() {
         initTextFieldsEventConstraints()
 
         hasDataToLoad.addListener { _, _, newValue ->
-            if (newValue == false) showInfoDialog(
-                    "Загрузка публикаций",
-                    "",
-                    "Список публикаций пуст",
-                    controllerWindow,
-                    Modality.WINDOW_MODAL
-            )
+            if (newValue == false) {
+                showInfoDialog(
+                        "Загрузка публикаций",
+                        "",
+                        "Список публикаций пуст",
+                        controllerWindow,
+                        Modality.WINDOW_MODAL
+                )
+                storiesLoader.remove(Predicate { it.id==ShortStory.NEXT_LOAD_ID })
+            }
         }
 
         accordion.expandedPaneProperty().addListener { _, _, newValue ->
             if(newValue==editPane && !editorInited) Platform.runLater {  initEditor() }
         }
+
+//       val scrollbar =  elementsList.lookup(".scroll-bar") as ScrollBar
+//
+//        scrollbar.valueProperty().addListener { _, _, nv: Number ->
+//            println("change on value $nv")
+//            if (nv.toDouble() == 1.0) {
+//                println("Max $nv")
+//            }
+//        }
     }
 
     private fun deleteAction(item: ShortStory){
@@ -145,9 +167,11 @@ class LentaController : BaseController() {
 
     private fun nextLoadStories() {
         try {
+           // if(!hasDataToLoad.get()) return
             hasDataToLoad.set(storiesLoader.nextLoad())
         } catch (e: Exception) {
             Platform.runLater {
+                log.error("", e)
                 showErrorDialog(
                         "Загрузка публикаций",
                         "",

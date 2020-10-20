@@ -160,6 +160,7 @@ public class SocialClient {
     try {
       tokenHolder.processToken();
       isAuth.set(tokenHolder.hasToken());
+      System.out.println("Проверка сохраненного токена "+tokenHolder.hasToken());
     } catch (NeedAuthByLogin e) {
       isAuth.set(false);
       throw e;
@@ -219,8 +220,10 @@ public class SocialClient {
       return true;
     } catch (NeedAuthByLogin e) {
       Optional<Token> token = LoginController.openLoginDialog(ctx);
+      System.out.println("Получили токен "+token.isPresent());
       tokenHolder.setToken(token);
       isAuth.set(tokenHolder.hasToken());
+      System.out.println("проверка сохраненного токена "+tokenHolder.hasToken());
       return token.isPresent();
     } catch (ServerProblemException  | RequestClientException e) {
 

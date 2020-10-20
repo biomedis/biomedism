@@ -343,3 +343,30 @@
     -fx-border-width: 1;
     -fx-border-style: dashed;
 }
+
+
+.LoadNewStoryButton{
+   -fx-font-size: 24;
+    -fx-cursor: hand;
+    -fx-background-color: #fff;
+    -fx-background-image: url("../images/downloading.png");
+    -fx-background-size: 60 60;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: right center;
+    -fx-background-insets: 0,1,2;
+    -fx-background-radius: 3,2,1;
+}
+
+.LoadNewStoryButton:hover
+{
+    -fx-font-weight: bold;
+    -fx-underline: true;
+}
+
+.LoadNewStoryButton:pressed
+{
+
+    -fx-font-weight: bold;
+    -fx-underline: true;
+
+}

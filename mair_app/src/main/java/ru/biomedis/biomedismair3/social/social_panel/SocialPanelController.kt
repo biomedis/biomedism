@@ -92,6 +92,7 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
    private fun login(event: ActionEvent) {
         if (!isLogin) {
             try {
+                println("--------------- Состояние входа: "+SocialClient.INSTANCE.isAuthProperty)
                 client.performLogin(controllerWindow)
                 //если  состяние токена изменилось, то сработает обработчик (выше), который обновит интерфейс
             } catch (e: RequestClientException) {
@@ -102,6 +103,7 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
                 log.error("Ошибка обработки запроса аутентификации.", e)
             }
         } else {
+            println("--------------- Состояние входа: "+SocialClient.INSTANCE.isAuthProperty)
             //если  состяние токена изменилось, то сработает обработчик (выше), который обновит интерфейс
             client.performLogout(controllerWindow)
         }

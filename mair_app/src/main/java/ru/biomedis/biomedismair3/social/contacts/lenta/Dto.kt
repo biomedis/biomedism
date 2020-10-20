@@ -51,6 +51,9 @@ class ShortStory {
         return "ShortStory(id=$id, title='$title', image='$image', description='$description', created=$created)"
     }
 
+    companion object {
+        const val NEXT_LOAD_ID = -1000L
+    }
 
 }
 
