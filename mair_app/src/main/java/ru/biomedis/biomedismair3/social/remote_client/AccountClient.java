@@ -181,4 +181,8 @@ public interface AccountClient {
    */
   @RequestLine("GET /story/all?page={page}&count={count}")
   PageShortStoryDto getStories(@Param("page") int page, @Param("count") int count);
+
+
+  @RequestLine("DELETE /story/{id}")
+  void deleteStory(@Param("id") long id);
 }

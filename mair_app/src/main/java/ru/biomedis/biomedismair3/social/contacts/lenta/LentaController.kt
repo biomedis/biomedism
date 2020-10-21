@@ -73,9 +73,7 @@ class LentaController : BaseController() {
 
     override fun onCompletedInitialization() {
         storiesLoader = StoriesLoader.selfUsed(REQUEST_COUNT_BY_PAGE, controllerWindow)
-        elementsList.items = SortedList(storiesLoader.observableList){ o1, o2 ->
-            o1.id.compareTo(o2.id)
-        }
+        elementsList.items = storiesLoader.observableList
 
         Platform.runLater {
             nextLoadStories()
@@ -115,12 +113,6 @@ class LentaController : BaseController() {
 
         initTextFieldsEventConstraints()
 
-//        hasDataToLoad.addListener { _, _, newValue ->
-//            if (newValue == false) {
-//                storiesLoader.remove(Predicate { it.id==ShortStory.NEXT_LOAD_ID })
-//            }
-//        }
-
         accordion.expandedPaneProperty().addListener { _, _, newValue ->
             if(newValue==editPane && !editorInited) Platform.runLater {  initEditor() }
         }
@@ -128,8 +120,11 @@ class LentaController : BaseController() {
     }
 
     private fun deleteAction(item: ShortStory){
-        println(item.id)
-
+       try {
+           storiesLoader.remove(item)
+       }catch (e: StoriesLoader.DeleteStoryException){
+           showErrorDialog("Удаление публикации","","Удаление не удалось", controllerWindow, Modality.WINDOW_MODAL)
+       }
     }
 
     private fun editAction(item: ShortStory){
@@ -148,7 +143,7 @@ class LentaController : BaseController() {
 
     private fun nextLoadStories() {
         try {
-            storiesLoader.remove(Predicate { it.id==ShortStory.NEXT_LOAD_ID })
+            storiesLoader.remove(ShortStory.NEXT_LOAD_ID )
             val firstItem: ShortStory? = if(elementsList.items.isEmpty()) null else elementsList.items[0]
 
             hasDataToLoad.set(storiesLoader.nextLoad())
