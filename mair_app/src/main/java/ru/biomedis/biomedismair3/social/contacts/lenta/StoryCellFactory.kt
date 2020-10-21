@@ -97,6 +97,7 @@ class StoryCellFactory private constructor(
             } else {
                 if(item.id==ShortStory.NEXT_LOAD_ID){
                     loadBox.isVisible = true
+                    contentDisplay = ContentDisplay.GRAPHIC_ONLY
                 }else {
                     loadBox.isVisible = false
                     title.text = item.title

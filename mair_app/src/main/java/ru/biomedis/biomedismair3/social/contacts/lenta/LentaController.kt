@@ -78,11 +78,7 @@ class LentaController : BaseController() {
         }
 
         Platform.runLater {
-
             nextLoadStories()
-            storiesLoader.add(ShortStory().apply {
-                id=ShortStory.NEXT_LOAD_ID
-            })
             elementsList.scrollTo(elementsList.items.lastIndex)
             if (elementsList.items.size == 0) {
                 accordion.expandedPane = editPane
@@ -119,31 +115,16 @@ class LentaController : BaseController() {
 
         initTextFieldsEventConstraints()
 
-        hasDataToLoad.addListener { _, _, newValue ->
-            if (newValue == false) {
-                showInfoDialog(
-                        "Загрузка публикаций",
-                        "",
-                        "Список публикаций пуст",
-                        controllerWindow,
-                        Modality.WINDOW_MODAL
-                )
-                storiesLoader.remove(Predicate { it.id==ShortStory.NEXT_LOAD_ID })
-            }
-        }
+//        hasDataToLoad.addListener { _, _, newValue ->
+//            if (newValue == false) {
+//                storiesLoader.remove(Predicate { it.id==ShortStory.NEXT_LOAD_ID })
+//            }
+//        }
 
         accordion.expandedPaneProperty().addListener { _, _, newValue ->
             if(newValue==editPane && !editorInited) Platform.runLater {  initEditor() }
         }
 
-//       val scrollbar =  elementsList.lookup(".scroll-bar") as ScrollBar
-//
-//        scrollbar.valueProperty().addListener { _, _, nv: Number ->
-//            println("change on value $nv")
-//            if (nv.toDouble() == 1.0) {
-//                println("Max $nv")
-//            }
-//        }
     }
 
     private fun deleteAction(item: ShortStory){
@@ -167,8 +148,26 @@ class LentaController : BaseController() {
 
     private fun nextLoadStories() {
         try {
-           // if(!hasDataToLoad.get()) return
+            storiesLoader.remove(Predicate { it.id==ShortStory.NEXT_LOAD_ID })
+            val firstItem: ShortStory? = if(elementsList.items.isEmpty()) null else elementsList.items[0]
+
             hasDataToLoad.set(storiesLoader.nextLoad())
+
+            //кнопка подгрузки
+            if(hasDataToLoad.get()){
+                storiesLoader.add(ShortStory().apply { id=ShortStory.NEXT_LOAD_ID })
+            }
+
+            if(firstItem!=null){
+                val index = elementsList.items.lastIndexOf(firstItem)-1
+                if(index>0) {
+                    elementsList.apply {
+                        scrollTo(index)//скролл к первому добавленному
+                        focusModel.focus(index)
+                    }
+                }
+            }
+
         } catch (e: Exception) {
             Platform.runLater {
                 log.error("", e)

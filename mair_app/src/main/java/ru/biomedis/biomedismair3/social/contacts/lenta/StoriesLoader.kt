@@ -23,8 +23,6 @@ class StoriesLoader private constructor(val count: Int, val stage: Stage, val lo
     val observableList: ObservableList<ShortStory> = FXCollections.unmodifiableObservableList(stories)
 
 
-
-
     /**
      * Очистит загрузчик. Массивы обнулятся
      */
@@ -54,7 +52,8 @@ class StoriesLoader private constructor(val count: Int, val stage: Stage, val lo
         }
         stories.addAll(result.value.stories)
         currentPage++
-        return result.value.stories.isNotEmpty()
+
+        return result.value.stories.isNotEmpty() && result.value.totalPages > (result.value.currentPage+1)
     }
 
     fun add(story: ShortStory) {
