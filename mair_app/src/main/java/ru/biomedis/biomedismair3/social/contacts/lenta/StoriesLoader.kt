@@ -10,14 +10,14 @@ import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import ru.biomedis.biomedismair3.utils.Other.Result
 
-class StoriesLoader private constructor(val count: Int, val stage: Stage, val loadFunc: (Int, Int) -> PageShortStoryDto) {
+class StoriesLoader private constructor(val count: Int, val stage: Stage, val loadFunc: (Long, Int) -> PageShortStoryDto) {
 
     private val idSet: MutableSet<Long> = mutableSetOf()
     private val stories: ObservableList<ShortStory> = FXCollections.observableArrayList()
     private val sortedStories = SortedList(stories) { o1, o2 ->
         o1.id.compareTo(o2.id)
     }
-    private var currentPage: Int = 0
+
     private val log by LoggerDelegate()
 
     /**
@@ -33,7 +33,6 @@ class StoriesLoader private constructor(val count: Int, val stage: Stage, val lo
     fun clear() {
         idSet.clear()
         stories.clear()
-        currentPage = 0
     }
 
     @Throws(DeleteStoryException::class)
@@ -58,30 +57,25 @@ class StoriesLoader private constructor(val count: Int, val stage: Stage, val lo
 
     @Throws(DeleteStoryException::class)
     private fun removeFromServer(id: Long) {
-        val result: Result<ShortStory> = BlockingAction.actionResult(stage) {
+        val result: Result<Unit> = BlockingAction.actionResult(stage) {
             SocialClient.INSTANCE.accountClient.deleteStory(id)
-            SocialClient.INSTANCE.accountClient.getNextStory(sortedStories.first().id)
         }
 
         if (result.isError) {
             log.error("", result.error)
-            if (result.error is ApiError) {
-                val ae = result.error as ApiError
-                if (ae.statusCode == 404) return
-            }
 
             throw DeleteStoryException(result.error)
         }
-        stories.add(result.value)
     }
 
     /**
      * Загрузит в Observable новую партию данных.
-     * Вернет true если были данные и false если они кончились
+     * Вернет true если еще есть данные и false если они кончились
      */
     fun nextLoad(): Boolean {
+        val last = if(sortedStories.isEmpty()) -1 else sortedStories.first().id//первый элемент сверху загруженного списка, хотим загружать элементы с id меньше него
         val result: Result<PageShortStoryDto> = BlockingAction.actionResult(stage) {
-            loadFunc(currentPage, count)
+            loadFunc(last, count)
         }
 
         if (result.isError) {
@@ -89,9 +83,8 @@ class StoriesLoader private constructor(val count: Int, val stage: Stage, val lo
             throw LoadingException(result.error)
         }
         stories.addAll(result.value.stories)
-        currentPage++
 
-        return result.value.stories.isNotEmpty() && result.value.totalPages > (result.value.currentPage + 1)
+        return result.value.stories.isNotEmpty() && result.value.stories.size == result.value.requestedCount
     }
 
     fun add(story: ShortStory) {
@@ -101,19 +94,19 @@ class StoriesLoader private constructor(val count: Int, val stage: Stage, val lo
     companion object {
         fun selfUsed(count: Int, stage: Stage): StoriesLoader {
             return StoriesLoader(count, stage,
-                    loadFunc = { page: Int, count_: Int ->
-                        SocialClient.INSTANCE.accountClient.getStories(page, count_)
+                    loadFunc = { last: Long, count_: Int ->
+                        SocialClient.INSTANCE.accountClient.getStories(last, count_)
                     })
         }
 
         fun forUserUsed(count: Int, user: Long, stage: Stage): StoriesLoader {
             return StoriesLoader(count, stage,
-                    loadFunc = { page: Int, count_: Int ->
-                        SocialClient.INSTANCE.accountClient.getStories(user, page, count_)
+                    loadFunc = { last: Long, count_: Int ->
+                        SocialClient.INSTANCE.accountClient.getStories(user, last, count_)
                     })
         }
 
-        fun forOtherUsed(count: Int, stage: Stage, loadFunc: (Int, Int) -> PageShortStoryDto): StoriesLoader = StoriesLoader(count, stage, loadFunc)
+        fun forOtherUsed(count: Int, stage: Stage, loadFunc: (Long, Int) -> PageShortStoryDto): StoriesLoader = StoriesLoader(count, stage, loadFunc)
     }
 
     class LoadingException(cause: Throwable) : Exception(cause)

@@ -59,10 +59,6 @@ class ShortStory {
 
 class PageShortStoryDto {
 
-    var totalPages: Int = 0
-
-    var currentPage: Int = 0
-
     var requestedCount: Int = 0
 
     var stories: List<ShortStory> = listOf()

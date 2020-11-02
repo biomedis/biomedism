@@ -1,10 +1,8 @@
 package ru.biomedis.biomedismair3.social.contacts.lenta
 
 
-import com.sun.beans.editors.ShortEditor
 import javafx.application.Platform
 import javafx.beans.property.SimpleBooleanProperty
-import javafx.collections.transformation.SortedList
 import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.scene.image.Image
@@ -22,7 +20,6 @@ import ru.biomedis.biomedismair3.utils.imageViewToBase64
 import java.io.File
 import java.net.URL
 import java.util.*
-import java.util.function.Predicate
 
 
 private const val MAX_DESCR_LENGTH: Int = 400
@@ -120,11 +117,14 @@ class LentaController : BaseController() {
     }
 
     private fun deleteAction(item: ShortStory){
-       try {
-           storiesLoader.remove(item)
-       }catch (e: StoriesLoader.DeleteStoryException){
-           showErrorDialog("Удаление публикации","","Удаление не удалось", controllerWindow, Modality.WINDOW_MODAL)
-       }
+        val result = showConfirmationDialog("Удаление публикации", item.title, "Публикация будет удалена.", controllerWindow, Modality.WINDOW_MODAL)
+        if (result.isPresent && result.get() == okButtonType){
+            try {
+                storiesLoader.remove(item)
+            }catch (e: StoriesLoader.DeleteStoryException){
+                showErrorDialog("Удаление публикации", "", "Удаление не удалось", controllerWindow, Modality.WINDOW_MODAL)
+            }
+        }
     }
 
     private fun editAction(item: ShortStory){
@@ -143,14 +143,14 @@ class LentaController : BaseController() {
 
     private fun nextLoadStories() {
         try {
-            storiesLoader.remove(ShortStory.NEXT_LOAD_ID )
+            storiesLoader.remove(ShortStory.NEXT_LOAD_ID)
             val firstItem: ShortStory? = if(elementsList.items.isEmpty()) null else elementsList.items[0]
 
             hasDataToLoad.set(storiesLoader.nextLoad())
 
             //кнопка подгрузки
             if(hasDataToLoad.get()){
-                storiesLoader.add(ShortStory().apply { id=ShortStory.NEXT_LOAD_ID })
+                storiesLoader.add(ShortStory().apply { id = ShortStory.NEXT_LOAD_ID })
             }
 
             if(firstItem!=null){

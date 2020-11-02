@@ -164,23 +164,23 @@ public interface AccountClient {
   List<ShortStory> getStories(@Param("from") Date from, @Param("to") Date to);
 
   /**
-   * Извлекает данные постранично.
+   * Извлекает [count] данных меньше  указанного элемента с [lastStory].
    * @param user
-   * @param page
+   * @param lastStory
    * @param count
    * @return
    */
-  @RequestLine("GET /story/user/{user}/all?page={page}&count={count}")
-  PageShortStoryDto getStories(@Param("id")Long user, @Param("page") int page, @Param("count") int count);
+  @RequestLine("GET /story/user/{user}/all?last={lastStory}&count={count}")
+  PageShortStoryDto getStories(@Param("id")Long user, @Param("lastStory") long lastStory, @Param("count") int count);
 
   /**
-   * Извлекает данные постранично.
-   * @param page
+   * Извлекает [count] данных меньше  указанного элемента с [lastStory].
+   * @param lastStory
    * @param count
    * @return
    */
-  @RequestLine("GET /story/all?page={page}&count={count}")
-  PageShortStoryDto getStories(@Param("page") int page, @Param("count") int count);
+  @RequestLine("GET /story/all?last={lastStory}&count={count}")
+  PageShortStoryDto getStories(@Param("lastStory") long lastStory, @Param("count") int count);
 
 
   @RequestLine("DELETE /story/{id}")
