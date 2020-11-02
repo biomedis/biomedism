@@ -6,6 +6,7 @@ import javafx.collections.transformation.SortedList
 import javafx.stage.Stage
 import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
+import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import ru.biomedis.biomedismair3.utils.Other.Result
 
@@ -13,7 +14,7 @@ class StoriesLoader private constructor(val count: Int, val stage: Stage, val lo
 
     private val idSet: MutableSet<Long> = mutableSetOf()
     private val stories: ObservableList<ShortStory> = FXCollections.observableArrayList()
-    private val sortedStories = SortedList(stories){ o1, o2 ->
+    private val sortedStories = SortedList(stories) { o1, o2 ->
         o1.id.compareTo(o2.id)
     }
     private var currentPage: Int = 0
@@ -37,9 +38,9 @@ class StoriesLoader private constructor(val count: Int, val stage: Stage, val lo
 
     @Throws(DeleteStoryException::class)
     fun remove(item: ShortStory) {
-        if(item.id >= 0) {
+        if (item.id >= 0) {
             removeFromServer(item.id)
-            pagePointerCorrection()
+
         }
         stories.remove(item)
     }
@@ -47,36 +48,31 @@ class StoriesLoader private constructor(val count: Int, val stage: Stage, val lo
 
     fun remove(id: Long) {
 
-        if(id >= 0) {
+        if (id >= 0) {
             removeFromServer(id)
-            pagePointerCorrection()
         }
 
         stories.removeIf { it.id == id }
     }
 
-    /**
-     * Коррекция указателя на страницы с учетом удаления
-     */
-    private fun pagePointerCorrection(){
-   /*
-   если есть на сервере элементы, то получаем следующий по списку 1, далее можно работать как обычно
-   нужен метод для получения следующего элемента.
-    */
-
-
-    }
 
     @Throws(DeleteStoryException::class)
-    private fun removeFromServer(id: Long){
-        val result = BlockingAction.actionNoResult(stage){
+    private fun removeFromServer(id: Long) {
+        val result: Result<ShortStory> = BlockingAction.actionResult(stage) {
             SocialClient.INSTANCE.accountClient.deleteStory(id)
+            SocialClient.INSTANCE.accountClient.getNextStory(sortedStories.first().id)
         }
 
-        if(result.isError){
-            log.error("",result.error)
+        if (result.isError) {
+            log.error("", result.error)
+            if (result.error is ApiError) {
+                val ae = result.error as ApiError
+                if (ae.statusCode == 404) return
+            }
+
             throw DeleteStoryException(result.error)
         }
+        stories.add(result.value)
     }
 
     /**
@@ -95,7 +91,7 @@ class StoriesLoader private constructor(val count: Int, val stage: Stage, val lo
         stories.addAll(result.value.stories)
         currentPage++
 
-        return result.value.stories.isNotEmpty() && result.value.totalPages > (result.value.currentPage+1)
+        return result.value.stories.isNotEmpty() && result.value.totalPages > (result.value.currentPage + 1)
     }
 
     fun add(story: ShortStory) {

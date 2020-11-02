@@ -102,7 +102,7 @@ class LentaController : BaseController() {
     private var lastElementForLoading: ShortStory?=null
 
     override fun initialize(location: URL, resources: ResourceBundle) {
-        elementsList.cellFactory = StoryCellFactory.forOwner(this::editAction, this::deleteAction){
+        elementsList.cellFactory = StoryCellFactory.forOwner(this::deleteAction, this::editAction){
                 nextLoadStories()
         }
 

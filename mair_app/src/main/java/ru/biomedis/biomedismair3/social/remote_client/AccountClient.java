@@ -185,4 +185,7 @@ public interface AccountClient {
 
   @RequestLine("DELETE /story/{id}")
   void deleteStory(@Param("id") long id);
+
+  @RequestLine("GET /story/next/{id}")
+  ShortStory getNextStory(@Param("id") long id);
 }
