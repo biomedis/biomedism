@@ -148,6 +148,7 @@ public interface AccountClient {
   @RequestLine("POST /story")
   Long createStory(Story story);
 
+  @Headers(value = {"Content-Type: application/json"})
   @RequestLine("PUT /story")
   void updateStory(Story story);
 

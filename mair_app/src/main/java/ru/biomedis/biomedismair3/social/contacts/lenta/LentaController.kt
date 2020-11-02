@@ -16,6 +16,7 @@ import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import ru.biomedis.biomedismair3.utils.Other.Result
+import ru.biomedis.biomedismair3.utils.imageFromBase64
 import ru.biomedis.biomedismair3.utils.imageViewToBase64
 import java.io.File
 import java.net.URL
@@ -68,6 +69,8 @@ class LentaController : BaseController() {
 
     private lateinit var engine: WebEngine
 
+    private var editedStory: ShortStory?=null
+
     override fun onCompletedInitialization() {
         storiesLoader = StoriesLoader.selfUsed(REQUEST_COUNT_BY_PAGE, controllerWindow)
         elementsList.items = storiesLoader.observableList
@@ -77,13 +80,11 @@ class LentaController : BaseController() {
             elementsList.scrollTo(elementsList.items.lastIndex)
             if (elementsList.items.size == 0) {
                 accordion.expandedPane = editPane
-                //редактор должен инициироваться при открытой вкладке редактирования, иначе у него высота будет нулевая
-                //другой вариант ниже, при открытии вкладки редактирования
-                Platform.runLater {
-                    initEditor()
-                }
-            } else accordion.expandedPane = listPane
 
+            } else accordion.expandedPane = listPane
+            Platform.runLater {
+                initEditor()
+            }
         }
 
     }
@@ -128,7 +129,22 @@ class LentaController : BaseController() {
     }
 
     private fun editAction(item: ShortStory){
-        println(item.id)
+
+        val result = BlockingAction.actionResult(controllerWindow){
+            SocialClient.INSTANCE.accountClient.getStoryContent(item.id)
+        }
+
+        if(result.isError){
+            log.error("Не удалось загрузить контент публикации", result.error)
+            showErrorDialog("Редактирование публикации","","Не удалось загрузить контент публикации",controllerWindow, Modality.WINDOW_MODAL)
+            return
+        }
+        editedStory = item
+        accordion.expandedPane = editPane
+        title.text = item.title
+        image.image = imageFromBase64(item.image)
+        shortText.text = item.description
+        setEditorContent(result.value)
     }
 
 
@@ -214,14 +230,20 @@ class LentaController : BaseController() {
         return engine.executeScript("getContent()") as String
     }
 
-    private fun clearForm() {
+     fun clearForm() {
         title.text = ""
         shortText.text = ""
         image.image = null
         setEditorContent("")
+         editedStory = null
     }
 
     fun send() {
+        if(editedStory!=null) updateStorySave()
+        else newStorySave()
+    }
+
+    private fun newStorySave(){
         val story = createStory()
         val actionResult: Result<Long> = BlockingAction.actionResult(controllerWindow) {
             SocialClient.INSTANCE.accountClient.createStory(story)
@@ -247,6 +269,40 @@ class LentaController : BaseController() {
         elementsList.selectionModel.select(shortStory)
     }
 
+    private fun updateStorySave(){
+        val story = createStory()
+        story.id = editedStory!!.id
+
+        val result = BlockingAction.actionNoResult(controllerWindow) {
+            SocialClient.INSTANCE.accountClient.updateStory(story)
+        }
+
+        if (result.isError) {
+            log.error("", result.error)
+            showErrorDialog(
+                    "Обновление публикации",
+                    "",
+                    "Сохранение не удалось",
+                    controllerWindow,
+                    Modality.WINDOW_MODAL
+            )
+            return
+        }
+
+        val item = editedStory!!
+        item.apply {
+            title = story.title
+            description = story.description
+            image = story.image
+        }
+        clearForm()
+        accordion.expandedPane = listPane
+        storiesLoader.updateStory(item)
+        elementsList.scrollTo(item)
+        elementsList.selectionModel.select(item)
+
+    }
+
 
     fun selectimageBtn() {
         val fileChooser = FileChooser()
@@ -260,7 +316,7 @@ class LentaController : BaseController() {
     }
 
     private fun createStory(): Story = Story().also {
-        it.image = imageViewToBase64(image, (image.userData as String).equals("png", true))
+        it.image = imageViewToBase64(image, ((image.userData?:"png") as String).equals("png", true))
         it.title = title.text.trim()
         it.description = shortText.text.trim()
         it.content = getMarkDownContent()

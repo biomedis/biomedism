@@ -91,6 +91,11 @@ class StoriesLoader private constructor(val count: Int, val stage: Stage, val lo
         stories.add(story)
     }
 
+    fun updateStory(item: ShortStory) {
+        stories.remove(item)
+        stories.add(item)
+    }
+
     companion object {
         fun selfUsed(count: Int, stage: Stage): StoriesLoader {
             return StoriesLoader(count, stage,
