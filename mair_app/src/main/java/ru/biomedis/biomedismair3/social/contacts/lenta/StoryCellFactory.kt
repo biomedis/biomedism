@@ -17,32 +17,35 @@ class StoryCellFactory private constructor(
         val owner: Boolean,
         val deleteAction: (item: ShortStory) -> Unit = { _ -> Unit },
         val editAction: (item: ShortStory) -> Unit = { _ -> Unit },
-        val needLoadEvent: ()-> Unit
+        val needLoadEvent: () -> Unit,
+        val viewAction: (item: ShortStory) -> Unit = { _ -> Unit }
 ) : Callback<ListView<ShortStory>, ListCell<ShortStory>> {
 
     companion object {
         fun forOwner(
                 deleteAction: (item: ShortStory) -> Unit,
                 editAction: (item: ShortStory) -> Unit,
-                needLoadEvent: ()-> Unit
+                needLoadEvent: () -> Unit,
+                viewAction: (item: ShortStory) -> Unit
         ): StoryCellFactory {
-            return StoryCellFactory(true, editAction, deleteAction, needLoadEvent)
+            return StoryCellFactory(true, editAction, deleteAction, needLoadEvent, viewAction)
         }
 
-        fun forOthers( needLoadEvent: ()-> Unit): StoryCellFactory {
-            return StoryCellFactory(false,  needLoadEvent = needLoadEvent)
+        fun forOthers(needLoadEvent: () -> Unit): StoryCellFactory {
+            return StoryCellFactory(false, needLoadEvent = needLoadEvent)
         }
     }
 
     override fun call(param: ListView<ShortStory>?): ListCell<ShortStory> {
-        return TaskCell(owner, editAction, deleteAction, needLoadEvent)
+        return TaskCell(owner, editAction, deleteAction, needLoadEvent, viewAction)
     }
 
     class TaskCell(
             val owner: Boolean,
             val deleteAction: (item: ShortStory) -> Unit,
             val editAction: (item: ShortStory) -> Unit,
-            val needLoadEvent: ()-> Unit
+            val needLoadEvent: () -> Unit,
+            val viewAction: (item: ShortStory) -> Unit
     ) : ListCell<ShortStory>() {
         @FXML
         private lateinit var date: Label
@@ -95,10 +98,10 @@ class StoryCellFactory private constructor(
                 text = null
                 contentDisplay = ContentDisplay.TEXT_ONLY
             } else {
-                if(item.id==ShortStory.NEXT_LOAD_ID){
+                if (item.id == ShortStory.NEXT_LOAD_ID) {
                     loadBox.isVisible = true
                     contentDisplay = ContentDisplay.GRAPHIC_ONLY
-                }else {
+                } else {
                     loadBox.isVisible = false
                     title.text = item.title
                     date.text = dateFormat.format(item.created)
@@ -112,14 +115,17 @@ class StoryCellFactory private constructor(
         }
 
 
-
         init {
             dateFormat.timeZone = Calendar.getInstance().timeZone
             loadFXML()
             editBtn.setOnAction { editAction(item) }
             deleteBtn.setOnAction { deleteAction(item) }
             loadBtn.setOnAction { Platform.runLater(needLoadEvent) }
-
+            fullContent.setOnAction {
+                Platform.runLater {
+                viewAction(item)
+                }
+            }
         }
 
 

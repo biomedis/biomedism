@@ -100,9 +100,12 @@ class LentaController : BaseController() {
     private var lastElementForLoading: ShortStory?=null
 
     override fun initialize(location: URL, resources: ResourceBundle) {
-        elementsList.cellFactory = StoryCellFactory.forOwner(this::deleteAction, this::editAction){
-                nextLoadStories()
-        }
+        elementsList.cellFactory = StoryCellFactory.forOwner(
+                this::deleteAction,
+                this::editAction,
+                this::newLoad,
+                this::showStoryText
+        )
 
         sendBtn.disableProperty().bind(
                 title.textProperty().isEmpty
@@ -117,6 +120,13 @@ class LentaController : BaseController() {
 
     }
 
+    private fun showStoryText(item: ShortStory) {
+        StoryTextController.showStoryDialog(controllerWindow, item)
+    }
+
+    private fun newLoad(){
+        nextLoadStories()
+    }
     private fun deleteAction(item: ShortStory){
         val result = showConfirmationDialog("Удаление публикации", item.title, "Публикация будет удалена.", controllerWindow, Modality.WINDOW_MODAL)
         if (result.isPresent && result.get() == okButtonType){
