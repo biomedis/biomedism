@@ -102,7 +102,13 @@
             <Hyperlink fx:id="showAboutBtn" contentDisplay="CENTER" mnemonicParsing="false" onAction="#showAbout" text="О себе">
                      <padding>
                         <Insets bottom="3.0" />
-                     </padding></Hyperlink>
+                     </padding>
+            </Hyperlink>
+            <Hyperlink  fx:id="showStoriesBtn" contentDisplay="CENTER" mnemonicParsing="false"  text="Лента">
+              <padding>
+                <Insets bottom="3.0" />
+              </padding>
+            </Hyperlink>
             <CheckBox fx:id="followCheckBox" contentDisplay="CENTER" mnemonicParsing="false" onAction="#onFollowAction" text="Подписка">deleteSmallBtn
               <padding>
                 <Insets top="3.0" />

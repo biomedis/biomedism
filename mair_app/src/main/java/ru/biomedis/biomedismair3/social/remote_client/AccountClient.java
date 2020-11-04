@@ -156,10 +156,10 @@ public interface AccountClient {
   String getStoryContent(@Param("id")Long story);
 
   @RequestLine("GET /story/user/{user}/all")
-  List<ShortStory> getStories(@Param("id")Long user);
+  List<ShortStory> getStories(@Param("user")Long user);
 
   @RequestLine("GET /story/user/{user}/all_by_date?from={from}&to={to}")
-  List<ShortStory> getStories(@Param("id")Long user, @Param("from") Date from, @Param("to") Date to);
+  List<ShortStory> getStories(@Param("user")Long user, @Param("from") Date from, @Param("to") Date to);
 
   @RequestLine("GET /story/all_by_date?from={from}&to={to}")
   List<ShortStory> getStories(@Param("from") Date from, @Param("to") Date to);
@@ -172,7 +172,7 @@ public interface AccountClient {
    * @return
    */
   @RequestLine("GET /story/user/{user}/all?last={lastStory}&count={count}")
-  PageShortStoryDto getStories(@Param("id")Long user, @Param("lastStory") long lastStory, @Param("count") int count);
+  PageShortStoryDto getStories(@Param("user")Long user, @Param("lastStory") long lastStory, @Param("count") int count);
 
   /**
    * Извлекает [count] данных меньше  указанного элемента с [lastStory].

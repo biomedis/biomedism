@@ -1,5 +1,6 @@
 package ru.biomedis.biomedismair3.social.contacts
 
+import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
 import javafx.geometry.Insets
@@ -14,17 +15,20 @@ import java.io.IOException
 class ContactUserCellFactory(
         val aboutService: (user: Long) -> String,
         val followService: (contact: Long, follow: Boolean) -> Boolean,
-        val deleteService:(contact: UserContact)->Unit
+        val deleteService:(contact: UserContact)->Unit,
+        val showStoriesAction: (contact: Long) -> Unit
+
 ) : Callback<ListView<UserContact>, ListCell<UserContact>> {
 
     override fun call(param: ListView<UserContact>?): ListCell<UserContact> {
-        return TaskCell(aboutService, followService, deleteService)
+        return TaskCell(aboutService, followService, deleteService, showStoriesAction)
     }
 
     class TaskCell(
             val aboutService: (user: Long) -> String,
             val followService: (contact: Long, follow: Boolean) -> Boolean,
-            val deleteService:(contact: UserContact)->Unit
+            val deleteService:(contact: UserContact)->Unit,
+            val showStoriesAction: (contact: Long) -> Unit
     ) : ListCell<UserContact>() {
 
         @FXML
@@ -81,6 +85,8 @@ class ContactUserCellFactory(
         @FXML
         private lateinit var boolContainer: FlowPane
 
+        @FXML
+        private lateinit var showStoriesBtn: Hyperlink
 
         private fun loadFXML() {
             try {
@@ -162,6 +168,7 @@ class ContactUserCellFactory(
 
         init {
             loadFXML()
+            showStoriesBtn.setOnAction { Platform.runLater { showStoriesAction(item.account.id) } }
         }
 
     }

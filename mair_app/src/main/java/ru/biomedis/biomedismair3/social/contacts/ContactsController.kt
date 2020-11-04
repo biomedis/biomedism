@@ -12,6 +12,7 @@ import javafx.stage.WindowEvent
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.social.contacts.lenta.LentaController
+import ru.biomedis.biomedismair3.social.contacts.lenta.UserLentaController
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
 import ru.biomedis.biomedismair3.social.remote_client.dto.ContactDto
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError
@@ -62,77 +63,90 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
     override fun initialize(location: URL, resources: ResourceBundle) {
 
         contactsList.cellFactory = ContactUserCellFactory(
-                {
-                    val result = BlockingAction.actionResult(controllerWindow) {
-                        SocialClient.INSTANCE.accountClient.getAbout(it)
-                    }
-                    if (result.isError) {
-                        showWarningDialog(
-                                "Загрузка данных о пользователе",
-                                "Загрузка данных не удалась",
-                                "Перезапустите программу или попробуйте позже",
-                                controllerWindow,
-                                Modality.WINDOW_MODAL
-                        )
-                        log.error("", result.error)
-
-                    }
-                    if (!result.isError) result.value else ""
-                },
-                { contact, follow ->
-                    val result = BlockingAction.actionNoResult(controllerWindow) {
-                        if (follow) SocialClient.INSTANCE.contactsClient.follow(contact)
-                        else SocialClient.INSTANCE.contactsClient.unFollow(contact)
-                    }
-                    if (result.isError) {
-                        showWarningDialog(
-                                "Подписка",
-                                "Подписка не удалась",
-                                "Перезапустите программу или попробуйте позже",
-                                controllerWindow,
-                                Modality.WINDOW_MODAL
-                        )
-                        log.error("", result.error)
-
-                    }
-                    !result.isError
-                }) {
-
-                val dialogResult = showConfirmationDialog(
-                        "Удаление контакта",
-                        "Контакт: ${it.account.login} будет удален.",
-                        "Вы уверены?",
-                        controllerWindow,
-                        Modality.WINDOW_MODAL
-
-                )
-            if(dialogResult.isPresent) {
-                if(dialogResult.get() != okButtonType) return@ContactUserCellFactory
-            }else return@ContactUserCellFactory
-
-            val result = BlockingAction.actionNoResult(controllerWindow) {
-                SocialClient.INSTANCE.contactsClient.deleteContact(it.contact.id)
-            }
-            if (result.isError) {
-                showWarningDialog(
-                        "Удаление контакта",
-                        "Удаление не удалась",
-                        "Перезапустите программу или попробуйте позже",
-                        controllerWindow,
-                        Modality.WINDOW_MODAL
-                )
-                log.error("", result.error)
-
-            } else {
-                contacts.remove(it)
-                countContacts.set(contacts.size)
-            }
-        }
+                this::getAbout,
+                this::follow,
+                this::deleteContact,
+                this::showUserLenta
+        )
         contactsList.items = sortedContacts
 
         contactsCount.textProperty().bind(countContacts.asString())
         countContacts.set(contacts.size)
 
+    }
+
+    private fun showUserLenta(userid: Long) {
+        UserLentaController.showLentaDialog(controllerWindow, userid)
+    }
+
+
+    private fun getAbout(userId: Long): String{
+        val result = BlockingAction.actionResult(controllerWindow) {
+            SocialClient.INSTANCE.accountClient.getAbout(userId)
+        }
+        if (result.isError) {
+            showWarningDialog(
+                    "Загрузка данных о пользователе",
+                    "Загрузка данных не удалась",
+                    "Перезапустите программу или попробуйте позже",
+                    controllerWindow,
+                    Modality.WINDOW_MODAL
+            )
+            log.error("", result.error)
+
+        }
+        return if (!result.isError) result.value else ""
+    }
+
+    private fun follow(contact: Long, follow: Boolean): Boolean{
+        val result = BlockingAction.actionNoResult(controllerWindow) {
+            if (follow) SocialClient.INSTANCE.contactsClient.follow(contact)
+            else SocialClient.INSTANCE.contactsClient.unFollow(contact)
+        }
+        if (result.isError) {
+            showWarningDialog(
+                    "Подписка",
+                    "Подписка не удалась",
+                    "Перезапустите программу или попробуйте позже",
+                    controllerWindow,
+                    Modality.WINDOW_MODAL
+            )
+            log.error("", result.error)
+
+        }
+       return !result.isError
+    }
+
+    private fun deleteContact(userContact: UserContact){
+        val dialogResult = showConfirmationDialog(
+                "Удаление контакта",
+                "Контакт: ${userContact.account.login} будет удален.",
+                "Вы уверены?",
+                controllerWindow,
+                Modality.WINDOW_MODAL
+
+        )
+        if(dialogResult.isPresent) {
+            if(dialogResult.get() != okButtonType) return
+        }else return
+
+        val result = BlockingAction.actionNoResult(controllerWindow) {
+            SocialClient.INSTANCE.contactsClient.deleteContact(userContact.contact.id)
+        }
+        if (result.isError) {
+            showWarningDialog(
+                    "Удаление контакта",
+                    "Удаление не удалась",
+                    "Перезапустите программу или попробуйте позже",
+                    controllerWindow,
+                    Modality.WINDOW_MODAL
+            )
+            log.error("", result.error)
+
+        } else {
+            contacts.remove(userContact)
+            countContacts.set(contacts.size)
+        }
     }
 
     /**

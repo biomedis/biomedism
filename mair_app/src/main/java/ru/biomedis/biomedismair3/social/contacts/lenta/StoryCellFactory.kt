@@ -31,8 +31,8 @@ class StoryCellFactory private constructor(
             return StoryCellFactory(true, editAction, deleteAction, needLoadEvent, viewAction)
         }
 
-        fun forOthers(needLoadEvent: () -> Unit): StoryCellFactory {
-            return StoryCellFactory(false, needLoadEvent = needLoadEvent)
+        fun forOthers(needLoadEvent: () -> Unit, viewAction: (item: ShortStory) -> Unit): StoryCellFactory {
+            return StoryCellFactory(false, needLoadEvent = needLoadEvent, viewAction = viewAction)
         }
     }
 

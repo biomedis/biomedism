@@ -114,6 +114,7 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
         logIn.text = "Войти"
         hideUserName()
         println("SHOW LOGIN")
+        println("--------------- Состояние входа2: "+SocialClient.INSTANCE.isAuthProperty)
     }
 
 
@@ -123,6 +124,7 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
         logIn.text = "Выйти"
         showUserName()
         println("SHOW LOGOUT")
+        println("--------------- Состояние входа2: "+SocialClient.INSTANCE.isAuthProperty)
 
     }
 
