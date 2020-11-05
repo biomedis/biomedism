@@ -189,4 +189,12 @@ public interface AccountClient {
 
   @RequestLine("GET /story/next/{id}")
   ShortStory getNextStory(@Param("id") long id);
+
+  @RequestLine("GET /story/all_follow?last={lastStory}&count={count}")
+  PageShortStoryDto getStoriesFollow(@Param("lastStory") long lastStory, @Param("count") int count);
+
+  //определяется -сколько есть новых, от той что последний раз видели в списке снизу,
+  // для этого на бэкенде сохраняется эта последняя история при получении списка историй подписок
+  @RequestLine("GET /story/all_follow/not_viewed_count")
+  int getNotViewedStoriesCount();
 }

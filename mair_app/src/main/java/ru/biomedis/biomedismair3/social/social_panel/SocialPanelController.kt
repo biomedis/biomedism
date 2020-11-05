@@ -81,6 +81,7 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
             if(newV){
                 tabHolder.addTab("/fxml/social/Contacts.fxml", "Контакты", false)
                 tabHolder.addTab("/fxml/social/Registry.fxml", "Справочник", false)
+                tabHolder.addTab("/fxml/social/AllLenta.fxml", "Лента", false)
                 if(client.isAdmin)  tabHolder.addTab("/fxml/Admin.fxml", "Admin", false)
 
             }else {
