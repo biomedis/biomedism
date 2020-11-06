@@ -30,6 +30,8 @@ class TabHolder(private val context: Stage, private val tabPane: TabPane){
         }
     }
 
+    fun tabByFxId(fxId: String): Tab? = tabs[fxId]
+
      fun addTab(fxml: String, name: String, isClosable: Boolean, fxId: String = UUID.randomUUID().toString(), vararg params: Any): Selected {
         val loaded = try {
             val result: Pair<Node, BaseController> = loadContent(fxml, context, *params)
@@ -65,6 +67,7 @@ class TabHolder(private val context: Stage, private val tabPane: TabPane){
         }
 
     }
+
 
     /**
      * Удаляет табы, что добавлены этим холдером

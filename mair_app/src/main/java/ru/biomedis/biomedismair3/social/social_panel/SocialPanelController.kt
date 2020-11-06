@@ -1,5 +1,6 @@
 package ru.biomedis.biomedismair3.social.social_panel
 
+import javafx.application.Platform
 import javafx.event.ActionEvent
 import javafx.event.EventHandler
 import javafx.fxml.FXML
@@ -81,7 +82,21 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
             if(newV){
                 tabHolder.addTab("/fxml/social/Contacts.fxml", "Контакты", false)
                 tabHolder.addTab("/fxml/social/Registry.fxml", "Справочник", false)
-                tabHolder.addTab("/fxml/social/AllLenta.fxml", "Лента", false)
+                tabHolder.addTab("/fxml/social/AllLenta.fxml", "Лента", false, fxId = "lenta")
+                tabHolder.tabByFxId("lenta")?.let {
+                    Platform.runLater {
+                        val result = BlockingAction.actionResult(controllerWindow){
+                            SocialClient.INSTANCE.accountClient.getNotViewedStoriesCount();
+                        }
+                        if(result.isError){
+                            log.error("", result.error)
+
+                        }else {
+                           if(result.value!=0) it.text="${it.text}: ${result.value} новых"
+                        }
+                    }
+                }
+
                 if(client.isAdmin)  tabHolder.addTab("/fxml/Admin.fxml", "Admin", false)
 
             }else {

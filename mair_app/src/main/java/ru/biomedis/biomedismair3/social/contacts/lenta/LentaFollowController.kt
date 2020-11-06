@@ -7,6 +7,7 @@ import javafx.scene.control.ListView
 import javafx.stage.Modality
 import javafx.stage.WindowEvent
 import ru.biomedis.biomedismair3.BaseController
+import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import ru.biomedis.biomedismair3.utils.TabHolder
@@ -33,6 +34,10 @@ class LentaFollowController: BaseController(), TabHolder.Selected, TabHolder.Det
             SocialClient.INSTANCE.accountClient.getStoriesFollow(last, count_)
         }
         elementsList.items = storiesLoader.observableList
+
+        Platform.runLater {
+
+        }
 
     }
 
