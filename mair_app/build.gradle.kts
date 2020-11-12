@@ -16,6 +16,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation ("org.jsoup:jsoup:1.13.1")
+    implementation("com.vladsch.flexmark:flexmark-all:0.62.2")
 }
 
 configure<JavaPluginConvention> {

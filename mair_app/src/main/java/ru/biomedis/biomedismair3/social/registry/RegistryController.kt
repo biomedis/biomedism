@@ -15,7 +15,7 @@ class RegistryController: BaseController(), TabHolder.Selected, TabHolder.Detach
 
     }
 
-    override fun setParams(vararg params: Any?) {
+    override fun setParams(vararg params: Any) {
 
     }
 

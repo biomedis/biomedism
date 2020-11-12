@@ -22,11 +22,13 @@ class AdminController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
     private lateinit var tabHolder: TabHolder
 
-    override fun setParams(vararg params: Any?) {
+
+
+    override fun onClose(event: WindowEvent) {
 
     }
 
-    override fun onClose(event: WindowEvent) {
+    override fun setParams(vararg params: Any) {
 
     }
 

@@ -7,11 +7,13 @@ import javafx.collections.transformation.SortedList
 import javafx.fxml.FXML
 import javafx.scene.control.Label
 import javafx.scene.control.ListView
+import javafx.scene.web.WebView
 import javafx.stage.Modality
 import javafx.stage.WindowEvent
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.social.contacts.lenta.LentaController
+import ru.biomedis.biomedismair3.social.contacts.lenta.MessagesService
 import ru.biomedis.biomedismair3.social.contacts.lenta.UserLentaController
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
 import ru.biomedis.biomedismair3.social.remote_client.dto.ContactDto
@@ -23,7 +25,11 @@ import java.net.URL
 import java.util.*
 
 class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detached {
+    private lateinit var messagesService: MessagesService
+
     private val log by LoggerDelegate()
+
+    @FXML   private lateinit var chatTitle: Label
 
     @FXML
     private lateinit var contactsList: ListView<UserContact>
@@ -34,15 +40,20 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
     @FXML
     private lateinit var contactsCount: Label
 
+    @FXML
+    private lateinit var messagesArea: WebView
+
 
     @FXML
-    private lateinit var messages: ListView<*>
+    private lateinit var messageEditorArea: WebView
+
+
 
     private val countContacts: SimpleIntegerProperty = SimpleIntegerProperty(0)
 
     private val contacts: ObservableList<UserContact> = FXCollections.observableArrayList()
-    private val sortedContacts: SortedList<UserContact> = SortedList(contacts){
-        o1,o2 ->
+
+    private val sortedContacts: SortedList<UserContact> = SortedList(contacts) { o1, o2 ->
         o2.contact.created.compareTo(o1.contact.created)
     }
 
@@ -73,14 +84,20 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
         contactsCount.textProperty().bind(countContacts.asString())
         countContacts.set(contacts.size)
 
+        messagesService = MessagesService(messagesArea, messageEditorArea)
+
     }
+
+
+
+
 
     private fun showUserLenta(userid: Long) {
         UserLentaController.showLentaDialog(controllerWindow, userid)
     }
 
 
-    private fun getAbout(userId: Long): String{
+    private fun getAbout(userId: Long): String {
         val result = BlockingAction.actionResult(controllerWindow) {
             SocialClient.INSTANCE.accountClient.getAbout(userId)
         }
@@ -98,7 +115,7 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
         return if (!result.isError) result.value else ""
     }
 
-    private fun follow(contact: Long, follow: Boolean): Boolean{
+    private fun follow(contact: Long, follow: Boolean): Boolean {
         val result = BlockingAction.actionNoResult(controllerWindow) {
             if (follow) SocialClient.INSTANCE.contactsClient.follow(contact)
             else SocialClient.INSTANCE.contactsClient.unFollow(contact)
@@ -114,10 +131,10 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
             log.error("", result.error)
 
         }
-       return !result.isError
+        return !result.isError
     }
 
-    private fun deleteContact(userContact: UserContact){
+    private fun deleteContact(userContact: UserContact) {
         val dialogResult = showConfirmationDialog(
                 "Удаление контакта",
                 "Контакт: ${userContact.account.login} будет удален.",
@@ -126,9 +143,9 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
                 Modality.WINDOW_MODAL
 
         )
-        if(dialogResult.isPresent) {
-            if(dialogResult.get() != okButtonType) return
-        }else return
+        if (dialogResult.isPresent) {
+            if (dialogResult.get() != okButtonType) return
+        } else return
 
         val result = BlockingAction.actionNoResult(controllerWindow) {
             SocialClient.INSTANCE.contactsClient.deleteContact(userContact.contact.id)
@@ -211,6 +228,7 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
     }
 
     private data class Contacts(val contacts: List<UserContact>, val countFollowers: Int)
+
     private fun loadContacts(): Contacts? {
         val result: Result<Contacts> = BlockingAction.actionResult(controllerWindow) {
             Contacts(
@@ -238,14 +256,14 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
         LentaController.showLentaDialog(controllerWindow)
     }
 
-
-
-
+     fun sendMessage(){
+        messagesService.sendMessage()
+    }
 
     override fun onSelected() {
         if (!isContactsLoaded) {
-            val c  = loadContacts()
-            if(c!=null){
+            val c = loadContacts()
+            if (c != null) {
                 contacts.addAll(c.contacts)
                 followersCount.text = c.countFollowers.toString()
                 countContacts.set(contacts.size)
