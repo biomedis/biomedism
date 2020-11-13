@@ -3,6 +3,8 @@
 <head>
   <meta charset='utf-8'>
   <link rel="stylesheet" href="myapp:///html/css/chat.css"/>
+  <link rel="stylesheet" href="myapp:///html/css/font-awesome.min.css"/>
+
   <script src="myapp:///html/js/firebug-lite.js"></script>
 
   <script src="myapp:///html/js/jquery-1.12.2.min.js"></script>
@@ -13,23 +15,21 @@
 
 <body>
 <div id='content' style="height: 100%;">
-  <table cellpadding="0" cellspacing="0" width="100%">
-    <tbody>
-    </tbody>
-  </table>
 </div>
+<div style="clear: both"></div>
 
 <script type="text/html" id="msg_item_tpl">
-  <tr id="msg_id_{{msgId}}" class="message">
-    <td class="btn_area" >
-      <p><span class="actionBtn editBtn" data-msg_id="{{msgId}}">&nbsp;</span></p>
-      <p><span class="actionBtn deleteBtn" data-msg_id="{{msgId}}">&nbsp;</span></p>
-    </td>
-    <td class="msg_content">
-      {{{htmlMsg}}}
-    </td>
-  </tr>
-  <tr><td colspan="2" height="10" data-msg_id="{{msgId}}"></td></tr>
+  <div class="message incomming" id="msg_id_{{msgId}}">
+    <div>
+      <div class="bnt_area">
+        <div><i class="actionBtn editBtn fa fa-pencil " aria-hidden="true" data-msg_id="{{msgId}}"></i></div>
+        <div><i class="actionBtn deleteBtn fa fa-trash-o " aria-hidden="true" data-msg_id="{{msgId}}"></i></div>
+      </div>
+      <div class="msg_content" data-msg_id="{{msgId}}">
+        {{{htmlMsg}}}
+      </div>
+    </div>
+  </div>
 </script>
 </body>
 </html>

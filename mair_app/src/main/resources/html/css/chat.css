@@ -1,29 +1,49 @@
-.btn_area {
-  vertical-align: top;
-  width: 25px;
-  text-align: center;
-  border-radius: 10px 0 0 10px;
+div.message > div {
+  position: relative;
+  padding: 0px 20px 0px 35px;
+  margin-bottom: 30px;
+  width: 80%;
+  min-height: 80px;
 }
 
-.msg_content {
-  padding: 0 8px 0 8px;
-  text-align: left;
-  border-radius: 0 10px 10px 0;
+div.message.outcomming > div {
+  float: right;
+  color: rgb(46, 46, 46);
+  background-color: rgb(221, 221, 221);
+  border-radius: 10px 10px 0 10px;
 }
 
-.btn_area .actionBtn:hover {
-  border-bottom: solid 2px #098d84;
+div.message.incomming > div {
+  float: left;
+  background-color: rgb(66, 124, 199);
+  border-radius: 0 10px 10px 10px;
+  color: #fff;
+}
+
+div.message > div > div:first-child {
+  position: absolute;
+  top: 20px;
+  left: 10px;
+  color: #fff;
+}
+
+div.message > div > div:last-child {
+  text-align: justify;
+}
+
+.actionBtn:hover {
   transition: .2s;
+  text-shadow: 0px 0px 8px #b1afaf;
 }
 
 .editBtn{
-  background-image: url("myapp:///html/images/edit.png");
+
 }
 .deleteBtn{
-  background-image: url("myapp:///html/images/delete.png");
+
 }
 
-.actionBtn{
+.actionBtn {
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -31,19 +51,11 @@
   height: 18px;
   display: block;
   cursor: pointer;
-  border-bottom: solid 2px white;
   transition: .5s;
 }
 
-#content tr.message{
-  padding: 10px;
-  box-shadow: 7px 7px 10px #5d5d5d;
-  background-color: #9abebe;
-}
-#content tr.message td:first-child{
-  border-radius: 10px 0 0 10px;
+.bnt_area > div:first-child{
+  margin-bottom: 8px;
 }
 
-#content tr.message td:last-child{
 
-}

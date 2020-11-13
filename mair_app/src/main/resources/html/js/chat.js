@@ -22,7 +22,7 @@ $(document).ready(function () {
 
 
 function addMessage(htmlMsg, msgId){
-  $("#content table tbody")
+  $("#content")
   .append(fillTemplate("msg_item_tpl", {htmlMsg:htmlMsg, msgId:msgId}))
  }
 
