@@ -1,0 +1,49 @@
+.btn_area {
+  vertical-align: top;
+  width: 25px;
+  text-align: center;
+  border-radius: 10px 0 0 10px;
+}
+
+.msg_content {
+  padding: 0 8px 0 8px;
+  text-align: left;
+  border-radius: 0 10px 10px 0;
+}
+
+.btn_area .actionBtn:hover {
+  border-bottom: solid 2px #098d84;
+  transition: .2s;
+}
+
+.editBtn{
+  background-image: url("myapp:///html/images/edit.png");
+}
+.deleteBtn{
+  background-image: url("myapp:///html/images/delete.png");
+}
+
+.actionBtn{
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 18px;
+  height: 18px;
+  display: block;
+  cursor: pointer;
+  border-bottom: solid 2px white;
+  transition: .5s;
+}
+
+#content tr.message{
+  padding: 10px;
+  box-shadow: 7px 7px 10px #5d5d5d;
+  background-color: #9abebe;
+}
+#content tr.message td:first-child{
+  border-radius: 10px 0 0 10px;
+}
+
+#content tr.message td:last-child{
+
+}
