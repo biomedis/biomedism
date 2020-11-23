@@ -1,4 +1,4 @@
-package ru.biomedis.biomedismair3.social.contacts.lenta
+package ru.biomedis.biomedismair3.social.contacts.messages
 
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
@@ -11,7 +11,7 @@ import java.util.*
 import kotlin.random.Random
 
 
-class MessagesService(val messagesArea: WebView, val messageEditorArea: WebView) {
+class ChatService(val messagesArea: WebView, val messageEditorArea: WebView) {
     private lateinit var parser: Parser
     private lateinit var htmlrenderer: HtmlRenderer
     private lateinit var messagesEngine: WebEngine
@@ -74,7 +74,6 @@ class MessagesService(val messagesArea: WebView, val messageEditorArea: WebView)
     fun clear() {
 
     }
-    //TODO сделать стратегию кеширования, чтобы уже загруженные данные  сохранялись в памяти, чтобы при переключении можно было быстро вернуться
 
     /**
      * Установит данные контакта и загрузит сообщения

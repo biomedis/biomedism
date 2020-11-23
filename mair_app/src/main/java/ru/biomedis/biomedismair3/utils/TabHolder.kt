@@ -45,6 +45,9 @@ class TabHolder(private val context: Stage, private val tabPane: TabPane){
             content = loaded.key
             this.isClosable = isClosable
             id = fxId
+           setOnClosed {
+               removeTab(fxId)
+           }
         }
 
         controllersMap[fxId] = loaded.value as Selected

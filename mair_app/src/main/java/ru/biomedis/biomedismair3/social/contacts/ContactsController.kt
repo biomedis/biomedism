@@ -7,13 +7,12 @@ import javafx.collections.transformation.SortedList
 import javafx.fxml.FXML
 import javafx.scene.control.Label
 import javafx.scene.control.ListView
-import javafx.scene.web.WebView
+import javafx.scene.control.TabPane
 import javafx.stage.Modality
 import javafx.stage.WindowEvent
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.social.contacts.lenta.LentaController
-import ru.biomedis.biomedismair3.social.contacts.lenta.MessagesService
 import ru.biomedis.biomedismair3.social.contacts.lenta.UserLentaController
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
 import ru.biomedis.biomedismair3.social.remote_client.dto.ContactDto
@@ -25,11 +24,11 @@ import java.net.URL
 import java.util.*
 
 class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detached {
-    private lateinit var messagesService: MessagesService
 
     private val log by LoggerDelegate()
 
-    @FXML   private lateinit var chatTitle: Label
+    @FXML
+    private lateinit var chatTabPane: TabPane
 
     @FXML
     private lateinit var contactsList: ListView<UserContact>
@@ -39,14 +38,6 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
 
     @FXML
     private lateinit var contactsCount: Label
-
-    @FXML
-    private lateinit var messagesArea: WebView
-
-
-    @FXML
-    private lateinit var messageEditorArea: WebView
-
 
 
     private val countContacts: SimpleIntegerProperty = SimpleIntegerProperty(0)
@@ -59,8 +50,10 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
 
     private var isContactsLoaded = false
 
-    override fun onCompletedInitialization() {
+    private lateinit var tabHolder: TabHolder
 
+    override fun onCompletedInitialization() {
+        tabHolder = TabHolder(controllerWindow, chatTabPane)
     }
 
     override fun onClose(event: WindowEvent) {
@@ -84,12 +77,22 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
         contactsCount.textProperty().bind(countContacts.asString())
         countContacts.set(contacts.size)
 
-        messagesService = MessagesService(messagesArea, messageEditorArea)
 
+        contactsList.setOnMouseClicked {
+            if (it.clickCount == 2 ) {
+
+                openChat(contactsList.selectionModel.selectedItem)
+
+            }
+        }
     }
 
 
-
+    private fun openChat(contact: UserContact) {
+        val chat = tabHolder.tabByFxId(contact.contact.id.toString())
+        if (chat == null) tabHolder.addTab("/fxml/social/Chat.fxml", contact.account.login, true, contact.contact.id.toString(), contact.contact.id)
+        else chatTabPane.selectionModel.select(chat)
+    }
 
 
     private fun showUserLenta(userid: Long) {
@@ -256,9 +259,6 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
         LentaController.showLentaDialog(controllerWindow)
     }
 
-     fun sendMessage(){
-        messagesService.sendMessage()
-    }
 
     override fun onSelected() {
         if (!isContactsLoaded) {

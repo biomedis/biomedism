@@ -263,7 +263,7 @@ public TabPane getTabPane(){
         complexAPI = initComplexTab();
         programAPI = initProgramTab();
         biofonUIUtil = initBiofon();
-        socialPanelAPI = initSocialPanel();
+        if(getApp().isShowSocial)socialPanelAPI = initSocialPanel();
 
         initSocialActions();
 
