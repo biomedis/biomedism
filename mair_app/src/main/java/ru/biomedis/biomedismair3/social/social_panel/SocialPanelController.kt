@@ -103,6 +103,12 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
                 tabHolder.removeAllTabs()
             }
         }
+
+        SocialClient.INSTANCE.addTotalCountMessagesHandler {
+            Platform.runLater { messageCounter.text = it.toString() }
+        }
+
+
     }
 
    private fun login(event: ActionEvent) {

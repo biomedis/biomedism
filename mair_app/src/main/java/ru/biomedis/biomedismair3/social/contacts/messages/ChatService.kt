@@ -7,10 +7,15 @@ import com.vladsch.flexmark.util.data.MutableDataSet
 import javafx.scene.web.WebEngine
 import javafx.scene.web.WebView
 import netscape.javascript.JSObject
+import ru.biomedis.biomedismair3.social.remote_client.SocialClient
 import java.util.*
+import java.util.function.Consumer
 import kotlin.random.Random
 
-
+/**
+ * Сервис работы с чатом.
+ * Когда окно закрывается нужно вызвать removeHandlers()
+ */
 class ChatService(val messagesArea: WebView, val messageEditorArea: WebView) {
     private lateinit var parser: Parser
     private lateinit var htmlrenderer: HtmlRenderer
@@ -19,6 +24,10 @@ class ChatService(val messagesArea: WebView, val messageEditorArea: WebView) {
     val htmlMessagesPath: String = "/html/chat.html"
     val htmlEditorPath: String = "/html/msg_editor.html"
     val javaConnector: JavaConnector
+
+    val addEditedMessagesHandler: Consumer<MutableMap<Long, Int>>
+    val addNewMessagesHandler: Consumer<MutableMap<Long, Int>>
+    val addDeletedMessagesHandler: Consumer<MutableMap<Long, MutableList<Long>>>
 
     init {
         javaConnector = JavaConnector(editAction = this::editMsgAction, deleteAction = this::deleteMsgAction)
@@ -53,6 +62,30 @@ class ChatService(val messagesArea: WebView, val messageEditorArea: WebView) {
         initMessaging()
         initEditing()
         initMarkdownParser()
+
+         addEditedMessagesHandler = SocialClient.INSTANCE.addEditedMessagesHandler(this::onEditedMessageHandler)
+         addNewMessagesHandler = SocialClient.INSTANCE.addNewMessagesHandler(this::onNewMessageHandler)
+         addDeletedMessagesHandler = SocialClient.INSTANCE.addDeletedMessagesHandler(this::onDeletedMessageHandler)
+
+    }
+
+    fun removeHandlers(){
+        SocialClient.INSTANCE.removeDeletedMessagesHandler(addDeletedMessagesHandler)
+        SocialClient.INSTANCE.removeNewMessagesHandler(addNewMessagesHandler)
+        SocialClient.INSTANCE.removeEditedMessagesHandler(addEditedMessagesHandler)
+    }
+
+
+
+    private fun onEditedMessageHandler(info: Map<Long,Int>){
+
+    }
+
+    private fun onNewMessageHandler(info: Map<Long,Int>){
+
+    }
+
+    private fun onDeletedMessageHandler(info: Map<Long,List<Long>>){
 
     }
 

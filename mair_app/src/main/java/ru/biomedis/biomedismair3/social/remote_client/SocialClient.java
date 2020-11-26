@@ -24,6 +24,8 @@ import java.io.BufferedReader;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -31,10 +33,13 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.stage.Stage;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 import lombok.extern.log4j.Log4j2;
 import ru.biomedis.biomedismair3.App;
 import ru.biomedis.biomedismair3.BlockingAction;
 import ru.biomedis.biomedismair3.Waiter;
+import ru.biomedis.biomedismair3.social.contacts.messages.MessagesService;
 import ru.biomedis.biomedismair3.social.login.LoginController;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Token;
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError;
@@ -54,7 +59,7 @@ public class SocialClient {
   private static String apiURL;
   private final SimpleBooleanProperty isAuth = new SimpleBooleanProperty(false);
 
-  private  TokenHolder tokenHolder = null;
+  private TokenHolder tokenHolder = null;
   private Consumer<String> errorAction;
 
 
@@ -73,13 +78,14 @@ public class SocialClient {
 
   }
 
-  public boolean isAdmin(){
-   return getToken().map(token -> token.getRoles().contains(Role.ADMIN)).orElse(false);
+  public boolean isAdmin() {
+    return getToken().map(token -> token.getRoles().contains(Role.ADMIN)).orElse(false);
   }
 
   public boolean isIsAuth() {
     return isAuth.get();
   }
+
 
   /**
    * Можно использовать для отключения включения функций в зависимости от вошел ли пользователь или
@@ -89,12 +95,11 @@ public class SocialClient {
     return isAuth;
   }
 
+  private MessagesService messagesService;
+
   private SocialClient(TokenRepository tokenRepository) {
-    isAuth.addListener((observable, oldValue, newValue) -> {
-      if(newValue)log.info("Пользователь аутентифицировался");
-      else log.info("Пользователь потерял аутентификацию");
-    });
-    Supplier<String> tokenProvider =  () -> tokenHolder==null?"":tokenHolder.getAccessToken();
+
+    Supplier<String> tokenProvider = () -> tokenHolder == null ? "" : tokenHolder.getAccessToken();
 
     LoginErrorDecoder loginErrorDecoder = new LoginErrorDecoder();
     loginClient = createFeign(false, loginErrorDecoder, tokenProvider)
@@ -117,11 +122,26 @@ public class SocialClient {
     contactsClient = createFeign(true, apiErrorDecoder, tokenProvider)
         .target(ContactsClient.class, TextUtil.addPath(apiURL, "/api/private/relations"));//
 
-    tokenHolder = new TokenHolder(loginClient, accountClient,  tokenRepository);
+    tokenHolder = new TokenHolder(loginClient, accountClient, tokenRepository);
+
+    messagesService = new MessagesService(contactsClient, 7);
+    isAuth.addListener((observable, oldValue, newValue) -> {
+      if (newValue) {
+        messagesService.start();
+      } else {
+        messagesService.stop();
+      }
+      if (newValue) {
+        log.info("Пользователь аутентифицировался");
+      } else {
+        log.info("Пользователь потерял аутентификацию");
+      }
+    });
   }
 
 
-  private Feign.Builder createFeign(boolean interceptor, ErrorDecoder errorDecoder, Supplier<String> tokenProvider) {
+  private Feign.Builder createFeign(boolean interceptor, ErrorDecoder errorDecoder,
+      Supplier<String> tokenProvider) {
     ObjectMapper mapper = new ObjectMapper();
     JavaTimeModule timeModule = new JavaTimeModule();
     mapper.registerModule(timeModule);
@@ -138,7 +158,7 @@ public class SocialClient {
         .encoder(new JacksonEncoder(mapper));
     if (interceptor) {
       builder.requestInterceptor(new AuthInterceptor(tokenProvider));
-    }else {
+    } else {
       builder.requestInterceptor(new UserAgentInterceptor());
     }
 
@@ -146,6 +166,39 @@ public class SocialClient {
     return builder;
   }
 
+  public Consumer<Map<Long, Integer>> addEditedMessagesHandler(
+      Consumer<Map<Long, Integer>> handler) {
+    return messagesService.addEditedMessagesHandler(handler);
+  }
+
+  public Consumer<Map<Long, Integer>> addNewMessagesHandler(Consumer<Map<Long, Integer>> handler) {
+    return messagesService.addNewMessagesHandler(handler);
+  }
+
+  public Consumer<Integer> addTotalCountMessagesHandler(Consumer<Integer> handler) {
+    return messagesService.addTotalCountMessagesHandler(handler);
+  }
+
+  public Consumer<Map<Long, List<Long>>> addDeletedMessagesHandler(
+      Consumer<Map<Long, List<Long>>> handler) {
+    return messagesService.addDeletedMessagesHandler(handler);
+  }
+
+  public void removeEditedMessagesHandler(Consumer<Map<Long, Integer>> handler) {
+     messagesService.removeEditedMessagesHandler(handler);
+  }
+
+  public void  removeNewMessagesHandler(Consumer<Map<Long, Integer>> handler) {
+     messagesService.removeNewMessagesHandler(handler);
+  }
+
+  public void removeTotalCountMessagesHandler(Consumer<Integer> handler) {
+     messagesService.removeTotalCountMessagesHandler(handler);
+  }
+
+  public void removeDeletedMessagesHandler(Consumer<Map<Long, List<Long>>> handler) {
+     messagesService.removeDeletedMessagesHandler(handler);
+  }
 
   public void setErrorAction(Consumer<String> action) {
     tokenHolder.setPreformErrorInfoAction(action);
@@ -160,7 +213,8 @@ public class SocialClient {
     try {
       tokenHolder.processToken();
       isAuth.set(tokenHolder.hasToken());
-      System.out.println("Проверка сохраненного токена "+tokenHolder.hasToken());
+      System.out.println(
+          "Проверка сохраненного токена " + tokenHolder.hasToken() + " isAuth = " + isAuth);
     } catch (NeedAuthByLogin e) {
       isAuth.set(false);
       throw e;
@@ -192,40 +246,39 @@ public class SocialClient {
     return loginClient;
   }
 
-  public String getAccessToken(){
+  public String getAccessToken() {
     return tokenHolder.getAccessToken();
   }
 
-  public Optional<Token> getToken()  {
+  public Optional<Token> getToken() {
     return tokenHolder.getToken();
   }
-
 
 
   /**
    * Инициирует вход
    */
-  public boolean performLogin(Stage ctx)  throws RequestClientException, ServerProblemException{
+  public boolean performLogin(Stage ctx) throws RequestClientException, ServerProblemException {
     try {
       Result<Void> result = BlockingAction.actionNoResult(ctx, this::initProcessToken);
-      if(result.isError()){
-        if(result.getError() instanceof  NeedAuthByLogin){
-          throw (NeedAuthByLogin)result.getError();
-        }else if(result.getError() instanceof  ServerProblemException ){
-          throw (ServerProblemException)result.getError();
-        }else if(result.getError() instanceof  RequestClientException ){
-          throw (RequestClientException)result.getError();
+      if (result.isError()) {
+        if (result.getError() instanceof NeedAuthByLogin) {
+          throw (NeedAuthByLogin) result.getError();
+        } else if (result.getError() instanceof ServerProblemException) {
+          throw (ServerProblemException) result.getError();
+        } else if (result.getError() instanceof RequestClientException) {
+          throw (RequestClientException) result.getError();
         }
       }
       return true;
     } catch (NeedAuthByLogin e) {
       Optional<Token> token = LoginController.openLoginDialog(ctx);
-      System.out.println("Получили токен "+token.isPresent());
+      System.out.println("Получили токен " + token.isPresent());
       tokenHolder.setToken(token);
       isAuth.set(tokenHolder.hasToken());
-      System.out.println("проверка сохраненного токена "+tokenHolder.hasToken());
+      System.out.println("проверка сохраненного токена " + tokenHolder.hasToken());
       return token.isPresent();
-    } catch (ServerProblemException  | RequestClientException e) {
+    } catch (ServerProblemException | RequestClientException e) {
 
       isAuth.set(false);
       log.error("", e);
@@ -264,7 +317,7 @@ public class SocialClient {
     return completeLoginRequest;
   }
 
-   void setCompleteLoginRequest(boolean completeLoginRequest) {
+  void setCompleteLoginRequest(boolean completeLoginRequest) {
     this.completeLoginRequest.set(completeLoginRequest);
   }
 
@@ -289,7 +342,7 @@ public class SocialClient {
       try {
         apiError = mapper.readValue(resp, ApiError.class);
       } catch (Exception e) {
-        log.error("Ошибка парсинга объекта ошибки",e);
+        log.error("Ошибка парсинга объекта ошибки", e);
         apiError = new ApiError();
         apiError.setStatusCode(response.status());
         apiError.setMessage(res);
@@ -371,8 +424,10 @@ public class SocialClient {
       template.removeHeader("User-Agent");
       template.removeHeader("Accept-Language");
       template.header("Authorization", "Bearer " + tokenProvider.get());
-      template.header("User-Agent", "("+OSValidator.osAlt()+") "+"BiomedisMAir/"+ App.getAppVersion());
-      template.header("Accept-Language", App.getStaticModel().getProgramLanguage().getAbbr().toLowerCase());
+      template.header("User-Agent",
+          "(" + OSValidator.osAlt() + ") " + "BiomedisMAir/" + App.getAppVersion());
+      template.header("Accept-Language",
+          App.getStaticModel().getProgramLanguage().getAbbr().toLowerCase());
     }
   }
 
@@ -383,8 +438,10 @@ public class SocialClient {
     public void apply(RequestTemplate template) {
       template.removeHeader("User-Agent");
       template.removeHeader("Accept-Language");
-      template.header("User-Agent", "("+OSValidator.osAlt()+") "+"BiomedisMAir/"+ App.getAppVersion());
-      template.header("Accept-Language", App.getStaticModel().getProgramLanguage().getAbbr().toLowerCase());
+      template.header("User-Agent",
+          "(" + OSValidator.osAlt() + ") " + "BiomedisMAir/" + App.getAppVersion());
+      template.header("Accept-Language",
+          App.getStaticModel().getProgramLanguage().getAbbr().toLowerCase());
     }
   }
 

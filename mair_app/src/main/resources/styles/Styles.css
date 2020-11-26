@@ -370,3 +370,13 @@
     -fx-underline: true;
 
 }
+
+.ContactMessageCount{
+
+    -fx-background-color: #3a8800
+}
+
+.ContactMessageCountEmpty{
+
+    -fx-background-color: #d9d9d9
+}

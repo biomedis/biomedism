@@ -8,6 +8,9 @@ import org.jetbrains.annotations.NotNull;
 import ru.biomedis.biomedismair3.social.contacts.UserContact;
 import ru.biomedis.biomedismair3.social.remote_client.dto.ContactDto;
 import ru.biomedis.biomedismair3.social.remote_client.dto.ContactView;
+import ru.biomedis.biomedismair3.social.remote_client.dto.MessageDto;
+import ru.biomedis.biomedismair3.social.remote_client.dto.MessageInDto;
+import ru.biomedis.biomedismair3.social.remote_client.dto.MessagesState;
 
 public interface ContactsClient {
 
@@ -35,4 +38,31 @@ public interface ContactsClient {
 
   @RequestLine("GET /contacts/followers_count")
   int followersCount();
+
+  @RequestLine("GET /new_messages/from/{from}/last_msg/{last_msg}?count={count}")
+  List<MessageDto> getNextMessagesFromUser(@Param("from") long fromUser, @Param("last_msg") long lastMsg, @Param("count") int count);
+
+  @RequestLine("GET /new_messages/all/from/{from}")
+  List<MessageDto> allNewMessages(@Param("from") long fromUser);
+
+
+  @RequestLine("GET /messages/state")
+  MessagesState messagesState();
+
+  @RequestLine("GET /messages/updated/{from_user}")
+  List<MessageDto> messagesUpdated(@Param("from_user") long fromUser);
+
+
+  @RequestLine("GET /new_messages/from/{from}/days/{days}")
+  List<MessageDto> getMessagesFromPeriod(@Param("from") long fromUser, @Param("days") int days);
+
+  @RequestLine("POST /new_message/")
+  void sendMessage(MessageInDto msg);
+
+  @RequestLine("DELETE /messages")
+  void deleteMessages( List<Long> messages);
+
+
+  @RequestLine("PUT /messages/message/{id}")
+  void editMessage(@Param("id") long id, String message );
 }

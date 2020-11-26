@@ -57,7 +57,7 @@ class ChatController : BaseController(), TabHolder.Selected, TabHolder.Detached 
     }
 
     override fun onDetach() {
-
+     chatService.removeHandlers()
     }
 
 }

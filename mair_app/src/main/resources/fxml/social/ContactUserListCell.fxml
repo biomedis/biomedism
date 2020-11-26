@@ -19,6 +19,17 @@
       <children>
         <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS">
           <children>
+            <Label fx:id="messageCounter" alignment="CENTER" contentDisplay="CENTER" prefHeight="20.0" prefWidth="25.0" style="-fx-border-radius: 20 20 20 20; -fx-background-radius: 20 20 20 20; " text="0" textAlignment="CENTER">
+              <styleClass>
+                <String fx:value="ContactMessageCountEmpty" />
+              </styleClass>
+              <HBox.margin>
+                <Insets right="8.0" />
+              </HBox.margin>
+              <font>
+                <Font name="System Bold" size="9.5" />
+              </font>
+            </Label>
             <Label fx:id="login">
               <HBox.margin>
                 <Insets right="8.0" />
@@ -100,11 +111,11 @@
         <HBox maxWidth="1.7976931348623157E308" spacing="10.0">
           <children>
             <Hyperlink fx:id="showAboutBtn" contentDisplay="CENTER" mnemonicParsing="false" onAction="#showAbout" text="О себе">
-                     <padding>
-                        <Insets bottom="3.0" />
-                     </padding>
+              <padding>
+                <Insets bottom="3.0" />
+              </padding>
             </Hyperlink>
-            <Hyperlink  fx:id="showStoriesBtn" contentDisplay="CENTER" mnemonicParsing="false"  text="Лента">
+            <Hyperlink fx:id="showStoriesBtn" contentDisplay="CENTER" mnemonicParsing="false" text="Лента">
               <padding>
                 <Insets bottom="3.0" />
               </padding>

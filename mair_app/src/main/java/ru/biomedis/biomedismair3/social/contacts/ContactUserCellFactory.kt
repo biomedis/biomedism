@@ -3,13 +3,13 @@ package ru.biomedis.biomedismair3.social.contacts
 import javafx.application.Platform
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
-import javafx.geometry.Insets
 import javafx.scene.control.*
 import javafx.scene.layout.FlowPane
-import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.util.Callback
+import ru.biomedis.biomedismair3.social.remote_client.SocialClient
 import java.io.IOException
+import java.util.function.Consumer
 
 
 class ContactUserCellFactory(
@@ -87,6 +87,9 @@ class ContactUserCellFactory(
 
         @FXML
         private lateinit var showStoriesBtn: Hyperlink
+
+        @FXML
+        private lateinit var messageCounter: Label
 
         private fun loadFXML() {
             try {
@@ -166,9 +169,31 @@ class ContactUserCellFactory(
 
         }
 
+        val addNewMessagesHandler: Consumer<MutableMap<Long, Int>>
+
+        private fun onNewMessageHandler(info: Map<Long,Int>){
+           var count =0
+            if(info.containsKey(item.contact.id)){
+                count = info.getValue(item.contact.id)
+            }
+            Platform.runLater {
+
+                messageCounter.text= count.toString()
+               if(count==0){
+                   messageCounter.styleClass.add("ContactMessageCountEmpty")
+                   messageCounter.styleClass.remove("ContactMessageCount")
+               }
+                else {
+                    messageCounter.styleClass.add("ContactMessageCount")
+                   messageCounter.styleClass.remove("ContactMessageCountEmpty")
+               }
+            }
+        }
+
         init {
             loadFXML()
             showStoriesBtn.setOnAction { Platform.runLater { showStoriesAction(item.account.id) } }
+            addNewMessagesHandler =  SocialClient.INSTANCE.addNewMessagesHandler(this::onNewMessageHandler)
         }
 
     }
