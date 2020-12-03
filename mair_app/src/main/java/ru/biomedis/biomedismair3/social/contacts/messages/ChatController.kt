@@ -3,6 +3,7 @@ package ru.biomedis.biomedismair3.social.contacts.messages
 import javafx.fxml.FXML
 import javafx.scene.control.Label
 import javafx.scene.web.WebView
+import javafx.stage.Modality
 import javafx.stage.WindowEvent
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
@@ -29,7 +30,8 @@ class ChatController : BaseController(), TabHolder.Selected, TabHolder.Detached 
 
 
     override fun onCompletedInitialization() {
-
+        chatService = ChatService(messagesArea, messageEditorArea, contactId , controllerWindow,
+                showErrorhandler = {title, msg -> showErrorDialog(title, "", msg, controllerWindow, Modality.WINDOW_MODAL)})
     }
 
     override fun onClose(event: WindowEvent) {
@@ -42,8 +44,6 @@ class ChatController : BaseController(), TabHolder.Selected, TabHolder.Detached 
     }
 
     override fun initialize(location: URL, resources: ResourceBundle) {
-
-        chatService = ChatService(messagesArea, messageEditorArea)
 
     }
 

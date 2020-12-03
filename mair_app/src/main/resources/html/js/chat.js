@@ -4,30 +4,37 @@ $(document).ready(function () {
     $("#content").css("height", (window.innerHeight-20)+"px")
   });
 
-  $("#content").on("click","a.editBtn", function (e) {
+  $("#content").on("click","i.editBtn", function (e) {
     e.stopPropagation()
     e.preventDefault()
     javaConnector.editMsg(parseInt($(this).data("msg_id")));
-   // updateMessage("111111111 ", $(this).data("msg_id"))
+    //updateMessage("111111111 ", $(this).data("msg_id"))
   })
 
-  $("#content").on("click","a.deleteBtn", function (e) {
+  $("#content").on("click","i.deleteBtn", function (e) {
     e.stopPropagation()
     e.preventDefault()
     javaConnector.deleteMsg(parseInt($(this).data("msg_id")));
     //removeMessage($(this).data("msg_id"))
-  })
+  });
+
+ javaConnector.loadInitMessages();
+
 })
 
-
-
-function addMessage(htmlMsg, msgId){
+function addMessageOutcome(htmlMsg, msgId){
   $("#content")
-  .append(fillTemplate("msg_item_tpl", {htmlMsg:htmlMsg, msgId:msgId}))
+  .append(fillTemplate("msg_item_tpl_outcome", {htmlMsg:htmlMsg, msgId:msgId}))
  }
 
-function updateMessage(htmlMsg, msgId){
-  var msgContainer= $("#content tr[id*='msg_id_"+msgId+"'] td.msg_content");
+function addMessageIncoming(htmlMsg, msgId){
+  $("body").append("<p>Msg:"+htmlMsg+"</p>")
+  $("#content")
+  .append(fillTemplate("msg_item_tpl_incoming", {htmlMsg:htmlMsg, msgId:msgId}))
+}
+
+function editMessage(msgId, htmlMsg ){
+  var msgContainer= $("#content .msg_content[data-msg_id='"+msgId+"']");
   if(msgContainer) {
     msgContainer.empty().html(htmlMsg);
     return true;
@@ -35,11 +42,9 @@ function updateMessage(htmlMsg, msgId){
 }
 
 function removeMessage(msgId){
-  var msgContainer= $("#content tr[id*='msg_id_"+msgId+"']");
-  var spaceContainer= $("#content tr[data-msg_id_*='"+msgId+"']");
+  var msgContainer= $("#content .message[data-msg_id='"+msgId+"']");
   if(msgContainer) {
     msgContainer.remove();
-    spaceContainer.remove();
     return true;
   }else return false;
 }

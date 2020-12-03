@@ -57,7 +57,7 @@ public class App extends Application {
       private static  AppController  controller;
       private int updateFixVersion;//значение в базе
       private final String socialAPIURL = "https://social.biomedis.life";
-      public boolean isShowSocial = false;
+      public boolean isShowSocial = true;
 
   private String getSocialAPIURL() {
 

@@ -25,7 +25,7 @@ class TabHolder(private val context: Stage, private val tabPane: TabPane){
     init {
         tabPane.selectionModel.selectedItemProperty().addListener {
             _, oldValue, newValue ->
-            if(oldValue==newValue) return@addListener
+            if(oldValue==newValue || newValue ==null) return@addListener
             controllersMap[newValue.id]?.onSelected()
         }
     }

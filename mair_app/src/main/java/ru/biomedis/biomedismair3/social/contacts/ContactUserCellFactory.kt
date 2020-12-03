@@ -127,7 +127,7 @@ class ContactUserCellFactory(
             if (account.depot) depot.text = "Склад" else depot.text = ""
             followCheckBox.isSelected = contact.contact.following
             showAboutBtn.isVisible = !account.emptyAbout
-
+            messageCounter.isVisible = false//чтобы скрыть старую информацию, пока она не обновится
             contentDisplay = ContentDisplay.GRAPHIC_ONLY
 
         }
@@ -172,9 +172,10 @@ class ContactUserCellFactory(
         val addNewMessagesHandler: Consumer<MutableMap<Long, Int>>
 
         private fun onNewMessageHandler(info: Map<Long,Int>){
+
            var count =0
-            if(info.containsKey(item.contact.id)){
-                count = info.getValue(item.contact.id)
+            if(info.containsKey(item.contact.contact)){//ключ - пользователь на обратной стороне контакта.
+                count = info.getValue(item.contact.contact)
             }
             Platform.runLater {
 
@@ -187,6 +188,7 @@ class ContactUserCellFactory(
                     messageCounter.styleClass.add("ContactMessageCount")
                    messageCounter.styleClass.remove("ContactMessageCountEmpty")
                }
+                messageCounter.isVisible = true
             }
         }
 
