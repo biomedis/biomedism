@@ -57,7 +57,7 @@ public class App extends Application {
       private static  AppController  controller;
       private int updateFixVersion;//значение в базе
       private final String socialAPIURL = "https://social.biomedis.life";
-      public boolean isShowSocial = true;
+      public boolean isShowSocial = false;
 
   private String getSocialAPIURL() {
 
@@ -339,6 +339,9 @@ public class App extends Application {
         }
 
 System.out.println("Data path: "+dataDir.getAbsolutePath());
+
+        if(new File(innerDataDir.getParentFile(),"test.txt").exists()) isShowSocial = true;
+        else isShowSocial = false;
 
         /******** Обновления ************/
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
