@@ -3,40 +3,35 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.web.WebView?>
 
-
-<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308"
-  xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
-  fx:controller="ru.biomedis.biomedismair3.social.contacts.messages.ChatController"
->
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.social.contacts.messages.ChatController">
   <top>
-    <Label fx:id="chatTitle" text="Заголовок чата" BorderPane.alignment="CENTER"/>
+    <Label fx:id="chatTitle" text="Заголовок чата" BorderPane.alignment="CENTER" />
   </top>
   <center>
-    <SplitPane dividerPositions="0.8" maxHeight="1.7976931348623157E308"
-      maxWidth="1.7976931348623157E308" orientation="VERTICAL">
+    <SplitPane dividerPositions="0.8" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" orientation="VERTICAL">
       <items>
-        <WebView fx:id="messagesArea" minHeight="-1.0" minWidth="-1.0" prefHeight="-1.0"
-          prefWidth="-1.0"/>
+        <WebView fx:id="messagesArea" minHeight="-1.0" minWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" />
         <VBox prefHeight="250.0" spacing="5.0">
           <children>
-            <WebView fx:id="messageEditorArea" prefHeight="-1.0" prefWidth="-1.0"
-              VBox.vgrow="ALWAYS"/>
-            <Button mnemonicParsing="false" onAction="#sendMessage" text="Отправить"/>
+            <WebView fx:id="messageEditorArea" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS" />
+                  <HBox maxWidth="1.7976931348623157E308" spacing="8.0">
+                     <children>
+                  <Button mnemonicParsing="false" onAction="#sendMessage" text="Отправить как новое" fx:id="newBtn"/>
+                  <Button mnemonicParsing="false" onAction="#editMessage" text="Редактировать сообщение" fx:id="editBtn"/>
+                     </children>
+                  </HBox>
           </children>
         </VBox>
       </items>
       <padding>
-        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0"/>
+        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
       </padding>
     </SplitPane>
   </center>
 </BorderPane>
-

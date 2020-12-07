@@ -3,12 +3,10 @@ package ru.biomedis.biomedismair3.social.account
 import javafx.application.Platform
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.StringProperty
-import javafx.beans.value.ChangeListener
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import javafx.collections.transformation.FilteredList
 import javafx.event.ActionEvent
-import javafx.event.Event
 import javafx.event.EventHandler
 import javafx.fxml.FXML
 import javafx.geometry.Orientation
@@ -25,20 +23,16 @@ import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.Layouts.ProgressPanel.ProgressAPI
 import ru.biomedis.biomedismair3.social.TextFieldUtil
-import ru.biomedis.biomedismair3.social.login.LoginController
 import ru.biomedis.biomedismair3.social.login.RestorePasswordController.Companion.openRestoreDialog
 import ru.biomedis.biomedismair3.social.remote_client.AccountClient
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
 import ru.biomedis.biomedismair3.social.remote_client.dto.CityDto
-import ru.biomedis.biomedismair3.social.remote_client.dto.CityView
 import ru.biomedis.biomedismair3.social.remote_client.dto.CountryDto
-import ru.biomedis.biomedismair3.social.remote_client.dto.CountryView
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError
 import ru.biomedis.biomedismair3.social.social_panel.SocialPanelAPI
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import ru.biomedis.biomedismair3.utils.Other.Result
 import java.net.URL
-import java.time.Instant
 import java.util.*
 
 class AccountController : BaseController() {

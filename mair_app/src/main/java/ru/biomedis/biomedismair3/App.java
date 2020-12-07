@@ -48,8 +48,8 @@ public class App extends Application {
   private Stage mainWindow=null;
       private ModelDataApp model;
 
-      private  static  File dataDir;
-      private  static  File innerDataDir;
+      private  static  File dataDir;//можно установить в настройках
+      private  static  File innerDataDir;//внутри папки программы
       private  static  File tmpDir;
       private static Profile biofonProfile;
       public static final  String BIOFON_PROFILE_NAME="B_I_O_F_O_N";

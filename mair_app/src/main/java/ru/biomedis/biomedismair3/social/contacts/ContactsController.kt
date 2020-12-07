@@ -89,9 +89,13 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
 
 
     private fun openChat(contact: UserContact) {
-        val chat = tabHolder.tabByFxId(contact.contact.id.toString())
-        if (chat == null) tabHolder.addTab("/fxml/social/Chat.fxml", contact.account.login, true, contact.contact.id.toString(), contact.contact.contact)
-        else chatTabPane.selectionModel.select(chat)
+        var chat = tabHolder.tabByFxId(contact.contact.id.toString())
+        if (chat == null) {
+            tabHolder.addTab("/fxml/social/Chat.fxml", contact.account.login, true, contact.contact.id.toString(), contact.contact.contact)
+            chat = tabHolder.tabByFxId(contact.contact.id.toString())
+        }
+
+        chatTabPane.selectionModel.select(chat)
     }
 
 

@@ -267,7 +267,7 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
     public void setOption(String name,String value)throws Exception
     {
         if(optionsMap.containsKey(name))    updateOption(name,value);
-        else throw new Exception("нет такой опции!");
+        else throw new Exception("нет такой опции! "+name);
 
     }
     /**
@@ -525,6 +525,7 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
                 res.add(email);
             }
         } catch (Exception exception) {
+            createOption("email_list","");
         }finally {
             return res;
         }

@@ -28,7 +28,6 @@ function addMessageOutcome(htmlMsg, msgId){
  }
 
 function addMessageIncoming(htmlMsg, msgId){
-  $("body").append("<p>Msg:"+htmlMsg+"</p>")
   $("#content")
   .append(fillTemplate("msg_item_tpl_incoming", {htmlMsg:htmlMsg, msgId:msgId}))
 }

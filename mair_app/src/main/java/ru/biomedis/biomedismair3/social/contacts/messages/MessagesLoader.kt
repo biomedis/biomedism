@@ -31,4 +31,8 @@ class MessagesLoader(val contactUser: Long) {
     fun remove(id: Long) {
         messages.remove(id)
     }
+
+    fun addMessage(msg: MessageDto){
+        messages[msg.id] = msg
+    }
 }

@@ -1,6 +1,7 @@
 package ru.biomedis.biomedismair3.social.contacts.messages
 
 import javafx.fxml.FXML
+import javafx.scene.control.Button
 import javafx.scene.control.Label
 import javafx.scene.web.WebView
 import javafx.stage.Modality
@@ -28,10 +29,17 @@ class ChatController : BaseController(), TabHolder.Selected, TabHolder.Detached 
     @FXML
     private lateinit var messageEditorArea: WebView
 
+    @FXML
+    private lateinit var newBtn: Button
+
+    @FXML
+    private lateinit var editBtn: Button
 
     override fun onCompletedInitialization() {
         chatService = ChatService(messagesArea, messageEditorArea, contactId , controllerWindow,
                 showErrorhandler = {title, msg -> showErrorDialog(title, "", msg, controllerWindow, Modality.WINDOW_MODAL)})
+
+        editBtn.visibleProperty().bind(chatService.editingProperty())
     }
 
     override fun onClose(event: WindowEvent) {
@@ -50,6 +58,10 @@ class ChatController : BaseController(), TabHolder.Selected, TabHolder.Detached 
 
     fun sendMessage() {
         chatService.sendMessage()
+    }
+
+    fun editMessage() {
+        chatService.editMessage()
     }
 
     override fun onSelected() {

@@ -93,7 +93,7 @@ class ContactUserCellFactory(
 
         private fun loadFXML() {
             try {
-                val loader = FXMLLoader(javaClass.getResource("/fxml/Social/ContactUserListCell.fxml"))
+                val loader = FXMLLoader(javaClass.getResource("/fxml/social/ContactUserListCell.fxml"))
                 loader.setController(this)
                 loader.setRoot(this)
                 loader.load<Any>()

@@ -78,7 +78,7 @@ class StoryCellFactory private constructor(
 
         private fun loadFXML() {
             try {
-                val loader = FXMLLoader(javaClass.getResource("/fxml/Social/StoryListCell.fxml"))
+                val loader = FXMLLoader(javaClass.getResource("/fxml/social/StoryListCell.fxml"))
                 loader.setController(this)
                 loader.setRoot(this)
                 loader.load<Any>()

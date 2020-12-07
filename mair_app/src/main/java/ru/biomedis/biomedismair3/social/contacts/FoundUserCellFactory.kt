@@ -70,7 +70,7 @@ class FoundUserCellFactory(
 
         private fun loadFXML() {
             try {
-                val loader = FXMLLoader(javaClass.getResource("/fxml/Social/FoundUserListCell.fxml"))
+                val loader = FXMLLoader(javaClass.getResource("/fxml/social/FoundUserListCell.fxml"))
                 loader.setController(this)
                 loader.setRoot(this)
                 loader.load<Any>()

@@ -75,7 +75,7 @@ public interface ContactsClient {
 
   @Headers(value = {"Content-Type: application/json"})
   @RequestLine("POST /new_message/")
-  long sendMessage(MessageInDto msg);
+  MessageDto sendMessage(MessageInDto msg);
 
   @Headers(value = {"Content-Type: application/json"})
   @RequestLine("DELETE /messages")
