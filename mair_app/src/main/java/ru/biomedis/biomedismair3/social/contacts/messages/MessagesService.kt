@@ -1,6 +1,7 @@
 package ru.biomedis.biomedismair3.social.contacts.messages
 
 import ru.biomedis.biomedismair3.social.remote_client.ContactsClient
+import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
@@ -10,6 +11,7 @@ import java.util.function.Consumer
 
 class MessagesService(val messageAPI: ContactsClient, val requestPeriod: Long) {
 
+    private val log by LoggerDelegate()
     private val editedHandlers: MutableList<Consumer<Map<Long, Int>>> = mutableListOf()
     private val newHandlers: MutableList<Consumer<Map<Long, Int>>> = mutableListOf()
     private val totalNewHandlers: MutableList<Consumer<Int>> = mutableListOf()
@@ -49,7 +51,10 @@ class MessagesService(val messageAPI: ContactsClient, val requestPeriod: Long) {
     }
 
     private fun action() {
-        println("MessagesService")
+       try{
+
+        if(totalNewHandlers.isEmpty() && newHandlers.isEmpty()) return
+
         val state = messageAPI.messagesState()
 
         var totalCount = 0
@@ -59,11 +64,17 @@ class MessagesService(val messageAPI: ContactsClient, val requestPeriod: Long) {
                 acc + entry
             }
         }
+
         totalNewHandlers.forEach {  it.accept(totalCount) }
 
 
         newHandlers.forEach {  it.accept(state.newMessagesCount) }
+
         editedHandlers.forEach {  it.accept(state.editedMessagesCount) }
+
+       }catch (e: Exception){
+           log.error("Ошибка в обработчике MessageService", e)
+       }
     }
 
     fun removeEditedMessagesHandler(handler: Consumer<Map<Long, Int>>) {
