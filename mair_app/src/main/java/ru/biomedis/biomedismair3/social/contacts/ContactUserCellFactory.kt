@@ -13,10 +13,10 @@ import java.util.function.Consumer
 
 
 class ContactUserCellFactory(
-        val aboutService: (user: Long) -> String,
-        val followService: (contact: Long, follow: Boolean) -> Boolean,
-        val deleteService:(contact: UserContact)->Unit,
-        val showStoriesAction: (contact: Long) -> Unit
+    val aboutService: (user: Long) -> String,
+    val followService: (contact: Long, follow: Boolean) -> Boolean,
+    val deleteService: (contact: UserContact) -> Unit,
+    val showStoriesAction: (contact: Long) -> Unit
 
 ) : Callback<ListView<UserContact>, ListCell<UserContact>> {
 
@@ -25,10 +25,10 @@ class ContactUserCellFactory(
     }
 
     class TaskCell(
-            val aboutService: (user: Long) -> String,
-            val followService: (contact: Long, follow: Boolean) -> Boolean,
-            val deleteService:(contact: UserContact)->Unit,
-            val showStoriesAction: (contact: Long) -> Unit
+        val aboutService: (user: Long) -> String,
+        val followService: (contact: Long, follow: Boolean) -> Boolean,
+        val deleteService: (contact: UserContact) -> Unit,
+        val showStoriesAction: (contact: Long) -> Unit
     ) : ListCell<UserContact>() {
 
         @FXML
@@ -93,7 +93,8 @@ class ContactUserCellFactory(
 
         private fun loadFXML() {
             try {
-                val loader = FXMLLoader(javaClass.getResource("/fxml/social/ContactUserListCell.fxml"))
+                val loader =
+                    FXMLLoader(javaClass.getResource("/fxml/social/ContactUserListCell.fxml"))
                 loader.setController(this)
                 loader.setRoot(this)
                 loader.load<Any>()
@@ -123,7 +124,8 @@ class ContactUserCellFactory(
             if (account.company) company.text = "Представитель компании | " else company.text = ""
             if (account.doctor) doctor.text = "БРТ-терапевт | " else doctor.text = ""
             if (account.bris) diagnost.text = "Диагност | " else diagnost.text = ""
-            if (account.partner) partner.text = "Участник партнерской программы | " else partner.text = ""
+            if (account.partner) partner.text =
+                "Участник партнерской программы | " else partner.text = ""
             if (account.depot) depot.text = "Склад" else depot.text = ""
             followCheckBox.isSelected = contact.contact.following
             showAboutBtn.isVisible = !account.emptyAbout
@@ -171,23 +173,22 @@ class ContactUserCellFactory(
 
         val addNewMessagesHandler: Consumer<MutableMap<Long, Int>>
 
-        private fun onNewMessageHandler(info: Map<Long,Int>){
-
-           var count =0
-            if(info.containsKey(item.contact.contact)){//ключ - пользователь на обратной стороне контакта.
+        private fun onNewMessageHandler(info: Map<Long, Int>) {
+            if (item == null) return
+            var count = 0
+            if (info.containsKey(item.contact.contact)) {//ключ - пользователь на обратной стороне контакта.
                 count = info.getValue(item.contact.contact)
             }
             Platform.runLater {
 
-                messageCounter.text= count.toString()
-               if(count==0){
-                   messageCounter.styleClass.add("ContactMessageCountEmpty")
-                   messageCounter.styleClass.remove("ContactMessageCount")
-               }
-                else {
+                messageCounter.text = count.toString()
+                if (count == 0) {
+                    messageCounter.styleClass.add("ContactMessageCountEmpty")
+                    messageCounter.styleClass.remove("ContactMessageCount")
+                } else {
                     messageCounter.styleClass.add("ContactMessageCount")
-                   messageCounter.styleClass.remove("ContactMessageCountEmpty")
-               }
+                    messageCounter.styleClass.remove("ContactMessageCountEmpty")
+                }
                 messageCounter.isVisible = true
             }
         }
@@ -195,7 +196,8 @@ class ContactUserCellFactory(
         init {
             loadFXML()
             showStoriesBtn.setOnAction { Platform.runLater { showStoriesAction(item.account.id) } }
-            addNewMessagesHandler =  SocialClient.INSTANCE.addNewMessagesHandler(this::onNewMessageHandler)
+            addNewMessagesHandler =
+                SocialClient.INSTANCE.addNewMessagesHandler(this::onNewMessageHandler)
         }
 
     }

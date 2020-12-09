@@ -1,6 +1,7 @@
 package ru.biomedis.biomedismair3.social.contacts.messages
 
 import ru.biomedis.biomedismair3.social.remote_client.ContactsClient
+import ru.biomedis.biomedismair3.social.remote_client.dto.CountMessage
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -13,7 +14,7 @@ class MessagesService(val messageAPI: ContactsClient, val requestPeriod: Long) {
 
     private val log by LoggerDelegate()
     private val editedHandlers: MutableList<Consumer<Map<Long, Int>>> = mutableListOf()
-    private val newHandlers: MutableList<Consumer<Map<Long, Int>>> = mutableListOf()
+    private val newHandlers: MutableList<Consumer<Map<Long, CountMessage>>> = mutableListOf()
     private val totalNewHandlers: MutableList<Consumer<Int>> = mutableListOf()
     private val  deletedHandler: MutableList<Consumer<Map<Long, List<Long>>>> = mutableListOf()
 
@@ -35,7 +36,7 @@ class MessagesService(val messageAPI: ContactsClient, val requestPeriod: Long) {
         return handler
     }
 
-    fun addNewMessagesHandler(handler: Consumer<Map<Long, Int>>): Consumer<Map<Long, Int>> {
+    fun addNewMessagesHandler(handler: Consumer<Map<Long, CountMessage>>): Consumer<Map<Long, CountMessage>> {
         newHandlers.add(handler)
         return handler
     }
@@ -60,8 +61,8 @@ class MessagesService(val messageAPI: ContactsClient, val requestPeriod: Long) {
         var totalCount = 0
         if(state.newMessagesCount.isNotEmpty()){
 
-             totalCount = state.newMessagesCount.values.reduce { acc, entry ->
-                acc + entry
+            state.newMessagesCount.values.forEach {
+                totalCount+=it.count
             }
         }
 
@@ -81,7 +82,7 @@ class MessagesService(val messageAPI: ContactsClient, val requestPeriod: Long) {
         editedHandlers.remove(handler)
     }
 
-    fun removeNewMessagesHandler(handler: Consumer<Map<Long, Int>>) {
+    fun removeNewMessagesHandler(handler: Consumer<Map<Long, CountMessage>>) {
         newHandlers.remove(handler)
     }
 

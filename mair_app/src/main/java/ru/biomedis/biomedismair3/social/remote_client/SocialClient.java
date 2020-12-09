@@ -41,6 +41,7 @@ import ru.biomedis.biomedismair3.BlockingAction;
 import ru.biomedis.biomedismair3.Waiter;
 import ru.biomedis.biomedismair3.social.contacts.messages.MessagesService;
 import ru.biomedis.biomedismair3.social.login.LoginController;
+import ru.biomedis.biomedismair3.social.remote_client.dto.CountMessage;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Token;
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError;
 import ru.biomedis.biomedismair3.utils.OS.OSValidator;
@@ -171,7 +172,7 @@ public class SocialClient {
     return messagesService.addEditedMessagesHandler(handler);
   }
 
-  public Consumer<Map<Long, Integer>> addNewMessagesHandler(Consumer<Map<Long, Integer>> handler) {
+  public Consumer<Map<Long, CountMessage>> addNewMessagesHandler(Consumer<Map<Long, CountMessage>> handler) {
     return messagesService.addNewMessagesHandler(handler);
   }
 
@@ -188,7 +189,7 @@ public class SocialClient {
      messagesService.removeEditedMessagesHandler(handler);
   }
 
-  public void  removeNewMessagesHandler(Consumer<Map<Long, Integer>> handler) {
+  public void  removeNewMessagesHandler(Consumer<Map<Long, CountMessage>> handler) {
      messagesService.removeNewMessagesHandler(handler);
   }
 

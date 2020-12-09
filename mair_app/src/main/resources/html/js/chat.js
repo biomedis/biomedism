@@ -24,12 +24,13 @@ $(document).ready(function () {
 
 function addMessageOutcome(htmlMsg, msgId){
   $("#content")
-  .append(fillTemplate("msg_item_tpl_outcome", {htmlMsg:htmlMsg, msgId:msgId}))
+  .append(fillTemplate("msg_item_tpl_outcome", {htmlMsg:htmlMsg, msgId:msgId}));
+  scrollBottom();
  }
 
 function addMessageIncoming(htmlMsg, msgId){
   $("#content")
-  .append(fillTemplate("msg_item_tpl_incoming", {htmlMsg:htmlMsg, msgId:msgId}))
+  .append(fillTemplate("msg_item_tpl_incoming", {htmlMsg:htmlMsg, msgId:msgId}));
 }
 
 function editMessage(msgId, htmlMsg ){
@@ -69,6 +70,14 @@ function fillTemplate(templateID = "", templateVars = {}) {
  */
 function fillTemplateString(template = "", templateVars = {}) {
   return Mustache.render(template, templateVars);
+}
+
+
+function scrollBottom(){
+  var curPos=$(document).scrollTop();
+  var height=$("body").height();
+  var scrollTime=(height-curPos)/1.73;
+  $("body,html").animate({"scrollTop":height},scrollTime);
 }
 
 

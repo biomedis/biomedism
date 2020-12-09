@@ -15,6 +15,7 @@ import ru.biomedis.biomedismair3.App
 import ru.biomedis.biomedismair3.AsyncAction
 import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
+import ru.biomedis.biomedismair3.social.remote_client.dto.CountMessage
 import ru.biomedis.biomedismair3.social.remote_client.dto.MessageDto
 import ru.biomedis.biomedismair3.social.remote_client.dto.MessageInDto
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
@@ -42,7 +43,7 @@ class ChatService(
     private val javaConnector: JavaConnector
 
     private val addEditedMessagesHandler: Consumer<MutableMap<Long, Int>>
-    private val addNewMessagesHandler: Consumer<MutableMap<Long, Int>>
+    private val addNewMessagesHandler: Consumer<MutableMap<Long, CountMessage>>
     private val addDeletedMessagesHandler: Consumer<MutableMap<Long, MutableList<Long>>>
 
     private val messagesLoader: MessagesLoader
@@ -177,7 +178,7 @@ class ChatService(
         }
     }
 
-    private fun onNewMessageHandler(info: Map<Long, Int>) {
+    private fun onNewMessageHandler(info: Map<Long, CountMessage>) {
         if (info.containsKey(contactUser)) {
             AsyncAction.actionResult {
                 SocialClient.INSTANCE.contactsClient.allNewMessages(contactUser)

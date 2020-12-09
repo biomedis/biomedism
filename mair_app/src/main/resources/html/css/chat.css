@@ -9,13 +9,13 @@ div.message > div {
 div.message.outcomming > div {
   float: right;
   color: rgb(46, 46, 46);
-  background-color: rgb(221, 221, 221);
+  background-color: rgb(66, 124, 199);
   border-radius: 10px 10px 0 10px;
 }
 
 div.message.incomming > div {
   float: left;
-  background-color: rgb(66, 124, 199);
+  background-color: rgb(221, 221, 221);
   border-radius: 0 10px 10px 10px;
   color: #fff;
 }
