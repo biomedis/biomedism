@@ -31,6 +31,7 @@ function addMessageOutcome(htmlMsg, msgId){
 function addMessageIncoming(htmlMsg, msgId){
   $("#content")
   .append(fillTemplate("msg_item_tpl_incoming", {htmlMsg:htmlMsg, msgId:msgId}));
+  scrollBottom();
 }
 
 function editMessage(msgId, htmlMsg ){

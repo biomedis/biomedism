@@ -7,6 +7,7 @@ import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
+import java.util.function.BiConsumer
 import java.util.function.Consumer
 
 
@@ -15,7 +16,7 @@ class MessagesService(val messageAPI: ContactsClient, val requestPeriod: Long) {
     private val log by LoggerDelegate()
     private val editedHandlers: MutableList<Consumer<Map<Long, Int>>> = mutableListOf()
     private val newHandlers: MutableList<Consumer<Map<Long, CountMessage>>> = mutableListOf()
-    private val totalNewHandlers: MutableList<Consumer<Int>> = mutableListOf()
+    private val totalNewHandlers: MutableList<BiConsumer<Int, Map<Long, CountMessage>>> = mutableListOf()
     private val  deletedHandler: MutableList<Consumer<Map<Long, List<Long>>>> = mutableListOf()
 
     private var scheduledExecutorService: ScheduledExecutorService = Executors.newScheduledThreadPool(2)
@@ -41,7 +42,7 @@ class MessagesService(val messageAPI: ContactsClient, val requestPeriod: Long) {
         return handler
     }
 
-    fun addTotalCountMessagesHandler(handler: Consumer<Int>): Consumer<Int> {
+    fun addTotalCountMessagesHandler(handler: BiConsumer<Int, Map<Long, CountMessage>>): BiConsumer<Int, Map<Long, CountMessage>> {
         totalNewHandlers.add(handler)
         return handler
     }
@@ -66,12 +67,16 @@ class MessagesService(val messageAPI: ContactsClient, val requestPeriod: Long) {
             }
         }
 
-        totalNewHandlers.forEach {  it.accept(totalCount) }
+        totalNewHandlers.forEach {  it.accept(totalCount, state.newMessagesCount) }
 
 
         newHandlers.forEach {  it.accept(state.newMessagesCount) }
 
         editedHandlers.forEach {  it.accept(state.editedMessagesCount) }
+
+           deletedHandler.forEach {
+               it.accept(state.deletedMessages)
+           }
 
        }catch (e: Exception){
            log.error("Ошибка в обработчике MessageService", e)
@@ -86,7 +91,7 @@ class MessagesService(val messageAPI: ContactsClient, val requestPeriod: Long) {
         newHandlers.remove(handler)
     }
 
-    fun removeTotalCountMessagesHandler(handler: Consumer<Int>) {
+    fun removeTotalCountMessagesHandler(handler: BiConsumer<Int, Map<Long, CountMessage>>) {
         totalNewHandlers.remove(handler)
     }
 

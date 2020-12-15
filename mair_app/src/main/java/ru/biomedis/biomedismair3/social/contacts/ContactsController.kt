@@ -1,5 +1,7 @@
 package ru.biomedis.biomedismair3.social.contacts
 
+import javafx.application.Platform
+import javafx.beans.Observable
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
@@ -10,12 +12,14 @@ import javafx.scene.control.ListView
 import javafx.scene.control.TabPane
 import javafx.stage.Modality
 import javafx.stage.WindowEvent
+import javafx.util.Callback
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.social.contacts.lenta.LentaController
 import ru.biomedis.biomedismair3.social.contacts.lenta.UserLentaController
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
 import ru.biomedis.biomedismair3.social.remote_client.dto.ContactDto
+import ru.biomedis.biomedismair3.social.remote_client.dto.CountMessage
 import ru.biomedis.biomedismair3.social.remote_client.dto.error.ApiError
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import ru.biomedis.biomedismair3.utils.Other.Result
@@ -25,6 +29,16 @@ import java.util.*
 
 class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detached {
 
+    /**
+     * Позволяет генерировать события изменения списка при изменени указанных свойств объекта
+     */
+    fun extractor(): Callback<UserContact, Array<Observable>> {
+        return Callback<UserContact, Array<Observable>> { p: UserContact ->
+            arrayOf(
+                p.contact.lastMessageDateProperty()
+            )
+        }
+    }
     private val log by LoggerDelegate()
 
     @FXML
@@ -42,10 +56,16 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
 
     private val countContacts: SimpleIntegerProperty = SimpleIntegerProperty(0)
 
-    private val contacts: ObservableList<UserContact> = FXCollections.observableArrayList()
+    private val contacts: ObservableList<UserContact> = FXCollections.observableArrayList(extractor())
 
     private val sortedContacts: SortedList<UserContact> = SortedList(contacts) { o1, o2 ->
-        o2.contact.created.compareTo(o1.contact.created)
+       if(o2.contact.lastMessageDate!=null && o1.contact.lastMessageDate!=null){
+          o2.contact.lastMessageDate!!.compareTo(o1.contact.lastMessageDate)
+       }else if(o2.contact.lastMessageDate!=null && o1.contact.lastMessageDate==null){
+           o2.contact.lastMessageDate!!.compareTo(o1.contact.created)
+       }else  if(o2.contact.lastMessageDate==null && o1.contact.lastMessageDate!=null){
+           o2.contact.created.compareTo(o1.contact.lastMessageDate)
+       }else  o2.contact.created.compareTo(o1.contact.created)
     }
 
     private var isContactsLoaded = false
@@ -54,6 +74,14 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
 
     override fun onCompletedInitialization() {
         tabHolder = TabHolder(controllerWindow, chatTabPane)
+        SocialClient.INSTANCE.addTotalCountMessagesHandler{ _: Int, all: Map<Long, CountMessage> ->
+        contacts.forEach {
+            if(all.containsKey(it.contact.contact)) Platform.runLater {it.contact.lastMessageDate = all[it.contact.contact]!!.time}
+
+        }
+
+
+        }
     }
 
     override fun onClose(event: WindowEvent) {

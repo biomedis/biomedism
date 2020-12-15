@@ -187,8 +187,10 @@ class ChatService(
                     log.error("Ошибка получения новых сообщений", it.error)
                 } else {
                     it.value.forEach { msg ->
-                        if (msg.from == contactUser) addMessageIncomming(msg.message, msg.id)
-                        else addMessageOutcome(msg.message, msg.id)
+                        Platform.runLater {
+                            if (msg.from == contactUser) addMessageIncomming(msg.message, msg.id)
+                            else addMessageOutcome(msg.message, msg.id)
+                        }
                     }
 
                 }
@@ -200,7 +202,17 @@ class ChatService(
     private fun onDeletedMessageHandler(info: Map<Long, List<Long>>) {
         if (info.containsKey(contactUser)) {
             val arg = info[contactUser]!!.joinToString(",", "[", "]")
-            messagesEngine.executeScript("removeMessage($arg)")
+            Platform.runLater {
+                messagesEngine.executeScript("removeMessage($arg)")
+                AsyncAction.actionNoResult {
+                    SocialClient.INSTANCE.contactsClient.deleteMarkedMessages(info[contactUser]!!)
+                }.thenAccept {
+                    if (it.isError) {
+                        log.error("", it.error)
+                    }
+                }
+
+            }
         }
 
     }
@@ -258,7 +270,7 @@ class ChatService(
         var msg = getMessageFromEditor()
         var html = markdownToHtml(msg)
         if (currentEditedMsg == null) {
-           showErrorhandler("Редактирование сообщения","Не удалось редактирование сообщения.")
+            showErrorhandler("Редактирование сообщения", "Не удалось редактирование сообщения.")
         } else {
             val result = BlockingAction.actionNoResult(context) {
                 SocialClient.INSTANCE.contactsClient.editMessage(currentEditedMsg!!.id, msg)

@@ -104,8 +104,8 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
             }
         }
 
-        SocialClient.INSTANCE.addTotalCountMessagesHandler {
-            Platform.runLater { messageCounter.text = it.toString() }
+        SocialClient.INSTANCE.addTotalCountMessagesHandler { count, _ ->
+            Platform.runLater { messageCounter.text = count.toString() }
         }
 
 

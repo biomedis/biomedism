@@ -82,6 +82,10 @@ public interface ContactsClient {
   void deleteMessages( List<Long> messages);
 
   @Headers(value = {"Content-Type: application/json"})
+  @RequestLine("DELETE /marked_messages")
+  void deleteMarkedMessages( List<Long> messages);
+
+  @Headers(value = {"Content-Type: application/json"})
   @RequestLine("PUT /messages/message/{id}")
   void editMessage(@Param("id") long id, String message );
 }

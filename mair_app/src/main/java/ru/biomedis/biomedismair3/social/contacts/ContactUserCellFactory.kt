@@ -8,6 +8,7 @@ import javafx.scene.layout.FlowPane
 import javafx.scene.layout.VBox
 import javafx.util.Callback
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
+import ru.biomedis.biomedismair3.social.remote_client.dto.CountMessage
 import java.io.IOException
 import java.util.function.Consumer
 
@@ -171,13 +172,13 @@ class ContactUserCellFactory(
 
         }
 
-        val addNewMessagesHandler: Consumer<MutableMap<Long, Int>>
+        val addNewMessagesHandler: Consumer<MutableMap<Long, CountMessage>>
 
-        private fun onNewMessageHandler(info: Map<Long, Int>) {
+        private fun onNewMessageHandler(info: Map<Long, CountMessage>) {
             if (item == null) return
             var count = 0
             if (info.containsKey(item.contact.contact)) {//ключ - пользователь на обратной стороне контакта.
-                count = info.getValue(item.contact.contact)
+                count = info.getValue(item.contact.contact).count
             }
             Platform.runLater {
 
@@ -196,8 +197,7 @@ class ContactUserCellFactory(
         init {
             loadFXML()
             showStoriesBtn.setOnAction { Platform.runLater { showStoriesAction(item.account.id) } }
-            addNewMessagesHandler =
-                SocialClient.INSTANCE.addNewMessagesHandler(this::onNewMessageHandler)
+            addNewMessagesHandler = SocialClient.INSTANCE.addNewMessagesHandler(this::onNewMessageHandler)
         }
 
     }

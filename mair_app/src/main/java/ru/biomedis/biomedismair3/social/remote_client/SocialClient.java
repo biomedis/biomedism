@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -176,7 +177,7 @@ public class SocialClient {
     return messagesService.addNewMessagesHandler(handler);
   }
 
-  public Consumer<Integer> addTotalCountMessagesHandler(Consumer<Integer> handler) {
+  public BiConsumer<Integer, Map<Long, CountMessage>> addTotalCountMessagesHandler(BiConsumer<Integer, Map<Long, CountMessage>> handler) {
     return messagesService.addTotalCountMessagesHandler(handler);
   }
 
@@ -193,7 +194,7 @@ public class SocialClient {
      messagesService.removeNewMessagesHandler(handler);
   }
 
-  public void removeTotalCountMessagesHandler(Consumer<Integer> handler) {
+  public void removeTotalCountMessagesHandler(BiConsumer<Integer, Map<Long, CountMessage>> handler) {
      messagesService.removeTotalCountMessagesHandler(handler);
   }
 
