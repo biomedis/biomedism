@@ -138,15 +138,17 @@ class ChatService(
                 log.error("Ошибка получения обновленных сообщений", it.error)
                 showErrorhandler("загрузка сообщений чата", "Не удалось получить сообщения")
             } else {
+                var cnt=0;
                 it.value.forEach { msg ->
 
                     if (msg.from == contactUser) Platform.runLater {
-                        addMessageIncomming(
-                            msg.message,
-                            msg.id
-                        )
+                        addMessageIncomming(msg.message, msg.id, false)
+                        if(cnt++>=it.value.size) scrollChatToBottom()
                     }
-                    else Platform.runLater { addMessageOutcome(msg.message, msg.id) }
+                    else Platform.runLater {
+                        addMessageOutcome(msg.message, msg.id, false)
+                        if(cnt++>=it.value.size) scrollChatToBottom()
+                    }
                 }
             }
 
@@ -339,12 +341,16 @@ class ChatService(
         messagesEngine.executeScript("editMessage($id,'${clearContent(msg)}')")
     }
 
-    private fun addMessageIncomming(msg: String, msgId: Long) {
-        messagesEngine.executeScript("addMessageIncoming('${clearContent(msg)}', '$msgId')")
+    private fun addMessageIncomming(msg: String, msgId: Long, scroll: Boolean = true) {
+        messagesEngine.executeScript("addMessageIncoming('${clearContent(msg)}', '$msgId','$scroll')")
     }
 
-    private fun addMessageOutcome(msg: String, msgId: Long) {
-        messagesEngine.executeScript("addMessageOutcome('${clearContent(msg)}', '$msgId')")
+    private fun addMessageOutcome(msg: String, msgId: Long, scroll: Boolean = true) {
+        messagesEngine.executeScript("addMessageOutcome('${clearContent(msg)}', '$msgId','$scroll')")
+    }
+
+    private fun scrollChatToBottom() {
+        messagesEngine.executeScript("scrollBottom()")
     }
 
     /**

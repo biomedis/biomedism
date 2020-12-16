@@ -1,5 +1,11 @@
 var converter;
+var out_msg_tpl="";
+var in_msg_tpl="";
+
 $(document).ready(function () {
+  out_msg_tpl = $('#msg_item_tpl_outcome').text();
+  in_msg_tpl = $('#msg_item_tpl_incoming').text();
+
   $(window).resize(function() {
     $("#content").css("height", (window.innerHeight-20)+"px")
   });
@@ -22,16 +28,17 @@ $(document).ready(function () {
 
 })
 
-function addMessageOutcome(htmlMsg, msgId){
+
+function addMessageOutcome(htmlMsg, msgId, scroll){
   $("#content")
-  .append(fillTemplate("msg_item_tpl_outcome", {htmlMsg:htmlMsg, msgId:msgId}));
-  scrollBottom();
+  .append(fillTemplateString(out_msg_tpl, {htmlMsg:htmlMsg, msgId:msgId}));
+  if(scroll)scrollBottom();
  }
 
-function addMessageIncoming(htmlMsg, msgId){
+function addMessageIncoming(htmlMsg, msgId, scroll){
   $("#content")
-  .append(fillTemplate("msg_item_tpl_incoming", {htmlMsg:htmlMsg, msgId:msgId}));
-  scrollBottom();
+  .append(fillTemplateString(in_msg_tpl, {htmlMsg:htmlMsg, msgId:msgId}));
+  if(scroll)scrollBottom();
 }
 
 function editMessage(msgId, htmlMsg ){
@@ -72,6 +79,8 @@ function fillTemplate(templateID = "", templateVars = {}) {
 function fillTemplateString(template = "", templateVars = {}) {
   return Mustache.render(template, templateVars);
 }
+
+
 
 
 function scrollBottom(){
