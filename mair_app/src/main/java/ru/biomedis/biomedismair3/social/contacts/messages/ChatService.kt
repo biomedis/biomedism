@@ -53,6 +53,10 @@ class ChatService(
 
     fun editingProperty(): SimpleBooleanProperty = editingProperty
 
+    private val initMessagesLoaded: SimpleBooleanProperty = SimpleBooleanProperty(false)
+    fun initMessagesLoadedProperty(): SimpleBooleanProperty = initMessagesLoaded
+
+
     init {
         messagesLoader = MessagesLoader(contactUser)
         javaConnector = JavaConnector(
@@ -143,11 +147,17 @@ class ChatService(
 
                     if (msg.from == contactUser) Platform.runLater {
                         addMessageIncomming(msg.message, msg.id, false)
-                        if(cnt++>=it.value.size) scrollChatToBottom()
+                        if(cnt++>=it.value.size) {
+                            scrollChatToBottom()
+                            initMessagesLoaded.value = true
+                        }
                     }
                     else Platform.runLater {
                         addMessageOutcome(msg.message, msg.id, false)
-                        if(cnt++>=it.value.size) scrollChatToBottom()
+                        if(cnt++>=it.value.size) {
+                            scrollChatToBottom()
+                            initMessagesLoaded.value = true
+                        }
                     }
                 }
             }

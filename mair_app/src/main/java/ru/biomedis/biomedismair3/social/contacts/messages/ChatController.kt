@@ -40,6 +40,7 @@ class ChatController : BaseController(), TabHolder.Selected, TabHolder.Detached 
                 showErrorhandler = {title, msg -> showErrorDialog(title, "", msg, controllerWindow, Modality.WINDOW_MODAL)})
 
         editBtn.visibleProperty().bind(chatService.editingProperty())
+        newBtn.disableProperty().bind(chatService.initMessagesLoadedProperty().not())//не дает добавлять сообщения, пока не загрузятся сообщения при открытии чата
     }
 
     override fun onClose(event: WindowEvent) {
