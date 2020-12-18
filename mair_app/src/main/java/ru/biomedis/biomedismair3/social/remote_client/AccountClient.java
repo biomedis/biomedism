@@ -59,6 +59,10 @@ public interface AccountClient {
   @RequestLine("GET /find_by_email/{email}")
   AccountSmallView findUserByEmail(@Param("email")String email);
 
+  @Headers(value = {"Content-Type: application/json"})
+  @RequestLine("POST /accounts_info")
+  List<AccountSmallView> accountsInfoByIds(List<Long> ids);
+
   /**
    * Список стран
    */

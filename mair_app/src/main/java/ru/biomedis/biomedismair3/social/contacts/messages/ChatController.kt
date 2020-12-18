@@ -41,6 +41,7 @@ class ChatController : BaseController(), TabHolder.Selected, TabHolder.Detached 
 
         editBtn.visibleProperty().bind(chatService.editingProperty())
         newBtn.disableProperty().bind(chatService.initMessagesLoadedProperty().not())//не дает добавлять сообщения, пока не загрузятся сообщения при открытии чата
+
     }
 
     override fun onClose(event: WindowEvent) {

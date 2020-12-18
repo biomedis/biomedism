@@ -142,24 +142,22 @@ class ChatService(
                 log.error("Ошибка получения обновленных сообщений", it.error)
                 showErrorhandler("загрузка сообщений чата", "Не удалось получить сообщения")
             } else {
-                var cnt=0;
+                var cnt=0
                 it.value.forEach { msg ->
-
+                    cnt++
                     if (msg.from == contactUser) Platform.runLater {
                         addMessageIncomming(msg.message, msg.id, false)
-                        if(cnt++>=it.value.size) {
-                            scrollChatToBottom()
-                            initMessagesLoaded.value = true
-                        }
                     }
                     else Platform.runLater {
                         addMessageOutcome(msg.message, msg.id, false)
-                        if(cnt++>=it.value.size) {
-                            scrollChatToBottom()
-                            initMessagesLoaded.value = true
-                        }
                     }
+                    if(cnt==it.value.size) {
+                        initMessagesLoaded.value = true
+                        scrollChatToBottom()
+                    }
+
                 }
+                if(cnt==0) initMessagesLoaded.value = true
             }
 
         }

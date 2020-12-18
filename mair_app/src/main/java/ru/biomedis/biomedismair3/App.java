@@ -59,6 +59,11 @@ public class App extends Application {
       private final String socialAPIURL = "https://social.biomedis.life";
       public boolean isShowSocial = false;
 
+      private static App app;
+      public static App getApp(){
+        return app;
+      }
+
   private String getSocialAPIURL() {
 
     return (isDeveloped() || isIDEStarted())?"http://localhost:8080":socialAPIURL;
@@ -281,7 +286,7 @@ public class App extends Application {
 
   @Override
     public void start(Stage stage) throws Exception {
-
+    app = this;
     log.info("Старт программы");
 
       String develop = System.getProperty("develop");

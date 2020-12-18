@@ -1,5 +1,6 @@
 package ru.biomedis.biomedismair3.social.contacts.messages
 
+import ru.biomedis.biomedismair3.App
 import ru.biomedis.biomedismair3.social.remote_client.ContactsClient
 import ru.biomedis.biomedismair3.social.remote_client.dto.CountMessage
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
@@ -11,7 +12,7 @@ import java.util.function.BiConsumer
 import java.util.function.Consumer
 
 
-class MessagesService(val messageAPI: ContactsClient, val requestPeriod: Long) {
+class MessagesService(val messageAPI: ContactsClient, val requestPeriod: Long): App.CloseAppListener {
 
     private val log by LoggerDelegate()
     private val editedHandlers: MutableList<Consumer<Map<Long, Int>>> = mutableListOf()
@@ -21,6 +22,8 @@ class MessagesService(val messageAPI: ContactsClient, val requestPeriod: Long) {
 
     private var scheduledExecutorService: ScheduledExecutorService = Executors.newScheduledThreadPool(2)
     private var scheduleWithFixedDelay: ScheduledFuture<*>?=null
+
+
     fun start(): Boolean {
         if (scheduleWithFixedDelay != null) return false
          scheduleWithFixedDelay = scheduledExecutorService.scheduleWithFixedDelay(this::action, 1, requestPeriod, TimeUnit.SECONDS);
@@ -97,5 +100,9 @@ class MessagesService(val messageAPI: ContactsClient, val requestPeriod: Long) {
 
     fun removeDeletedMessagesHandler(handler: Consumer<Map<Long, List<Long>>>) {
         deletedHandler.remove(handler)
+    }
+
+    override fun onClose() {
+        stop()
     }
 }

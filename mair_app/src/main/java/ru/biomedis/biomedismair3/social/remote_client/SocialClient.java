@@ -127,6 +127,7 @@ public class SocialClient {
     tokenHolder = new TokenHolder(loginClient, accountClient, tokenRepository);
 
     messagesService = new MessagesService(contactsClient, 7);
+    App.getApp().addCloseApplistener(messagesService);
     isAuth.addListener((observable, oldValue, newValue) -> {
       if (newValue) {
         messagesService.start();

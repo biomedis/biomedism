@@ -59,7 +59,7 @@ public interface ContactsClient {
   List<MessageDto> allNewMessages(@Param("from") long fromUser);
 
   /**
-   * Все изменения в сообщениях
+   * Все изменения в сообщениях. Сообщения помечаются прочитаннаыми, когда мы запросим из чрез allNewMessages()
    * Ключи - это ID пользователя с которым мы общаемся, те нашим контактом(но не сам контакт)
    * @return
    */
