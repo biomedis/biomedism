@@ -137,7 +137,7 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
             findAllLanguage.add(createLanguage("pl", "польский"));
             findAllLanguage.add(createLanguage("en", "English",true));
             findAllLanguage.add(createLanguage("ru", "Русский",true));
-            findAllLanguage.add(createLanguage("es", "испанский"));
+            findAllLanguage.add(createLanguage("es", "Español",true));
             findAllLanguage.add(createLanguage("nl", "голландский"));
             findAllLanguage.add(createLanguage("ja", "японский"));
 

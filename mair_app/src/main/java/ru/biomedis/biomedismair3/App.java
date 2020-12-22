@@ -352,7 +352,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         ProgramOptions updateOption = selectUpdateVersion();//получим версию обновления
         System.out.println("Current Version: "+getUpdateVersion());
         int currentUpdateFile=14;//версия ставиться вручную. Если готовили инсталлер, он будет содержать правильную версию  getUpdateVersion(), а если человек скопировал себе jar обновления, то версии будут разные!
-        int currentMinorVersion=8;//версия исправлений в пределах мажорной версии currentUpdateFile
+        int currentMinorVersion=8;//9 //версия исправлений в пределах мажорной версии currentUpdateFile
         //требуется размещение в папке с dist.jar  файла version.txt с текущей версией типа 4.9.0 . Этот файл в обновление нужно включать!!!
         if(getUpdateVersion() < currentUpdateFile)
         {
@@ -894,25 +894,60 @@ https://gist.github.com/DemkaAge/8999236
             updateIn14_3(updateOption);
           updateIn14_4(updateOption);
           updateIn14_5(updateOption);
+          updateIn14_9(updateOption);
         }else if(updateFixVersion == 1){
             updateIn14_2(updateOption);
             updateIn14_3(updateOption);
            updateIn14_4(updateOption);
           updateIn14_5(updateOption);
+          updateIn14_9(updateOption);
         }else if(updateFixVersion == 2){
             updateIn14_3(updateOption);
             updateIn14_4(updateOption);
           updateIn14_5(updateOption);
+          updateIn14_9(updateOption);
         }else if(updateFixVersion == 3){
             updateIn14_4(updateOption);
             updateIn14_5(updateOption);
+          updateIn14_9(updateOption);
 
         }
         else if(updateFixVersion == 4){
           updateIn14_5(updateOption);
+          updateIn14_9(updateOption);
+        }else if(updateFixVersion==8){
+          updateIn14_9(updateOption);
         }
 
     }
+
+  private void updateIn14_9(ProgramOptions updateOption) {
+    File base_translate=null;
+    try {
+      ResourceUtil ru=new ResourceUtil();
+      base_translate = ru.saveResource(getTmpDir(),"es_translanion.xml","/updates/update14_9/spanish_base.xml",true);
+
+      if(base_translate==null) throw new Exception();
+
+      LoadLanguageFiles ll=new LoadLanguageFiles();
+      if( ll.parse(Arrays.asList(base_translate),getModel())){
+
+        log.info("ОБНОВЛЕНИЕ 14.9 ЗАВЕРШЕНО.");
+      }
+      else  wrapException("14.9",new Exception());
+
+    } catch (IOException e) {
+      wrapException("14.9",e);
+      log.info("ОБНОВЛЕНИЕ 14.9 НЕ ЗАВЕРШЕНО.");
+
+    } catch (Exception e) {
+      wrapException("14.9",e);
+      log.info("ОБНОВЛЕНИЕ 14.9 НЕ ЗАВЕРШЕНО.");
+
+    }
+
+
+  }
 
   private void updateIn14_5(ProgramOptions updateOption) {
 

@@ -81,7 +81,7 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
             if (newV) showLogout() else showLogin()
             if(newV){
                 tabHolder.addTab("/fxml/social/Contacts.fxml", "Контакты", false)
-                tabHolder.addTab("/fxml/social/Registry.fxml", "Справочник", false)
+                tabHolder.addTab("/fxml/social/Files.fxml", "Файлы", false)
                 tabHolder.addTab("/fxml/social/AllLenta.fxml", "Лента", false, fxId = "lenta")
                 tabHolder.tabByFxId("lenta")?.let {
                     Platform.runLater {

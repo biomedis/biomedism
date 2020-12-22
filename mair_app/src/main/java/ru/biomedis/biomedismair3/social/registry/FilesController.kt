@@ -6,7 +6,7 @@ import ru.biomedis.biomedismair3.utils.TabHolder
 import java.net.URL
 import java.util.*
 
-class RegistryController: BaseController(), TabHolder.Selected, TabHolder.Detached {
+class FilesController: BaseController(), TabHolder.Selected, TabHolder.Detached {
     override fun onCompletedInitialization() {
 
     }

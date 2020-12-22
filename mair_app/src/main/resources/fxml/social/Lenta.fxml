@@ -73,11 +73,12 @@
                     </VBox>
                   </children>
                 </HBox>
-                <WebView fx:id="editor" maxWidth="1.7976931348623157E308" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS" maxHeight="1.7976931348623157E308" />
+                <WebView fx:id="editor" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS" />
                 <HBox spacing="8.0">
                   <children>
-                    <Button fx:id="sendBtn" mnemonicParsing="false" onAction="#send" text="Отправить" />
-                    <Button  mnemonicParsing="false" onAction="#clearForm" text="Очистить форму" />
+                    <Button fx:id="sendBtn" mnemonicParsing="false" onAction="#newStorySave" text="Отправить как новое сообщение" />
+                     <Button fx:id="editBtn" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#updateStorySave" text="Редактировать сообщение" />
+                    <Button mnemonicParsing="false" onAction="#clearForm" text="Очистить форму" />
                   </children>
                 </HBox>
               </children>

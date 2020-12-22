@@ -53,6 +53,8 @@ class LentaController : BaseController() {
     @FXML
     private lateinit var sendBtn: Button
 
+    @FXML
+    private lateinit var editBtn: Button
 
     @FXML
     private lateinit var listPane: TitledPane
@@ -99,6 +101,8 @@ class LentaController : BaseController() {
 
     private var lastElementForLoading: ShortStory?=null
 
+    private val editedProperty: SimpleBooleanProperty = SimpleBooleanProperty(false)
+
     override fun initialize(location: URL, resources: ResourceBundle) {
         elementsList.cellFactory = StoryCellFactory.forOwner(
                 this::deleteAction,
@@ -117,6 +121,8 @@ class LentaController : BaseController() {
         accordion.expandedPaneProperty().addListener { _, _, newValue ->
             if(newValue==editPane && !editorInited) Platform.runLater {  initEditor() }
         }
+
+        editBtn.visibleProperty().bind(editedProperty)
 
     }
 
@@ -155,6 +161,7 @@ class LentaController : BaseController() {
         image.image = imageFromBase64(item.image)
         shortText.text = item.description
         setEditorContent(result.value)
+        editedProperty.value = true
     }
 
 
@@ -246,14 +253,15 @@ class LentaController : BaseController() {
         image.image = null
         setEditorContent("")
          editedStory = null
+         editedProperty.value = false
     }
 
-    fun send() {
-        if(editedStory!=null) updateStorySave()
-        else newStorySave()
-    }
+//    fun send() {
+//        if(editedStory!=null) updateStorySave()
+//        else newStorySave()
+//    }
 
-    private fun newStorySave(){
+   @FXML  private fun newStorySave(){
         val story = createStory()
         val actionResult: Result<Long> = BlockingAction.actionResult(controllerWindow) {
             SocialClient.INSTANCE.accountClient.createStory(story)
@@ -277,9 +285,10 @@ class LentaController : BaseController() {
         accordion.expandedPane = listPane
         elementsList.scrollTo(elementsList.items.size - 1)
         elementsList.selectionModel.select(shortStory)
+
     }
 
-    private fun updateStorySave(){
+    @FXML  private fun updateStorySave(){
         val story = createStory()
         story.id = editedStory!!.id
 
@@ -310,6 +319,7 @@ class LentaController : BaseController() {
         storiesLoader.updateStory(item)
         elementsList.scrollTo(item)
         elementsList.selectionModel.select(item)
+
 
     }
 
