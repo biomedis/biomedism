@@ -1,8 +1,3 @@
-import  java.net.URI
-
-
-
-
 val javaVersion = JavaVersion.VERSION_1_8
 val encoding = "UTF-8"
 object DependencyVersions {
@@ -102,6 +97,7 @@ subprojects{
 		implementation( "io.github.openfeign","feign-core", "11.0")
 		implementation( "io.github.openfeign","feign-jackson", "11.0")
 		implementation( "io.github.openfeign","feign-okhttp", "11.0")
+		implementation ("io.github.openfeign.form","feign-form","3.8.0")
 		implementation("com.fasterxml.jackson.datatype", "jackson-datatype-jsr310", "2.10.0")
 		implementation( "org.terracotta", "ipc-eventbus","1.1.1")
 	}

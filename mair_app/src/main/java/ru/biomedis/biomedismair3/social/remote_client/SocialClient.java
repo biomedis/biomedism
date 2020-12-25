@@ -17,6 +17,7 @@ import feign.RetryableException;
 import feign.Retryer;
 import feign.Retryer.Default;
 import feign.codec.ErrorDecoder;
+import feign.form.FormEncoder;
 import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
 import feign.okhttp.OkHttpClient;
@@ -115,8 +116,9 @@ public class SocialClient {
     backupClient = createFeign(true, apiErrorDecoder, tokenProvider)
         .target(BackupClient.class, TextUtil.addPath(apiURL, "/api/private/files"));//
 
-    filesClient = createFeign(true, apiErrorDecoder, tokenProvider).target(FilesClient.class,
-        TextUtil.addPath(apiURL, "/api/private/files"));// /api/private/files
+    filesClient = createFeign(true, apiErrorDecoder, tokenProvider)
+        .encoder(new FormEncoder())
+        .target(FilesClient.class, TextUtil.addPath(apiURL, "/api/private/files"));// /api/private/files
 
     registrationClient = createFeign(false, loginErrorDecoder, tokenProvider)
         .target(RegistrationClient.class, TextUtil.addPath(apiURL, "/api/public/registration"));//
