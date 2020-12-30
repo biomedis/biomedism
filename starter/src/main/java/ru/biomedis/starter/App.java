@@ -319,7 +319,7 @@ public class App extends Application {
 
     }
 
-    protected void startMainApp(){
+    protected void startMainApp(Version version){
 
         closePersisenceContext();
 
@@ -349,7 +349,7 @@ public class App extends Application {
                     if(data==null) return;
                     switch (data){
                         case "run_completed":
-                            System.out.println("Приложение полностью запущено");
+                            System.out.println("Application completely running");
                             busServer.trigger("to_main_app", "exit");
                             busServer.unbind("to_starter");
                             if(pipeMap.containsKey("in"))pipeMap.get("in").close();
@@ -369,7 +369,10 @@ public class App extends Application {
             pipeMap.put("in", new Pipe("from_main_app_in", new BufferedInputStream(process.getInputStream()), System.out));
             pipeMap.put("err",  new Pipe("from_main_app_err", new BufferedInputStream(process.getErrorStream()), System.err));
             if(!flag) System.exit(0);//остановить, тк eventbus не работает. Мы просто запускаем и останавливаем
-            else  Waiter.openLayer(getMainWindow(), true);
+            else  {
+                if(version.lessThen(new Version(4,14,9))) System.exit(0);//тк версии до указанной не поддерживают обмен событиями по шине, тк для юзеров они отключены
+                Waiter.openLayer(getMainWindow(), true);
+            }
         } catch (IOException ioException) {
             throw new RuntimeException("Не удалось запустить приложение");
         }

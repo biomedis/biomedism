@@ -460,7 +460,7 @@ public class AppController extends BaseController {
     public void onStartProgram(){
         disableUpdateAndStartProgram();
         try{
-            getApp().startMainApp();
+            getApp().startMainApp(getVersionFromFile());
         }catch (Exception e){
             startProgramBtn.setDisable(false);
             showErrorDialog(getRes().getString("app_start"),"",e.getMessage(), getControllerWindow(), Modality.WINDOW_MODAL);

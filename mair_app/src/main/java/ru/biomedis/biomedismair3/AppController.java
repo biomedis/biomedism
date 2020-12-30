@@ -302,6 +302,7 @@ public TabPane getTabPane(){
 
 
         getModel().setInProfileChanged(this::onLastChangeProfiles);
+        onCompleteInitApp.set(true);//тк вся инициализация синхронна в том числе и авторизация на сервере, то это верный подход, тк к этому моменту все процессы завершатся
     }
 
 
@@ -2008,14 +2009,14 @@ if(!getConnectedDevice())return;
         }, 3000);
     }
 
+    private SimpleBooleanProperty onCompleteInitApp = new SimpleBooleanProperty(false);
 
     private void onCompleteLoginRequestHandler( EventBusClient client) {
-        SocialClient.INSTANCE.completeLoginRequestProperty().addListener((observable, oldValue, newValue) -> {
-                if(newValue && newValue!=oldValue){
+        onCompleteInitApp.addListener((observable, oldValue, newValue) -> {
                     client.trigger("to_starter", "run_completed");
                     System.out.println("Start programm completed");
                     //завершен запрос к серверу, программа готова к работе.
-                }
+
         });
     }
     private Optional<EventBusClient> eventBusClient = Optional.empty();
