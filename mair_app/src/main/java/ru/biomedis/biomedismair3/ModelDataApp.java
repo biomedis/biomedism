@@ -445,7 +445,7 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
     /** ОПЦИИ **/
 
 
-    private ProgramOptions createOption(String name,String value)  {
+    public ProgramOptions createOption(String name,String value)  {
         ProgramOptions opt=new ProgramOptions();
         opt.setName(name);
         opt.setValue(value);
