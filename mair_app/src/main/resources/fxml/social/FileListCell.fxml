@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListCell?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+
+<fx:root maxWidth="1.7976931348623157E308" type="javafx.scene.control.ListCell" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+   <graphic>
+      <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
+         <children>
+            <ImageView fx:id="img" fitHeight="24.0" fitWidth="24.0" pickOnBounds="true" preserveRatio="true" />
+            <Label fx:id="name" maxHeight="1.7976931348623157E308" text="Label" HBox.hgrow="ALWAYS" />
+         </children>
+      </HBox>
+   </graphic>
+</fx:root>

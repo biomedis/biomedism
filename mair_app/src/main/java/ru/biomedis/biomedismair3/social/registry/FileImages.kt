@@ -1,26 +1,9 @@
 package ru.biomedis.biomedismair3.social.registry
 
-import javafx.fxml.FXML
-import javafx.scene.control.Label
 import javafx.scene.image.Image
-import javafx.scene.image.ImageView
-import javafx.scene.layout.VBox
-import ru.biomedis.biomedismair3.social.remote_client.dto.DirectoryData
 import ru.biomedis.biomedismair3.social.remote_client.dto.FileData
 
-class FileControl(val data: FileData) : VBox(3.0) {
-
-    init {
-        val imgView = ImageView(selectImage(data))
-        val name = Label("${data.name}.${data.extension}")
-        children.addAll(imgView, name)
-    }
-
-    @FXML
-    fun initialize() {
-        println("!!!!!!!!!!!!!!!!!!")
-    }
-
+class FileImages {
 
     companion object {
         private val fileImage = ImageHolder("/images/file.png")
@@ -29,7 +12,7 @@ class FileControl(val data: FileData) : VBox(3.0) {
         private val exelImage = ImageHolder("/images/exel.png")
         private val pdfImage = ImageHolder("/images/pdf.png")
 
-        private fun selectImage(data: FileData): Image = when (data.extension) {
+         fun selectImage(data: FileData): Image = when (data.extension) {
             "zip", "rar", "gzip", "7z", "bzip", "tar", "gz" -> archImage.image
             "doc", "docx" -> docImage.image
             "xls", "xlsx" -> exelImage.image
@@ -41,22 +24,10 @@ class FileControl(val data: FileData) : VBox(3.0) {
 }
 
 
-class DirectoryControl(val data: DirectoryData) : VBox(3.0) {
-
-    init {
-        val imgView = ImageView(directoryImage.image)
-        val name = Label(data.name)
-        children.addAll(imgView, name)
-    }
-
-    @FXML
-    fun initialize() {
-        println("!!!!!!!!!!!!!!!!!!")
-    }
-
+class DirectoryImage {
 
     companion object {
-        private val directoryImage = ImageHolder("/images/directory.png")
+         val directoryImage = ImageHolder("/images/directory.png").image
     }
 }
 

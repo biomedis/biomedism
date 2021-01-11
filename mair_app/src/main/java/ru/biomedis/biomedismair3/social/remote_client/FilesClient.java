@@ -40,12 +40,6 @@ public interface FilesClient {
   @RequestLine("GET /directory/{directory}/files")
   List<FileData> getFilesAllType(@Param("directory") long directory);
 
-  @RequestLine("GET /file/{file}/accessors")
-  List<UserNameDto> getFileAccessors(@Param("file") long file);
-
-  @RequestLine("GET /directory/{directory}/accessors")
-  List<UserNameDto> getDirAccessors(@Param("directory") long directory);
-
   @RequestLine("PUT /directory/{directory}/change_access_type/{type}")
   void changeDirAccessType(@Param("type") String type, @Param("directory") long directory);
 
@@ -59,21 +53,6 @@ public interface FilesClient {
   @Headers(value = {"Content-Type: application/json"})
   @RequestLine("PUT /files/change_access_type/{type}")
   void changeFileAccessType(@Param("type") String type, List<Long> files);
-
-  @RequestLine("PUT /directory/{directory}/accessors_add")
-  void addDirAccessors(@Param("directory") long directory, List<Long> accessors);
-
-  @Headers(value = {"Content-Type: application/json"})
-  @RequestLine("PUT /file/{file}/accessors_add")
-  void addFileAccessors(@Param("file") long file, List<Long> accessors);
-
-  @Headers(value = {"Content-Type: application/json"})
-  @RequestLine("DELETE /directory/{directory}/accessors_delete")
-  void deleteDirAccessors(@Param("directory") long directory, List<Long> accessors);
-
-  @Headers(value = {"Content-Type: application/json"})
-  @RequestLine("DELETE /file/{file}/accessors_delete")
-  void deleteFileAccessors(@Param("file") long file, List<Long> accessors);
 
   @RequestLine("PUT /directory/{directory}/move_to/directory/{parent}")
   void moveDirectory(@Param("directory") long directory, @Param("parent") long parent);
