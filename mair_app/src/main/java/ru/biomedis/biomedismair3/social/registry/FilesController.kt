@@ -5,6 +5,7 @@ import javafx.collections.transformation.SortedList
 import javafx.fxml.FXML
 import javafx.scene.control.Button
 import javafx.scene.control.ListView
+import javafx.scene.input.MouseButton
 import javafx.scene.layout.HBox
 import javafx.stage.Modality
 import javafx.stage.WindowEvent
@@ -20,6 +21,7 @@ import ru.biomedis.biomedismair3.utils.TabHolder
 import java.net.URL
 import java.util.*
 import kotlin.Comparator
+
 
 class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached {
 
@@ -37,6 +39,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
     private val items = FXCollections.observableArrayList<IFileItem>()
     private val sortedItems = SortedList(items)
+    private val breadCrumbs = BreadCrumbs(this::loadDirectory)
 
     override fun onCompletedInitialization() {
 
@@ -56,33 +59,43 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
         container.items = sortedItems
         container.cellFactory = FileCellFactory()
-
+        container.setOnMouseClicked{ event->
+            if (event.button === MouseButton.PRIMARY && event.clickCount == 2 && container.selectionModel.selectedItem is DirectoryData) {
+               val dstDir = container.selectionModel.selectedItem as DirectoryData
+                loadDirectory(dstDir)
+                breadCrumbs.destination(dstDir)
+        }}
+        pathLine.children.add(breadCrumbs)
 
     }
 
     override fun onSelected() {
-        loadRootDirectory()
+        loadDirectory()
     }
 
     override fun onDetach() {
 
     }
 
-
     private fun fillContainer(directories: List<DirectoryData>, files: List<FileData>) {
+        items.clear()
         items.addAll(directories)
         items.addAll(files)
     }
 
-    private fun loadRootDirectory() {
+
+    private fun loadDirectory(dstDir: DirectoryData?=null): Boolean {
 
         val result: Result<Pair<List<DirectoryData>, List<FileData>>> =
             BlockingAction.actionResult(controllerWindow) {
-                SocialClient.INSTANCE.filesClient.getRootDirectories() to
-                        SocialClient.INSTANCE.filesClient.getRootFiles()
+                if(dstDir==null){
+                    SocialClient.INSTANCE.filesClient.getRootDirectories() to
+                            SocialClient.INSTANCE.filesClient.getRootFiles()
+                } else SocialClient.INSTANCE.filesClient.getDirectories(dstDir.id) to
+                        SocialClient.INSTANCE.filesClient.getFilesAllType(dstDir.id)
             }
 
-        if (result.isError) {
+        return if (result.isError) {
             log.error("", result.error)
             showWarningDialog(
                 "Загрузка информации о файлах",
@@ -91,7 +104,16 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
                 controllerWindow,
                 Modality.WINDOW_MODAL
             )
-        } else fillContainer(result.value.first, result.value.second)
+            false
+        } else {
+            changeDirectory(dstDir, result.value.first, result.value.second)
+            true
+        }
+    }
+
+    private fun changeDirectory(targetDir: DirectoryData?, directories: List<DirectoryData>, files: List<FileData>){
+        fillContainer(directories, files)
+        currentDirectory = targetDir
     }
 
     @FXML
@@ -106,21 +128,14 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         ).trim()
 
         if (textInput.isBlank()) {
-            showWarningDialog(
-                "Создание папки",
-                "",
-                "Имя папки не должно быть пустым",
-                controllerWindow,
-                Modality.WINDOW_MODAL
-            )
             return
         }
 
-        if (textInput.length > 255) {
+        if (textInput.length > 50) {
             showWarningDialog(
                 "Создание папки",
                 "",
-                "Имя папки не должно быть длиннее 255 символов",
+                "Имя папки не должно быть длиннее 50 символов",
                 controllerWindow,
                 Modality.WINDOW_MODAL
             )
@@ -128,13 +143,8 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         }
 
         val result = BlockingAction.actionResult(controllerWindow) {
-            if (currentDirectory == null) SocialClient.INSTANCE.filesClient.createInRootDirectory(
-                textInput.trim()
-            )
-            else SocialClient.INSTANCE.filesClient.createDirectory(
-                textInput.trim(),
-                currentDirectory!!.id
-            )
+            if (currentDirectory == null) SocialClient.INSTANCE.filesClient.createInRootDirectory(textInput.trim())
+            else SocialClient.INSTANCE.filesClient.createDirectory(textInput.trim(), currentDirectory!!.id)
         }
 
         if (result.isError) {
