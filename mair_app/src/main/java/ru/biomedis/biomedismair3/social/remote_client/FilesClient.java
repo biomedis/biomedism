@@ -22,9 +22,6 @@ public interface FilesClient {
   @RequestLine("GET /file/{id}")
   byte[] downloadFile(@Param("id") long id);
 
-  @RequestLine("GET /file/{id}/thumbnail")
-  byte[] downloadThumbnailFile(@Param("id") long id);
-
   @RequestLine("GET /directories/{directory}")
   List<DirectoryData> getDirectories(@Param("directory") long directory);
 

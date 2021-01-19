@@ -10,6 +10,7 @@ import javafx.scene.image.ImageView
 import javafx.util.Callback
 import ru.biomedis.biomedismair3.social.remote_client.dto.DirectoryData
 import ru.biomedis.biomedismair3.social.remote_client.dto.FileData
+import ru.biomedis.biomedismair3.social.remote_client.dto.FileType
 import ru.biomedis.biomedismair3.social.remote_client.dto.IFileItem
 import java.io.IOException
 
@@ -70,8 +71,11 @@ class FileCellFactory : Callback<ListView<IFileItem>, ListCell<IFileItem>> {
 
         private fun viewFile(file: FileData) {
             isDirectory = false
-            img.image = FileImages.selectImage(file)
-            name.text = file.name
+            if(file.type==FileType.IMAGE){
+                if(file.thumbnailImage!=null) img.image = file.thumbnailImage
+                else  img.image = FileImages.selectImage(file)
+            }else  img.image = FileImages.selectImage(file)
+            name.text = "${file.name}.${file.extension}"
         }
 
         init {

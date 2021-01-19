@@ -11,12 +11,14 @@ class FileImages {
         private val docImage = ImageHolder("/images/doc.png")
         private val exelImage = ImageHolder("/images/exel.png")
         private val pdfImage = ImageHolder("/images/pdf.png")
+        private val imageImage = ImageHolder("/images/image.png")
 
          fun selectImage(data: FileData): Image = when (data.extension) {
             "zip", "rar", "gzip", "7z", "bzip", "tar", "gz" -> archImage.image
             "doc", "docx" -> docImage.image
             "xls", "xlsx" -> exelImage.image
             "pdf" -> pdfImage.image
+             "jpg","jpeg","gif","png"-> imageImage.image
             else -> fileImage.image
         }
 
