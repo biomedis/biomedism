@@ -10,9 +10,9 @@ import javafx.scene.image.ImageView
 import javafx.util.Callback
 import ru.biomedis.biomedismair3.social.remote_client.dto.DirectoryData
 import ru.biomedis.biomedismair3.social.remote_client.dto.FileData
-import ru.biomedis.biomedismair3.social.remote_client.dto.FileType
 import ru.biomedis.biomedismair3.social.remote_client.dto.IFileItem
 import java.io.IOException
+import java.text.SimpleDateFormat
 
 /**
  * Принимает FileData и DirectoryData
@@ -24,9 +24,11 @@ class FileCellFactory : Callback<ListView<IFileItem>, ListCell<IFileItem>> {
     }
 
     class TaskCell : ListCell<IFileItem>() {
-
+        private  val dateFormat = SimpleDateFormat("dd.MM.yyyy hh:mm")
         @FXML
         private lateinit var name: Label
+        @FXML
+        private lateinit var date: Label
         @FXML
         private lateinit var img: ImageView
 
@@ -59,6 +61,8 @@ class FileCellFactory : Callback<ListView<IFileItem>, ListCell<IFileItem>> {
                 else -> throw RuntimeException("Требуется тип FileData или DirectoryData")
             }
 
+
+
             contentDisplay = ContentDisplay.GRAPHIC_ONLY
 
         }
@@ -67,15 +71,23 @@ class FileCellFactory : Callback<ListView<IFileItem>, ListCell<IFileItem>> {
             isDirectory = true
             img.image = DirectoryImage.directoryImage
             name.text = dir.name
+            img.fitWidth = img.image.width
+            img.fitHeight = img.image.height
+            date.isVisible= false
         }
 
         private fun viewFile(file: FileData) {
             isDirectory = false
-            if(file.type==FileType.IMAGE){
-                if(file.thumbnailImage!=null) img.image = file.thumbnailImage
-                else  img.image = FileImages.selectImage(file)
-            }else  img.image = FileImages.selectImage(file)
+            val icon = if(file.thumbnailImage!=null)  file.thumbnailImage!!
+            else FileImages.selectImage(file)
+
+            img.image = icon
+            img.fitWidth = img.image.width
+            img.fitHeight = img.image.height
+
             name.text = "${file.name}.${file.extension}"
+            date.text = dateFormat.format(file.createdDate)
+            date.isVisible = true
         }
 
         init {

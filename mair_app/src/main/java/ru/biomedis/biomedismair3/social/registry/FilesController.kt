@@ -60,7 +60,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
     }
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
-        sortedItems.comparator = Comparator.comparing(IFileItem::directoryMarker)
+        sortedItems.comparator = Comparator.comparing(IFileItem::directoryMarker).reversed()
             .thenComparing(Comparator.comparing(IFileItem::name))
         container.apply {
             items = sortedItems
