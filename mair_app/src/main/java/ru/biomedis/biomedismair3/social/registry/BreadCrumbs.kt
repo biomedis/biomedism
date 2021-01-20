@@ -64,4 +64,14 @@ class BreadCrumbs(val handler: (directory: DirectoryData?)->Boolean) : HBox() {
             padding = Insets(0.0)
         }
     }
+
+    fun clear(){
+        children.forEach{
+            if(it is Hyperlink){
+                it.onAction = null
+            }
+        }
+        children.clear()
+        addLabel( "../",null)
+    }
 }

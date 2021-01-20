@@ -319,6 +319,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         //стирает весь кэш, начинает с корневой директории, те как в положении инициализации.
         //служит для исправления ошибок, если паралльно, что-то меняли в другой программе
         loadDirectory()
+        breadCrumbs.clear()
     }
 
 
