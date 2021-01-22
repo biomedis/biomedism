@@ -56,6 +56,7 @@ public class SocialClient {
   private final AccountClient accountClient;
   private final BackupClient backupClient;
   private final FilesClient filesClient;
+  private final UploadFilesClient uploadFilesClient;
   private final LoginClient loginClient;
   private final RegistrationClient registrationClient;
   private final ContactsClient contactsClient;
@@ -116,8 +117,11 @@ public class SocialClient {
     backupClient = createFeign(true, apiErrorDecoder, tokenProvider)
         .target(BackupClient.class, TextUtil.addPath(apiURL, "/api/private/files"));//
 
-    filesClient = createFeign(true, apiErrorDecoder, tokenProvider)
+    uploadFilesClient = createFeign(true, apiErrorDecoder, tokenProvider)
         .encoder(new FormEncoder())
+        .target(UploadFilesClient.class, TextUtil.addPath(apiURL, "/api/private/files"));// /api/private/files
+
+    filesClient = createFeign(true, apiErrorDecoder, tokenProvider)
         .target(FilesClient.class, TextUtil.addPath(apiURL, "/api/private/files"));// /api/private/files
 
     registrationClient = createFeign(false, loginErrorDecoder, tokenProvider)
@@ -226,6 +230,9 @@ public class SocialClient {
     }
   }
 
+  public UploadFilesClient getUploadFilesClient() {
+    return uploadFilesClient;
+  }
 
   public AccountClient getAccountClient() {
     return accountClient;

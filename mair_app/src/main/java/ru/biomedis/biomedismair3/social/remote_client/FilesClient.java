@@ -14,11 +14,6 @@ import ru.biomedis.biomedismair3.social.remote_client.dto.UserNameDto;
 
 public interface FilesClient {
 
-  @RequestLine("POST /uploadFile/to_directory/{directory}")
-  @Headers("Content-Type: multipart/form-data")
-  FileData uploadFile(@Param("file") FormData file, @Param("directory") long directory);
-
-
   @RequestLine("GET /file/{id}")
   byte[] downloadFile(@Param("id") long id);
 
@@ -80,11 +75,6 @@ public interface FilesClient {
   @RequestLine("DELETE /directories")
   void deleteDirs(List<Long> directories);
 
-  @Headers("Content-Type: multipart/form-data")
-  @RequestLine("POST /backup")
-  Date doBackup(@Param("file") FormData file);
-
-
   @RequestLine("GET /backups")
   List<Date> getBackupList();
 
@@ -101,4 +91,10 @@ public interface FilesClient {
 
   @RequestLine("PUT /directories/{dir}?name={name}")
   DirectoryData changeDirectoryName(@Param("name") String name,  @Param("dir") long parent);
+
+  @RequestLine("PUT /files/{id}?name={name}")
+  void renameFile(@Param("name")  String name, @Param("id")long id);
+
+  @RequestLine("PUT /directories/{id}?name={name}")
+  void renameDirectory(@Param("name")  String name, @Param("id") long id);
 }

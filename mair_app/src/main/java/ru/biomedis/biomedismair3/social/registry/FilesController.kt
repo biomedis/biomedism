@@ -1,6 +1,7 @@
 package ru.biomedis.biomedismair3.social.registry
 
 import feign.form.FormData
+import javafx.beans.Observable
 import javafx.collections.FXCollections
 import javafx.collections.transformation.SortedList
 import javafx.fxml.FXML
@@ -10,6 +11,7 @@ import javafx.scene.layout.HBox
 import javafx.stage.FileChooser
 import javafx.stage.Modality
 import javafx.stage.WindowEvent
+import javafx.util.Callback
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
@@ -25,6 +27,17 @@ import kotlin.Comparator
 
 
 class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached {
+
+    /**
+     * Позволяет генерировать события изменения списка при изменени указанных свойств объекта
+     */
+    fun extractor(): Callback<IFileItem, Array<Observable>> {
+        return Callback<IFileItem, Array<Observable>> { item: IFileItem ->
+            arrayOf(
+                item.nameProperty()
+            )
+        }
+    }
 
     private val log by LoggerDelegate()
 
@@ -42,10 +55,10 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
     private var currentDirectory: DirectoryData? = null
 
-    private val items = FXCollections.observableArrayList<IFileItem>()
+    private val items = FXCollections.observableArrayList<IFileItem>(extractor())
     private val sortedItems = SortedList(items)
     private val breadCrumbs = BreadCrumbs(this::loadDirectory)
-    private val contextMenu = ContextMenu()
+    private val ctxListMenu = ContextMenu()
 
     override fun onCompletedInitialization() {
 
@@ -66,14 +79,16 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
             items = sortedItems
             selectionModel.selectionMode = SelectionMode.MULTIPLE
             cellFactory = FileCellFactory()
+            this.contextMenu = ctxListMenu
             setOnMouseClicked { event ->
                 if (event.button === MouseButton.PRIMARY && event.clickCount == 2 && container.selectionModel.selectedItem is DirectoryData) {
                     val dstDir = container.selectionModel.selectedItem as DirectoryData
                     loadDirectory(dstDir)
                     breadCrumbs.destination(dstDir)
-                } else if (event.button === MouseButton.SECONDARY) {
-                    contextMenu.show(container, event.screenX, event.screenY)
                 }
+//                else if (event.button === MouseButton.SECONDARY) {
+//                    contextMenu.show(container, event.screenX, event.screenY)
+//                }
             }
         }
 
@@ -81,6 +96,8 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         initContextMenu()
     }
 
+    private var cutedItems = mutableListOf<IFileItem>()
+    private var cutedFromDirectory: DirectoryData? = null
     private fun initContextMenu() {
         val getLinkItem = MenuItem("Получить ссылку")//для разрешенных для этого типов
         val changeAccessItem = MenuItem("Права доступа")
@@ -98,7 +115,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         changeAccessItem.setOnAction { changeAccessItems() }
         getLinkItem.setOnAction { getLinkItem() }
 
-        contextMenu.items.addAll(
+        ctxListMenu.items.addAll(
             changeAccessItem,
             renameItem,
             SeparatorMenuItem(),
@@ -106,14 +123,43 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
             pasteItem,
             deleteItem
         )
-        contextMenu.setOnShowing {
+        ctxListMenu.setOnShowing {
+            fun disableAll(disable: Boolean){
+                getLinkItem.isDisable = disable
+                changeAccessItem .isDisable = disable
+                renameItem.isDisable = disable
+                cutItem.isDisable = disable
+                pasteItem.isDisable = disable
+                deleteItem.isDisable = disable
+                clearItem .isDisable = disable
+            }
+
+            fun checkPaste(){
+                if(cutedItems.isNotEmpty()){//режим вырезания
+                    pasteItem.isDisable = currentDirectory == cutedFromDirectory//нельзя вставить в туже директорию
+
+                }
+            }
+
+            disableAll(false)
             //если ничего не выбрано то дизаблим все.
             //если выбрано несколько то недоступно очистить
             //если вырезаем то если выбран элемент из тех, что вырезан - не доступно
             //получить ссылку - доступно если выбранный элемент имеет доступный для этого тип доступа
+            val selected = container.selectionModel.selectedItems
+            if(selected.isEmpty()) {
+                disableAll(true)
+                checkPaste()
+                return@setOnShowing
+            }
+            if(selected.size>1) clearItem.isDisable = true
+            checkPaste()
+            if(!selected.any { it is FileData }) getLinkItem.isDisable = true
+            if(selected.size > 1) renameItem.isDisable = true
+
 
         }
-        //contextMenu.
+
     }
 
     private fun getLinkItem() {
@@ -127,10 +173,29 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
     private fun renameItem() {
         val selected = container.selectionModel.selectedItem
-    }
+        val newName = showTextInputDialog("Переименование","Введите новое имя","",selected.name, controllerWindow, Modality.WINDOW_MODAL)
+        if(newName.isBlank() || newName==selected.name) return
+
+       val result =  BlockingAction.actionNoResult(controllerWindow){
+           if(selected is FileData) SocialClient.INSTANCE.filesClient.renameFile(newName, selected.id)
+            else SocialClient.INSTANCE.filesClient.renameDirectory(newName, selected.id)
+        }
+
+        if(result.isError){
+            log.error("", result.error)
+            showWarningDialog("Переименование","Не удалось переименовать элемент","",controllerWindow, Modality.WINDOW_MODAL)
+            return
+        }
+
+        selected.name = newName
+   }
 
     private fun clearItem() {
         val selected = container.selectionModel.selectedItem
+
+
+        cutedFromDirectory = null
+        cutedItems.clear()
 
     }
 
@@ -140,17 +205,38 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         //если папка не пуста то не удаляем
         //          возможно стоит с сервера в В DirectionData получать сколько элементов внутри папки,
         //          хотя может быть сложно если папок много Возможно проще вернуть с сервера инфу о том что не удалено.
+
+        cutedFromDirectory = null
+        cutedItems.clear()
     }
 
     private fun pasteItems() {
-        val selected = container.selectionModel.selectedItem
-        //выбрана папка - в нее вставим, выбран файл - в эту же папку вставим
+       val result =  BlockingAction.actionNoResult(controllerWindow){
+                SocialClient.INSTANCE.filesClient.moveFiles(
+                    cutedItems.filterIsInstance<FileData>().map { it.id },
+                    currentDirectory?.id?:0L
+            )
+            SocialClient.INSTANCE.filesClient.moveDirectories(
+                cutedItems.filterIsInstance<DirectoryData>().map { it.id },
+                currentDirectory?.id?:0L
+            )
+        }
+        if(result.isError){
+            log.error("", result.error)
+            showWarningDialog("Вырезать","Не удалось вырезать файлы", "", controllerWindow, Modality.WINDOW_MODAL)
+            return
+        }
 
+        items.addAll(cutedItems)
+        cutedItems.clear()
+        cutedFromDirectory = null
     }
 
     private fun cutItems() {
         val selected = container.selectionModel.selectedItems.toList()
-
+        cutedItems.clear()
+        cutedItems.addAll(selected)
+        cutedFromDirectory = currentDirectory
     }
 
     override fun onSelected() {
@@ -288,7 +374,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
             val notLoader = mutableListOf<String>()
             files.forEachIndexed { index, f ->
                 try {
-                    val file = SocialClient.INSTANCE.filesClient
+                    val file = SocialClient.INSTANCE.uploadFilesClient
                         .uploadFile(
                             FormData("file${index + 1}", f.name, f.readBytes()),
                             currentDirectory?.id ?: 0
@@ -316,9 +402,10 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
     @FXML
     private fun onSync() {
-        //стирает весь кэш, начинает с корневой директории, те как в положении инициализации.
-        //служит для исправления ошибок, если паралльно, что-то меняли в другой программе
-        loadDirectory()
+        if(!loadDirectory(currentDirectory)){
+            if(currentDirectory!=null) loadDirectory()//при ошибке вернемся в корень
+        }
+
         breadCrumbs.clear()
     }
 
