@@ -1,6 +1,7 @@
 package ru.biomedis.biomedismair3.social.registry
 
 import feign.form.FormData
+import javafx.application.Platform
 import javafx.beans.Observable
 import javafx.collections.FXCollections
 import javafx.collections.transformation.SortedList
@@ -138,7 +139,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
                 if(cutedItems.isNotEmpty()){//режим вырезания
                     pasteItem.isDisable = currentDirectory == cutedFromDirectory//нельзя вставить в туже директорию
 
-                }
+                }else  pasteItem.isDisable = true
             }
 
             disableAll(false)
@@ -201,13 +202,23 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
     private fun deleteItems() {
         val selected = container.selectionModel.selectedItems.toList()
-        //что можно удалять - пустые папки и файлы
-        //если папка не пуста то не удаляем
-        //          возможно стоит с сервера в В DirectionData получать сколько элементов внутри папки,
-        //          хотя может быть сложно если папок много Возможно проще вернуть с сервера инфу о том что не удалено.
 
+        val r = showConfirmationDialog("Удаление файлов","Выбранные файлы и директории будут удалены","Вы уверены?",controllerWindow, Modality.WINDOW_MODAL)
+        if( !r.filter{ it==okButtonType}.isPresent) return
+        val result = BlockingAction.actionNoResult(controllerWindow){
+            SocialClient.INSTANCE.filesClient.deleteFiles(selected.filterIsInstance<FileData>().map { it.id })
+            SocialClient.INSTANCE.filesClient.deleteDirs(selected.filterIsInstance<DirectoryData>().map { it.id })
+        }
         cutedFromDirectory = null
         cutedItems.clear()
+        if(result.isError){
+            log.error("", result.error)
+            showWarningDialog("Удаление","Ошибка удаления","Возможно удалены не все выбранные файлы",controllerWindow, Modality.WINDOW_MODAL)
+            Platform.runLater(this::onSync)
+            return
+        }
+
+        items.removeAll(selected)
     }
 
     private fun pasteItems() {
