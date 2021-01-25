@@ -206,8 +206,10 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         val r = showConfirmationDialog("Удаление файлов","Выбранные файлы и директории будут удалены","Вы уверены?",controllerWindow, Modality.WINDOW_MODAL)
         if( !r.filter{ it==okButtonType}.isPresent) return
         val result = BlockingAction.actionNoResult(controllerWindow){
-            SocialClient.INSTANCE.filesClient.deleteFiles(selected.filterIsInstance<FileData>().map { it.id })
-            SocialClient.INSTANCE.filesClient.deleteDirs(selected.filterIsInstance<DirectoryData>().map { it.id })
+            val files = selected.filterIsInstance<FileData>().map { it.id }
+            val dirs = selected.filterIsInstance<DirectoryData>().map { it.id }
+            if(files.isNotEmpty())SocialClient.INSTANCE.filesClient.deleteFiles(files)
+            if(dirs.isNotEmpty())SocialClient.INSTANCE.filesClient.deleteDirs(dirs)
         }
         cutedFromDirectory = null
         cutedItems.clear()
