@@ -2,6 +2,8 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
@@ -25,6 +27,28 @@
                <padding>
                   <Insets left="5.0" right="5.0" top="6.0" />
                </padding>
+            </HBox>
+            <HBox spacing="8.0">
+               <padding>
+                  <Insets bottom="3.0" left="8.0" top="3.0" />
+               </padding>
+               <children>
+                  <VBox>
+                     <children>
+                        <Label text="Фильтр по типу доступа" />
+                        <ChoiceBox fx:id="typeFilter" />
+                     </children>
+                  </VBox>
+                  <VBox layoutX="18.0" layoutY="13.0">
+                     <children>
+                        <Label text="Фильтр по типу файлов" />
+                        <ChoiceBox fx:id="typeFileFilter" />
+                     </children>
+                  </VBox>
+               </children>
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin>
             </HBox>
             <ListView fx:id="container" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" VBox.vgrow="ALWAYS" />
          </children>

@@ -4,6 +4,7 @@ import feign.form.FormData
 import javafx.application.Platform
 import javafx.beans.Observable
 import javafx.collections.FXCollections
+import javafx.collections.transformation.FilteredList
 import javafx.collections.transformation.SortedList
 import javafx.fxml.FXML
 import javafx.scene.control.*
@@ -13,9 +14,11 @@ import javafx.stage.FileChooser
 import javafx.stage.Modality
 import javafx.stage.WindowEvent
 import javafx.util.Callback
+import javafx.util.StringConverter
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
+import ru.biomedis.biomedismair3.social.remote_client.dto.AccessVisibilityType
 import ru.biomedis.biomedismair3.social.remote_client.dto.DirectoryData
 import ru.biomedis.biomedismair3.social.remote_client.dto.FileData
 import ru.biomedis.biomedismair3.social.remote_client.dto.IFileItem
@@ -24,6 +27,7 @@ import ru.biomedis.biomedismair3.utils.Other.Result
 import ru.biomedis.biomedismair3.utils.TabHolder
 import java.net.URL
 import java.util.*
+import java.util.function.Predicate
 import kotlin.Comparator
 
 
@@ -43,6 +47,12 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
     private val log by LoggerDelegate()
 
     @FXML
+    lateinit var typeFilter: ChoiceBox<AccessTypeDto>
+
+    @FXML
+    lateinit var typeFileFilter: ChoiceBox<AccessTypeDto>
+
+    @FXML
     lateinit var pathLine: HBox
 
     @FXML
@@ -58,8 +68,24 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
     private val items = FXCollections.observableArrayList<IFileItem>(extractor())
     private val sortedItems = SortedList(items)
+    private val filteredItems = FilteredList(sortedItems)
     private val breadCrumbs = BreadCrumbs(this::loadDirectory)
     private val ctxListMenu = ContextMenu()
+    private var cutedItems = mutableListOf<IFileItem>()
+    private var cutedFromDirectory: DirectoryData? = null
+
+   private val directoryAccessList = listOf<AccessTypeDto>(
+        AccessTypeDto("Личное", AccessVisibilityType.PRIVATE),
+        AccessTypeDto("Доступно пользователям программы и по ссылкам в сети( в тексте сообщений и постов )", AccessVisibilityType.PUBLIC),
+        AccessTypeDto("Доступно для всех пользователей только внутри программы ", AccessVisibilityType.REGISTERED)
+    )
+    private val fileAccessList = listOf<AccessTypeDto>(
+        AccessTypeDto("Доступно по ссылкам внутри программы(в тексте сообщений и постов)", AccessVisibilityType.PROTECTED),  //доступно по ссылкам публично, но не видно в профиле пользователя( для ресурсов, которые указываются в сообщениях и ленте)
+        AccessTypeDto("Доступно по специальным ссылкам",AccessVisibilityType.BY_LINK)//приватны, но можно получать публично по ссылке - код используется
+    )
+
+    private val allAccessList = listOf(*directoryAccessList.toTypedArray(), *fileAccessList.toTypedArray())
+
 
     override fun onCompletedInitialization() {
 
@@ -73,11 +99,22 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
     }
 
+    private class FilterPredicate(val typeFilter: ChoiceBox<AccessTypeDto>): Predicate<IFileItem>{
+        override fun test(t: IFileItem): Boolean {
+          return  if(typeFilter.value.name == "-")  true
+            else t.accessType==typeFilter.value.type
+        }
+
+    }
+
     override fun initialize(location: URL?, resources: ResourceBundle?) {
         sortedItems.comparator = Comparator.comparing(IFileItem::directoryMarker).reversed()
             .thenComparing(Comparator.comparing(IFileItem::name))
+
+        filteredItems.predicate = FilterPredicate(typeFilter)
+
         container.apply {
-            items = sortedItems
+            items = filteredItems
             selectionModel.selectionMode = SelectionMode.MULTIPLE
             cellFactory = FileCellFactory()
             this.contextMenu = ctxListMenu
@@ -95,10 +132,31 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
         pathLine.children.add(breadCrumbs)
         initContextMenu()
+        initFilter()
     }
 
-    private var cutedItems = mutableListOf<IFileItem>()
-    private var cutedFromDirectory: DirectoryData? = null
+    private fun initFilter() {
+        typeFilter.items.add(AccessTypeDto("-", AccessVisibilityType.PRIVATE))
+        typeFilter.items.addAll(allAccessList)
+        typeFilter.converter = object: StringConverter<AccessTypeDto>() {
+            override fun toString(item: AccessTypeDto): String {
+                return item.name
+            }
+
+            override fun fromString(string: String): AccessTypeDto {
+                return typeFilter.items.first { it.name==string }
+            }
+
+        }
+
+        typeFilter.value = typeFilter.items.first()
+        typeFilter.valueProperty().addListener{
+                _,n,o->
+            filteredItems.predicate = FilterPredicate(typeFilter)
+        }
+    }
+
+
     private fun initContextMenu() {
         val getLinkItem = MenuItem("Получить ссылку")//для разрешенных для этого типов
         val changeAccessItem = MenuItem("Права доступа")
@@ -106,12 +164,10 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         val cutItem = MenuItem("Вырезать")
         val pasteItem = MenuItem("Вставить")
         val deleteItem = MenuItem("Удалить")
-        val clearItem = MenuItem("Очистить директорию")
 
         cutItem.setOnAction { cutItems() }
         pasteItem.setOnAction { pasteItems() }
         deleteItem.setOnAction { deleteItems() }
-        clearItem.setOnAction { clearItem() }
         renameItem.setOnAction { renameItem() }
         changeAccessItem.setOnAction { changeAccessItems() }
         getLinkItem.setOnAction { getLinkItem() }
@@ -125,21 +181,21 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
             deleteItem
         )
         ctxListMenu.setOnShowing {
-            fun disableAll(disable: Boolean){
+            fun disableAll(disable: Boolean) {
                 getLinkItem.isDisable = disable
-                changeAccessItem .isDisable = disable
+                changeAccessItem.isDisable = disable
                 renameItem.isDisable = disable
                 cutItem.isDisable = disable
                 pasteItem.isDisable = disable
                 deleteItem.isDisable = disable
-                clearItem .isDisable = disable
             }
 
-            fun checkPaste(){
-                if(cutedItems.isNotEmpty()){//режим вырезания
-                    pasteItem.isDisable = currentDirectory == cutedFromDirectory//нельзя вставить в туже директорию
+            fun checkPaste() {
+                if (cutedItems.isNotEmpty()) {//режим вырезания
+                    pasteItem.isDisable =
+                        currentDirectory == cutedFromDirectory//нельзя вставить в туже директорию
 
-                }else  pasteItem.isDisable = true
+                } else pasteItem.isDisable = true
             }
 
             disableAll(false)
@@ -148,15 +204,15 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
             //если вырезаем то если выбран элемент из тех, что вырезан - не доступно
             //получить ссылку - доступно если выбранный элемент имеет доступный для этого тип доступа
             val selected = container.selectionModel.selectedItems
-            if(selected.isEmpty()) {
+            if (selected.isEmpty()) {
                 disableAll(true)
                 checkPaste()
                 return@setOnShowing
             }
-            if(selected.size>1) clearItem.isDisable = true
+
             checkPaste()
-            if(!selected.any { it is FileData }) getLinkItem.isDisable = true
-            if(selected.size > 1) renameItem.isDisable = true
+            if (!selected.any { it is FileData }) getLinkItem.isDisable = true
+            if (selected.size > 1) renameItem.isDisable = true
 
 
         }
@@ -165,57 +221,142 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
     private fun getLinkItem() {
         val selected = container.selectionModel.selectedItem
+
     }
 
     private fun changeAccessItems() {
         val selected = container.selectionModel.selectedItems.toList()
+        if (selected.isEmpty()) return
+        val accessType: AccessVisibilityType = when (selected.size) {
+            1 -> selected.first().accessType
+            else -> AccessVisibilityType.PRIVATE
+        }
+        val choiceList = mutableListOf<AccessTypeDto>(
+            AccessTypeDto("Личное", AccessVisibilityType.PRIVATE),
+            AccessTypeDto("Доступно пользователям программы и по ссылкам в сети( в тексте сообщений и постов )", AccessVisibilityType.PUBLIC),
+            AccessTypeDto("Доступно для всех пользователей только внутри программы ", AccessVisibilityType.REGISTERED)
+        )
+        if (!selected.all { it is DirectoryData }) {
+            choiceList.add(AccessTypeDto("Доступно по ссылкам внутри программы(в тексте сообщений и постов)", AccessVisibilityType.PROTECTED))  //доступно по ссылкам публично, но не видно в профиле пользователя( для ресурсов, которые указываются в сообщениях и ленте)
+            choiceList.add(AccessTypeDto("Доступно по специальным ссылкам",AccessVisibilityType.BY_LINK))//приватны, но можно получать публично по ссылке - код используется
 
+        }
+
+        val defaultChoice = choiceList.first { it.type == accessType }
+
+        val choice = showChoiceDialog(
+            "Права доступа к файлам и папкам",
+            "Для папок не доступен доступ по ссылкам. \nЕсли при смешанном выборе(файлы и папки) будет выбран доступ по ссылке, \nто выбранные папки получат личный доступ",
+            "",
+            choiceList,
+            defaultChoice,
+            controllerWindow,
+            Modality.WINDOW_MODAL
+        )
+
+        val result = BlockingAction.actionNoResult(controllerWindow) {
+            val files = selected.filterIsInstance<FileData>().map { it.id }
+            val directories = selected.filterIsInstance<DirectoryData>().map { it.id }
+
+            if (directories.isNotEmpty()) {
+                if (choice.type == AccessVisibilityType.BY_LINK || choice.type == AccessVisibilityType.PROTECTED) {
+                    SocialClient.INSTANCE.filesClient.changeDirAccessType(
+                        AccessVisibilityType.PRIVATE.name,
+                        directories
+                    )
+                } else SocialClient.INSTANCE.filesClient.changeDirAccessType(
+                    choice.type.name,
+                    directories
+                )
+            }
+
+            if (files.isNotEmpty()) {
+                SocialClient.INSTANCE.filesClient.changeFileAccessType(choice.type.name, files)
+            }
+        }
+
+        if (result.isError) {
+            log.error("", result.error)
+            showWarningDialog(
+                "Изменение прав доступа",
+                "Не удалось изменить права доступа",
+                "",
+                controllerWindow,
+                Modality.WINDOW_MODAL
+            )
+            return
+        }
+
+        selected.forEach {
+            it.accessType = choice.type
+        }
     }
 
     private fun renameItem() {
         val selected = container.selectionModel.selectedItem
-        val newName = showTextInputDialog("Переименование","Введите новое имя","",selected.name, controllerWindow, Modality.WINDOW_MODAL)
-        if(newName.isBlank() || newName==selected.name) return
+        if (selected == null) return
+        val newName = showTextInputDialog(
+            "Переименование",
+            "Введите новое имя",
+            "",
+            selected.name,
+            controllerWindow,
+            Modality.WINDOW_MODAL
+        )
+        if (newName.isBlank() || newName == selected.name) return
 
-       val result =  BlockingAction.actionNoResult(controllerWindow){
-           if(selected is FileData) SocialClient.INSTANCE.filesClient.renameFile(newName, selected.id)
+        val result = BlockingAction.actionNoResult(controllerWindow) {
+            if (selected is FileData) SocialClient.INSTANCE.filesClient.renameFile(
+                newName,
+                selected.id
+            )
             else SocialClient.INSTANCE.filesClient.renameDirectory(newName, selected.id)
         }
 
-        if(result.isError){
+        if (result.isError) {
             log.error("", result.error)
-            showWarningDialog("Переименование","Не удалось переименовать элемент","",controllerWindow, Modality.WINDOW_MODAL)
+            showWarningDialog(
+                "Переименование",
+                "Не удалось переименовать элемент",
+                "",
+                controllerWindow,
+                Modality.WINDOW_MODAL
+            )
             return
         }
 
         selected.name = newName
-   }
-
-    private fun clearItem() {
-        val selected = container.selectionModel.selectedItem
-
-
-        cutedFromDirectory = null
-        cutedItems.clear()
-
     }
+
 
     private fun deleteItems() {
         val selected = container.selectionModel.selectedItems.toList()
-
-        val r = showConfirmationDialog("Удаление файлов","Выбранные файлы и директории будут удалены","Вы уверены?",controllerWindow, Modality.WINDOW_MODAL)
-        if( !r.filter{ it==okButtonType}.isPresent) return
-        val result = BlockingAction.actionNoResult(controllerWindow){
+        if (selected.isEmpty()) return
+        val r = showConfirmationDialog(
+            "Удаление файлов",
+            "Выбранные файлы и директории будут удалены",
+            "Вы уверены?",
+            controllerWindow,
+            Modality.WINDOW_MODAL
+        )
+        if (!r.filter { it == okButtonType }.isPresent) return
+        val result = BlockingAction.actionNoResult(controllerWindow) {
             val files = selected.filterIsInstance<FileData>().map { it.id }
             val dirs = selected.filterIsInstance<DirectoryData>().map { it.id }
-            if(files.isNotEmpty())SocialClient.INSTANCE.filesClient.deleteFiles(files)
-            if(dirs.isNotEmpty())SocialClient.INSTANCE.filesClient.deleteDirs(dirs)
+            if (files.isNotEmpty()) SocialClient.INSTANCE.filesClient.deleteFiles(files)
+            if (dirs.isNotEmpty()) SocialClient.INSTANCE.filesClient.deleteDirs(dirs)
         }
         cutedFromDirectory = null
         cutedItems.clear()
-        if(result.isError){
+        if (result.isError) {
             log.error("", result.error)
-            showWarningDialog("Удаление","Ошибка удаления","Возможно удалены не все выбранные файлы",controllerWindow, Modality.WINDOW_MODAL)
+            showWarningDialog(
+                "Удаление",
+                "Ошибка удаления",
+                "Возможно удалены не все выбранные файлы",
+                controllerWindow,
+                Modality.WINDOW_MODAL
+            )
             Platform.runLater(this::onSync)
             return
         }
@@ -224,19 +365,25 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
     }
 
     private fun pasteItems() {
-       val result =  BlockingAction.actionNoResult(controllerWindow){
-                SocialClient.INSTANCE.filesClient.moveFiles(
-                    cutedItems.filterIsInstance<FileData>().map { it.id },
-                    currentDirectory?.id?:0L
+        val result = BlockingAction.actionNoResult(controllerWindow) {
+            SocialClient.INSTANCE.filesClient.moveFiles(
+                cutedItems.filterIsInstance<FileData>().map { it.id },
+                currentDirectory?.id ?: 0L
             )
             SocialClient.INSTANCE.filesClient.moveDirectories(
                 cutedItems.filterIsInstance<DirectoryData>().map { it.id },
-                currentDirectory?.id?:0L
+                currentDirectory?.id ?: 0L
             )
         }
-        if(result.isError){
+        if (result.isError) {
             log.error("", result.error)
-            showWarningDialog("Вырезать","Не удалось вырезать файлы", "", controllerWindow, Modality.WINDOW_MODAL)
+            showWarningDialog(
+                "Вырезать",
+                "Не удалось вырезать файлы",
+                "",
+                controllerWindow,
+                Modality.WINDOW_MODAL
+            )
             return
         }
 
@@ -247,6 +394,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
     private fun cutItems() {
         val selected = container.selectionModel.selectedItems.toList()
+        if (selected.isEmpty()) return
         cutedItems.clear()
         cutedItems.addAll(selected)
         cutedFromDirectory = currentDirectory
@@ -392,7 +540,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
                             FormData("file${index + 1}", f.name, f.readBytes()),
                             currentDirectory?.id ?: 0
                         )
-                        FileData.fillThumbnailImage(file)
+                    FileData.fillThumbnailImage(file)
                     result.add(file)
                 } catch (e: Exception) {
                     log.error("Ошибка загрузки файла", e)
@@ -415,12 +563,17 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
     @FXML
     private fun onSync() {
-        if(!loadDirectory(currentDirectory)){
-            if(currentDirectory!=null) loadDirectory()//при ошибке вернемся в корень
+        if (!loadDirectory(currentDirectory)) {
+            if (currentDirectory != null) loadDirectory()//при ошибке вернемся в корень
         }
 
         breadCrumbs.clear()
     }
 
-
+    data class AccessTypeDto(val name: String, val type: AccessVisibilityType) {
+        override fun toString(): String {
+            return name
+        }
+    }
 }
+

@@ -42,6 +42,7 @@ import java.util.regex.Pattern;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 import javafx.util.Pair;
+import javafx.util.StringConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
@@ -623,6 +624,23 @@ public abstract class BaseController implements Initializable {
         else return null;
     }
 
+    @NotNull
+    public static  <T> T showChoiceDialog(@NotNull String title, @NotNull  String header,@NotNull String content,@NotNull List<T> choiceList, @NotNull T defaultChoice,  @NotNull Window owner, @NotNull Modality modal) {
+
+        if (!choiceList.contains(defaultChoice)) defaultChoice = choiceList.get(0);
+
+        ChoiceDialog<T> dialog = new ChoiceDialog(defaultChoice, choiceList);
+        dialog.setTitle(title);
+        dialog.setHeaderText(header);
+        dialog.setContentText(content);
+        dialog.initOwner(owner);
+        dialog.initModality(modal);
+
+        // Traditional way to get the response value.
+        Optional<T> result = dialog.showAndWait();
+        if (result.isPresent()) return result.get();
+        else return null;
+    }
 
     /**
      * Удалит спец символы и всякие ковычки итп

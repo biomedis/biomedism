@@ -10,16 +10,18 @@ interface  IFileItem{
     var id: Long
     var name: String
     val directoryMarker: Boolean
+    var accessType: AccessVisibilityType
     fun nameProperty(): SimpleStringProperty
-}
+    }
 
-class FileData: IFileItem {
+class FileData : IFileItem {
     override var id: Long=-1
     var createdDate: Date = Date.from(Instant.now())
     var extension: String=""
     var directory: Long?=null
     var type: FileType = FileType.FILE
     var thumbnail: ByteArray? = null
+    override var accessType: AccessVisibilityType = AccessVisibilityType.PRIVATE
     @Transient var thumbnailImage: Image? = null
 
     override val directoryMarker: Boolean
@@ -44,7 +46,7 @@ class FileData: IFileItem {
 class DirectoryData:IFileItem{
     override var id: Long=-1
     var parent: Long?=null
-
+    override var accessType: AccessVisibilityType = AccessVisibilityType.PRIVATE
     private var _name: SimpleStringProperty = SimpleStringProperty(this, "name", "")
     override  var name: String
         get() = _name.get()
@@ -58,3 +60,10 @@ class DirectoryData:IFileItem{
 
 class UserNameDto{var id: Long=-1; var name: String=""}
 
+enum class AccessVisibilityType {
+    PRIVATE,//только для себя
+    PUBLIC, //для всех, можно публично давать ссылки в сеть
+    PROTECTED,//доступно по ссылкам публично, но не видно в профиле пользователя( для ресурсов, которые указываются в сообщениях и ленте)
+    BY_LINK,//приватны, но можно получать публично по ссылке - код используется
+    REGISTERED;//доступно для публично для пользователей сервиса
+}
