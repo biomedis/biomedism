@@ -50,7 +50,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
     lateinit var typeFilter: ChoiceBox<AccessTypeDto>
 
     @FXML
-    lateinit var typeFileFilter: ChoiceBox<AccessTypeDto>
+    lateinit var typeFileFilter: ChoiceBox<String>
 
     @FXML
     lateinit var pathLine: HBox
@@ -73,6 +73,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
     private val ctxListMenu = ContextMenu()
     private var cutedItems = mutableListOf<IFileItem>()
     private var cutedFromDirectory: DirectoryData? = null
+    private val fileTypeFilterExtensions = FileTypeByExtension()
 
    private val directoryAccessList = listOf<AccessTypeDto>(
         AccessTypeDto("Личное", AccessVisibilityType.PRIVATE),
@@ -99,19 +100,39 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
     }
 
-    private class FilterPredicate(val typeFilter: ChoiceBox<AccessTypeDto>): Predicate<IFileItem>{
+    private class FilterPredicate(val typeFilter: ChoiceBox<AccessTypeDto>, val fileTypePredicate: FilterFileTypePredicate): Predicate<IFileItem>{
         override fun test(t: IFileItem): Boolean {
-          return  if(typeFilter.value.name == "-")  true
-            else t.accessType==typeFilter.value.type
+          return  if(typeFilter.value.name == "-" ) fileTypePredicate.test(t)
+            else  (t.accessType==typeFilter.value.type) && fileTypePredicate.test(t)
         }
 
     }
 
+    private class FilterFileTypePredicate( val typeFileFilter: ChoiceBox<String>, val extMap: FileTypeByExtension): Predicate<IFileItem>{
+        override fun test(t: IFileItem): Boolean {
+            return  if(typeFileFilter.value == "-" || t is DirectoryData)  true
+            else {
+                val nameType = extMap.map.get((t as FileData).extension)
+                if(nameType == null){//файл не из списка
+                    typeFileFilter.value == extMap.others//хотели ли отобразить файлы не из списка
+                }else {
+                    typeFileFilter.value == nameType
+                }
+            }
+        }
+
+    }
+
+    private lateinit var fileTypePredicate: FilterFileTypePredicate
+
     override fun initialize(location: URL?, resources: ResourceBundle?) {
+
         sortedItems.comparator = Comparator.comparing(IFileItem::directoryMarker).reversed()
             .thenComparing(Comparator.comparing(IFileItem::name))
 
-        filteredItems.predicate = FilterPredicate(typeFilter)
+        fileTypePredicate = FilterFileTypePredicate(typeFileFilter, fileTypeFilterExtensions)
+
+        filteredItems.predicate = FilterPredicate(typeFilter, fileTypePredicate)
 
         container.apply {
             items = filteredItems
@@ -135,6 +156,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         initFilter()
     }
 
+
     private fun initFilter() {
         typeFilter.items.add(AccessTypeDto("-", AccessVisibilityType.PRIVATE))
         typeFilter.items.addAll(allAccessList)
@@ -152,8 +174,18 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         typeFilter.value = typeFilter.items.first()
         typeFilter.valueProperty().addListener{
                 _,n,o->
-            filteredItems.predicate = FilterPredicate(typeFilter)
+            filteredItems.predicate = FilterPredicate(typeFilter, fileTypePredicate)
         }
+
+
+
+        typeFileFilter.valueProperty().addListener{
+                _,n,o->
+            filteredItems.predicate = FilterPredicate(typeFilter, fileTypePredicate)
+        }
+        typeFileFilter.items.add("-")
+        typeFileFilter.items.addAll(fileTypeFilterExtensions.typeNames())
+        typeFileFilter.value = typeFileFilter.items.first()
     }
 
 

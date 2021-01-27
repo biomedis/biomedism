@@ -3,6 +3,39 @@ package ru.biomedis.biomedismair3.social.registry
 import javafx.scene.image.Image
 import ru.biomedis.biomedismair3.social.remote_client.dto.FileData
 
+class FileTypeByExtension{
+    val others = "Другие"
+    val map = mapOf(
+        "zip" to "Архивы",
+        "rar" to "Архивы",
+        "gzip" to "Архивы",
+        "7z" to "Архивы",
+        "bzip" to "Архивы",
+        "tar" to "Архивы",
+        "gz" to "Архивы",
+        "doc" to "Документы",
+        "docx" to "Документы",
+        "xls" to "Электронные таблицы",
+        "xlsx" to "Электронные таблицы",
+        "pdf" to "Документы",
+        "ppt" to "Презентации",
+        "pptx" to "Презентации",
+        "mp3" to "Аудио",
+        "mp4" to "Видео",
+        "jpg" to "Картинки",
+        "jpeg" to "Картинки",
+        "gif" to "Картинки",
+        "png" to "Картинки"
+    )
+
+    fun typeNames(): List<String>{
+        return map.values.distinct().toMutableList().apply {
+            add(others)
+
+        }
+    }
+}
+
 class FileImages {
 
     companion object {
