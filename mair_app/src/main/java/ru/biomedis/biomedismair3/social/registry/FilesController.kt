@@ -18,10 +18,7 @@ import javafx.util.StringConverter
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
-import ru.biomedis.biomedismair3.social.remote_client.dto.AccessVisibilityType
-import ru.biomedis.biomedismair3.social.remote_client.dto.DirectoryData
-import ru.biomedis.biomedismair3.social.remote_client.dto.FileData
-import ru.biomedis.biomedismair3.social.remote_client.dto.IFileItem
+import ru.biomedis.biomedismair3.social.remote_client.dto.*
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import ru.biomedis.biomedismair3.utils.Other.Result
 import ru.biomedis.biomedismair3.utils.TabHolder
@@ -38,7 +35,11 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
      */
     fun extractor(): Callback<IFileItem, Array<Observable>> {
         return Callback<IFileItem, Array<Observable>> { item: IFileItem ->
-            arrayOf(
+            if(item is FileData) arrayOf(
+                item.nameProperty(),
+                item.publicLinkProperty(),
+                item.privateLinkProperty()
+            )else arrayOf(
                 item.nameProperty()
             )
         }
@@ -137,7 +138,12 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         container.apply {
             items = filteredItems
             selectionModel.selectionMode = SelectionMode.MULTIPLE
-            cellFactory = FileCellFactory()
+            cellFactory = FileCellFactory{
+                link,type->
+
+                println("$link,$type")
+
+            }
             this.contextMenu = ctxListMenu
             setOnMouseClicked { event ->
                 if (event.button === MouseButton.PRIMARY && event.clickCount == 2 && container.selectionModel.selectedItem is DirectoryData) {
@@ -190,7 +196,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
 
     private fun initContextMenu() {
-        val getLinkItem = MenuItem("Получить ссылку")//для разрешенных для этого типов
+        val reloadPrivateLinkItem = MenuItem("Изменить приватную ссылку")//для разрешенных для этого типов
         val changeAccessItem = MenuItem("Права доступа")
         val renameItem = MenuItem("Переименовать")
         val cutItem = MenuItem("Вырезать")
@@ -202,11 +208,12 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         deleteItem.setOnAction { deleteItems() }
         renameItem.setOnAction { renameItem() }
         changeAccessItem.setOnAction { changeAccessItems() }
-        getLinkItem.setOnAction { getLinkItem() }
+        reloadPrivateLinkItem.setOnAction { reloadPrivateLinkItem() }
 
         ctxListMenu.items.addAll(
             changeAccessItem,
             renameItem,
+            reloadPrivateLinkItem,
             SeparatorMenuItem(),
             cutItem,
             pasteItem,
@@ -214,7 +221,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         )
         ctxListMenu.setOnShowing {
             fun disableAll(disable: Boolean) {
-                getLinkItem.isDisable = disable
+                reloadPrivateLinkItem.isDisable = disable
                 changeAccessItem.isDisable = disable
                 renameItem.isDisable = disable
                 cutItem.isDisable = disable
@@ -243,17 +250,27 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
             }
 
             checkPaste()
-            if (!selected.any { it is FileData }) getLinkItem.isDisable = true
+            if (!selected.any { it is FileData }) reloadPrivateLinkItem.isDisable = true
             if (selected.size > 1) renameItem.isDisable = true
 
-
+            if(selected.size ==1 && selected.first() is FileData) reloadPrivateLinkItem.isDisable = false
         }
 
     }
 
-    private fun getLinkItem() {
-        val selected = container.selectionModel.selectedItem
-
+    private fun reloadPrivateLinkItem() {
+        val selected = container.selectionModel.selectedItems
+        if(selected.size!=1) return
+        BlockingAction.actionResult<String>(controllerWindow){
+            SocialClient.INSTANCE.filesClient.reloadPrivateLink(selected.first().id)
+        }.let {
+            if(it.isError){
+                showWarningDialog("Регенерация ссылки","","Регенерация не удалась", controllerWindow, Modality.WINDOW_MODAL)
+            }else {
+                (selected.first() as FileData).privateLinkProperty().set(it.value)
+                showInfoDialog("Регенерация сслыки","","Ссылка успешно изменена", controllerWindow, Modality.WINDOW_MODAL)
+            }
+        }
     }
 
     private fun changeAccessItems() {
@@ -286,7 +303,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
             Modality.WINDOW_MODAL
         )
 
-        val result = BlockingAction.actionNoResult(controllerWindow) {
+        val result = BlockingAction.actionResult(controllerWindow) {
             val files = selected.filterIsInstance<FileData>().map { it.id }
             val directories = selected.filterIsInstance<DirectoryData>().map { it.id }
 
@@ -303,8 +320,11 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
             }
 
             if (files.isNotEmpty()) {
-                SocialClient.INSTANCE.filesClient.changeFileAccessType(choice.type.name, files)
+                return@actionResult SocialClient.INSTANCE.filesClient.changeFileAccessType(choice.type.name, files)
             }
+
+            return@actionResult emptyMap<Long, Links>()
+
         }
 
         if (result.isError) {
@@ -321,6 +341,10 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
         selected.forEach {
             it.accessType = choice.type
+            if(it is FileData){
+                it.privateLink = result.value[it.id]?.privateLink?:""
+                it.publicLink = result.value[it.id]?.publicLink?:""
+            }
         }
     }
 

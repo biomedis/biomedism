@@ -2,12 +2,10 @@ package ru.biomedis.biomedismair3.social.registry
 
 import javafx.fxml.FXML
 import javafx.fxml.FXMLLoader
-import javafx.scene.control.ContentDisplay
-import javafx.scene.control.Label
-import javafx.scene.control.ListCell
-import javafx.scene.control.ListView
+import javafx.scene.control.*
 import javafx.scene.image.ImageView
 import javafx.util.Callback
+import ru.biomedis.biomedismair3.social.remote_client.dto.AccessVisibilityType
 import ru.biomedis.biomedismair3.social.remote_client.dto.DirectoryData
 import ru.biomedis.biomedismair3.social.remote_client.dto.FileData
 import ru.biomedis.biomedismair3.social.remote_client.dto.IFileItem
@@ -17,13 +15,13 @@ import java.text.SimpleDateFormat
 /**
  * Принимает FileData и DirectoryData
  */
-class FileCellFactory : Callback<ListView<IFileItem>, ListCell<IFileItem>> {
+class FileCellFactory(val linkAction:(String, AccessVisibilityType)->Unit ) : Callback<ListView<IFileItem>, ListCell<IFileItem>> {
 
     override fun call(param: ListView<IFileItem>?): ListCell<IFileItem> {
-        return TaskCell()
+        return TaskCell(linkAction)
     }
 
-    class TaskCell : ListCell<IFileItem>() {
+    class TaskCell(val linkAction:(String, AccessVisibilityType)->Unit) : ListCell<IFileItem>() {
         private  val dateFormat = SimpleDateFormat("dd.MM.yyyy hh:mm")
         @FXML
         private lateinit var name: Label
@@ -31,6 +29,16 @@ class FileCellFactory : Callback<ListView<IFileItem>, ListCell<IFileItem>> {
         private lateinit var date: Label
         @FXML
         private lateinit var img: ImageView
+
+        @FXML
+        private lateinit var greenLinkBtn: Button
+
+        @FXML
+        private lateinit var redLinkBtn: Button
+
+        @FXML
+        private lateinit var orangeLinkBtn: Button
+
 
         private var isDirectory = false;
 
@@ -88,10 +96,33 @@ class FileCellFactory : Callback<ListView<IFileItem>, ListCell<IFileItem>> {
             name.text = "${file.name}.${file.extension}"
             date.text = dateFormat.format(file.createdDate)
             date.isVisible = true
+
+            greenLinkBtn.isVisible = false
+            orangeLinkBtn.isVisible = false
+            redLinkBtn.isVisible = false
+
+            if(file.accessType==AccessVisibilityType.PUBLIC){
+                greenLinkBtn.isVisible = true
+
+            }else  if(file.accessType==AccessVisibilityType.PROTECTED){
+                orangeLinkBtn.isVisible = true
+            }else if(file.accessType==AccessVisibilityType.BY_LINK){
+                redLinkBtn.isVisible = true
+            }
+
         }
 
         init {
             loadFXML()
+            redLinkBtn.setOnAction {
+                if(item is FileData) linkAction((item as FileData).privateLink, item.accessType)
+            }
+            greenLinkBtn.setOnAction {
+                if(item is FileData) linkAction((item as FileData).publicLink, item.accessType)
+            }
+            orangeLinkBtn.setOnAction {
+                if(item is FileData) linkAction((item as FileData).publicLink, item.accessType)
+            }
         }
 
     }

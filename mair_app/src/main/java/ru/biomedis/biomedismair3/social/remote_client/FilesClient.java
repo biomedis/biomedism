@@ -6,10 +6,12 @@ import feign.RequestLine;
 import feign.form.FormData;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 import ru.biomedis.biomedismair3.social.remote_client.dto.DirectoryData;
 import ru.biomedis.biomedismair3.social.remote_client.dto.FileData;
 import ru.biomedis.biomedismair3.social.remote_client.dto.FileType;
+import ru.biomedis.biomedismair3.social.remote_client.dto.Links;
 import ru.biomedis.biomedismair3.social.remote_client.dto.UserNameDto;
 
 public interface FilesClient {
@@ -42,9 +44,15 @@ public interface FilesClient {
   @RequestLine("PUT /directories/change_access_type/{type}")
   void changeDirAccessType(@Param("type") String type, List<Long> dirs);
 
+  /**
+   * Поменяет тип доступа файлам и вернет список приватных ссылок по ID файла, если было изменение на тип ссылки приватной
+   * @param type
+   * @param files
+   * @return
+   */
   @Headers(value = {"Content-Type: application/json"})
   @RequestLine("PUT /files/change_access_type/{type}")
-  void changeFileAccessType(@Param("type") String type, List<Long> files);
+  Map<Long, Links>  changeFileAccessType(@Param("type") String type, List<Long> files);
 
   @RequestLine("PUT /directory/{directory}/move_to/directory/{parent}")
   void moveDirectory(@Param("directory") long directory, @Param("parent") long parent);
@@ -97,4 +105,7 @@ public interface FilesClient {
 
   @RequestLine("PUT /directories/{id}?name={name}")
   void renameDirectory(@Param("name")  String name, @Param("id") long id);
+
+  @RequestLine("PUT /files/{id}/regenerate_private_link")
+  String reloadPrivateLink(@Param("id") long id);
 }

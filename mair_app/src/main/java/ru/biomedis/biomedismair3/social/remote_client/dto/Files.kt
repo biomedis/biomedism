@@ -34,6 +34,20 @@ class FileData : IFileItem {
 
     override fun nameProperty() = _name
 
+    private var _publicLink: SimpleStringProperty = SimpleStringProperty(this, "publicLink", "")
+    var publicLink: String
+        get() = _publicLink.get()
+        set(s) = _publicLink.set(s)
+
+     fun publicLinkProperty() = _publicLink
+
+    private var _privateLink: SimpleStringProperty = SimpleStringProperty(this, "privateLink", "")
+      var privateLink: String
+        get() = _privateLink.get()
+        set(s) = _privateLink.set(s)
+
+     fun privateLinkProperty() = _privateLink
+
     companion object{
         inline fun fillThumbnailImage(file: FileData){
             if(file.thumbnail!=null){
@@ -67,3 +81,9 @@ enum class AccessVisibilityType {
     BY_LINK,//приватны, но можно получать публично по ссылке - код используется
     REGISTERED;//доступно для публично для пользователей сервиса
 }
+
+class Links{
+    var privateLink: String =""
+    var publicLink: String =""
+}
+

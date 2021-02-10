@@ -380,3 +380,36 @@
 
     -fx-background-color: #d9d9d9
 }
+
+
+.grayLinkButton{
+    -fx-cursor: hand;
+    -fx-background-image: url("../images/gray_link.png");
+    -fx-background-size: 18 18;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+}
+
+.greenLinkButton{
+    -fx-cursor: hand;
+    -fx-background-image: url("../images/green_link.png");
+    -fx-background-size: 18 18;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+}
+
+.redLinkButton{
+    -fx-cursor: hand;
+    -fx-background-image: url("../images/red_link.png");
+    -fx-background-size: 18 18;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+}
+
+.orangeLinkButton{
+    -fx-cursor: hand;
+    -fx-background-image: url("../images/orange_link.png");
+    -fx-background-size: 18 18;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+}
