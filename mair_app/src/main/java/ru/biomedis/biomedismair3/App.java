@@ -298,8 +298,6 @@ public class App extends Application {
 
             openPersisenceContext();//откроем контекст работы с БД
 
-    URL.setURLStreamHandlerFactory(new MyURLStreamHandlerFactory());
-
         String version= System.getProperty("java.version");
             String[] split = version.split("\\.");
             String[] split1 = split[2].split("_");
@@ -755,7 +753,7 @@ System.out.println("Data path: "+dataDir.getAbsolutePath());
         }
 
     SocialClient.init(getSocialAPIURL(), getModel());
-
+    URL.setURLStreamHandlerFactory(new MyURLStreamHandlerFactory());
         //загрузим перевод интерфейса на выбранный язык!
         this.strings= ResourceBundle.getBundle("bundles.strings", new UTF8Control());
 

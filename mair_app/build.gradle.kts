@@ -2,7 +2,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 plugins {
     java
-    kotlin("jvm") version "1.4.21"
+    kotlin("jvm") version "1.4.30"
 }
 
 group = "life.biomedis"
@@ -17,6 +17,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation ("org.jsoup:jsoup:1.13.1")
     implementation("com.vladsch.flexmark:flexmark-all:0.62.2")
+    implementation("org.apache.tika:tika-core:1.25")
 }
 
 configure<JavaPluginConvention> {

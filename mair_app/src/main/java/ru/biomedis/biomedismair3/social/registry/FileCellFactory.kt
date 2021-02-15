@@ -15,13 +15,13 @@ import java.text.SimpleDateFormat
 /**
  * Принимает FileData и DirectoryData
  */
-class FileCellFactory(val linkAction:(String, AccessVisibilityType)->Unit ) : Callback<ListView<IFileItem>, ListCell<IFileItem>> {
+class FileCellFactory(val linkAction:(String, AccessVisibilityType)->Unit, val downloadAction: (FileData)->Unit) : Callback<ListView<IFileItem>, ListCell<IFileItem>> {
 
     override fun call(param: ListView<IFileItem>?): ListCell<IFileItem> {
-        return TaskCell(linkAction)
+        return TaskCell(linkAction, downloadAction)
     }
 
-    class TaskCell(val linkAction:(String, AccessVisibilityType)->Unit) : ListCell<IFileItem>() {
+    class TaskCell(val linkAction:(String, AccessVisibilityType)->Unit, val downloadAction: (FileData)->Unit) : ListCell<IFileItem>() {
         private  val dateFormat = SimpleDateFormat("dd.MM.yyyy hh:mm")
         @FXML
         private lateinit var name: Label
@@ -38,6 +38,9 @@ class FileCellFactory(val linkAction:(String, AccessVisibilityType)->Unit ) : Ca
 
         @FXML
         private lateinit var orangeLinkBtn: Button
+
+        @FXML
+        private lateinit var downloadBtn: Button
 
 
         private var isDirectory = false;
@@ -82,6 +85,10 @@ class FileCellFactory(val linkAction:(String, AccessVisibilityType)->Unit ) : Ca
             img.fitWidth = img.image.width
             img.fitHeight = img.image.height
             date.isVisible= false
+            downloadBtn.isVisible = false
+            greenLinkBtn.isVisible = false
+            orangeLinkBtn.isVisible = false
+            redLinkBtn.isVisible = false
         }
 
         private fun viewFile(file: FileData) {
@@ -100,6 +107,8 @@ class FileCellFactory(val linkAction:(String, AccessVisibilityType)->Unit ) : Ca
             greenLinkBtn.isVisible = false
             orangeLinkBtn.isVisible = false
             redLinkBtn.isVisible = false
+
+            downloadBtn.isVisible = true
 
             if(file.accessType==AccessVisibilityType.PUBLIC){
                 greenLinkBtn.isVisible = true
@@ -123,6 +132,8 @@ class FileCellFactory(val linkAction:(String, AccessVisibilityType)->Unit ) : Ca
             orangeLinkBtn.setOnAction {
                 if(item is FileData) linkAction((item as FileData).publicLink, item.accessType)
             }
+
+            downloadBtn.setOnAction { if(item is FileData) downloadAction(item as FileData) }
         }
 
     }

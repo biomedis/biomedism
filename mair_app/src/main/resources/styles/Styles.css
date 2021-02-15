@@ -413,3 +413,11 @@
     -fx-background-repeat: no-repeat;
     -fx-background-position: center;
 }
+
+.downloadButton{
+    -fx-cursor: hand;
+    -fx-background-image: url("../images/download_file.png");
+    -fx-background-size: 18 18;
+    -fx-background-repeat: no-repeat;
+    -fx-background-position: center;
+}

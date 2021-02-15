@@ -3,6 +3,7 @@ package ru.biomedis.biomedismair3.social.remote_client;
 import feign.Headers;
 import feign.Param;
 import feign.RequestLine;
+import feign.Response;
 import feign.form.FormData;
 import java.util.Date;
 import java.util.List;
@@ -16,8 +17,16 @@ import ru.biomedis.biomedismair3.social.remote_client.dto.UserNameDto;
 
 public interface FilesClient {
 
+  /**
+   * Только для владельца файла
+   * @param id
+   * @return
+   */
   @RequestLine("GET /file/{id}")
-  byte[] downloadFile(@Param("id") long id);
+  Response downloadFile(@Param("id") long id);
+
+  @RequestLine("GET /file_protected/{id}")
+  Response downloadProtectedFile(@Param("id") long id);
 
   @RequestLine("GET /directories/{directory}")
   List<DirectoryData> getDirectories(@Param("directory") long directory);

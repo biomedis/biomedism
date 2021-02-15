@@ -10,6 +10,7 @@ import javafx.fxml.FXML
 import javafx.scene.control.*
 import javafx.scene.input.MouseButton
 import javafx.scene.layout.HBox
+import javafx.stage.DirectoryChooser
 import javafx.stage.FileChooser
 import javafx.stage.Modality
 import javafx.stage.WindowEvent
@@ -23,6 +24,8 @@ import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import ru.biomedis.biomedismair3.utils.Other.Result
 import ru.biomedis.biomedismair3.utils.TabHolder
 import java.net.URL
+import java.nio.file.Files
+import java.nio.file.Path
 import java.util.*
 import java.util.function.Predicate
 import kotlin.Comparator
@@ -79,11 +82,11 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
    private val directoryAccessList = listOf<AccessTypeDto>(
         AccessTypeDto("Личное", AccessVisibilityType.PRIVATE),
         AccessTypeDto("Доступно пользователям программы и по ссылкам в сети( в тексте сообщений и постов )", AccessVisibilityType.PUBLIC),
-        AccessTypeDto("Доступно для всех пользователей только внутри программы ", AccessVisibilityType.REGISTERED)
+        AccessTypeDto("Доступно всем зарегистрированным пользователям внутри программы(в тексте сообщений, постов, в списке файлов)", AccessVisibilityType.PROTECTED)  //доступно по ссылкам публично, но не видно в профиле пользователя( для ресурсов, которые указываются в сообщениях и ленте)
+
     )
     private val fileAccessList = listOf<AccessTypeDto>(
-        AccessTypeDto("Доступно по ссылкам внутри программы(в тексте сообщений и постов)", AccessVisibilityType.PROTECTED),  //доступно по ссылкам публично, но не видно в профиле пользователя( для ресурсов, которые указываются в сообщениях и ленте)
-        AccessTypeDto("Доступно по специальным ссылкам",AccessVisibilityType.BY_LINK)//приватны, но можно получать публично по ссылке - код используется
+         AccessTypeDto("Доступно по специальным ссылкам",AccessVisibilityType.BY_LINK)//приватны, но можно получать публично по ссылке - код используется
     )
 
     private val allAccessList = listOf(*directoryAccessList.toTypedArray(), *fileAccessList.toTypedArray())
@@ -138,12 +141,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         container.apply {
             items = filteredItems
             selectionModel.selectionMode = SelectionMode.MULTIPLE
-            cellFactory = FileCellFactory{
-                link,type->
-
-                println("$link,$type")
-
-            }
+            cellFactory = FileCellFactory(this@FilesController::onGetLink, this@FilesController::onDownload)
             this.contextMenu = ctxListMenu
             setOnMouseClicked { event ->
                 if (event.button === MouseButton.PRIMARY && event.clickCount == 2 && container.selectionModel.selectedItem is DirectoryData) {
@@ -161,6 +159,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         initContextMenu()
         initFilter()
     }
+
 
 
     private fun initFilter() {
@@ -258,6 +257,60 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
     }
 
+    //скопирует в буффер обмена ссылку и сообщит об этом
+    private fun onGetLink(link: String, type: AccessVisibilityType){
+       //учывает замену http и https для protected на b_protected. ССылки с такой схемой корректно обрабатываются
+    }
+
+
+    private fun onDownload(file: FileData){
+        val chooser = DirectoryChooser()
+        chooser.title = "Выбор директории для сохранения файла"
+        val dir: Path = chooser.showDialog(controllerWindow)?.toPath() ?: return
+
+        val result: Result<ByteArray> = BlockingAction.actionResult(controllerWindow) {
+            SocialClient.INSTANCE.filesClient.downloadFile(file.id).body().asInputStream().readBytes()
+        }
+
+        if(result.isError){
+            log.error("", result.error)
+            showWarningDialog("Загрузка файла","","Загрузка файла не удалась", controllerWindow, Modality.WINDOW_MODAL)
+            return
+        }
+
+        val filePath = dir.resolve("${file.name}.${file.extension}")
+        if(Files.exists(filePath)){
+            val dialog = showConfirmationDialog(
+                "Загрузка файла",
+                "",
+                "Файл уже существует. Перезаписать?",
+                controllerWindow,
+                Modality.WINDOW_MODAL
+            )
+            if(dialog.isPresent){
+                if(dialog.get() != okButtonType) return
+            }else return
+        }
+
+
+           try {
+               filePath.toFile().writeBytes(result.value)
+               showInfoDialog("загрузка файла","","Файл успешно сохранен",controllerWindow, Modality.WINDOW_MODAL)
+           } catch (e: Exception){
+               log.error("", e)
+                showExceptionDialog(
+                    "Загрузка файла",
+                    "",
+                    "Запись файла на диск не удалась",
+                    e,
+                    controllerWindow,
+                    Modality.WINDOW_MODAL)
+               return
+           }
+
+
+    }
+
     private fun reloadPrivateLinkItem() {
         val selected = container.selectionModel.selectedItems
         if(selected.size!=1) return
@@ -280,22 +333,18 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
             1 -> selected.first().accessType
             else -> AccessVisibilityType.PRIVATE
         }
-        val choiceList = mutableListOf<AccessTypeDto>(
-            AccessTypeDto("Личное", AccessVisibilityType.PRIVATE),
-            AccessTypeDto("Доступно пользователям программы и по ссылкам в сети( в тексте сообщений и постов )", AccessVisibilityType.PUBLIC),
-            AccessTypeDto("Доступно для всех пользователей только внутри программы ", AccessVisibilityType.REGISTERED)
-        )
+        val choiceList = mutableListOf<AccessTypeDto>().apply { addAll(directoryAccessList) }
         if (!selected.all { it is DirectoryData }) {
-            choiceList.add(AccessTypeDto("Доступно по ссылкам внутри программы(в тексте сообщений и постов)", AccessVisibilityType.PROTECTED))  //доступно по ссылкам публично, но не видно в профиле пользователя( для ресурсов, которые указываются в сообщениях и ленте)
-            choiceList.add(AccessTypeDto("Доступно по специальным ссылкам",AccessVisibilityType.BY_LINK))//приватны, но можно получать публично по ссылке - код используется
-
+            choiceList.addAll(fileAccessList)
         }
 
         val defaultChoice = choiceList.first { it.type == accessType }
 
         val choice = showChoiceDialog(
             "Права доступа к файлам и папкам",
-            "Для папок не доступен доступ по ссылкам. \nЕсли при смешанном выборе(файлы и папки) будет выбран доступ по ссылке, \nто выбранные папки получат личный доступ",
+            """Назначение доступа применяется к вложенным папкам и файлам. ${"\n"}Папки не доступны по ссылкам. ${"\n"}
+                    Если при смешанном выборе(файлы и папки) будет выбран доступ по ссылке, ${"\n"}
+                    то выбранные папки и вложенные файлы получат личный доступ""".trimMargin(),
             "",
             choiceList,
             defaultChoice,
@@ -308,7 +357,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
             val directories = selected.filterIsInstance<DirectoryData>().map { it.id }
 
             if (directories.isNotEmpty()) {
-                if (choice.type == AccessVisibilityType.BY_LINK || choice.type == AccessVisibilityType.PROTECTED) {
+                if (choice.type == AccessVisibilityType.BY_LINK) {
                     SocialClient.INSTANCE.filesClient.changeDirAccessType(
                         AccessVisibilityType.PRIVATE.name,
                         directories

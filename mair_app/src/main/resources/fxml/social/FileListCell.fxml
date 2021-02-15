@@ -25,6 +25,8 @@
                   </Label>
                   <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" spacing="8.0" HBox.hgrow="ALWAYS">
                      <children>
+                        <Button fx:id="downloadBtn" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" scaleX="0.7" scaleY="0.7" styleClass="downloadButton" visible="false" />
+
                         <Button fx:id="greenLinkBtn" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" scaleX="0.7" scaleY="0.7" styleClass="greenLinkButton" visible="false" />
                         <Button fx:id="orangeLinkBtn" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" scaleX="0.7" scaleY="0.7" styleClass="orangeLinkButton" visible="false" />
                         <Button fx:id="redLinkBtn" layoutX="10.0" layoutY="10.0" maxHeight="24.0" maxWidth="24.0" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" scaleX="0.7" scaleY="0.7" styleClass="redLinkButton" visible="false" />
