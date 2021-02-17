@@ -8,6 +8,8 @@ import javafx.collections.transformation.FilteredList
 import javafx.collections.transformation.SortedList
 import javafx.fxml.FXML
 import javafx.scene.control.*
+import javafx.scene.input.Clipboard
+import javafx.scene.input.ClipboardContent
 import javafx.scene.input.MouseButton
 import javafx.scene.layout.HBox
 import javafx.stage.DirectoryChooser
@@ -259,7 +261,13 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
     //скопирует в буффер обмена ссылку и сообщит об этом
     private fun onGetLink(link: String, type: AccessVisibilityType){
-       //учывает замену http и https для protected на b_protected. ССылки с такой схемой корректно обрабатываются
+        val clipboard = Clipboard.getSystemClipboard().apply { clear()}
+        ClipboardContent().let {
+            it.putString(link)
+            clipboard.setContent(it)
+       }
+
+        showInfoDialog("Получение ссылки","Ссылка скопирована в буфер обмена","", controllerWindow, Modality.WINDOW_MODAL)
     }
 
 
@@ -283,7 +291,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
             val dialog = showConfirmationDialog(
                 "Загрузка файла",
                 "",
-                "Файл уже существует. Перезаписать?",
+                "Файл ${file.name}.${file.extension} уже существует. Перезаписать?",
                 controllerWindow,
                 Modality.WINDOW_MODAL
             )

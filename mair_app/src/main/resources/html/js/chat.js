@@ -11,17 +11,22 @@ $(document).ready(function () {
   });
 
   $("#content").on("click","i.editBtn", function (e) {
-    e.stopPropagation()
-    e.preventDefault()
+    e.stopPropagation();
+    e.preventDefault();
     javaConnector.editMsg(parseInt($(this).data("msg_id")));
-    //updateMessage("111111111 ", $(this).data("msg_id"))
   })
 
   $("#content").on("click","i.deleteBtn", function (e) {
-    e.stopPropagation()
-    e.preventDefault()
+    e.stopPropagation();
+    e.preventDefault();
     javaConnector.deleteMsg(parseInt($(this).data("msg_id")));
-    //removeMessage($(this).data("msg_id"))
+
+  });
+
+  $("body").on("click","a", function (e){
+    e.stopPropagation();
+    e.preventDefault();
+    javaConnector.onLinkClick($(this).attr("href"));
   });
 
  javaConnector.loadInitMessages();

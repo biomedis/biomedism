@@ -13,6 +13,11 @@ function initEditor(content) {
 
 
 $(document).ready(function () {
+  $("body").on("click","a", function (e){
+    e.stopPropagation();
+    e.preventDefault();
+    javaConnector.onLinkClick($(this).attr("href"));
+  });
 
 })
 

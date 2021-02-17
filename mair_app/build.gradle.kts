@@ -18,6 +18,7 @@ dependencies {
     implementation ("org.jsoup:jsoup:1.13.1")
     implementation("com.vladsch.flexmark:flexmark-all:0.62.2")
     implementation("org.apache.tika:tika-core:1.25")
+    implementation("org.codefx.libfx:LibFX:0.3.0")
 }
 
 configure<JavaPluginConvention> {

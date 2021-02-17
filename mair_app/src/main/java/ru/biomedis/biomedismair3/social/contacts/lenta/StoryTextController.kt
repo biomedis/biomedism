@@ -1,6 +1,7 @@
 package ru.biomedis.biomedismair3.social.contacts.lenta
 
 
+import javafx.application.Platform
 import javafx.concurrent.Worker
 import javafx.fxml.FXML
 import javafx.scene.web.WebEngine
@@ -9,8 +10,10 @@ import javafx.stage.Modality
 import javafx.stage.Stage
 import javafx.stage.StageStyle
 import javafx.stage.WindowEvent
+import netscape.javascript.JSObject
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction
+import ru.biomedis.biomedismair3.social.link_service.LinkService
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import java.net.URL
@@ -31,6 +34,12 @@ class StoryTextController : BaseController() {
     private lateinit var engine: WebEngine
 
     private  var storyId: Long = -1
+
+    private val javaConnector: JavaConnector
+
+    init{
+        javaConnector = JavaConnector{ onLinkClick(it)}
+    }
 
     override fun onCompletedInitialization() {
 
@@ -61,14 +70,29 @@ class StoryTextController : BaseController() {
 
 
     private fun initEditor() {
+
         engine = editor.engine
+        engine.setOnError { log.error(it.message, it.exception) }
         engine.isJavaScriptEnabled = true
+        val window: JSObject = engine.executeScript("window") as JSObject
         val html = javaClass.getResourceAsStream("/html/markdown_viewer.html").bufferedReader().use { it.readText() }
         engine.loadContent(html)
 
+        window.setMember("javaConnector", javaConnector)
+        engine.documentProperty().addListener { _, oldValue, newValue ->
+            if (Objects.nonNull(newValue)) {
+                val w = engine.executeScript("window") as JSObject
+                w.setMember("javaConnector", javaConnector)
+            }
+        }
+
     }
 
-
+    private fun onLinkClick(href: String) {
+        Platform.runLater{
+            LinkService.useLink(href, this, SocialClient.INSTANCE.filesClient)
+        }
+    }
 
 
     /**
@@ -128,5 +152,12 @@ class StoryTextController : BaseController() {
         }
     }
 
+    class JavaConnector(
+        val linkClick:(String)->Unit
+    ) {
 
+        fun onLinkClick(href: String){
+            linkClick(href)
+        }
+    }
 }

@@ -4,18 +4,38 @@ import feign.Headers;
 import feign.Param;
 import feign.RequestLine;
 import feign.Response;
-import feign.form.FormData;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import org.jetbrains.annotations.NotNull;
 import ru.biomedis.biomedismair3.social.remote_client.dto.DirectoryData;
 import ru.biomedis.biomedismair3.social.remote_client.dto.FileData;
 import ru.biomedis.biomedismair3.social.remote_client.dto.FileType;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Links;
-import ru.biomedis.biomedismair3.social.remote_client.dto.UserNameDto;
 
 public interface FilesClient {
+
+  /**
+   * Получит имя файла своего, защищенного или публичного. Попытка получить имя защищенного не своего файла выкенет ошибку
+   * @param id
+   * @return
+   */
+  @RequestLine("GET /file_name/{id}")
+  String fileName(@Param("id") long id);
+
+  /**
+   * Получит имя файла по уникальной ссылке(коду).
+   * Если указанного файла не найдется, то будет ошибка
+   * @param key
+   * @return
+   */
+  @RequestLine("GET /file_name_by_key?key={key}")
+  String fileNameByLink(@Param("key") String key);
+
+  @RequestLine("GET /file_by_key?key={key}")
+  Response downloadFileByLink(@Param("key") String key);
+
+  @RequestLine("GET /file_public/{id}")
+  Response downloadFilePublic(@Param("id") long id);
 
   /**
    * Только для владельца файла

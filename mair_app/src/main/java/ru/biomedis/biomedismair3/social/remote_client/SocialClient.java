@@ -74,6 +74,9 @@ public class SocialClient {
   private static ObjectMapper mapper = new ObjectMapper()
       .enable(SerializationFeature.INDENT_OUTPUT);
 
+  public static String getApiURL() {
+    return apiURL;
+  }
 
   public static void init(String _apiURL, TokenRepository tokenRepository) {
     apiURL = _apiURL;

@@ -32,7 +32,8 @@ class ChatService(
     val messageEditorArea: WebView,
     val contactUser: Long,
     val context: Stage,
-    val showErrorhandler: (title: String, msg: String) -> Unit
+    val showErrorhandler: (title: String, msg: String) -> Unit,
+    val linkClick:(String)->Unit
 ) {
     private lateinit var parser: Parser
     private lateinit var htmlrenderer: HtmlRenderer
@@ -62,7 +63,8 @@ class ChatService(
         javaConnector = JavaConnector(
             editAction = this::editMsgAction,
             deleteAction = this::deleteMsgAction,
-            loadMessages = this::loadMessages
+            loadMessages = this::loadMessages,
+            linkClick = this::onLinkClick
         )
         fun initEditor(
             htmlPath: String,
@@ -136,6 +138,10 @@ class ChatService(
 
     }
 
+    private fun onLinkClick(href: String){
+        linkClick(href)
+    }
+
     private fun loadMessages() {
         messagesLoader.loadMessages(contactUser).thenAccept {
             if (it.isError) {
@@ -146,10 +152,10 @@ class ChatService(
                 it.value.forEach { msg ->
                     cnt++
                     if (msg.from == contactUser) Platform.runLater {
-                        addMessageIncomming(msg.message, msg.id, false)
+                        addMessageIncomming(markdownToHtml(msg.message), msg.id, false)
                     }
                     else Platform.runLater {
-                        addMessageOutcome(msg.message, msg.id, false)
+                        addMessageOutcome(markdownToHtml(msg.message), msg.id, false)
                     }
                     if(cnt==it.value.size) {
                         initMessagesLoaded.value = true
@@ -179,7 +185,7 @@ class ChatService(
                     log.error("Ошибка получения обновленных сообщений", it.error)
                 } else {
                     it.value.forEach { msg ->
-                        messagesEngine.executeScript("editMessage(${msg.id},${msg.message})")
+                        messagesEngine.executeScript("editMessage(${msg.id},${markdownToHtml(msg.message)})")
                     }
 
                 }
@@ -198,8 +204,8 @@ class ChatService(
                 } else {
                     it.value.forEach { msg ->
                         Platform.runLater {
-                            if (msg.from == contactUser) addMessageIncomming(msg.message, msg.id)
-                            else addMessageOutcome(msg.message, msg.id)
+                            if (msg.from == contactUser) addMessageIncomming(markdownToHtml(msg.message), msg.id)
+                            else addMessageOutcome(markdownToHtml(msg.message), msg.id)
                         }
                     }
 
@@ -376,7 +382,8 @@ class ChatService(
     class JavaConnector(
         val editAction: (Long) -> Unit,
         val deleteAction: (Long) -> Unit,
-        val loadMessages: () -> Unit
+        val loadMessages: () -> Unit,
+        val linkClick:(String)->Unit
     ) {
         fun deleteMsg(id: Long) {
             deleteAction(id)
@@ -390,6 +397,10 @@ class ChatService(
         fun loadInitMessages() {
             loadMessages()
 
+        }
+
+        fun onLinkClick(href: String){
+            linkClick(href)
         }
     }
 }
