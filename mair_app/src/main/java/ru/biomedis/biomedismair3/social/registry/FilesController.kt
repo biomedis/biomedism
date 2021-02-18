@@ -203,6 +203,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         val cutItem = MenuItem("Вырезать")
         val pasteItem = MenuItem("Вставить")
         val deleteItem = MenuItem("Удалить")
+        val copyLinksItem = MenuItem("Копировать ссылки")
 
         cutItem.setOnAction { cutItems() }
         pasteItem.setOnAction { pasteItems() }
@@ -210,11 +211,13 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         renameItem.setOnAction { renameItem() }
         changeAccessItem.setOnAction { changeAccessItems() }
         reloadPrivateLinkItem.setOnAction { reloadPrivateLinkItem() }
+        copyLinksItem.setOnAction { copyLinks() }
 
         ctxListMenu.items.addAll(
             changeAccessItem,
             renameItem,
             reloadPrivateLinkItem,
+            copyLinksItem,
             SeparatorMenuItem(),
             cutItem,
             pasteItem,
@@ -228,6 +231,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
                 cutItem.isDisable = disable
                 pasteItem.isDisable = disable
                 deleteItem.isDisable = disable
+                copyLinksItem.isDisable = disable
             }
 
             fun checkPaste() {
@@ -251,11 +255,36 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
             }
 
             checkPaste()
-            if (!selected.any { it is FileData }) reloadPrivateLinkItem.isDisable = true
+            if (!selected.any { it is FileData }) {
+                reloadPrivateLinkItem.isDisable = true
+                copyLinksItem.isDisable = true
+            }
             if (selected.size > 1) renameItem.isDisable = true
 
             if(selected.size ==1 && selected.first() is FileData) reloadPrivateLinkItem.isDisable = false
+
         }
+
+    }
+
+    private fun copyLinks() {
+        val selected = container.selectionModel.selectedItems
+        if(selected.isEmpty()) return
+        val links = selected
+            .filterIsInstance<FileData>()
+            .map {
+            if(it.accessType==AccessVisibilityType.PUBLIC || it.accessType==AccessVisibilityType.PROTECTED) it.publicLink
+            else if(it.accessType==AccessVisibilityType.BY_LINK) it.privateLink
+            else ""
+        }.filter { it.isNotEmpty() }.joinToString("\n")
+        if(links.isEmpty()) return
+        val clipboard = Clipboard.getSystemClipboard().apply { clear()}
+        ClipboardContent().let {
+            it.putString(links)
+            clipboard.setContent(it)
+        }
+
+        showInfoDialog("Получение ссылок","Ссылки скопированы в буфер обмена","", controllerWindow, Modality.WINDOW_MODAL)
 
     }
 
