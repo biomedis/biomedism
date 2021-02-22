@@ -21,7 +21,6 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -47,7 +46,6 @@ import org.anantacreative.updater.Update.UpdateException;
 import org.anantacreative.updater.Update.UpdateTask;
 import org.hid4java.HidDevice;
 import org.terracotta.ipceventbus.event.EventBusClient;
-import org.terracotta.ipceventbus.proc.Bus;
 import ru.biomedis.biomedismair3.Layouts.BiofonTab.BiofonTabController;
 import ru.biomedis.biomedismair3.Layouts.BiofonTab.BiofonUIUtil;
 import ru.biomedis.biomedismair3.Layouts.LeftPanel.LeftPanelAPI;
@@ -1224,7 +1222,14 @@ if(!getConnectedDevice())return;
 
     public void onExportUserBase()
     {
-        leftAPI.exportUserBase();
+        String disk = "На диск";
+        String server = "На сервер";
+        String selected = showChoiceDialog("Экспорт базы частот", "Куда экспортировать", "",
+            Arrays.asList(disk, server), disk, getControllerWindow(), Modality.WINDOW_MODAL);
+        if(selected==null) return;
+
+        if(selected.equals(disk)) leftAPI.exportUserBaseToDisk();
+        else  leftAPI.exportUserBaseToServer();
     }
 
     public void onExportProfile()

@@ -51,7 +51,9 @@ public interface LeftPanelAPI {
      */
     boolean isInUserBaseComplexSelected();
 
-    void exportUserBase();
+    void exportUserBaseToDisk();
+
+    void exportUserBaseToServer();
 
     void importUserBase();
 

@@ -24,10 +24,12 @@ import ru.biomedis.biomedismair3.Dialogs.ProgramDialogController;
 import ru.biomedis.biomedismair3.Layouts.ProgressPanel.ProgressAPI;
 import ru.biomedis.biomedismair3.TherapyTabs.Complex.ComplexAPI;
 import ru.biomedis.biomedismair3.TherapyTabs.Profile.ProfileTable;
+import ru.biomedis.biomedismair3.UserUtils.Export.ExportProfile;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportUserBase;
 import ru.biomedis.biomedismair3.UserUtils.Import.ImportUserBase;
 import ru.biomedis.biomedismair3.Waiter;
 import ru.biomedis.biomedismair3.entity.*;
+import ru.biomedis.biomedismair3.social.remote_client.SocialClient;
 import ru.biomedis.biomedismair3.utils.Files.FilesProfileHelper;
 import ru.biomedis.biomedismair3.utils.Files.ProgramFileData;
 
@@ -1661,8 +1663,10 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
         return (NamedTreeItem)sectionTree.getSelectionModel().getSelectedItem();
     }
 
+
+
     @Override
-    public void exportUserBase()
+    public void exportUserBaseToDisk()
     {
         Section start=null;
 
@@ -1769,6 +1773,90 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
         Thread threadTask=new Thread(task);
         threadTask.setDaemon(true);
         threadTask.start();
+    }
+
+    @Override
+    public void exportUserBaseToServer() {
+        Section start=null;
+
+        List<Section> collect = getBaseAllItems().stream().filter(section -> "USER".equals(section.getTag())).collect(
+            Collectors.toList());
+        Section userSection=null;
+        if(collect.isEmpty()) return;
+        userSection=collect.get(0);
+        collect=null;
+
+
+
+        //если у не выбран раздел пользовательский
+        if(!"USER".equals(selectedBase().getTag()) )
+        {
+            Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.title20"), "", res.getString("app.title21"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+            if(buttonType.isPresent() ? buttonType.get()==okButtonType :false) start= userSection; else return;
+
+        }else
+        {
+            //выбрана пользовательская база.
+
+            //не выбран раздел в комбобоксе
+            if(selectedRootSection().getId()==0)
+            {
+                Optional<ButtonType> buttonType = showConfirmationDialog(res.getString("app.title22"), "", res.getString("app.title23"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+                if(buttonType.isPresent() ? buttonType.get()==okButtonType :false) start= userSection; else return;
+
+            }else if(selectedSectionTree()==null)
+            {
+                //выбран раздел в комбобоксе но не выбран в дереве
+                start=selectedRootSection();
+            }else
+            {
+                //выбран элемент дерева и выбран раздел
+
+                //если выбран не раздел
+                if(!(selectedSectionTreeItem() instanceof Section))
+                {
+
+                    showWarningDialog(res.getString("app.title24"),"",res.getString("app.title25"),getApp().getMainWindow(),Modality.WINDOW_MODAL );
+                    return;
+
+
+                }
+
+                start=(Section)selectedSectionTreeItem();//выберем стартовым раздел
+            }
+
+
+        }
+
+
+        getModel().initStringsSection(start);
+
+
+        final Section sec=start;
+
+        String name = showTextInputDialog("Имя файла",
+            "Введите имя файла для экспорта комплексов(без расширения)", "",
+            "", getControllerWindow(), Modality.WINDOW_MODAL);
+        if(name.isEmpty()) return;
+
+        if(name.contains(".")){
+            int index = name.indexOf(".");
+            name = name.substring(0, index);
+        }
+
+        try {
+            SocialClient.INSTANCE.exportUserBaseDirectory(name, ExportUserBase.exportToFile(sec, getModel()));
+            showInfoDialog("Загрузка базы частот на сервер","Успешно загружено",
+                "Загружено в открытую в файловом менеджере папку",getControllerWindow(), Modality.WINDOW_MODAL);
+        }catch (Exception e){
+            log.error("", e);
+            showWarningDialog("Экспорт базы частот на сервер",
+                "Экспорт не удался","", getControllerWindow(), Modality.WINDOW_MODAL);
+        }
+
+
     }
 
 

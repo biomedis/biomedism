@@ -738,35 +738,24 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
     }
 
     override fun exportProfile(name: String, profile: String) {
-        val newFiles = BlockingAction.actionResult(controllerWindow) {
-            val result = mutableListOf<FileData>()
-
-                    val file = SocialClient.INSTANCE.uploadFilesClient
-                        .uploadFile(
-                            FormData("file", "$name.xmlp", profile.encodeToByteArray()),
-                            currentDirectory?.id ?: 0
-                        )
-                    FileData.fillThumbnailImage(file)
-                    result.add(file)
-
-            result
-        }
-        if(newFiles.isError) throw RuntimeException(newFiles.error)
-
-        items.addAll(newFiles.value)
+        uploadFileFromText(name, "xmlp", profile)
     }
 
     override fun exportUserBaseDirectory(name: String, userBase: String) {
-
+        uploadFileFromText(name, "xmlb", userBase)
     }
 
     override fun exportComplex(name: String, complex: String) {
+        uploadFileFromText(name, "xmlc", complex)
+    }
+
+    private fun uploadFileFromText(name: String, ext: String, text: String){
         val newFiles = BlockingAction.actionResult(controllerWindow) {
             val result = mutableListOf<FileData>()
 
             val file = SocialClient.INSTANCE.uploadFilesClient
                 .uploadFile(
-                    FormData("file", "$name.xmlc", complex.encodeToByteArray()),
+                    FormData("file", "$name.$ext", text.encodeToByteArray()),
                     currentDirectory?.id ?: 0
                 )
             FileData.fillThumbnailImage(file)

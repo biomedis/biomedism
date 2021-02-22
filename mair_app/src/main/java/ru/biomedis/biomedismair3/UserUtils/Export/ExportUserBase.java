@@ -78,6 +78,27 @@ return false;
     }
 
 
+    public static String exportToFile(@NotNull Section startedSection, ModelDataApp md) throws Exception
+    {
+
+
+        String tree = getSection(startedSection, md,0);
+
+
+
+           StringBuilder strb = new StringBuilder();
+
+            strb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+
+            strb.append("<UserBase>\n");
+            strb.append(tree);
+            strb.append("</UserBase>");
+
+            return strb.toString();
+
+    }
+
+
     private static String getProgram(Program program, ModelDataApp md,int level)
     {
         StringBuilder strb=new StringBuilder();
