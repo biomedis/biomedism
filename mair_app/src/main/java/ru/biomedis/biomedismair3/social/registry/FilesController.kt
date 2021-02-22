@@ -84,7 +84,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
    private val directoryAccessList = listOf<AccessTypeDto>(
         AccessTypeDto("Личное", AccessVisibilityType.PRIVATE),
         AccessTypeDto("Доступно пользователям программы и по ссылкам в сети( в тексте сообщений и постов )", AccessVisibilityType.PUBLIC),
-        AccessTypeDto("Доступно всем зарегистрированным пользователям внутри программы(в тексте сообщений, постов, в списке файлов)", AccessVisibilityType.PROTECTED)  //доступно по ссылкам публично, но не видно в профиле пользователя( для ресурсов, которые указываются в сообщениях и ленте)
+        AccessTypeDto("Доступно пользователям программы в том числе в тексте сообщений и ленте", AccessVisibilityType.PROTECTED)  //доступно по ссылкам публично, но не видно в профиле пользователя( для ресурсов, которые указываются в сообщениях и ленте)
 
     )
     private val fileAccessList = listOf<AccessTypeDto>(
@@ -271,12 +271,29 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         val selected = container.selectionModel.selectedItems
         if(selected.isEmpty()) return
         val links = selected
+            .asSequence()
             .filterIsInstance<FileData>()
-            .map {
-            if(it.accessType==AccessVisibilityType.PUBLIC || it.accessType==AccessVisibilityType.PROTECTED) it.publicLink
-            else if(it.accessType==AccessVisibilityType.BY_LINK) it.privateLink
-            else ""
-        }.filter { it.isNotEmpty() }.joinToString("\n")
+            .filter { it.accessType!=AccessVisibilityType.PRIVATE }
+            .groupBy { it.accessType }
+            .map { group ->
+                val title = when (group.key) {
+                    AccessVisibilityType.PUBLIC -> "Общедоступные"
+                    AccessVisibilityType.PROTECTED -> "Доступные в программе"
+                    AccessVisibilityType.BY_LINK -> "Доступные по приватным ссылкам"
+                    else -> ""
+                }
+
+                when (group.key) {
+                    AccessVisibilityType.PUBLIC -> group.value.map { it.publicLink }
+                    AccessVisibilityType.PROTECTED -> group.value.map { it.publicLink }
+                    AccessVisibilityType.BY_LINK -> group.value.map { it.privateLink }
+                    else -> listOf()
+                }.filter { it.isNotEmpty() }
+                    .joinToString("\n","$title:\n","\n\n")
+
+            }.filter { it.isNotEmpty() }
+            .joinToString("\n")
+
         if(links.isEmpty()) return
         val clipboard = Clipboard.getSystemClipboard().apply { clear()}
         ClipboardContent().let {

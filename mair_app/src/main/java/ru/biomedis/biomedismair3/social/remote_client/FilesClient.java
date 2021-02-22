@@ -54,6 +54,23 @@ public interface FilesClient {
   @RequestLine("GET /directories/0")
   List<DirectoryData> getRootDirectories();
 
+
+
+
+  @RequestLine("GET /directories/0/user/{user}")
+  List<DirectoryData> getRootDirectories(@Param("user") long user);
+
+  @RequestLine("GET /directory/0/files/user/{user}")
+  List<FileData> getRootFiles(@Param("user") long user);
+
+  @RequestLine("GET /directories/{directory}/user/{user}")
+  List<DirectoryData> getDirectories(@Param("directory") long directory, @Param("user") long user);
+
+  @RequestLine("GET /directory/{directory}/files/user/{user}")
+  List<FileData> getFilesAllType(@Param("directory") long directory, @Param("user") long user);
+
+
+
   @RequestLine("GET /directory/{directory}/files?type={type}")
   List<FileData> getFiles(@Param("directory") long directory, @Param("type") FileType type);
 

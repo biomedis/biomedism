@@ -25,7 +25,10 @@ class FileTypeByExtension{
         "jpg" to "Картинки",
         "jpeg" to "Картинки",
         "gif" to "Картинки",
-        "png" to "Картинки"
+        "png" to "Картинки",
+        "xmlc" to "Biomedis",
+        "xmlp" to "Biomedis",
+        "xmlb" to "Biomedis",
     )
 
     fun typeNames(): List<String>{

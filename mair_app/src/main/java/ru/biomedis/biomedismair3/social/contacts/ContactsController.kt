@@ -119,22 +119,23 @@ class ContactsController : BaseController(), TabHolder.Selected, TabHolder.Detac
         contactsList.setOnMouseClicked {
             if (it.clickCount == 2) {
 
-                openChat(contactsList.selectionModel.selectedItem)
+                openUserContent(contactsList.selectionModel.selectedItem)
 
             }
         }
     }
 
 
-    private fun openChat(contact: UserContact) {
+    //открывает контент пользователя - чат, файлы итп
+    private fun openUserContent(contact: UserContact) {
         var chat = tabHolder.tabByFxId(contact.contact.id.toString())
         if (chat == null) {
             tabHolder.addTab(
-                "/fxml/social/Chat.fxml",
+                "/fxml/social/ContactContent.fxml",
                 contact.account.login,
                 true,
                 contact.contact.id.toString(),
-                contact.contact.contact
+                contact
             )
             chat = tabHolder.tabByFxId(contact.contact.id.toString())
         }
