@@ -31,6 +31,7 @@ import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
 import ru.biomedis.biomedismair3.entity.TherapyProgram;
 import ru.biomedis.biomedismair3.m2.*;
+import ru.biomedis.biomedismair3.social.remote_client.SocialClient;
 import ru.biomedis.biomedismair3.utils.Audio.MP3Encoder;
 import ru.biomedis.biomedismair3.utils.Date.DateUtil;
 import ru.biomedis.biomedismair3.utils.Files.*;
@@ -287,7 +288,12 @@ public class ProfileController extends BaseController implements ProfileAPI {
         exportToFile.setOnAction(event -> exportProfile());
         exportToFile.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
 
-        uploadMenu.getItems().addAll(btnUploadM2, btnUpload, btnUploadDir, exportToFile);
+        MenuItem exportToServer = new MenuItem("На сервер");
+        exportToServer.setDisable(true);
+        exportToServer.setOnAction(event -> exportToServer());
+        exportToServer.disableProperty().bind(ProfileTable.getInstance().getSelectedItemProperty().isNull());
+
+        uploadMenu.getItems().addAll(btnUploadM2, btnUpload, btnUploadDir, exportToFile, exportToServer);
         btnUploadm.setOnAction(event4 ->
         {
 
@@ -298,6 +304,20 @@ public class ProfileController extends BaseController implements ProfileAPI {
 
 
 
+    }
+
+    private void exportToServer() {
+        Profile selectedItem = ProfileTable.getInstance().getSelectedItem();
+        if(selectedItem == null) return;
+                try {
+                    SocialClient.INSTANCE.exportProfile(selectedItem.getName(), ExportProfile.exportToString(selectedItem, getModel()));
+                    showInfoDialog("Загрузка профиля на сервер","Профиль успешно загружен",
+                        "Загружено в открытую в файловом менеджере папку",getControllerWindow(), Modality.WINDOW_MODAL);
+                }catch (Exception e){
+                    log.error("", e);
+                    showWarningDialog("Экспорт профиля на сервер",
+                        "Экспорт не удался","", getControllerWindow(), Modality.WINDOW_MODAL);
+                }
     }
 
     private void uploadM2(Profile profile) {

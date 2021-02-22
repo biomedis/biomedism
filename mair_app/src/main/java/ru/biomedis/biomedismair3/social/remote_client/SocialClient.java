@@ -38,9 +38,11 @@ import javafx.stage.Stage;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 import lombok.extern.log4j.Log4j2;
+import org.jetbrains.annotations.NotNull;
 import ru.biomedis.biomedismair3.App;
 import ru.biomedis.biomedismair3.BlockingAction;
 import ru.biomedis.biomedismair3.Waiter;
+import ru.biomedis.biomedismair3.social.BiomedisFilesExportManager;
 import ru.biomedis.biomedismair3.social.contacts.messages.MessagesService;
 import ru.biomedis.biomedismair3.social.login.LoginController;
 import ru.biomedis.biomedismair3.social.remote_client.dto.CountMessage;
@@ -51,7 +53,7 @@ import ru.biomedis.biomedismair3.utils.Other.Result;
 import ru.biomedis.biomedismair3.utils.Text.TextUtil;
 
 @Log4j2
-public class SocialClient {
+public class SocialClient implements BiomedisFilesExportManager {
 
   private final AccountClient accountClient;
   private final BackupClient backupClient;
@@ -73,6 +75,8 @@ public class SocialClient {
 
   private static ObjectMapper mapper = new ObjectMapper()
       .enable(SerializationFeature.INDENT_OUTPUT);
+
+  private BiomedisFilesExportManager manager;
 
   public static String getApiURL() {
     return apiURL;
@@ -334,6 +338,29 @@ public class SocialClient {
 
   void setCompleteLoginRequest(boolean completeLoginRequest) {
     this.completeLoginRequest.set(completeLoginRequest);
+  }
+
+  public void setBiomedisExportFilesManager(BiomedisFilesExportManager manager){
+      this.manager = manager;
+  }
+
+  @Override
+  public void exportProfile(String name, @NotNull String profile) {
+    if(manager!=null) manager.exportProfile(name,profile);
+    else throw new RuntimeException("BiomedisFilesExportManager не установлен");
+  }
+
+  @Override
+  public void exportUserBaseDirectory(String name, @NotNull String userBase) {
+    if(manager!=null) manager.exportUserBaseDirectory(name,userBase);
+    else throw new RuntimeException("BiomedisFilesExportManager не установлен");
+  }
+
+  @Override
+  public void exportComplex(String name, @NotNull String complex) {
+    if(manager!=null) manager.exportComplex(name,complex);
+    else throw new RuntimeException("BiomedisFilesExportManager не установлен");
+
   }
 
   /**

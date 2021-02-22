@@ -72,6 +72,21 @@ public class ExportProfile {
         return true;
     }
 
+    public static String exportToString(@NotNull Profile profile, ModelDataApp md) throws Exception
+    {
+        StringBuilder strb = new StringBuilder();
+
+            String prfl = getProfile(profile, md, 0);
+
+            strb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+
+            strb.append("<UserProfile>\n");
+            strb.append(prfl);
+            strb.append("</UserProfile>");
+
+        return strb.toString();
+    }
+
 
     private static String getProfile(Profile profile,ModelDataApp md,int level)
     {

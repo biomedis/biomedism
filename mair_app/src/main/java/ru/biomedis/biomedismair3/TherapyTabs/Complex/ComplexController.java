@@ -35,6 +35,7 @@ import ru.biomedis.biomedismair3.TherapyTabs.TablesCommon;
 import ru.biomedis.biomedismair3.UserUtils.Export.ExportTherapyComplex;
 import ru.biomedis.biomedismair3.UserUtils.Import.ImportTherapyComplex;
 import ru.biomedis.biomedismair3.entity.*;
+import ru.biomedis.biomedismair3.social.remote_client.SocialClient;
 import ru.biomedis.biomedismair3.utils.Audio.MP3Encoder;
 import ru.biomedis.biomedismair3.utils.Date.DateUtil;
 import ru.biomedis.biomedismair3.utils.Files.FilesProfileHelper;
@@ -425,6 +426,9 @@ public class ComplexController extends BaseController implements ComplexAPI{
         MenuItem toMMI = new MenuItem(this.res.getString("app.upload_to_biomedism"));
         MenuItem toFileMI = new MenuItem(this.res.getString("app.export_to_file"));
 
+        MenuItem toServer = new MenuItem("На сервер");
+
+        toServer.setOnAction(event -> uploadComplexesToServer());
         toDirMI.setOnAction(event -> uploadComplexesToDir());
         toMMI.setOnAction(event -> uploadComplexesToM());
         toFileMI.setOnAction(event -> exportTherapyComplexes(complexTable.getSelectedItems()));
@@ -432,6 +436,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
         uploadComplexesMenu.setOnShowing(event -> {
             toDirMI.setDisable(false);
             toMMI.setDisable(false);
+            toServer.setDisable(true);
             if(this.tableComplex.getSelectionModel().getSelectedItems().isEmpty()) {
 
                 toDirMI.setDisable(true);
@@ -451,11 +456,13 @@ public class ComplexController extends BaseController implements ComplexAPI{
                 }
                 if(getDevicePath()!=null && !toMMI.isDisable() )   toMMI.setDisable(false);
                 else  toMMI.setDisable(true);
+
+                toServer.setDisable(false);
             }
         });
 
 
-        uploadComplexesMenu.getItems().addAll(new MenuItem[]{ toMMI, toDirMI,toFileMI });
+        uploadComplexesMenu.getItems().addAll(toMMI, toDirMI,toFileMI, toServer);
         uploadComplexesBtn.setOnAction(event ->
                 {
                     if(!uploadComplexesMenu.isShowing()) uploadComplexesMenu.show(uploadComplexesBtn, Side.BOTTOM, 0, 0);
@@ -463,6 +470,35 @@ public class ComplexController extends BaseController implements ComplexAPI{
 
                 }
         );
+    }
+
+    private void uploadComplexesToServer() {
+       List<TherapyComplex> selectedItems = new ArrayList<>();
+        selectedItems.addAll(ComplexTable.getInstance().getSelectedItems()) ;
+
+        if(selectedItems.isEmpty()) return;
+
+        String name = showTextInputDialog("Имя файла",
+            "Введите имя файла для экспорта комплексов(без расширения)", "",
+            "", getControllerWindow(), Modality.WINDOW_MODAL);
+        if(name.isEmpty()) return;
+
+        if(name.contains(".")){
+            int index = name.indexOf(".");
+            name = name.substring(0, index);
+        }
+
+        try{
+            SocialClient.INSTANCE.exportComplex(name,ExportTherapyComplex.exportToString(selectedItems, getModel()));
+            showInfoDialog("Загрузка комплексов на сервер","Файл комплексов успешно загружен",
+                "Загружено в открытую в файловом менеджере папку",getControllerWindow(), Modality.WINDOW_MODAL);
+        }catch (Exception e){
+            log.error("",e);
+            showWarningDialog("Экспорт комплексов на сервер",
+                "Экспорт не удался","", getControllerWindow(), Modality.WINDOW_MODAL);
+        }
+
+
     }
 
 

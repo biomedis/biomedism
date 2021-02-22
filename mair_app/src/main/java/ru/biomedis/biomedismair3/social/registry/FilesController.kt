@@ -20,6 +20,7 @@ import javafx.util.Callback
 import javafx.util.StringConverter
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction
+import ru.biomedis.biomedismair3.social.BiomedisFilesExportManager
 import ru.biomedis.biomedismair3.social.remote_client.SocialClient
 import ru.biomedis.biomedismair3.social.remote_client.dto.*
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
@@ -33,7 +34,8 @@ import java.util.function.Predicate
 import kotlin.Comparator
 
 
-class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached {
+class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached,
+    BiomedisFilesExportManager {
 
     /**
      * Позволяет генерировать события изменения списка при изменени указанных свойств объекта
@@ -95,7 +97,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
 
     override fun onCompletedInitialization() {
-
+        SocialClient.INSTANCE.setBiomedisExportFilesManager(this)
     }
 
     override fun onClose(event: WindowEvent) {
@@ -733,6 +735,48 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         override fun toString(): String {
             return name
         }
+    }
+
+    override fun exportProfile(name: String, profile: String) {
+        val newFiles = BlockingAction.actionResult(controllerWindow) {
+            val result = mutableListOf<FileData>()
+
+                    val file = SocialClient.INSTANCE.uploadFilesClient
+                        .uploadFile(
+                            FormData("file", "$name.xmlp", profile.encodeToByteArray()),
+                            currentDirectory?.id ?: 0
+                        )
+                    FileData.fillThumbnailImage(file)
+                    result.add(file)
+
+            result
+        }
+        if(newFiles.isError) throw RuntimeException(newFiles.error)
+
+        items.addAll(newFiles.value)
+    }
+
+    override fun exportUserBaseDirectory(name: String, userBase: String) {
+
+    }
+
+    override fun exportComplex(name: String, complex: String) {
+        val newFiles = BlockingAction.actionResult(controllerWindow) {
+            val result = mutableListOf<FileData>()
+
+            val file = SocialClient.INSTANCE.uploadFilesClient
+                .uploadFile(
+                    FormData("file", "$name.xmlc", complex.encodeToByteArray()),
+                    currentDirectory?.id ?: 0
+                )
+            FileData.fillThumbnailImage(file)
+            result.add(file)
+
+            result
+        }
+        if(newFiles.isError) throw RuntimeException(newFiles.error)
+
+        items.addAll(newFiles.value)
     }
 }
 
