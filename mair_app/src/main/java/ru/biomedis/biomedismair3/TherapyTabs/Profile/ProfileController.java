@@ -1,6 +1,7 @@
 package ru.biomedis.biomedismair3.TherapyTabs.Profile;
 
 import com.mpatric.mp3agic.Mp3File;
+import java.util.function.Consumer;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -1578,6 +1579,11 @@ public class ProfileController extends BaseController implements ProfileAPI {
         }
     }
 
+    @Override
+    public Profile selectedProfile() {
+        return profileTable.getSelectedItem();
+    }
+
     /**
      * перерсчтет времени на профиль. Профиль инстанс из таблицы.
      * @param p
@@ -1789,9 +1795,7 @@ public class ProfileController extends BaseController implements ProfileAPI {
     @Override
     public void importProfile()
     {
-
-        //получим путь к файлу.
-        File file=null;
+        File file;
 
         FileChooser fileChooser =new FileChooser();
         fileChooser.setTitle(res.getString("app.title40"));
@@ -1800,9 +1804,13 @@ public class ProfileController extends BaseController implements ProfileAPI {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("xmlp", "*.xmlp"));
         file= fileChooser.showOpenDialog(getApp().getMainWindow());
 
+        importProfile(file);
+    }
+
+    @Override
+    public void importProfile(File file)
+    {
         if(file==null)return;
-
-
 
         final File fileToSave=file;
 
@@ -1891,6 +1899,135 @@ public class ProfileController extends BaseController implements ProfileAPI {
             }
             else getProgressAPI().setProgressIndicator(res.getString("app.title45"));
             getProgressAPI().hideProgressIndicator(true);
+        });
+
+        task.setOnFailed(event -> {
+            getProgressAPI().setProgressIndicator(res.getString("app.title45"));
+            getProgressAPI().hideProgressIndicator(true);
+
+        });
+
+        Thread threadTask=new Thread(task);
+        threadTask.setDaemon(true);
+        getProgressAPI().setProgressIndicator(0.01, res.getString("app.title46"));
+        threadTask.start();
+    }
+
+    @Override
+    public void importProfiles(List<Path> file, Consumer<Integer> afterAction) {
+        importProfiles(file, new HashMap<>(), afterAction);
+    }
+
+    /**
+     *
+     * @param files
+     * @param profileNames имена профилей. если имя в карте не найдено, то оно берется из файла профиля
+     */
+    @Override
+    public void importProfiles(List<Path> files, Map<Path, String> profileNames, Consumer<Integer> afterAction)
+    {
+        if(files.isEmpty()) return;
+        final List<Path> filesToSave=files;
+        final ImportProfile imp=new ImportProfile();
+
+        Task<Integer> task =new Task<Integer>() {
+            @Override
+            protected Integer call() throws Exception
+            {
+                int max = 100*filesToSave.size();
+                imp.setListener(new ImportProfile.Listener() {
+                    @Override
+                    public void onStartParse() {
+                        updateProgress(10, max);
+                    }
+
+                    @Override
+                    public void onEndParse() {
+                        updateProgress(30, max);
+                    }
+
+                    @Override
+                    public void onStartAnalize() {
+                        updateProgress(35, max);
+                    }
+
+                    @Override
+                    public void onEndAnalize() {
+                        updateProgress(50, max);
+                    }
+
+                    @Override
+                    public void onStartImport() {
+                        updateProgress(55, max);
+                    }
+
+                    @Override
+                    public void onEndImport() {
+                        updateProgress(90, max);
+                    }
+
+                    @Override
+                    public void onSuccess() {
+                        updateProgress(98, max);
+                    }
+
+                    @Override
+                    public void onError(boolean fileTypeMissMatch) {
+                        imp.setListener(null);
+
+                        if (fileTypeMissMatch) {
+                            showErrorDialog(res.getString("app.title41"), "", res.getString("app.title42"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                        }
+                        failed();
+
+                    }
+                });
+
+                int res=0;
+                boolean flag = false;
+                for (Path file : filesToSave) {
+                    String name = profileNames.get(file);
+                    if(name ==null){
+                        if(imp.parse(file.toFile(), getModel())) {
+                            res ++;
+                            flag=true;
+                        }
+                    }else {
+                        if(imp.parse(file.toFile(), getModel(), name)) {
+                            res ++;
+                            flag=true;
+                        }
+                    }
+                    if(flag){
+                        Profile  p = getModel().getLastProfile();
+                        Platform.runLater(() -> ProfileTable.getInstance().getAllItems().add(p));
+                    }
+                    flag=false;
+                }
+                imp.setListener(null);
+                return res;
+            }
+
+
+        };
+
+        task.progressProperty().addListener((observable, oldValue, newValue) -> getProgressAPI().setProgressIndicator(newValue.doubleValue()));
+        task.setOnRunning(event1 -> getProgressAPI().setProgressIndicator(0.0, res.getString("app.title43")));
+
+        task.setOnSucceeded(event ->
+        {
+
+            if (task.getValue()==filesToSave.size())
+            {
+                getProgressAPI().setProgressIndicator(1.0, res.getString("app.title44"));
+
+            }
+            else if(task.getValue()<filesToSave.size() && task.getValue()>0) {
+                getProgressAPI().setProgressIndicator(res.getString("app.title45"));
+                showWarningDialog("Импорт файлов профилей","Не все файлы профилей были импортированы","",getControllerWindow(), Modality.WINDOW_MODAL);
+            }else getProgressAPI().setProgressIndicator(res.getString("app.title45"));
+            getProgressAPI().hideProgressIndicator(true);
+            afterAction.accept(task.getValue());
         });
 
         task.setOnFailed(event -> {

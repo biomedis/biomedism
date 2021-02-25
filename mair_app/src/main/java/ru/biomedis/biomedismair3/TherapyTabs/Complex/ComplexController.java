@@ -1614,6 +1614,130 @@ public class ComplexController extends BaseController implements ComplexAPI{
     }
 
 
+
+    /**
+     * Импорт комплексов из файла
+     * @param profile
+     * @param afterAction выполняется после всего, в случае успеха. Передается параметр ему кол-во импортированных комплексов
+     * @param complexesFiles список файлов комплексов
+     */
+    @Override
+    public void importTherapyComplex(Profile profile, List<Path> complexesFiles,
+        Runnable afterAction)
+    {
+        if(profile==null)return;
+
+
+        final List<Path> filesToSave=complexesFiles;
+
+        final ImportTherapyComplex imp=new ImportTherapyComplex();
+        final ResourceBundle rest=res;
+        Task<Integer> task =new Task<Integer>() {
+            @Override
+            protected Integer call() throws Exception
+            {
+                int max = 100*filesToSave.size();
+                imp.setListener(new ImportTherapyComplex.Listener() {
+                    @Override
+                    public void onStartParse() {
+                        updateProgress(10, 100);
+                    }
+
+                    @Override
+                    public void onEndParse() {
+                        updateProgress(30, max);
+                    }
+
+                    @Override
+                    public void onStartAnalize() {
+                        updateProgress(35, max);
+                    }
+
+                    @Override
+                    public void onEndAnalize() {
+                        updateProgress(50, max);
+                    }
+
+                    @Override
+                    public void onStartImport() {
+                        updateProgress(55, max);
+                    }
+
+                    @Override
+                    public void onEndImport() {
+                        updateProgress(90, max);
+                    }
+
+                    @Override
+                    public void onSuccess() {
+                        updateProgress(98, max);
+                    }
+
+                    @Override
+                    public void onError(boolean fileTypeMissMatch) {
+                        imp.setListener(null);
+
+                        if (fileTypeMissMatch) {
+                            showErrorDialog(rest.getString("app.title41"), "", rest.getString("app.title42"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                        }
+                        failed();
+
+                    }
+                });
+                List<TherapyComplex> lastTherapyComplexes = new ArrayList<>();
+                int res=0;
+                for (Path file : filesToSave) {
+                    int nums = imp.parse(file.toFile(), getModel(), profile);
+                        if(nums > 0) {
+                            res ++;
+                            lastTherapyComplexes.addAll(getModel().getLastTherapyComplexes(nums));
+
+                        }
+                }
+                if(!lastTherapyComplexes.isEmpty())
+                {
+                    ProfileTable.getInstance().select(profile);
+                    Platform.runLater(() -> ComplexTable.getInstance().getAllItems().addAll(lastTherapyComplexes));
+
+                }
+                imp.setListener(null);
+                return res;
+
+            }
+
+
+        };
+        task.progressProperty().addListener((observable, oldValue, newValue) -> getProgressAPI().setProgressIndicator(newValue.doubleValue()));
+        task.setOnRunning(event1 -> getProgressAPI().setProgressIndicator(0.0, rest.getString("app.title43")));
+
+        task.setOnSucceeded(event ->
+        {
+
+            if (task.getValue()!=0)
+            {
+                getProgressAPI().setProgressIndicator(1.0D, rest.getString("app.title44"));
+            }
+            else if(task.getValue()>0 && task.getValue() < filesToSave.size()){
+                getProgressAPI().setProgressIndicator(rest.getString("app.title45"));
+                showWarningDialog("Импорт файлов комплексов","Не все файлы комплексов импортированы","",getControllerWindow(), Modality.WINDOW_MODAL);
+            }else  getProgressAPI().setProgressIndicator(rest.getString("app.title45"));
+            getProgressAPI().hideProgressIndicator(true);
+            afterAction.run();
+        });
+
+        task.setOnFailed(event -> {
+            getProgressAPI().setProgressIndicator(rest.getString("app.title45"));
+            getProgressAPI(). hideProgressIndicator(true);
+
+        });
+
+        Thread threadTask=new Thread(task);
+        threadTask.setDaemon(true);
+        getProgressAPI().setProgressIndicator(0.01, rest.getString("app.title46"));
+        threadTask.start();
+    }
+
+
     private void importComplexesFromBiomedisM(){
         DirectoryChooser dirChooser =new DirectoryChooser();
         dirChooser.setTitle(res.getString("app.menu.read_complex_from_dir"));

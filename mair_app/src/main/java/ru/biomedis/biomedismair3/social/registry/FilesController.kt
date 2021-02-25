@@ -18,6 +18,7 @@ import javafx.stage.Modality
 import javafx.stage.WindowEvent
 import javafx.util.Callback
 import javafx.util.StringConverter
+import ru.biomedis.biomedismair3.AppController
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.social.BiomedisFilesExportManager
@@ -206,6 +207,9 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         val pasteItem = MenuItem("Вставить")
         val deleteItem = MenuItem("Удалить")
         val copyLinksItem = MenuItem("Копировать ссылки")
+        val importProfileItem = MenuItem("Импорт файлов профилей")
+        val importComplexesItem = MenuItem("Импорт файлов комплексов")
+        val importFreqBaseItem = MenuItem("Импорт файлов базы частот")
 
         cutItem.setOnAction { cutItems() }
         pasteItem.setOnAction { pasteItems() }
@@ -214,6 +218,9 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         changeAccessItem.setOnAction { changeAccessItems() }
         reloadPrivateLinkItem.setOnAction { reloadPrivateLinkItem() }
         copyLinksItem.setOnAction { copyLinks() }
+        importProfileItem.setOnAction { importProfile() }
+        importComplexesItem.setOnAction { importComplexes() }
+        importFreqBaseItem.setOnAction { importFreqBase() }
 
         ctxListMenu.items.addAll(
             changeAccessItem,
@@ -223,7 +230,11 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
             SeparatorMenuItem(),
             cutItem,
             pasteItem,
-            deleteItem
+            deleteItem,
+            SeparatorMenuItem(),
+            importProfileItem,
+            importComplexesItem,
+            importFreqBaseItem
         )
         ctxListMenu.setOnShowing {
             fun disableAll(disable: Boolean) {
@@ -234,6 +245,9 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
                 pasteItem.isDisable = disable
                 deleteItem.isDisable = disable
                 copyLinksItem.isDisable = disable
+                importProfileItem.isDisable = disable
+                importComplexesItem.isDisable = disable
+                importFreqBaseItem.isDisable = disable
             }
 
             fun checkPaste() {
@@ -265,11 +279,102 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
             if(selected.size ==1 && selected.first() is FileData) reloadPrivateLinkItem.isDisable = false
 
+            if(selected.isNotEmpty()){
+                val biomedisFiles = selected.filterIsInstance<FileData>().filter{it.type == FileType.BIOMEDIS}
+                importProfileItem.isDisable =  !biomedisFiles.any { it.extension=="xmlp" }
+                importFreqBaseItem.isDisable = !biomedisFiles.any { it.extension=="xmlb" }
+                importComplexesItem.isDisable = !biomedisFiles.any { it.extension=="xmlc" }
+
+            }
+
         }
 
     }
 
+    private fun importFreqBase() {
+        TODO("Not yet implemented")
+    }
+
+    private fun importComplexes() {
+        val profileAPI = AppController.getProfileAPI()
+        val complexAPI = AppController.getComplexAPI()
+        val selectedProfile = profileAPI.selectedProfile()
+        if(selectedProfile==null) {
+            showWarningDialog("Импорт комплексов","Не выбран профиль","Для импорта комплексов необходимо выбрать профиль во вкладке профилей", controllerWindow, Modality.WINDOW_MODAL)
+            return
+        }
+        val dir = app.tmpDir.toPath()
+        val complexesFiles = container.selectionModel.selectedItems
+            .filterIsInstance<FileData>()
+            .filter { it.extension=="xmlc" }
+
+        if(complexesFiles.isEmpty()){
+            showWarningDialog("Импорт комплексов","Импорт комплексов не удался","В списке выбранных файлов нет комплексов",controllerWindow, Modality.WINDOW_MODAL)
+
+            return
+        }
+
+        val downloadedComplexes = downloadFiles(complexesFiles, dir)
+        if(downloadedComplexes.isError){
+            showWarningDialog("Импорт комплексов","Импорт комплексов не удался","Не удалось загрузить файлы с сервера",controllerWindow, Modality.WINDOW_MODAL)
+            log.error("", downloadedComplexes.error)
+            return
+        }
+
+        if(downloadedComplexes.value.isEmpty()){
+            showWarningDialog("Импорт комплексов","Импорт комплексов не удался","Не удалось загрузить файлы с сервера",controllerWindow, Modality.WINDOW_MODAL)
+            log.error("Пустой список загрузки")
+            return
+        }
+
+        complexAPI.importTherapyComplex(selectedProfile, downloadedComplexes.value.keys.toList()){
+           downloadedComplexes.value.keys.forEach {  Files.delete(it) }
+        }
+
+
+    }
+
+    private fun importProfile() {
+        val dir = app.tmpDir.toPath()
+        val profileFiles = container.selectionModel.selectedItems
+            .filterIsInstance<FileData>()
+            .filter { it.extension=="xmlp" }
+
+        if(profileFiles.isEmpty()){
+            showWarningDialog("Импорт профилей","Импорт профилей не удался","В списке выбранных файлов нет профилей",controllerWindow, Modality.WINDOW_MODAL)
+
+            return
+        }
+
+        val downloadedProfiles = downloadFiles(profileFiles, dir)
+        if(downloadedProfiles.isError){
+            showWarningDialog("Импорт профилей","Импорт профилей не удался","Не удалось загрузить файлы с сервера",controllerWindow, Modality.WINDOW_MODAL)
+            log.error("", downloadedProfiles.error)
+            return
+        }
+
+        if(downloadedProfiles.value.isEmpty()){
+            showWarningDialog("Импорт профилей","Импорт профилей не удался","Не удалось загрузить файлы с сервера",controllerWindow, Modality.WINDOW_MODAL)
+            log.error("Пустой список загрузки")
+            return
+        }
+
+        val profileAPI = AppController.getProfileAPI()
+
+        profileAPI.importProfiles(
+            downloadedProfiles.value.keys.toList(),
+            downloadedProfiles.value
+            ){
+            downloadedProfiles.value.keys.forEach{
+                Files.delete(it)       //удаление временных файлов
+            }
+        }
+
+
+    }
+
     private fun copyLinks() {
+
         val selected = container.selectionModel.selectedItems
         if(selected.isEmpty()) return
         val links = selected
@@ -766,6 +871,36 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         if(newFiles.isError) throw RuntimeException(newFiles.error)
 
         items.addAll(newFiles.value)
+    }
+
+    /**
+     * Скачает файлы в указанную директорию, к именованию файлов применит функцию [nameAction], по умолчанию случайное имя и нормальное расширение
+     * Вернет список скачанных файлов
+     * Если где-то возникла ошибка, то закачка буде прекращена
+     * return пары путь и имя файла на сервере без расширения
+     */
+    private fun downloadFiles(
+        files: List<FileData>, toDir: Path,
+        nameAction: (FileData) -> String = { "${UUID.randomUUID()}.${it.extension}" }
+    ): Result<Map<Path, String>> {
+        return BlockingAction.actionResult(controllerWindow) {
+            val paths = mutableMapOf<Path, String>()
+            try {
+                files.forEach {
+                    val fBytes =
+                        SocialClient.INSTANCE.filesClient.downloadFile(it.id).body().asInputStream()
+                            .readBytes()
+                    val filePath = toDir.resolve(nameAction(it))
+                    filePath.toFile().writeBytes(fBytes)
+                    paths[filePath] = it.name
+                }
+            }catch (e: Exception){
+                paths.forEach{ Files.delete(it.key)}
+                throw e
+            }
+
+            paths
+        }
     }
 }
 

@@ -39,11 +39,24 @@ public class ImportProfile {
      * @return true если все удачно
      */
     public boolean parse(File xmlFile, ModelDataApp mda) throws Exception {
+        return parse(xmlFile, mda, "");
+    }
+
+    /**
+     * Парсит файл структуры профиля и импортирует их
+     * @param xmlFile xml файл
+     * @param mda модель данных
+     * @param name имя комплекса(для игнорирования того что в файле)
+     * @return true если все удачно
+     */
+    public boolean parse(File xmlFile, ModelDataApp mda, String name) throws Exception {
 
         if (listener == null) throw new Exception("Нужно реализовать слушатель событий!");
         boolean res = false;
         if (xmlFile == null) return false;
-
+        profile=null;
+        listComplex.clear();
+        listProgram.clear();
 
         SAXParserFactory factory = SAXParserFactory.newInstance();
 
@@ -131,8 +144,9 @@ public class ImportProfile {
             if(profile.name.equals(App.BIOFON_PROFILE_NAME)){
                 profile.profile=App.getBiofonProfile_();
             }else  {
-                if(profile.position==-1) profile.profile= mda.createProfile(TextUtil.unEscapeXML(profile.name));
-                else  profile.profile= mda.createProfile(TextUtil.unEscapeXML(profile.name),profile.position);
+                String pName = name.isEmpty()?TextUtil.unEscapeXML(profile.name): name;
+                if(profile.position==-1) profile.profile= mda.createProfile(pName);
+                else  profile.profile= mda.createProfile(pName,profile.position);
             }
 
 

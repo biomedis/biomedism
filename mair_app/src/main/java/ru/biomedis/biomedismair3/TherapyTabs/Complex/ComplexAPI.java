@@ -1,5 +1,6 @@
 package ru.biomedis.biomedismair3.TherapyTabs.Complex;
 
+import java.nio.file.Path;
 import ru.biomedis.biomedismair3.entity.Profile;
 import ru.biomedis.biomedismair3.entity.TherapyComplex;
 
@@ -26,6 +27,9 @@ public interface ComplexAPI {
     void exportTherapyComplexes(List<TherapyComplex> complexes);
 
     void importTherapyComplex(Profile profile, Consumer<Integer> afterAction);
+
+    void importTherapyComplex(Profile profile, List<Path> complexesFiles,
+        Runnable afterAction);
 
     void importComplexFromDir();
 
