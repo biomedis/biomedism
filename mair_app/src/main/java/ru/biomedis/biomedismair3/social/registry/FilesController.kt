@@ -292,7 +292,43 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
     }
 
     private fun importFreqBase() {
-        TODO("Not yet implemented")
+        val leftAPI = AppController.getLeftAPI();
+        val dir = app.tmpDir.toPath()
+
+        val userBaseFiles = container.selectionModel.selectedItems
+            .filterIsInstance<FileData>()
+            .filter { it.extension=="xmlb" }
+
+        if(userBaseFiles.isEmpty()){
+            showWarningDialog("Импорт пользовательской базы частот","Импорт не удался","В списке выбранных файлов нет файлов пользовательской базы частот",controllerWindow, Modality.WINDOW_MODAL)
+
+            return
+        }
+
+        val downloadedComplexes = downloadFiles(userBaseFiles, dir)
+        if(downloadedComplexes.isError){
+            showWarningDialog("Импорт пользовательской базы частот","Импорт  не удался","Не удалось загрузить файлы с сервера",controllerWindow, Modality.WINDOW_MODAL)
+            log.error("", downloadedComplexes.error)
+            return
+        }
+
+        if(downloadedComplexes.value.isEmpty()){
+            showWarningDialog("Импорт пользовательской базы частот","Импорт не удался","Не удалось загрузить файлы с сервера",controllerWindow, Modality.WINDOW_MODAL)
+            log.error("Пустой список загрузки")
+            return
+        }
+
+        val msg = if(downloadedComplexes.value.size>1) {
+            """Будет произведен импорт нескольких файлов базы частот.
+            Если произойдет ошибка импорта для файла, то остальные файлы продолжат импортироваться."""
+        }else ""
+       showInfoDialog("Импорт пользовательской базы частот",
+            "Если вы забыли выбрать раздел в пользовательской базе для импорта, то импорт произойдет в корневой раздел!",
+           msg,controllerWindow, Modality.WINDOW_MODAL)
+
+        downloadedComplexes.value.forEach {
+            leftAPI.importUserBase(it.key, it.value)
+        }
     }
 
     private fun importComplexes() {

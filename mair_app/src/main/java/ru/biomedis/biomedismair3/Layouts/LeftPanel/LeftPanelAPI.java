@@ -1,5 +1,7 @@
 package ru.biomedis.biomedismair3.Layouts.LeftPanel;
 
+import java.nio.file.Path;
+import java.util.List;
 import javafx.collections.ObservableList;
 import ru.biomedis.biomedismair3.entity.INamed;
 import ru.biomedis.biomedismair3.entity.Section;
@@ -56,6 +58,8 @@ public interface LeftPanelAPI {
     void exportUserBaseToServer();
 
     void importUserBase();
+
+    void importUserBase(Path file, String nameSection);
 
     void  importComplexToBaseFromDir();
 

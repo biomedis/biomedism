@@ -1,6 +1,7 @@
 package ru.biomedis.biomedismair3.TherapyTabs.Complex;
 
 import com.mpatric.mp3agic.Mp3File;
+import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Platform;
 import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -1637,40 +1638,41 @@ public class ComplexController extends BaseController implements ComplexAPI{
             protected Integer call() throws Exception
             {
                 int max = 100*filesToSave.size();
+                AtomicInteger cnt = new AtomicInteger(0);
                 imp.setListener(new ImportTherapyComplex.Listener() {
                     @Override
                     public void onStartParse() {
-                        updateProgress(10, 100);
+                        updateProgress(10*cnt.get(), max);
                     }
 
                     @Override
                     public void onEndParse() {
-                        updateProgress(30, max);
+                        updateProgress(30*cnt.get(), max);
                     }
 
                     @Override
                     public void onStartAnalize() {
-                        updateProgress(35, max);
+                        updateProgress(35*cnt.get(), max);
                     }
 
                     @Override
                     public void onEndAnalize() {
-                        updateProgress(50, max);
+                        updateProgress(50*cnt.get(), max);
                     }
 
                     @Override
                     public void onStartImport() {
-                        updateProgress(55, max);
+                        updateProgress(55*cnt.get(), max);
                     }
 
                     @Override
                     public void onEndImport() {
-                        updateProgress(90, max);
+                        updateProgress(90*cnt.get(), max);
                     }
 
                     @Override
                     public void onSuccess() {
-                        updateProgress(98, max);
+                        updateProgress(98*cnt.get(), max);
                     }
 
                     @Override
@@ -1687,6 +1689,7 @@ public class ComplexController extends BaseController implements ComplexAPI{
                 List<TherapyComplex> lastTherapyComplexes = new ArrayList<>();
                 int res=0;
                 for (Path file : filesToSave) {
+                    cnt.incrementAndGet();
                     int nums = imp.parse(file.toFile(), getModel(), profile);
                         if(nums > 0) {
                             res ++;

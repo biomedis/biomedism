@@ -1,5 +1,6 @@
 package ru.biomedis.biomedismair3.Layouts.LeftPanel;
 
+import java.nio.file.Path;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -1859,11 +1860,6 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
     }
 
-
-    /**
-     * пользователь может не выбрать раздел ни в выборе базы, ни в выборе разделов 2 уровня ни в дереве. Также можно выбрать любой раздел.
-     * В нем создастся контейнер
-     */
     @Override
     public void importUserBase()
     {
@@ -1951,6 +1947,231 @@ public class LeftPanelController extends BaseController implements LeftPanelAPI{
 
         if(file==null)return;
 
+
+
+        ImportUserBase imp=new ImportUserBase();
+
+
+
+        Section container=null;
+        final Section startFinal=start;
+        try {
+            container = getModel().createSection(start, res, "", false, getModel().getUserLanguage());
+            container.setDescriptionString("");
+            container.setNameString(res);
+        } catch (Exception e) {
+            log.error("",e);
+
+            showExceptionDialog("Ошибка создания раздела контейнера для импорта базы","","",e,getApp().getMainWindow(),Modality.WINDOW_MODAL);
+            return;
+
+        }
+
+        final Section sec=container;
+        final File fileToSave=file;
+        final String resName=res;
+
+        final ResourceBundle rest=this.res;
+        Task<Boolean> task =new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception
+            {
+
+                imp.setListener(new ImportUserBase.Listener() {
+                    @Override
+                    public void onStartParse() {
+                        updateProgress(10, 100);
+                    }
+
+                    @Override
+                    public void onEndParse() {
+                        updateProgress(30, 100);
+                    }
+
+                    @Override
+                    public void onStartAnalize() {
+                        updateProgress(35, 100);
+                    }
+
+                    @Override
+                    public void onEndAnalize() {
+                        updateProgress(50, 100);
+                    }
+
+                    @Override
+                    public void onStartImport() {
+                        updateProgress(55, 100);
+                    }
+
+                    @Override
+                    public void onEndImport() {
+                        updateProgress(90, 100);
+                    }
+
+                    @Override
+                    public void onSuccess() {
+                        updateProgress(98, 100);
+                    }
+
+                    @Override
+                    public void onError(boolean fileTypeMissMatch) {
+                        imp.setListener(null);
+
+                        if (fileTypeMissMatch) {
+                            showErrorDialog(rest.getString("app.title41"), "", rest.getString("app.title42"), getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                        }
+                        failed();
+
+                    }
+                });
+
+
+                boolean res= imp.parse( fileToSave, getModel(),sec);
+                if(res==false)
+                {
+                    imp.setListener(null);
+                    this.failed();
+                    return false;}
+                else {
+                    imp.setListener(null);
+                    return true;
+                }
+
+
+
+            }
+
+
+        };
+
+
+        Section sect=container;
+        task.progressProperty().addListener((observable, oldValue, newValue) -> getProgressAPI().setProgressIndicator(newValue.doubleValue()));
+        task.setOnRunning(event1 -> getProgressAPI().setProgressIndicator(0.0, rest.getString("app.title43")));
+
+        task.setOnSucceeded(event ->
+        {
+
+            if (task.getValue())
+            {
+                getProgressAPI().setProgressIndicator(1.0, rest.getString("app.title44"));
+
+                //хаполнить структуру дерева и комбо.
+
+                ///вопрос - если выбрана база не пользовательскаяч, нужно во всех случаях проверить что выбрано у нас.!!!!!!!!
+
+                if(startFinal.getParent()==null && "USER".equals(startFinal.getTag()))
+                {
+
+                    if("USER".equals(selectedBase().getTag()))
+                    {
+                        //в момент выборы была открыта пользовательская база
+                        //если у нас контейнер создан в корне пользовательской базы.
+                        getRootSectionAllItems().add(sect);
+                        selectRootSection(getRootSectionAllItems().indexOf(sect));
+                    }
+                    //если не в пользовательской базе то ничего не делаем
+
+                }
+                else {
+
+                    //если внутри пользовательской базы то меняем, иначе ничего не делаем
+                    if ("USER".equals(selectedBase().getTag()))
+                    {
+                        //иначе контейнер создан в дереве
+                        if (selectedSectionTree() == null && selectedRootSection().getId() != 0) {
+                            //выбран раздел в комбо но не в дереве
+                            addTreeItemToTreeRoot(new NamedTreeItem(sect));
+
+                        } else if (selectedSectionTree()!= null) {
+                            //выбран раздел в дереве
+                            addTreeItemToSelected(new NamedTreeItem(sect));
+
+                        } else
+                            showErrorDialog(rest.getString("app.title60"), rest.getString("app.title61"), "", getApp().getMainWindow(), Modality.WINDOW_MODAL);
+                    }
+                }
+
+            }
+            else getProgressAPI().setProgressIndicator(rest.getString("app.title45"));
+            getProgressAPI().hideProgressIndicator(true);
+        });
+
+        task.setOnFailed(event -> {
+            getProgressAPI().setProgressIndicator(rest.getString("app.title45"));
+            getProgressAPI().hideProgressIndicator(true);
+
+            try {
+                getApp().getModel().removeSection(sect);
+            } catch (Exception e) {
+                log.error("",e);
+            }
+
+        });
+
+        Thread threadTask=new Thread(task);
+        threadTask.setDaemon(true);
+        getProgressAPI().setProgressIndicator(0.01, rest.getString("app.title46"));
+        threadTask.start();
+
+    }
+
+    @Override
+    public void importUserBase(Path path, String nameSection)
+    {
+
+        Section start=null;
+        String res=nameSection;
+
+        List<Section> collect = getBaseAllItems().stream().filter(section -> "USER".equals(section.getTag())).collect(Collectors.toList());
+        Section userSection=null;
+        if(collect.isEmpty()) return;
+        userSection=collect.get(0);
+        collect=null;
+
+
+        if(!"USER".equals(selectedBase().getTag()) )
+        {
+            //не выбран пользовательский раздел
+             start=userSection;
+
+        }else
+        {
+            if(selectedRootSection().getId()==0)
+            {
+               start=userSection;
+
+            }else if(selectedSectionTree()==null)
+            {
+                //выбран раздел в комбобоксе но не выбран в дереве
+                start=selectedRootSection();
+
+            }else
+            {
+                //выбран элемент дерева и выбран раздел
+
+                //если выбран не раздел
+                if(!(selectedSectionTreeItem() instanceof Section))
+                {
+
+                    showWarningDialog(this.res.getString("app.title49"),"",this.res.getString("app.title53"),getApp().getMainWindow(),Modality.WINDOW_MODAL );
+                    return;
+
+
+                }
+
+                 start=(Section)selectedRootSection();//выберем стартовым раздел
+
+
+            }
+
+        }
+
+
+
+
+        //получим путь к файлу.
+        File file= path.toFile();
 
 
         ImportUserBase imp=new ImportUserBase();
