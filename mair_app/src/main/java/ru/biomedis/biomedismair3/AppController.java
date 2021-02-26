@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import javafx.application.Platform;
@@ -1578,31 +1579,115 @@ if(!getConnectedDevice())return;
     }
 /**********/
 
+public void createBackupToDisk(){
+    //найдем корень пользовательской базы
+    List<Section> collect = leftAPI.getBaseAllItems().stream().filter(section -> "USER".equals(section.getTag())).collect(Collectors.toList());
+    Section userSection=null;
+    if(collect.isEmpty()) return;
+    userSection=collect.get(0);
+    collect=null;
+    //получим путь к файлу.
+    File file=null;
 
-    /**
-     *Создать бекап
-     */
-    public void onRecoveryCreate(){
+    Calendar cal = Calendar.getInstance();
+    getModel().initStringsSection(userSection);
+    FileChooser fileChooser =new FileChooser();
+    fileChooser.setTitle(res.getString("ui.backup.create_backup"));
+    fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
+    fileChooser.setInitialFileName( cal.get(Calendar.DAY_OF_MONTH)+"_"+(cal.get(Calendar.MONTH)+1)+"_"+cal.get(Calendar.YEAR)+".brecovery");
+    fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("brecovery", "*.brecovery"));
+    file= fileChooser.showSaveDialog(getApp().getMainWindow());
+
+    if(file==null)return;
+    final Section sec=userSection;
+    final File zipFile=file;
+    getProgressAPI().setProgressBar(0.0, res.getString("ui.backup.create_backup"), "");
+
+
+    Task<Boolean> task =new Task<Boolean>() {
+        @Override
+        protected Boolean call() throws Exception
+        {
+            File recoveryDir=new File(getApp().getTmpDir(),"recovery");
+            if(!recoveryDir.exists())if(!recoveryDir.mkdir()) return false;
+
+            File baseFile=new File(recoveryDir,"base.xmlb");
+
+            boolean res1= ExportUserBase.export(sec, baseFile, getModel());
+            if(res1==false) {this.failed();return false;}
+
+            List<Profile> allProfiles = getApp().getModel().findAllProfiles();
+            this.updateProgress(1,allProfiles.size()+2);
+            boolean res2=true;
+
+
+            int cnt=1;
+            for (Profile profile : allProfiles) {
+                res2= ExportProfile.export(profile,new File(recoveryDir,profile.getId()+".xmlp"),getModel());
+                if(res2==false) break;
+                this.updateProgress(++cnt,allProfiles.size()+2);
+            }
+            if(res2==false) {this.failed();return false;}
+            boolean res3=true;
+            res3 = ZIPUtil.zipFolder(recoveryDir,zipFile);
+            return res1 && res2 && res3;
+        }
+    };
+
+    task.progressProperty().addListener((observable, oldValue, newValue) -> {
+        getProgressAPI().setProgressBar(newValue.doubleValue(), res.getString("ui.backup.create_backup"), "");
+    });
+
+    task.setOnRunning(event1 -> getProgressAPI().setProgressBar(0.0, res.getString("ui.backup.create_backup"), ""));
+
+    task.setOnSucceeded(event ->
+    {
+        Waiter.closeLayer();
+        if (task.getValue()) {
+            getProgressAPI().hideProgressBar(false);
+            getProgressAPI().setProgressIndicator(1.0, res.getString("app.title103"));
+
+        } else {
+            getProgressAPI().hideProgressBar(false);
+            getProgressAPI().setProgressIndicator(res.getString("app.title93"));
+        }
+        getProgressAPI().hideProgressIndicator(true);
+    });
+
+    task.setOnFailed(event -> {
+        Waiter.closeLayer();
+        getProgressAPI().hideProgressBar(false);
+        getProgressAPI().setProgressIndicator(res.getString("app.title93"));
+        getProgressAPI().hideProgressIndicator(true);
+    });
+
+
+    Thread threadTask=new Thread(task);
+    threadTask.setDaemon(true);
+    getProgressAPI().setProgressBar(0.01, res.getString("app.title102"), "");
+    Waiter.openLayer(getApp().getMainWindow(),false);
+    threadTask.start();
+    Waiter.show();
+}
+
+
+    public void createBackupToServer(){
+    //найдем корень пользовательской базы
         List<Section> collect = leftAPI.getBaseAllItems().stream().filter(section -> "USER".equals(section.getTag())).collect(Collectors.toList());
         Section userSection=null;
         if(collect.isEmpty()) return;
         userSection=collect.get(0);
-        collect=null;
+
         //получим путь к файлу.
         File file=null;
 
         Calendar cal = Calendar.getInstance();
         getModel().initStringsSection(userSection);
-        FileChooser fileChooser =new FileChooser();
-       fileChooser.setTitle(res.getString("ui.backup.create_backup"));
-        fileChooser.setInitialDirectory(new File(getModel().getLastExportPath(System.getProperty("user.home"))));
-        fileChooser.setInitialFileName( cal.get(Calendar.DAY_OF_MONTH)+"_"+(cal.get(Calendar.MONTH)+1)+"_"+cal.get(Calendar.YEAR)+".brecovery");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("brecovery", "*.brecovery"));
-        file= fileChooser.showSaveDialog(getApp().getMainWindow());
 
-        if(file==null)return;
+
+
         final Section sec=userSection;
-        final File zipFile=file;
+        final File zipFile=new File(app.getTmpDir(), cal.get(Calendar.DAY_OF_MONTH)+"_"+(cal.get(Calendar.MONTH)+1)+"_"+cal.get(Calendar.YEAR)+".brecovery");
         getProgressAPI().setProgressBar(0.0, res.getString("ui.backup.create_backup"), "");
 
 
@@ -1649,6 +1734,8 @@ if(!getConnectedDevice())return;
                 getProgressAPI().hideProgressBar(false);
                 getProgressAPI().setProgressIndicator(1.0, res.getString("app.title103"));
 
+                SocialClient.INSTANCE.exportBackup(zipFile);
+
             } else {
                 getProgressAPI().hideProgressBar(false);
                 getProgressAPI().setProgressIndicator(res.getString("app.title93"));
@@ -1670,6 +1757,31 @@ if(!getConnectedDevice())return;
         Waiter.openLayer(getApp().getMainWindow(),false);
         threadTask.start();
         Waiter.show();
+    }
+
+
+    /**
+     *Создать бекап
+     */
+    public void onRecoveryCreate(){
+        app.recursiveDeleteTMP();
+        String toServer = "На сервер";
+        String toDisk = "На диск";
+        String choice = showChoiceDialog(
+            res.getString("ui.backup.create_backup"),
+            "Куда сохранить файл?",
+            "",
+            Arrays.asList(toServer,toDisk),
+            toServer,
+            getControllerWindow(),
+            Modality.WINDOW_MODAL
+            );
+
+        if(choice==null) return;
+
+        if (choice.equals(toDisk)) createBackupToDisk();
+        else createBackupToServer();
+
     }
 
 
@@ -1700,7 +1812,7 @@ if(!getConnectedDevice())return;
         String add_mode=res.getString("app.ui.add_recovery_data");
         String replace_mode=res.getString("app.ui.replace_recovery_data");
 
-        String mRec = showChoiceDialog("Загрузка резервной копии", "", "Выбирайте ",
+        String mRec = showChoiceDialog("Загрузка резервной копии", "", "",
                 Arrays.asList(add_mode,replace_mode),
                 replace_mode,
                 getApp().getMainWindow(), Modality.WINDOW_MODAL);
@@ -1865,6 +1977,223 @@ if(!getConnectedDevice())return;
                         ProfileTable.getInstance().getAllItems().addAll( getModel().findAllProfiles().subList(count_profiles,getModel().countProfile()).stream()
                                                                   .filter(i->!i.getName().equals(App.BIOFON_PROFILE_NAME))
                                                                   .collect(Collectors.toList()));
+                    }
+
+                    biofonUIUtil.reloadComplexes();
+
+                    int i =  ProfileTable.getInstance().getAllItems().size()-1;
+                    ProfileTable.getInstance().requestFocus();
+                    ProfileTable.getInstance().select(i);
+                    ProfileTable.getInstance().scrollTo(i);
+                    ProfileTable.getInstance().setItemFocus(i);
+
+                    leftAPI.selectBase(0);
+                    leftAPI.selectBase(sec);
+                }
+            } else {
+                getProgressAPI().hideProgressBar(false);
+                getProgressAPI().setProgressIndicator(res.getString("app.title93"));
+            }
+            getProgressAPI().hideProgressIndicator(true);
+        });
+
+        task.setOnFailed(event -> {
+            Waiter.closeLayer();
+            getProgressAPI().hideProgressBar(false);
+            getProgressAPI().setProgressIndicator(res.getString("app.title93"));
+            getProgressAPI().hideProgressIndicator(true);
+        });
+
+
+        Thread threadTask=new Thread(task);
+        threadTask.setDaemon(true);
+        getProgressAPI().setProgressBar(0.01, res.getString("ui.backup.load_backup"), "");
+        Waiter.openLayer(getApp().getMainWindow(),false);
+
+        threadTask.start();
+        Waiter.show();
+    }
+
+
+    public void recoveryLoad(Path recoveryFile){
+        List<Section> collect = leftAPI.getBaseAllItems().stream().filter(section -> "USER".equals(section.getTag())).collect(Collectors.toList());
+        Section userSection=null;
+        if(collect.isEmpty()) return;
+        userSection=collect.get(0);
+        collect=null;
+
+        //получим путь к файлу.
+        File file=recoveryFile.toFile();
+        if(file==null)return;
+
+        String add_mode=res.getString("app.ui.add_recovery_data");
+        String replace_mode=res.getString("app.ui.replace_recovery_data");
+
+        String mRec = showChoiceDialog("Загрузка резервной копии", "", "",
+            Arrays.asList(add_mode,replace_mode),
+            replace_mode,
+            getApp().getMainWindow(), Modality.WINDOW_MODAL);
+
+        if(mRec==null) return;
+        final boolean replaceMode = mRec.equals(replace_mode);
+
+        final Section sec=userSection;
+        final File zipFile=file;
+
+        getProgressAPI().setProgressBar(0.0, res.getString("ui.backup.load_backup"), "");
+
+        Task<Boolean> task =new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception
+            {
+
+
+                File recoveryDir=new File(getApp().getTmpDir(),"recovery");
+                if(!recoveryDir.exists())if(!recoveryDir.mkdir()) return false;
+
+                boolean res1 = ZIPUtil.unZip(zipFile,recoveryDir);
+                //очистка пользовательской базы и профилей если выбран соответствуюший режим.
+
+                if(replaceMode){
+                    getModel().clearUserBaseAndProfiles();
+
+                    Platform.runLater(() -> {
+                        //удалить из таблицы профилей профили, комплесы и програмы
+                        ProfileTable.getInstance().getAllItems().clear();
+                        //выбрать раздел 0 главный раздел
+                        leftAPI.selectBase(0);
+                    });
+
+                }
+
+                File profDir=new File(recoveryDir,"profiles");
+                if(!profDir.exists())profDir=recoveryDir;//учитывает возможность наличие папки из бекапов старых версий
+                boolean res2 =true;
+                File[] files = profDir.listFiles((dir, name) -> name.contains(".xmlp"));
+                int pCount= files.length;
+                this.updateProgress(1,pCount+2);
+                int cnt=1;
+                for (File f : files)
+                {
+                    ImportProfile imp=new ImportProfile();
+                    imp.setListener(new ImportProfile.Listener() {
+                        @Override
+                        public void onStartParse() {}
+
+                        @Override
+                        public void onEndParse() {}
+
+                        @Override
+                        public void onStartAnalize()  {}
+                        @Override
+                        public void onEndAnalize() {}
+                        @Override
+                        public void onStartImport() {}
+
+                        @Override
+                        public void onEndImport()  {}
+
+                        @Override
+                        public void onSuccess()  {}
+
+                        @Override
+                        public void onError(boolean fileTypeMissMatch) {
+
+                        }
+                    });
+
+                    boolean res= imp.parse(f, getModel());
+                    imp.setListener(null);
+                    if(res==false)
+                    {
+
+                        res2=false;
+                        break;
+                    }
+                    this.updateProgress(++cnt,pCount+2);
+                }
+
+                //база
+
+                ImportUserBase imp=new ImportUserBase();
+
+                imp.setListener(new ImportUserBase.Listener() {
+                    @Override
+                    public void onStartParse() {
+
+                    }
+
+                    @Override
+                    public void onEndParse() {
+
+                    }
+
+                    @Override
+                    public void onStartAnalize() {
+
+                    }
+
+                    @Override
+                    public void onEndAnalize() {
+
+                    }
+
+                    @Override
+                    public void onStartImport() {
+
+                    }
+
+                    @Override
+                    public void onEndImport() {
+
+                    }
+
+                    @Override
+                    public void onSuccess() {
+
+                    }
+
+                    @Override
+                    public void onError(boolean fileTypeMissMatch) {
+
+                    }
+                });
+
+
+                boolean res3= imp.parse( new File(recoveryDir,"base.xmlb"), getModel(),sec);
+                imp.setListener(null);
+
+                getApp().recursiveDeleteTMP();
+                return res1 && res2 && res3;
+            }
+        };
+
+        task.progressProperty().addListener((observable, oldValue, newValue) -> {
+            getProgressAPI().setProgressBar(newValue.doubleValue(), res.getString("ui.backup.load_backup"), "");
+        });
+
+        task.setOnRunning(event1 -> getProgressAPI().setProgressBar(0.0, res.getString("ui.backup.load_backup"), ""));
+
+
+        int count_profiles=replaceMode==true?0:getModel().countProfile();
+
+        task.setOnSucceeded(event ->
+        {
+            Waiter.closeLayer();
+            if (task.getValue()) {
+                getProgressAPI().hideProgressBar(false);
+                getProgressAPI().setProgressIndicator(1.0, res.getString("app.title103"));
+                if(getModel().countProfile()!=0)
+                {
+                    if(count_profiles==0){
+                        ProfileTable.getInstance().getAllItems().addAll(getModel().findAllProfiles().stream()
+                            .filter(i->!i.getName().equals(App.BIOFON_PROFILE_NAME))
+                            .collect(Collectors.toList()));
+                    }
+                    else if(count_profiles<getModel().countProfile()){
+                        ProfileTable.getInstance().getAllItems().addAll( getModel().findAllProfiles().subList(count_profiles,getModel().countProfile()).stream()
+                            .filter(i->!i.getName().equals(App.BIOFON_PROFILE_NAME))
+                            .collect(Collectors.toList()));
                     }
 
                     biofonUIUtil.reloadComplexes();

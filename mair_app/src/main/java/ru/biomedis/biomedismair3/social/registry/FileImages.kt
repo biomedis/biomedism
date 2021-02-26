@@ -29,6 +29,7 @@ class FileTypeByExtension{
         "xmlc" to "Biomedis",
         "xmlp" to "Biomedis",
         "xmlb" to "Biomedis",
+        "brecovery" to "Бекап",
     )
 
     fun typeNames(): List<String>{
@@ -50,7 +51,7 @@ class FileImages {
         private val imageImage = ImageHolder("/images/image.png")
 
          fun selectImage(data: FileData): Image = when (data.extension) {
-            "zip", "rar", "gzip", "7z", "bzip", "tar", "gz" -> archImage.image
+            "brecovery","zip", "rar", "gzip", "7z", "bzip", "tar", "gz" -> archImage.image
             "doc", "docx" -> docImage.image
             "xls", "xlsx" -> exelImage.image
             "pdf" -> pdfImage.image

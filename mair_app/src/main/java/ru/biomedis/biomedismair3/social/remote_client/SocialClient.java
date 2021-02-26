@@ -22,6 +22,7 @@ import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
 import feign.okhttp.OkHttpClient;
 import java.io.BufferedReader;
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.time.Instant;
@@ -362,6 +363,13 @@ public class SocialClient implements BiomedisFilesExportManager {
     else throw new RuntimeException("BiomedisFilesExportManager не установлен");
 
   }
+
+  @Override
+  public void exportBackup(@NotNull File file) {
+    if(manager!=null) manager.exportBackup(file);
+    else throw new RuntimeException("BiomedisFilesExportManager не установлен");
+  }
+
 
   /**
    * Выброшенная ошибка это ApiError

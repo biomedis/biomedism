@@ -27,6 +27,7 @@ import ru.biomedis.biomedismair3.social.remote_client.dto.*
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import ru.biomedis.biomedismair3.utils.Other.Result
 import ru.biomedis.biomedismair3.utils.TabHolder
+import java.io.File
 import java.net.URL
 import java.nio.file.Files
 import java.nio.file.Path
@@ -210,6 +211,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         val importProfileItem = MenuItem("Импорт файлов профилей")
         val importComplexesItem = MenuItem("Импорт файлов комплексов")
         val importFreqBaseItem = MenuItem("Импорт файлов базы частот")
+        val importBackupItem = MenuItem("Импорт файла резервного сохранения")
 
         cutItem.setOnAction { cutItems() }
         pasteItem.setOnAction { pasteItems() }
@@ -221,6 +223,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         importProfileItem.setOnAction { importProfile() }
         importComplexesItem.setOnAction { importComplexes() }
         importFreqBaseItem.setOnAction { importFreqBase() }
+        importBackupItem.setOnAction { importBackup() }
 
         ctxListMenu.items.addAll(
             changeAccessItem,
@@ -234,7 +237,8 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
             SeparatorMenuItem(),
             importProfileItem,
             importComplexesItem,
-            importFreqBaseItem
+            importFreqBaseItem,
+            importBackupItem
         )
         ctxListMenu.setOnShowing {
             fun disableAll(disable: Boolean) {
@@ -248,6 +252,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
                 importProfileItem.isDisable = disable
                 importComplexesItem.isDisable = disable
                 importFreqBaseItem.isDisable = disable
+                importBackupItem.isDisable = disable
             }
 
             fun checkPaste() {
@@ -285,10 +290,39 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
                 importFreqBaseItem.isDisable = !biomedisFiles.any { it.extension=="xmlb" }
                 importComplexesItem.isDisable = !biomedisFiles.any { it.extension=="xmlc" }
 
+                importBackupItem.isDisable = !biomedisFiles.any { it.extension=="brecovery" } && biomedisFiles.size > 1
+
             }
 
         }
 
+    }
+
+    private fun importBackup() {
+
+        val dir = app.tmpDir.toPath()
+
+        val recoveryFile = container.selectionModel.selectedItem
+        if(!(recoveryFile is FileData && recoveryFile.extension=="brecovery")){
+            showWarningDialog("Импорт файла восстановления","Импорт не удался","Выбран файл не верного типа",controllerWindow, Modality.WINDOW_MODAL)
+            return
+        }
+        getApp().recursiveDeleteTMP()
+        val downloaded = downloadFiles(listOf(recoveryFile), dir)
+        if(downloaded.isError){
+            showWarningDialog("Импорт файла восстановления","Импорт  не удался","Не удалось загрузить файлы с сервера",controllerWindow, Modality.WINDOW_MODAL)
+            log.error("", downloaded.error)
+            return
+        }
+
+        if(downloaded.value.isEmpty()){
+            showWarningDialog("Импорт файла восстановления","Импорт не удался","Не удалось загрузить файлы с сервера",controllerWindow, Modality.WINDOW_MODAL)
+            log.error("Пустой список загрузки")
+            return
+        }
+
+
+        getAppController().recoveryLoad(downloaded.value.keys.first())
     }
 
     private fun importFreqBase() {
@@ -322,8 +356,13 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
             """Будет произведен импорт нескольких файлов базы частот.
             Если произойдет ошибка импорта для файла, то остальные файлы продолжат импортироваться."""
         }else ""
-       showInfoDialog("Импорт пользовательской базы частот",
-            "Если вы забыли выбрать раздел в пользовательской базе для импорта, то импорт произойдет в корневой раздел!",
+
+        val msg2 = if("USER" != leftAPI.selectedBase().tag) {
+            """Если вы забыли выбрать раздел в пользовательской базе для импорта, то импорт произойдет в корневой раздел!"""
+        }else ""
+
+      if(msg.isNotEmpty() || msg2.isNotEmpty()) showInfoDialog("Импорт пользовательской базы частот",
+            "",
            msg,controllerWindow, Modality.WINDOW_MODAL)
 
         downloadedComplexes.value.forEach {
@@ -890,6 +929,10 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         uploadFileFromText(name, "xmlc", complex)
     }
 
+    override fun exportBackup(file: File) {
+        uploadFile(file)
+    }
+
     private fun uploadFileFromText(name: String, ext: String, text: String){
         val newFiles = BlockingAction.actionResult(controllerWindow) {
             val result = mutableListOf<FileData>()
@@ -897,6 +940,25 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
             val file = SocialClient.INSTANCE.uploadFilesClient
                 .uploadFile(
                     FormData("file", "$name.$ext", text.encodeToByteArray()),
+                    currentDirectory?.id ?: 0
+                )
+            FileData.fillThumbnailImage(file)
+            result.add(file)
+
+            result
+        }
+        if(newFiles.isError) throw RuntimeException(newFiles.error)
+
+        items.addAll(newFiles.value)
+    }
+
+    private fun uploadFile(targetFile:File){
+        val newFiles = BlockingAction.actionResult(controllerWindow) {
+            val result = mutableListOf<FileData>()
+
+            val file = SocialClient.INSTANCE.uploadFilesClient
+                .uploadFile(
+                    FormData("file", targetFile.name, targetFile.readBytes()),
                     currentDirectory?.id ?: 0
                 )
             FileData.fillThumbnailImage(file)
