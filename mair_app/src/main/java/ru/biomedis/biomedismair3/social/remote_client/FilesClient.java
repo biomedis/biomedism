@@ -11,6 +11,7 @@ import ru.biomedis.biomedismair3.social.remote_client.dto.DirectoryData;
 import ru.biomedis.biomedismair3.social.remote_client.dto.FileData;
 import ru.biomedis.biomedismair3.social.remote_client.dto.FileType;
 import ru.biomedis.biomedismair3.social.remote_client.dto.Links;
+import ru.biomedis.biomedismair3.social.remote_client.dto.StorageDto;
 
 public interface FilesClient {
 
@@ -154,4 +155,7 @@ public interface FilesClient {
 
   @RequestLine("PUT /files/{id}/regenerate_private_link")
   String reloadPrivateLink(@Param("id") long id);
+
+  @RequestLine("GET /storage_value")
+  StorageDto storageValue();
 }

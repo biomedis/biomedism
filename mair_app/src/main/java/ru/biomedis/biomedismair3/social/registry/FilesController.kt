@@ -3,6 +3,7 @@ package ru.biomedis.biomedismair3.social.registry
 import feign.form.FormData
 import javafx.application.Platform
 import javafx.beans.Observable
+import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
 import javafx.collections.transformation.FilteredList
 import javafx.collections.transformation.SortedList
@@ -54,6 +55,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         }
     }
 
+    private lateinit var res: ResourceBundle
     private val log by LoggerDelegate()
 
     @FXML
@@ -74,6 +76,15 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
     @FXML
     lateinit var newFileBtn: Button
 
+    @FXML
+    lateinit var storageSummaryText: Label
+
+    @FXML
+    lateinit var currentStorageSizeText: Label
+
+    @FXML
+    lateinit var  currentStorageValueIndicator: ProgressBar
+
     private var currentDirectory: DirectoryData? = null
 
     private val items = FXCollections.observableArrayList<IFileItem>(extractor())
@@ -84,6 +95,8 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
     private var cutedItems = mutableListOf<IFileItem>()
     private var cutedFromDirectory: DirectoryData? = null
     private val fileTypeFilterExtensions = FileTypeByExtension()
+
+    private val storageValue: SimpleObjectProperty<StorageDto> = SimpleObjectProperty()
 
    private val directoryAccessList = listOf<AccessTypeDto>(
         AccessTypeDto("Личное", AccessVisibilityType.PRIVATE),
@@ -136,7 +149,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
     private lateinit var fileTypePredicate: FilterFileTypePredicate
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
-
+        res = resources?:throw RuntimeException()
         sortedItems.comparator = Comparator.comparing(IFileItem::directoryMarker).reversed()
             .thenComparing(Comparator.comparing(IFileItem::name))
 
@@ -164,8 +177,17 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         pathLine.children.add(breadCrumbs)
         initContextMenu()
         initFilter()
+        initStorageValueIndicator()
     }
 
+    private fun initStorageValueIndicator() {
+        storageValue.addListener { _, _, newValue ->
+            currentStorageValueIndicator.progress = newValue.occupiedVolume.toDouble()/newValue.availableVolume.toDouble()
+            currentStorageSizeText.text = String.format("%.2f"+res.getString("app.mb"), newValue.occupiedVolume.toDouble())
+            storageSummaryText.text = String.format("Доступно %.2f${res.getString("app.mb")}. Всего %.2f${res.getString("app.mb")}.",
+                newValue.availableVolume - newValue.occupiedVolume, newValue.availableVolume)
+        }
+    }
 
 
     private fun initFilter() {
@@ -743,10 +765,30 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
     override fun onSelected() {
         loadDirectory()
+        loadStorageValue()
     }
 
     override fun onDetach() {
 
+    }
+
+    private fun loadStorageValue(){
+        val result: Result<StorageDto> = BlockingAction.actionResult(controllerWindow){
+            SocialClient.INSTANCE.filesClient.storageValue()
+        }
+        if(result.isError){
+            log.error("", result.error)
+            showWarningDialog(
+                "Получение информации о доступном пространстве",
+                "",
+                "Загрузка не удалась. Попробуйте перезапустить программу.",
+                controllerWindow,
+                Modality.WINDOW_MODAL
+            )
+            return
+        }
+
+        storageValue.set(result.value)
     }
 
     private fun fillContainer(directories: List<DirectoryData>, files: List<FileData>) {
@@ -907,8 +949,9 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         if (!loadDirectory(currentDirectory)) {
             if (currentDirectory != null) loadDirectory()//при ошибке вернемся в корень
         }
-
+        loadStorageValue()
         breadCrumbs.clear()
+
     }
 
     data class AccessTypeDto(val name: String, val type: AccessVisibilityType) {
