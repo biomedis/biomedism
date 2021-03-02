@@ -23,6 +23,8 @@
                         <Insets top="3.0" />
                      </padding>
                   </Label>
+                  <Label fx:id="sizeFile" layoutX="10.0" layoutY="10.0" maxHeight="1.7976931348623157E308" text="Label" />
+
                   <HBox alignment="CENTER_RIGHT" maxWidth="1.7976931348623157E308" spacing="8.0" HBox.hgrow="ALWAYS">
                      <children>
                         <Button fx:id="downloadBtn" mnemonicParsing="false" prefHeight="24.0" prefWidth="24.0" scaleX="0.7" scaleY="0.7" styleClass="downloadButton" visible="false" />
@@ -43,10 +45,13 @@
             <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
                <children>
                   <ImageView fx:id="img" fitHeight="48.0" fitWidth="48.0" pickOnBounds="true" preserveRatio="true" />
-                  <VBox maxWidth="1.7976931348623157E308" spacing="3.0" HBox.hgrow="ALWAYS">
+                  <VBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" spacing="3.0" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label fx:id="name" maxHeight="1.7976931348623157E308" text="Label" />
-                     </children>
+                        <Label fx:id="name" maxHeight="1.7976931348623157E308" text="Label">
+                           <font>
+                              <Font name="System Bold" size="13.0" />
+                           </font></Label>
+                       </children>
                   </VBox>
                </children>
             </HBox>

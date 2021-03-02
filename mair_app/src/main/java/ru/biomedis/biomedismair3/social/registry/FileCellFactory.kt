@@ -26,6 +26,8 @@ class FileCellFactory(val linkAction:(String, AccessVisibilityType)->Unit, val d
         @FXML
         private lateinit var name: Label
         @FXML
+        private lateinit var sizeFile: Label
+        @FXML
         private lateinit var date: Label
         @FXML
         private lateinit var img: ImageView
@@ -89,6 +91,7 @@ class FileCellFactory(val linkAction:(String, AccessVisibilityType)->Unit, val d
             greenLinkBtn.isVisible = false
             orangeLinkBtn.isVisible = false
             redLinkBtn.isVisible = false
+            sizeFile.text=""
         }
 
         private fun viewFile(file: FileData) {
@@ -109,7 +112,7 @@ class FileCellFactory(val linkAction:(String, AccessVisibilityType)->Unit, val d
             redLinkBtn.isVisible = false
 
             downloadBtn.isVisible = true
-
+            sizeFile.text="Размер файла: ${file.fileSize} Mb"
             if(file.accessType==AccessVisibilityType.PUBLIC){
                 greenLinkBtn.isVisible = true
 
