@@ -723,7 +723,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
             Platform.runLater(this::onSync)
             return
         }
-
+        loadStorageValue()
         items.removeAll(selected)
     }
 
@@ -912,6 +912,17 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         )
         val files = fileChooser.showOpenMultipleDialog(controllerWindow)
 
+        val filesSize = files.map{it.length()}.reduce { acc, l -> acc+l }/1000000F
+        if(filesSize > storageValue.get().availableVolume){
+            showWarningDialog(
+                "Загрузка файлов",
+                "Недостаточно места в хранилище",
+                "Вам доступно ${storageValue.get().availableVolume} ${res.getString("app.mb")}. Удалите ненужные файлы. \nДоступное место в хранилище увеличивается с обретением нового уровня в партнерской программе",
+                controllerWindow,
+                Modality.WINDOW_MODAL
+                )
+            return
+        }
 
         val newFiles = BlockingAction.actionResult(controllerWindow) {
             val result = mutableListOf<FileData>()
@@ -941,6 +952,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
                 Modality.WINDOW_MODAL
             )
         }
+        loadStorageValue()
         items.addAll(newFiles.value.first)
     }
 
@@ -962,18 +974,22 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
     override fun exportProfile(name: String, profile: String) {
         uploadFileFromText(name, "xmlp", profile)
+        Platform.runLater { loadStorageValue() }
     }
 
     override fun exportUserBaseDirectory(name: String, userBase: String) {
         uploadFileFromText(name, "xmlb", userBase)
+        Platform.runLater { loadStorageValue() }
     }
 
     override fun exportComplex(name: String, complex: String) {
         uploadFileFromText(name, "xmlc", complex)
+        Platform.runLater { loadStorageValue() }
     }
 
     override fun exportBackup(file: File) {
         uploadFile(file)
+        Platform.runLater { loadStorageValue() }
     }
 
     private fun uploadFileFromText(name: String, ext: String, text: String){
