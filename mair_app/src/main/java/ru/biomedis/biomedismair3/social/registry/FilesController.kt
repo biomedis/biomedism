@@ -19,7 +19,6 @@ import javafx.stage.Modality
 import javafx.stage.WindowEvent
 import javafx.util.Callback
 import javafx.util.StringConverter
-import ru.biomedis.biomedismair3.AppController
 import ru.biomedis.biomedismair3.BaseController
 import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.social.BiomedisFilesExportManager
@@ -96,6 +95,8 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
     private var cutedFromDirectory: DirectoryData? = null
     private val fileTypeFilterExtensions = FileTypeByExtension()
 
+    private lateinit var importHelper: ImportHelper
+
     private val storageValue: SimpleObjectProperty<StorageDto> = SimpleObjectProperty()
 
    private val directoryAccessList = listOf<AccessTypeDto>(
@@ -112,6 +113,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
 
     override fun onCompletedInitialization() {
+        importHelper.controllerWindow = controllerWindow
         SocialClient.INSTANCE.setBiomedisExportFilesManager(this)
     }
 
@@ -150,6 +152,7 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
         res = resources?:throw RuntimeException()
+        importHelper = ImportHelper(app, res)
         sortedItems.comparator = Comparator.comparing(IFileItem::directoryMarker).reversed()
             .thenComparing(Comparator.comparing(IFileItem::name))
 
@@ -241,11 +244,11 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         renameItem.setOnAction { renameItem() }
         changeAccessItem.setOnAction { changeAccessItems() }
         reloadPrivateLinkItem.setOnAction { reloadPrivateLinkItem() }
-        copyLinksItem.setOnAction { copyLinks() }
-        importProfileItem.setOnAction { importProfile() }
-        importComplexesItem.setOnAction { importComplexes() }
-        importFreqBaseItem.setOnAction { importFreqBase() }
-        importBackupItem.setOnAction { importBackup() }
+        copyLinksItem.setOnAction { importHelper.copyLinks(container.selectionModel.selectedItems) }
+        importProfileItem.setOnAction { importHelper.importProfile(container.selectionModel.selectedItems) }
+        importComplexesItem.setOnAction { importHelper.importComplexes(container.selectionModel.selectedItems) }
+        importFreqBaseItem.setOnAction { importHelper.importFreqBase(container.selectionModel.selectedItems) }
+        importBackupItem.setOnAction { importHelper.importBackup(container.selectionModel.selectedItem) }
 
         ctxListMenu.items.addAll(
             changeAccessItem,
@@ -298,16 +301,24 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
             }
 
             checkPaste()
-            if (!selected.any { it is FileData }) {
+
+            val filesData = selected.filterIsInstance<FileData>()
+
+            if (!filesData.any { it.accessType == AccessVisibilityType.BY_LINK }) {
                 reloadPrivateLinkItem.isDisable = true
+            }
+            if (!filesData.any { it.accessType != AccessVisibilityType.PRIVATE }) {
                 copyLinksItem.isDisable = true
             }
+
             if (selected.size > 1) renameItem.isDisable = true
 
-            if(selected.size ==1 && selected.first() is FileData) reloadPrivateLinkItem.isDisable = false
+            val selectedFirst = selected.first()
+            reloadPrivateLinkItem.isDisable =
+                !(selected.size ==1 && selectedFirst is FileData && selectedFirst.accessType == AccessVisibilityType.BY_LINK)
 
             if(selected.isNotEmpty()){
-                val biomedisFiles = selected.filterIsInstance<FileData>().filter{it.type == FileType.BIOMEDIS}
+                val biomedisFiles = filesData.filter{it.type == FileType.BIOMEDIS}
                 importProfileItem.isDisable =  !biomedisFiles.any { it.extension=="xmlp" }
                 importFreqBaseItem.isDisable = !biomedisFiles.any { it.extension=="xmlb" }
                 importComplexesItem.isDisable = !biomedisFiles.any { it.extension=="xmlc" }
@@ -320,194 +331,6 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
 
     }
 
-    private fun importBackup() {
-
-        val dir = app.tmpDir.toPath()
-
-        val recoveryFile = container.selectionModel.selectedItem
-        if(!(recoveryFile is FileData && recoveryFile.extension=="brecovery")){
-            showWarningDialog("Импорт файла восстановления","Импорт не удался","Выбран файл не верного типа",controllerWindow, Modality.WINDOW_MODAL)
-            return
-        }
-        getApp().recursiveDeleteTMP()
-        val downloaded = downloadFiles(listOf(recoveryFile), dir)
-        if(downloaded.isError){
-            showWarningDialog("Импорт файла восстановления","Импорт  не удался","Не удалось загрузить файлы с сервера",controllerWindow, Modality.WINDOW_MODAL)
-            log.error("", downloaded.error)
-            return
-        }
-
-        if(downloaded.value.isEmpty()){
-            showWarningDialog("Импорт файла восстановления","Импорт не удался","Не удалось загрузить файлы с сервера",controllerWindow, Modality.WINDOW_MODAL)
-            log.error("Пустой список загрузки")
-            return
-        }
-
-
-        getAppController().recoveryLoad(downloaded.value.keys.first())
-    }
-
-    private fun importFreqBase() {
-        val leftAPI = AppController.getLeftAPI();
-        val dir = app.tmpDir.toPath()
-
-        val userBaseFiles = container.selectionModel.selectedItems
-            .filterIsInstance<FileData>()
-            .filter { it.extension=="xmlb" }
-
-        if(userBaseFiles.isEmpty()){
-            showWarningDialog("Импорт пользовательской базы частот","Импорт не удался","В списке выбранных файлов нет файлов пользовательской базы частот",controllerWindow, Modality.WINDOW_MODAL)
-
-            return
-        }
-
-        val downloadedComplexes = downloadFiles(userBaseFiles, dir)
-        if(downloadedComplexes.isError){
-            showWarningDialog("Импорт пользовательской базы частот","Импорт  не удался","Не удалось загрузить файлы с сервера",controllerWindow, Modality.WINDOW_MODAL)
-            log.error("", downloadedComplexes.error)
-            return
-        }
-
-        if(downloadedComplexes.value.isEmpty()){
-            showWarningDialog("Импорт пользовательской базы частот","Импорт не удался","Не удалось загрузить файлы с сервера",controllerWindow, Modality.WINDOW_MODAL)
-            log.error("Пустой список загрузки")
-            return
-        }
-
-        val msg = if(downloadedComplexes.value.size>1) {
-            """Будет произведен импорт нескольких файлов базы частот.
-            Если произойдет ошибка импорта для файла, то остальные файлы продолжат импортироваться."""
-        }else ""
-
-        val msg2 = if("USER" != leftAPI.selectedBase().tag) {
-            """Если вы забыли выбрать раздел в пользовательской базе для импорта, то импорт произойдет в корневой раздел!"""
-        }else ""
-
-      if(msg.isNotEmpty() || msg2.isNotEmpty()) showInfoDialog("Импорт пользовательской базы частот",
-            "",
-           msg,controllerWindow, Modality.WINDOW_MODAL)
-
-        downloadedComplexes.value.forEach {
-            leftAPI.importUserBase(it.key, it.value)
-        }
-    }
-
-    private fun importComplexes() {
-        val profileAPI = AppController.getProfileAPI()
-        val complexAPI = AppController.getComplexAPI()
-        val selectedProfile = profileAPI.selectedProfile()
-        if(selectedProfile==null) {
-            showWarningDialog("Импорт комплексов","Не выбран профиль","Для импорта комплексов необходимо выбрать профиль во вкладке профилей", controllerWindow, Modality.WINDOW_MODAL)
-            return
-        }
-        val dir = app.tmpDir.toPath()
-        val complexesFiles = container.selectionModel.selectedItems
-            .filterIsInstance<FileData>()
-            .filter { it.extension=="xmlc" }
-
-        if(complexesFiles.isEmpty()){
-            showWarningDialog("Импорт комплексов","Импорт комплексов не удался","В списке выбранных файлов нет комплексов",controllerWindow, Modality.WINDOW_MODAL)
-
-            return
-        }
-
-        val downloadedComplexes = downloadFiles(complexesFiles, dir)
-        if(downloadedComplexes.isError){
-            showWarningDialog("Импорт комплексов","Импорт комплексов не удался","Не удалось загрузить файлы с сервера",controllerWindow, Modality.WINDOW_MODAL)
-            log.error("", downloadedComplexes.error)
-            return
-        }
-
-        if(downloadedComplexes.value.isEmpty()){
-            showWarningDialog("Импорт комплексов","Импорт комплексов не удался","Не удалось загрузить файлы с сервера",controllerWindow, Modality.WINDOW_MODAL)
-            log.error("Пустой список загрузки")
-            return
-        }
-
-        complexAPI.importTherapyComplex(selectedProfile, downloadedComplexes.value.keys.toList()){
-           downloadedComplexes.value.keys.forEach {  Files.delete(it) }
-        }
-
-
-    }
-
-    private fun importProfile() {
-        val dir = app.tmpDir.toPath()
-        val profileFiles = container.selectionModel.selectedItems
-            .filterIsInstance<FileData>()
-            .filter { it.extension=="xmlp" }
-
-        if(profileFiles.isEmpty()){
-            showWarningDialog("Импорт профилей","Импорт профилей не удался","В списке выбранных файлов нет профилей",controllerWindow, Modality.WINDOW_MODAL)
-
-            return
-        }
-
-        val downloadedProfiles = downloadFiles(profileFiles, dir)
-        if(downloadedProfiles.isError){
-            showWarningDialog("Импорт профилей","Импорт профилей не удался","Не удалось загрузить файлы с сервера",controllerWindow, Modality.WINDOW_MODAL)
-            log.error("", downloadedProfiles.error)
-            return
-        }
-
-        if(downloadedProfiles.value.isEmpty()){
-            showWarningDialog("Импорт профилей","Импорт профилей не удался","Не удалось загрузить файлы с сервера",controllerWindow, Modality.WINDOW_MODAL)
-            log.error("Пустой список загрузки")
-            return
-        }
-
-        val profileAPI = AppController.getProfileAPI()
-
-        profileAPI.importProfiles(
-            downloadedProfiles.value.keys.toList(),
-            downloadedProfiles.value
-            ){
-            downloadedProfiles.value.keys.forEach{
-                Files.delete(it)       //удаление временных файлов
-            }
-        }
-
-
-    }
-
-    private fun copyLinks() {
-
-        val selected = container.selectionModel.selectedItems
-        if(selected.isEmpty()) return
-        val links = selected
-            .asSequence()
-            .filterIsInstance<FileData>()
-            .filter { it.accessType!=AccessVisibilityType.PRIVATE }
-            .groupBy { it.accessType }
-            .map { group ->
-                val title = when (group.key) {
-                    AccessVisibilityType.PUBLIC -> "Общедоступные"
-                    AccessVisibilityType.PROTECTED -> "Доступные в программе"
-                    AccessVisibilityType.BY_LINK -> "Доступные по приватным ссылкам"
-                    else -> ""
-                }
-
-                when (group.key) {
-                    AccessVisibilityType.PUBLIC -> group.value.map { it.publicLink }
-                    AccessVisibilityType.PROTECTED -> group.value.map { it.publicLink }
-                    AccessVisibilityType.BY_LINK -> group.value.map { it.privateLink }
-                    else -> listOf()
-                }.filter { it.isNotEmpty() }
-                    .joinToString("\n","$title:\n","\n\n")
-
-            }.filter { it.isNotEmpty() }
-            .joinToString("\n")
-
-        if(links.isEmpty()) return
-        val clipboard = Clipboard.getSystemClipboard().apply { clear()}
-        ClipboardContent().let {
-            it.putString(links)
-            clipboard.setContent(it)
-        }
-
-        showInfoDialog("Получение ссылок","Ссылки скопированы в буфер обмена","", controllerWindow, Modality.WINDOW_MODAL)
-
-    }
 
     //скопирует в буффер обмена ссылку и сообщит об этом
     private fun onGetLink(link: String, type: AccessVisibilityType){
@@ -1030,34 +853,5 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         items.addAll(newFiles.value)
     }
 
-    /**
-     * Скачает файлы в указанную директорию, к именованию файлов применит функцию [nameAction], по умолчанию случайное имя и нормальное расширение
-     * Вернет список скачанных файлов
-     * Если где-то возникла ошибка, то закачка буде прекращена
-     * return пары путь и имя файла на сервере без расширения
-     */
-    private fun downloadFiles(
-        files: List<FileData>, toDir: Path,
-        nameAction: (FileData) -> String = { "${UUID.randomUUID()}.${it.extension}" }
-    ): Result<Map<Path, String>> {
-        return BlockingAction.actionResult(controllerWindow) {
-            val paths = mutableMapOf<Path, String>()
-            try {
-                files.forEach {
-                    val fBytes =
-                        SocialClient.INSTANCE.filesClient.downloadFile(it.id).body().asInputStream()
-                            .readBytes()
-                    val filePath = toDir.resolve(nameAction(it))
-                    filePath.toFile().writeBytes(fBytes)
-                    paths[filePath] = it.name
-                }
-            }catch (e: Exception){
-                paths.forEach{ Files.delete(it.key)}
-                throw e
-            }
-
-            paths
-        }
-    }
 }
 

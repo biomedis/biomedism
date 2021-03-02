@@ -5,8 +5,6 @@ import javafx.collections.transformation.FilteredList
 import javafx.collections.transformation.SortedList
 import javafx.fxml.FXML
 import javafx.scene.control.*
-import javafx.scene.input.Clipboard
-import javafx.scene.input.ClipboardContent
 import javafx.scene.input.MouseButton
 import javafx.scene.layout.HBox
 import javafx.stage.DirectoryChooser
@@ -30,6 +28,7 @@ import kotlin.Comparator
 class UserFilesViewerController : BaseController(), TabHolder.Selected, TabHolder.Detached {
 
 
+    private lateinit var res: ResourceBundle
     private  var contact: Long=0
 
     private val log by LoggerDelegate()
@@ -52,9 +51,10 @@ class UserFilesViewerController : BaseController(), TabHolder.Selected, TabHolde
     private val breadCrumbs = BreadCrumbs(this::loadDirectory)
     private val ctxListMenu = ContextMenu()
     private val fileTypeFilterExtensions = FileTypeByExtension()
+    private lateinit var importHelper: ImportHelper
 
     override fun onCompletedInitialization() {
-
+        importHelper.controllerWindow = controllerWindow
     }
 
     override fun onClose(event: WindowEvent) {
@@ -87,7 +87,8 @@ class UserFilesViewerController : BaseController(), TabHolder.Selected, TabHolde
 
 
     override fun initialize(location: URL?, resources: ResourceBundle?) {
-
+        res = resources?:throw RuntimeException()
+        importHelper = ImportHelper(app, res)
         sortedItems.comparator = Comparator.comparing(IFileItem::directoryMarker).reversed()
             .thenComparing(Comparator.comparing(IFileItem::name))
 
@@ -129,15 +130,32 @@ class UserFilesViewerController : BaseController(), TabHolder.Selected, TabHolde
     private fun initContextMenu() {
 
         val copyLinksItem = MenuItem("Копировать ссылок")
+        val importProfileItem = MenuItem("Импорт файлов профилей")
+        val importComplexesItem = MenuItem("Импорт файлов комплексов")
+        val importFreqBaseItem = MenuItem("Импорт файлов базы частот")
+        val importBackupItem = MenuItem("Импорт файла резервного сохранения")
 
-        copyLinksItem.setOnAction { copyLinks() }
+        copyLinksItem.setOnAction { importHelper.copyLinks(container.selectionModel.selectedItems) }
+        importProfileItem.setOnAction { importHelper.importProfile(container.selectionModel.selectedItems) }
+        importComplexesItem.setOnAction { importHelper.importComplexes(container.selectionModel.selectedItems) }
+        importFreqBaseItem.setOnAction { importHelper.importFreqBase(container.selectionModel.selectedItems) }
+        importBackupItem.setOnAction { importHelper.importBackup(container.selectionModel.selectedItem) }
 
         ctxListMenu.items.addAll(
-            copyLinksItem
+            copyLinksItem,
+            SeparatorMenuItem(),
+            importProfileItem,
+            importComplexesItem,
+            importFreqBaseItem,
+            importBackupItem
         )
         ctxListMenu.setOnShowing {
             fun disableAll(disable: Boolean) {
                 copyLinksItem.isDisable = disable
+                importProfileItem.isDisable = disable
+                importComplexesItem.isDisable = disable
+                importFreqBaseItem.isDisable = disable
+                importBackupItem.isDisable = disable
             }
             disableAll(false)
 
@@ -146,53 +164,22 @@ class UserFilesViewerController : BaseController(), TabHolder.Selected, TabHolde
                 disableAll(true)
                 return@setOnShowing
             }
-
-            if (!selected.any { it is FileData }) {
-
+            val filesData = selected.filterIsInstance<FileData>()
+            if (!filesData.any { it.accessType != AccessVisibilityType.PRIVATE }) {
                 copyLinksItem.isDisable = true
+            }
+            if(selected.isNotEmpty()){
+                val biomedisFiles = filesData.filter{it.type == FileType.BIOMEDIS}
+                importProfileItem.isDisable =  !biomedisFiles.any { it.extension=="xmlp" }
+                importFreqBaseItem.isDisable = !biomedisFiles.any { it.extension=="xmlb" }
+                importComplexesItem.isDisable = !biomedisFiles.any { it.extension=="xmlc" }
+
+                importBackupItem.isDisable = !biomedisFiles.any { it.extension=="brecovery" } && biomedisFiles.size > 1
+
             }
 
 
-
         }
-
-    }
-
-    private fun copyLinks() {
-        val selected = container.selectionModel.selectedItems
-        if(selected.isEmpty()) return
-        val links = selected
-            .asSequence()
-            .filterIsInstance<FileData>()
-            .filter { it.accessType!=AccessVisibilityType.PRIVATE }
-            .groupBy { it.accessType }
-            .map { group ->
-                val title = when (group.key) {
-                    AccessVisibilityType.PUBLIC -> "Общедоступные"
-                    AccessVisibilityType.PROTECTED -> "Доступные в программе"
-                    AccessVisibilityType.BY_LINK -> "Доступные по приватным ссылкам"
-                    else -> ""
-                }
-
-                when (group.key) {
-                    AccessVisibilityType.PUBLIC -> group.value.map { it.publicLink }
-                    AccessVisibilityType.PROTECTED -> group.value.map { it.publicLink }
-                    AccessVisibilityType.BY_LINK -> group.value.map { it.privateLink }
-                    else -> listOf()
-                }.filter { it.isNotEmpty() }
-                    .joinToString("\n","$title:\n","\n\n")
-
-        }.filter { it.isNotEmpty() }
-            .joinToString("\n")
-
-        if(links.isEmpty()) return
-        val clipboard = Clipboard.getSystemClipboard().apply { clear()}
-        ClipboardContent().let {
-            it.putString(links)
-            clipboard.setContent(it)
-        }
-
-        showInfoDialog("Получение ссылок","Ссылки скопированы в буфер обмена","", controllerWindow, Modality.WINDOW_MODAL)
 
     }
 
