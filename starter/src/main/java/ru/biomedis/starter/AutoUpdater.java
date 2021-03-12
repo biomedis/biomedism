@@ -224,7 +224,7 @@ public class AutoUpdater {
     public static boolean isIDEStarted() {
         File innerDataDir = App.getInnerDataDir_();
         File rootDir = new File(innerDataDir, "../");
-        return rootDir.listFiles((dir, name) -> name.equals("pom.xml")).length == 1;
+        return rootDir.listFiles((dir, name) -> name.equals("build.gradle.kts")).length == 1;
     }
 
     private File defineRootDirApp() throws Exception {

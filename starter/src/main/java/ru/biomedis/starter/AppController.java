@@ -13,7 +13,11 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.StageStyle;
+import org.anantacreative.updater.Downloader.Downloader;
+import org.anantacreative.updater.Downloader.Downloader.Listener;
 import org.anantacreative.updater.Pack.Exceptions.PackException;
+import org.anantacreative.updater.Pack.Exceptions.UnPackException;
+import org.anantacreative.updater.Pack.UnPacker;
 import org.anantacreative.updater.Update.AbstractUpdateTaskCreator;
 import org.anantacreative.updater.Update.UpdateException;
 import org.anantacreative.updater.Update.UpdateTask;
@@ -54,6 +58,9 @@ public class AppController extends BaseController {
     @FXML private Label  antivirInfo;
     @FXML private Hyperlink trinityUtil;
     @FXML private Hyperlink actiwayUtil;
+
+    private boolean needJreUpdate=false;
+
     private Version version=null;
 
     @Override
@@ -69,20 +76,48 @@ public class AppController extends BaseController {
     protected void onCompletedInitialise() {
         initLinks();
         try {
-            version = DataHelper.selectUpdateVersion();
-            getControllerWindow().setTitle(getRes().getString("app.name")+" "+version);
-            System.out.println("Current Version: "+version);
-            checkActualVersion();
-            loadWebContent();
-            vStarter.setText(getApp().getStarterVersion().toString());
+            if(checkJreVersion()){
+
+                    version = DataHelper.selectUpdateVersion();
+                    getControllerWindow().setTitle(getRes().getString("app.name")+" "+version);
+                    System.out.println("Current Version: "+version);
+                    checkActualVersion();
+                    loadWebContent();
+                    vStarter.setText(getApp().getStarterVersion().toString());
 
 
+
+            }else {
+                needJreUpdate=true;
+                version = DataHelper.selectUpdateVersion();
+                loadWebContent();
+                vStarter.setText(getApp().getStarterVersion().toString());
+                updateJre();
+            }
         } catch (Exception e) {
             Log.logger.error("Ошибка определения версии программы", e);
             disableUpdateAndEnableStartProgram();
             setTextInfo(getRes().getString("define_version_program_error"));
             showErrorImage();
         }
+
+    }
+
+
+    private void updateJre() {
+        startProgramBtn.setDisable(true);
+        installUpdatesBtn.setDisable(false);
+        textInfo.setText("Требуется обязательное разовое обновление исполняемой средя для программы");
+
+    }
+
+    private boolean checkJreVersion() {
+        String javaVersion= System.getProperty("java.version");
+        String[] split = javaVersion.split("\\.");
+        String[] split1 = split[2].split("_");
+        //1.8.0_282
+        return Integer.parseInt(split[1]) == 8 && Integer.parseInt(split1[0]) == 0
+            && Integer.parseInt(split1[1]) >= 282;
     }
 
     private void loadWebContent() {
@@ -175,6 +210,21 @@ public class AppController extends BaseController {
     }
 
     public void onInstallUpdates(){
+        if(needJreUpdate){
+            try {
+                doUpdateJre();
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                Platform.runLater(() ->  {
+                    setTextInfo(getRes().getString("processing_updating_files_error"));
+                    showErrorImage();
+                    enableStartProgram();
+                    Waiter.closeLayer();
+                });
+                return;
+            }
+            return;
+        }
         setTextInfo(getRes().getString("downloading_files"));
         disableUpdateAndStartProgram();
         showVersonCheckIndicator();
@@ -230,6 +280,152 @@ public class AppController extends BaseController {
                 Platform.runLater(() -> setUpdateProgress(val));
             }
         });
+    }
+
+    private void startJreUpdater(){
+
+        getApp().closePersisenceContext();
+
+        try {
+            File currentJar= null;
+            File targetDir = null;
+            if(AutoUpdater.isIDEStarted()) {
+
+                currentJar = new File("./").getAbsoluteFile();
+                targetDir = currentJar;
+            }else {
+                currentJar = new File(App.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+                if(!currentJar.getName().endsWith(".jar")) throw new Exception("Не найден путь к jar");
+                targetDir = currentJar.getParentFile();
+            }
+
+
+
+            final List<String> command = new ArrayList<>();
+            String exec="";
+            String jrePath = "";
+            if(OSValidator.isUnix()){
+                exec = new File(currentJar.getParentFile(),"BiomedisJavaRuntimeUpdater").getAbsolutePath();
+                jrePath = new File(currentJar.getParentFile(),"../runtime/").getAbsolutePath();
+
+            }else if(OSValidator.isWindows()){
+                exec = new File(currentJar.getParentFile(),"BiomedisJavaRuntimeUpdater.exe").getAbsolutePath();
+                jrePath = new File(currentJar.getParentFile(),"./jre/").getAbsolutePath();
+
+            }else if(OSValidator.isMac()){
+                exec = new File(currentJar.getParentFile(),"BiomedisJavaRuntimeUpdater").getAbsolutePath();
+                jrePath = new File(currentJar.getParentFile(),"../Plugins/Java.runtime/Contents/Home/").getAbsolutePath();
+
+            }else return;
+
+            if(AutoUpdater.isIDEStarted()) jrePath = new File(targetDir, "./jre").getAbsolutePath();
+            command.add(exec);
+            command.add("\""+jrePath+"\"");
+
+            final ProcessBuilder builder = new ProcessBuilder(command);
+            builder.start();
+            System.out.println("JreUpdater"+builder.toString());
+            System.exit(0);
+        } catch (Exception e) {
+            Log.logger.error("Ошибка запуска приложения",e);
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    private void doUpdateJre() throws MalformedURLException {
+        setTextInfo(getRes().getString("downloading_files"));
+        disableUpdateAndStartProgram();
+        showVersonCheckIndicator();
+        String jreLink ="";
+        if(OSValidator.isWindows()) jreLink = "http://biomedis.ru/doc/b_mair/jre/updater/windows.zip";
+        else if(OSValidator.isMac()) jreLink = "http://biomedis.ru/doc/b_mair/jre/updater/mac.zip";
+        else  jreLink = "http://biomedis.ru/doc/b_mair/jre/updater/linux.zip";
+
+        File tmpFile = new File(getApp().getTmpDir(), UUID.randomUUID().toString()+".zip");
+        setUpdateProgress(0);
+        Downloader.download(new URL(jreLink), tmpFile, true, 10000, 30000, new Listener() {
+            @Override
+            public void completed() {
+                try {
+                    if(!tmpFile.exists()){
+                        Platform.runLater(() ->  {
+                            setTextInfo(getRes().getString("jre_antivirus"));
+                            showErrorImage();
+                            enableStartProgram();
+                            Waiter.closeLayer();
+                        });
+                        return;
+                    }
+                    UnPacker.unPack(tmpFile, getApp().getInnerDataDir().getAbsoluteFile().getParentFile());
+                } catch (UnPackException e) {
+                    e.printStackTrace();
+                    Platform.runLater(() ->  {
+                        setTextInfo(getRes().getString("processing_updating_files_error"));
+                        showErrorImage();
+                        enableStartProgram();
+                        Waiter.closeLayer();
+                    });
+                    return;
+                }
+                Platform.runLater(() -> {
+                    setTextInfo(getRes().getString("start_jre_updater"));
+                    showDoneImage();
+                    enableStartProgram();
+                    Waiter.closeLayer();
+                });
+
+                if(!tmpFile.exists()){
+                    Platform.runLater(() ->  {
+                        setTextInfo(getRes().getString("jre_antivirus"));
+                        showErrorImage();
+                        enableStartProgram();
+                        Waiter.closeLayer();
+                    });
+                    return;
+                }
+                startJreUpdater();
+            }
+
+            @Override
+            public void error(Throwable e) {
+                e.printStackTrace();
+                Platform.runLater(() ->  {
+                    setTextInfo(getRes().getString("processing_updating_files_error"));
+                    showErrorImage();
+                    enableStartProgram();
+                    Waiter.closeLayer();
+                });
+            }
+
+            @Override
+            public void breakingLink() {
+
+                Platform.runLater(() ->  {
+                    setTextInfo(getRes().getString("processing_updating_files_error"));
+                    showErrorImage();
+                    enableStartProgram();
+                    Waiter.closeLayer();
+                });
+            }
+
+            @Override
+            public void progress(float v) {
+                Platform.runLater(() -> setUpdateProgress(v));
+            }
+
+            @Override
+            public void stopped() {
+                Platform.runLater(Waiter::closeLayer);
+            }
+
+            @Override
+            public void cancelled() {
+                Platform.runLater(Waiter::closeLayer);
+            }
+        });
+        Waiter.openLayer(getControllerWindow(), true);
+
     }
 
     private void performUpdate() {
