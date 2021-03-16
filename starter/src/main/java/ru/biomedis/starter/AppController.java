@@ -107,7 +107,9 @@ public class AppController extends BaseController {
     private void updateJre() {
         startProgramBtn.setDisable(true);
         installUpdatesBtn.setDisable(false);
-        textInfo.setText("Требуется обязательное разовое обновление исполняемой средя для программы");
+        String extMsg ="";
+        if(OSValidator.isWindows()) extMsg = getRes().getString("need_off_antivirus");
+        textInfo.setText(getRes().getString("need_jre_update")+"\n"+extMsg);
 
     }
 
