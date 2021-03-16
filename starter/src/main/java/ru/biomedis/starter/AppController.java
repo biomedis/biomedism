@@ -343,6 +343,7 @@ public class AppController extends BaseController {
         if(OSValidator.isWindows()) jreLink = "http://biomedis.ru/doc/b_mair/jre/updater/windows.zip";
         else if(OSValidator.isMac()) jreLink = "http://biomedis.ru/doc/b_mair/jre/updater/mac.zip";
         else  jreLink = "http://biomedis.ru/doc/b_mair/jre/updater/linux.zip";
+        System.out.println(jreLink);
 
         File tmpFile = new File(getApp().getTmpDir(), UUID.randomUUID().toString()+".zip");
         setUpdateProgress(0);
@@ -402,7 +403,7 @@ public class AppController extends BaseController {
 
             @Override
             public void breakingLink() {
-
+                System.out.println("Breaking link");
                 Platform.runLater(() ->  {
                     setTextInfo(getRes().getString("processing_updating_files_error"));
                     showErrorImage();
