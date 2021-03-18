@@ -76,7 +76,7 @@ public class AppController extends BaseController {
     protected void onCompletedInitialise() {
         initLinks();
         try {
-            if(checkJreVersion()){
+            if(OSValidator.isMac() || checkJreVersion()){
 
                     version = DataHelper.selectUpdateVersion();
                     getControllerWindow().setTitle(getRes().getString("app.name")+" "+version);

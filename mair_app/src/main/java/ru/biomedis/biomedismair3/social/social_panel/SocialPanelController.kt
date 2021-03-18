@@ -7,6 +7,8 @@ import javafx.fxml.FXML
 import javafx.scene.control.Button
 import javafx.scene.control.Hyperlink
 import javafx.scene.control.Label
+import javafx.scene.input.Clipboard
+import javafx.scene.input.ClipboardContent
 import javafx.scene.layout.HBox
 import javafx.stage.Modality
 import javafx.stage.WindowEvent
@@ -16,6 +18,7 @@ import ru.biomedis.biomedismair3.BlockingAction
 import ru.biomedis.biomedismair3.social.account.AccountController
 import ru.biomedis.biomedismair3.social.account.AccountView
 import ru.biomedis.biomedismair3.social.remote_client.*
+import ru.biomedis.biomedismair3.utils.OS.OSValidator
 import ru.biomedis.biomedismair3.utils.Other.LoggerDelegate
 import ru.biomedis.biomedismair3.utils.Other.Result
 import ru.biomedis.biomedismair3.utils.TabHolder
@@ -148,6 +151,19 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
         println("SHOW LOGOUT")
         println("--------------- Состояние входа2: "+SocialClient.INSTANCE.isAuthProperty)
 
+        if(OSValidator.isMac() && !checkJreVersion()){
+            val clipboard = Clipboard.getSystemClipboard().apply { clear()}
+            ClipboardContent().let {
+                it.putString("http://biomedis.ru/doc/b_mair/jre/mac_os_x_jre.zip")
+                clipboard.setContent(it)
+            }
+            showInfoDialog(res.getString("need_jre_update"),
+                    res.getString("need_jre_update"),
+                    res.getString("jre_update_instruction")+"\n\n"+res.getString("update_warn"),
+                    controllerWindow,
+                    Modality.WINDOW_MODAL
+            )
+        }
     }
 
     override fun setName(name: String) {
@@ -156,6 +172,14 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
             nameNode.text = name
         }
         tokenRepository.updateTokenName(name)
+    }
+
+    private fun checkJreVersion(): Boolean {
+        val javaVersion = System.getProperty("java.version")
+        val split = javaVersion.split("\\.").toTypedArray()
+        val split1 = split[2].split("_").toTypedArray()
+        //1.8.0_282
+        return split[1].toInt() == 8 && split1[0].toInt() == 0 && split1[1].toInt() >= 282
     }
 
     private fun onShowProfile(){
