@@ -1,6 +1,6 @@
 <?xml version="1.1" encoding="UTF-8" ?>
 <Update date="30.12.2020">
     <Action type="Move">
-        <File url="http://www.biomedis.ru/doc/b_mair/starter/files/1_4_0/starter.jar"  dst="assets/BiomedisMAir3-1.0-SNAPSHOT.jar"/>
+        <File url="http://www.biomedis.ru/doc/b_mair/starter/files/1_5_0/starter.jar"  dst="assets/BiomedisMAir3-1.0-SNAPSHOT.jar"/>
     </Action>
 </Update>
