@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 
 public class M2
 {
-    public static final  short vendorId=(short)0xFC82;
-    public static final  short productId=(short)0x0001;
+    public static final  int vendorId=0xFC82;
+    public static final  int productId=0x0001;
     private static final  byte IN_END_POINT=(byte)0x81;
     private static final  byte OUT_END_POINT=(byte)0x01;
 

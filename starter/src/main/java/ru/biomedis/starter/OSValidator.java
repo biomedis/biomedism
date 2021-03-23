@@ -51,5 +51,9 @@ public class OSValidator {
 		return (OS.indexOf("sunos") >= 0);
  
 	}
+
+	public static String osVersion(){
+		return System.getProperty("os.version");
+	}
  
 }

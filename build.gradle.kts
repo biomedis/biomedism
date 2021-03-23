@@ -92,7 +92,7 @@ subprojects{
 
 		implementation( "org.swinglabs","pdf-renderer", "1.0.5")
 		implementation( "com.mpatric","mp3agic", "0.8.3")
-		implementation( "org.hid4java","hid4java", "0.5.0")
+		implementation( "org.hid4java","hid4java", "0.7.0")
 		implementation( "org.anantacreative","updater", "0.15.3")//https://github.com/lightway82/updater
 		implementation( "io.github.openfeign","feign-core", "11.0")
 		implementation( "io.github.openfeign","feign-jackson", "11.0")

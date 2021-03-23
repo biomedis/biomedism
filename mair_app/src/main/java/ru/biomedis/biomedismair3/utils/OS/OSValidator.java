@@ -57,5 +57,8 @@ public class OSValidator {
 		else if(isWindows()) return "Windows";
 		else return "Linux";
 	}
- 
+
+	public static String osVersion(){
+		return System.getProperty("os.version");
+	}
 }

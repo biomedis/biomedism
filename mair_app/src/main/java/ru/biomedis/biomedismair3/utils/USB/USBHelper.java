@@ -35,8 +35,9 @@ public class USBHelper{
      * @throws USBException
      */
     public static void initContext() throws USBException {
-        HidApi.dropReportIdZero = false;
+        //HidApi.dropReportIdZero = false;
         HidServicesSpecification hidServicesSpecification = new HidServicesSpecification();
+        hidServicesSpecification.setAutoStart(false);
         hidServicesSpecification.setAutoShutdown(false);
         hidServicesSpecification.setScanInterval(500);
         hidServicesSpecification.setPauseInterval(5000);
@@ -364,13 +365,13 @@ public class USBHelper{
     public static void closeContext(){
         if(hidService==null) return;
         hidService.shutdown();
-        hidService.removeUsbServicesListener(hidlistener);
+        hidService.removeHidServicesListener(hidlistener);
     }
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
         hidService.shutdown();
-        hidService.removeUsbServicesListener(hidlistener);
+        hidService.removeHidServicesListener(hidlistener);
     }
 
 

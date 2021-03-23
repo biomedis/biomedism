@@ -164,6 +164,15 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
                     Modality.WINDOW_MODAL
             )
         }
+
+        if(OSValidator.isWindows() && !checkJreVersion() && !checkOsWinVersion()){
+            showInfoDialog(res.getString("need_jre_update"),
+                res.getString("need_jre_update"),
+                "Обновите программу запустив установшик с сайта. При запуске установщика выберите -\"Обновить\". Следующие обновления будут автоматическими, как обычно",
+                controllerWindow,
+                Modality.WINDOW_MODAL
+            )
+        }
     }
 
     override fun setName(name: String) {
@@ -180,6 +189,12 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
         val split1 = split[2].split("_").toTypedArray()
         //1.8.0_282
         return split[1].toInt() == 8 && split1[0].toInt() == 0 && split1[1].toInt() >= 282
+    }
+
+    private fun checkOsWinVersion(): Boolean {
+        val osV: String = OSValidator.osVersion()
+        val vArray = osV.split("\\.".toRegex()).map { s: String -> s.toInt() }
+        return if (vArray[0] < 6) false else vArray[0] != 6 || vArray[1] > 1
     }
 
     private fun onShowProfile(){

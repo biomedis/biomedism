@@ -1,5 +1,6 @@
 package ru.biomedis.starter;
 
+import java.util.stream.Stream;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -72,11 +73,23 @@ public class AppController extends BaseController {
         return getApp().getResources();
     }
 
+    private boolean checkOsWinVersion(){
+        String osV = OSValidator.osVersion();
+        List<Integer> vArray = Arrays.stream(osV.split("\\.")).map(Integer::parseInt).collect(Collectors.toList());
+
+        if(vArray.get(0)< 6) return  false;
+        else
+            return vArray.get(0) != 6 || vArray.get(1) > 1;
+    }
     @Override
     protected void onCompletedInitialise() {
         initLinks();
+        boolean flag=false;
+        if(OSValidator.isMac() || (OSValidator.isWindows() && !checkOsWinVersion())) flag=true;
+        else flag = checkJreVersion();
+
         try {
-            if(OSValidator.isMac() || checkJreVersion()){
+            if(flag){
 
                     version = DataHelper.selectUpdateVersion();
                     getControllerWindow().setTitle(getRes().getString("app.name")+" "+version);
