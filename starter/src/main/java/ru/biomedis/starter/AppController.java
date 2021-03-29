@@ -87,6 +87,9 @@ public class AppController extends BaseController {
         boolean flag=false;
         if(OSValidator.isMac() || (OSValidator.isWindows() && !checkOsWinVersion())) flag=true;
         else flag = checkJreVersion();
+        System.out.println("##################");
+        System.out.println(System.getProperty("java.vendor"));
+        System.out.println(System.getProperty("java.vm.name"));
 
         try {
             if(flag){

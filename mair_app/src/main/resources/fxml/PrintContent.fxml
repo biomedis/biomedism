@@ -20,13 +20,14 @@
             <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onPrint" text="%app.menu.print" />
             <HBox alignment="CENTER_LEFT" spacing="8.0">
                <children>
-                  <RadioButton fx:id="freqRadio" mnemonicParsing="false" onAction="#choiceFreqs" selected="true" text="%app.with_freqs" />
-                  <RadioButton fx:id="noFreqRadio" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#choiceNoFreqs" text="%app.without_freqs" />
+                  <RadioButton fx:id="freqRadio" mnemonicParsing="false" onAction="#choiceAction" selected="true" text="%app.with_freqs" />
+                  <RadioButton fx:id="noFreqRadio" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#choiceAction" text="%app.without_freqs" />
+                  <RadioButton fx:id="simpleListRadio" layoutX="10.0" layoutY="10.0" mnemonicParsing="false" onAction="#choiceAction" text="%app.simple_list_complexes" />
                   <Label text="%app.font_size">
                      <HBox.margin>
                         <Insets left="10.0" />
                      </HBox.margin></Label>
-                  <ChoiceBox fx:id="fontSize" onAction="#choiceFontSize" />
+                  <ChoiceBox fx:id="fontSize" onAction="#choiceAction" />
                </children>
             </HBox>
          </children>

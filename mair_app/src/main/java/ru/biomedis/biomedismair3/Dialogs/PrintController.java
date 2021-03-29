@@ -27,6 +27,7 @@ public class PrintController extends BaseController {
     private   @FXML  ChoiceBox<Float> fontSize;
     private   @FXML RadioButton freqRadio;
     private   @FXML RadioButton noFreqRadio;
+    private   @FXML RadioButton simpleListRadio;
 
     private  @FXML WebView webView;
     private WebEngine webEngine;
@@ -43,7 +44,8 @@ public class PrintController extends BaseController {
 
     @Override
     protected void onCompletedInitialization() {
-
+        if(type==0 || type==2) simpleListRadio.setVisible(false);
+        setContent(getPrintType(), DEFAULT_FONT_SIZE);
     }
 
     @Override
@@ -77,19 +79,21 @@ public class PrintController extends BaseController {
         ToggleGroup toggleGroup =new ToggleGroup();
         freqRadio.setToggleGroup(toggleGroup);
         noFreqRadio.setToggleGroup(toggleGroup);
+        simpleListRadio.setToggleGroup(toggleGroup);
 
         for (float i =DEFAULT_FONT_SIZE-3; i<DEFAULT_FONT_SIZE+5; i+=0.5)fontSize.getItems().add(i);
         fontSize.setValue((float)DEFAULT_FONT_SIZE);
-        setContent(true, DEFAULT_FONT_SIZE);
+
 
 
     }
 
-    private void setContent(boolean freqs, float fs){
-        Platform.runLater(() -> webEngine.loadContent(getContent(freqs, fs)));
+    private void setContent(PrintType printType, float fs){
+        if(printType == PrintType.SIMPLE_LIST_COMPLEXES)Platform.runLater(() -> webEngine.loadContent(simpleListContent(fs)));
+        else Platform.runLater(() -> webEngine.loadContent(getContent(printType, fs)));
     }
 
-    private String getContent(boolean freqs, float fontSize) {
+    private String getContent(PrintType printType, float fontSize) {
 
         StringBuilder strB = new StringBuilder();
         strB.append("<html>");
@@ -100,14 +104,14 @@ public class PrintController extends BaseController {
         switch (type) {
 
             case 1:
-                profileContent(strB, id, freqs, fontSize);
+                profileContent(strB, id, printType==PrintType.COMPLEXES_WITH_FREQS, fontSize);
                 break;
 
             case 0:
-                complexContent(strB, id, false, freqs, fontSize);
+                complexContent(strB, id, false, printType==PrintType.COMPLEXES_WITH_FREQS, fontSize);
                 break;
             case 2:
-                ids.forEach(itm -> complexContent(strB, itm, true, freqs, fontSize));
+                ids.forEach(itm -> complexContent(strB, itm, true, printType==PrintType.COMPLEXES_WITH_FREQS, fontSize));
                 break;
         }
 
@@ -183,45 +187,58 @@ public class PrintController extends BaseController {
         Profile profile = getModel().findProfile(idProfile);
         strb.append("<p></p>");
         strb.append("<h1>" + res.getString("app.profile") + " - " + profile.getName() + "</h1>");
-        strb.append("<p>" + res.getString("app.table.delay") + ": " + DateUtil.replaceTime(DateUtil.convertSecondsToHMmSs(getModel().getTimeProfile(profile)), res) + "</p>");
-
+       //strb.append("<p>" + res.getString("app.table.delay") + ": " + DateUtil.replaceTime(DateUtil.convertSecondsToHMmSs(getModel().getTimeProfile(profile)), res) + "</p>");
         strb.append("<p></p>");
         getModel().findAllTherapyComplexByProfile(profile).forEach(itm -> complexContent(strb, itm.getId(), true, freqs, fs));
 
     }
 
-    public void choiceFreqs(){
-        setContent(true, fontSize.getValue());
-    }
+    private String simpleListContent(float fontSize) {
 
-    public void choiceNoFreqs(){
-        setContent(false, fontSize.getValue());
-    }
+        StringBuilder strb = new StringBuilder();
+        strb.append("<html>");
+        strb.append("<title></title>");
+        strb.append("<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\"/></head>");
+        strb.append("<body style='font-size:"+fontSize+"pt;'>");
+        Profile profile = getModel().findProfile(id);
+        strb.append("<h1>" + res.getString("app.profile") + " - " + profile.getName() + "</h1>");
 
-    public void choiceFontSize() {
-
-        setContent(freqRadio.isSelected(), fontSize.getValue());
-
-    }
-}
-
-
-
-/*
-
-public void print(final Node node) {
-        Printer printer = Printer.getDefaultPrinter();
-        PageLayout pageLayout = printer.createPageLayout(Paper.NA_LETTER, PageOrientation.PORTRAIT, Printer.MarginType.DEFAULT);
-        double scaleX = pageLayout.getPrintableWidth() / node.getBoundsInParent().getWidth();
-        double scaleY = pageLayout.getPrintableHeight() / node.getBoundsInParent().getHeight();
-        node.getTransforms().add(new Scale(scaleX, scaleY));
-
-        PrinterJob job = PrinterJob.createPrinterJob();
-        if (job != null) {
-            boolean success = job.printPage(node);
-            if (success) {
-                job.endJob();
-            }
+        strb.append("<table border=\"1\" cellspacing=\"0\" cellpadding=\"2\" width=\"100%\">");
+        strb.append("<tr>");
+        strb.append("<th align='center' width=55>№</th>");
+        strb.append("<th width=*>" + res.getString("app.therapy_complex") + "</th>");
+        strb.append("<th  align='center' width=140>" + res.getString("app.table.delay") + "</th>");
+        strb.append("<th width=28%></th>");
+        strb.append("</tr>");
+        int i=1;
+        for (TherapyComplex complex : getModel().findAllTherapyComplexByProfile(profile)) {
+            strb.append("<tr>");
+            strb.append("<td  align='center'>").append(i++).append("</td>");
+            strb.append("<td>").append(complex.getName()).append("</td>");
+            strb.append("<td  align='center'>")
+                .append(DateUtil.replaceTime(DateUtil.convertSecondsToHMmSs(getModel().getTimeTherapyComplex(complex)), res))
+                .append("</td>");
+            strb.append("<td></td>");
+            strb.append("</tr>");
         }
+
+        strb.append("</body>");
+        strb.append("</html>");
+        return strb.toString();
+
     }
- */
+
+    public void choiceAction(){
+      setContent(getPrintType(), fontSize.getValue());
+    }
+
+
+
+    private PrintType getPrintType(){
+        if(freqRadio.isSelected()) return PrintType.COMPLEXES_WITH_FREQS;
+        if(noFreqRadio.isSelected()) return PrintType.COMPLEXES_WITHOUT_FREQS;
+        if(simpleListRadio.isSelected()) return PrintType.SIMPLE_LIST_COMPLEXES;
+        throw new RuntimeException("Не верный тип печати");
+    }
+    private enum PrintType{COMPLEXES_WITH_FREQS, COMPLEXES_WITHOUT_FREQS, SIMPLE_LIST_COMPLEXES}
+}

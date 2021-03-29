@@ -185,7 +185,7 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
 
     private fun checkJreVersion(): Boolean {
         val javaVersion = System.getProperty("java.version")
-        val split = javaVersion.split("\\.").toTypedArray()
+        val split = javaVersion.split(".").toTypedArray()
         val split1 = split[2].split("_").toTypedArray()
         //1.8.0_282
         return split[1].toInt() == 8 && split1[0].toInt() == 0 && split1[1].toInt() >= 282
@@ -193,7 +193,7 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
 
     private fun checkOsWinVersion(): Boolean {
         val osV: String = OSValidator.osVersion()
-        val vArray = osV.split("\\.".toRegex()).map { s: String -> s.toInt() }
+        val vArray = osV.split(".").map { s: String -> s.toInt() }
         return if (vArray[0] < 6) false else vArray[0] != 6 || vArray[1] > 1
     }
 
