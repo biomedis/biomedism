@@ -234,7 +234,27 @@ public class ProfileController extends BaseController implements ProfileAPI {
     }
 
     public void readProfileFromTrinity(){
-        App.getAppController().onReadProfileFromTrinity();
+
+        Task task = new Task() {
+            protected Void call() {
+                App.getAppController().onReadProfileFromTrinity();
+                return null;
+            }
+        };
+
+        task.setOnScheduled((event) -> {
+            Waiter.openLayer(getApp().getMainWindow(), true);
+        });
+        task.setOnFailed(ev -> {
+            Waiter.closeLayer();
+        });
+        task.setOnSucceeded(ev -> {
+            Waiter.closeLayer();
+
+        });
+        Thread thread = new Thread(task);
+        thread.setDaemon(true);
+        thread.start();
     }
 
     private void initReadMenuBtn() {
