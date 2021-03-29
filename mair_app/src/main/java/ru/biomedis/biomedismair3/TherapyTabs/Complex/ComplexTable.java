@@ -92,6 +92,8 @@ public class ComplexTable {
         return property;
     }
 
+    private TableColumn<TherapyComplex,String> nameColTC;
+
     private void initTable(){
         initTranslateMenu();
         //номер по порядку
@@ -102,11 +104,12 @@ public class ComplexTable {
 
 
         //имя
-        TableColumn<TherapyComplex,String> nameColTC=new TableColumn<>(res.getString("app.table.name_complex"));
+        nameColTC=new TableColumn<>(res.getString("app.table.name_complex"));
         nameColTC.cellValueFactoryProperty().setValue(new PropertyValueFactory<TherapyComplex, String>("name"));
         //nameColTC.setCellFactory(TextFieldTableCell.forTableColumn());
         nameColTC.setCellFactory(param -> new NameComplexTableCell());
         nameColTC.setOnEditCommit(this::editNameAction);
+        nameColTC.setOnEditCancel(e->nameColTC.setEditable(false));
 
         //описание
         TableColumn<TherapyComplex,String> descColTC=new TableColumn<>(res.getString("app.table.complex_descr"));
@@ -150,6 +153,7 @@ public class ComplexTable {
         fileComplexCol.setSortable(false);
 
         fileComplexCol.setEditable(true);
+        nameColTC.setEditable(false);
     }
 
 
@@ -231,7 +235,7 @@ public class ComplexTable {
                                           Runnable pasteInTables_after,
                                           Consumer<List<TherapyComplex>> complexesToBiofon,
                                           Supplier<Boolean> toUserBaseMenuItemPredicate) {
-
+        MenuItem mic14 = new MenuItem(res.getString("app.ui.edit_name"));
         MenuItem mic1 = new MenuItem(this.res.getString("app.to_user_base"));
         MenuItem mic2 = new MenuItem(this.res.getString("app.ui_comlexes_generation"));
         MenuItem mic3 = new MenuItem(this.res.getString("app.upload_to_dir"));
@@ -272,10 +276,16 @@ public class ComplexTable {
         mic5.setOnAction((event2) -> {
             uploadComplexesToM.run();
         });
+        mic14.setOnAction(e->{
+            nameColTC.setEditable(true);
+            int selectedRowIndex = table.getSelectionModel().getSelectedIndex();
+            table.edit(selectedRowIndex, table.getColumns().get(1));
+        });
         mic9.setOnAction(event -> copyInTables.run());
         mic10.setOnAction(event -> pasteInTables.run());
         mic4.setOnAction(event -> complexesToBiofon.accept(table.getSelectionModel().getSelectedItems()));
         this.complexesMenu.getItems().addAll(
+            mic14,
                 mic11,
                 mic9,
                 mic10,
@@ -486,6 +496,7 @@ public class ComplexTable {
 
 
         }
+        nameColTC.setEditable(false);
     }
 
     private ObservableValue<String> timeCellValueFactory(TableColumn.CellDataFeatures<TherapyComplex, String> param) {

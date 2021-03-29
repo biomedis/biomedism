@@ -142,6 +142,8 @@ public class ProfileTable {
         getAllItems().set(i,item);
     }
 
+    private  TableColumn<Profile,String> nameCol;
+
     private void initTable(){
         initTranslateMenu();
         //номер по порядку
@@ -149,43 +151,11 @@ public class ProfileTable {
         numProfileCol.setCellValueFactory(param -> new SimpleIntegerProperty(param.getTableView().getItems().indexOf(param.getValue())+1));
 
         //имя профиля
-        TableColumn<Profile,String> nameCol=new TableColumn<>(res.getString("app.table.profile_name"));
+        nameCol=new TableColumn<>(res.getString("app.table.profile_name"));
         nameCol.cellValueFactoryProperty().setValue(new PropertyValueFactory<Profile, String>("name"));
         nameCol.setCellFactory(TextFieldTableCell.forTableColumn());
         nameCol.setOnEditCommit(event ->
         {
-
-//            if (!event.getNewValue().equals(event.getOldValue())) {
-//
-//                String s = event.getNewValue();
-//                if (s.length() == 0) {
-//                    event.getRowValue().setName(event.getOldValue());
-//                    Profile p = event.getRowValue();
-//                    int i = table.getItems().indexOf(event.getRowValue());
-//                    table.getItems().set(i, null);
-//                    table.getItems().set(i, p);
-//                    p = null;
-//                    table.getSelectionModel().select(i);
-//                    return;
-//                }
-//                event.getRowValue().setName(s);
-//                try {
-//                    getModel().updateProfile(event.getRowValue());
-//                    Profile p = event.getRowValue();
-//                    int i = table.getItems().indexOf(event.getRowValue());
-//                    table.getItems().set(i, null);
-//                    table.getItems().set(i, p);
-//                    table.getSelectionModel().select(i);
-//                    p = null;
-//
-//                } catch (Exception e) {
-//                    log.error("",e);
-//                }
-//
-//
-//            }
-
-
             if (!event.getNewValue().equals(event.getOldValue())) {
                 Profile profile = event.getRowValue();
                 String s = event.getNewValue();
@@ -205,6 +175,10 @@ public class ProfileTable {
 
 
             }
+            nameCol.setEditable(false);
+        });
+        nameCol.setOnEditCancel(e->{
+            nameCol.setEditable(false);
         });
 
 
@@ -260,7 +234,7 @@ public class ProfileTable {
             });
             return property;
         });
-
+        numProfileCol.setStyle( "-fx-alignment: CENTER;");
         timeCol.setStyle( "-fx-alignment: CENTER;");
         lastChangeCol.setStyle( "-fx-alignment: CENTER;");
         weightCol.setStyle( "-fx-alignment: CENTER;");
@@ -279,7 +253,7 @@ public class ProfileTable {
         numProfileCol.setEditable(false);
         weightCol.setEditable(false);
         lastChangeCol.setEditable(false);
-        nameCol.setEditable(true);
+        nameCol.setEditable(false);
         timeCol.setEditable(false);
 
         lastChangeCol.setSortable(false);
@@ -309,6 +283,7 @@ public class ProfileTable {
                                        Runnable pasteInTables,
                                        Runnable deleteInTables,
                                        Runnable pasteInTables_after) {
+        MenuItem mip7 =new MenuItem(res.getString("app.ui.edit_name"));
         MenuItem mip1 = new MenuItem(this.res.getString("app.ui.duplicate"));
         MenuItem mip2 =new MenuItem(this.res.getString("app.menu.insert_before"));
         MenuItem mip3 =new MenuItem(this.res.getString("app.cut"));
@@ -324,11 +299,16 @@ public class ProfileTable {
         //mip3.setAccelerator(new KeyCodeCombination(KeyCode.X, KeyCombination.CONTROL_DOWN));
         //mip2.setAccelerator(new KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN));
         mip4.setAccelerator(new KeyCodeCombination(KeyCode.DELETE));
-        profileMenu.getItems().addAll(mip1, mip4,mip6,mip5,translateMenu);
+        profileMenu.getItems().addAll(mip7, mip1, mip4,mip6,mip5,translateMenu);
         mip1.setOnAction(e->duplicateProfile());
         mip3.setOnAction(e->cutInTables.run());
         mip2.setOnAction(e->pasteInTables.run());
         mip4.setOnAction(e->deleteInTables.run());
+        mip7.setOnAction(e->{
+            nameCol.setEditable(true);
+            int selectedRowIndex = table.getSelectionModel().getSelectedIndex();
+            table.edit(selectedRowIndex, table.getColumns().get(1));
+        });
         mi_insert_botom.setOnAction(e->pasteInTables_after.run());
         table.setContextMenu(profileMenu);
         profileMenu.setOnShowing(e->{
@@ -337,6 +317,7 @@ public class ProfileTable {
             mip4.setDisable(false);
             mip5.setDisable(false);
             mip1.setDisable(true);
+            mip7.setDisable(true);
             mi_insert_botom.setDisable(false);
             if(table.getSelectionModel().getSelectedItem()==null) {
                 mip2.setDisable(true);
@@ -345,6 +326,7 @@ public class ProfileTable {
                 mip5.setDisable(true);
                 mi_insert_botom.setDisable(true);
             }else {
+                mip7.setDisable(false);
                 mip1.setDisable(false);
                 mip4.setDisable(false);
                 Clipboard clipboard= Clipboard.getSystemClipboard();
