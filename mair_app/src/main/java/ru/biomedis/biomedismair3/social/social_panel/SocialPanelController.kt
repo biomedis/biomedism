@@ -183,12 +183,15 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
         tokenRepository.updateTokenName(name)
     }
 
+    //true если не нужно обновлять jre
     private fun checkJreVersion(): Boolean {
         val javaVersion = System.getProperty("java.version")
         val split = javaVersion.split(".").toTypedArray()
         val split1 = split[2].split("_").toTypedArray()
+        val isBellsoftJre =
+            System.getProperty("java.vendor").toLowerCase().contains("BellSoft".toLowerCase())
         //1.8.0_282
-        return split[1].toInt() == 8 && split1[0].toInt() == 0 && split1[1].toInt() >= 282
+        return split[1].toInt() == 8 && split1[0].toInt() == 0 && split1[1].toInt() >= 282 && isBellsoftJre
     }
 
     private fun checkOsWinVersion(): Boolean {

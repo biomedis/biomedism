@@ -85,12 +85,11 @@ public class AppController extends BaseController {
     protected void onCompletedInitialise() {
         initLinks();
         boolean flag=false;
+
         if(OSValidator.isMac() || (OSValidator.isWindows() && !checkOsWinVersion())) flag=true;
         else flag = checkJreVersion();
-        System.out.println("##################");
-        System.out.println(System.getProperty("java.vendor"));
-        System.out.println(System.getProperty("java.vm.name"));
 
+        //BellSoft
         try {
             if(flag){
 
@@ -126,16 +125,18 @@ public class AppController extends BaseController {
         String extMsg ="";
         if(OSValidator.isWindows()) extMsg = getRes().getString("need_off_antivirus");
         textInfo.setText(getRes().getString("need_jre_update")+"\n"+extMsg);
-
+        textInfo.setStyle("-fx-text-fill: red;");
     }
 
+    //вернет false если jre требует обновления
     private boolean checkJreVersion() {
         String javaVersion= System.getProperty("java.version");
         String[] split = javaVersion.split("\\.");
         String[] split1 = split[2].split("_");
-        //1.8.0_282
+        boolean isBellsoftJre = System.getProperty("java.vendor").toLowerCase().contains("BellSoft".toLowerCase());
+        //1.8.0_282 BellSoft jre полностью реализует javafx, проверка нужна, тк ранее была установлена версия от Amazon, у которой небыло webkit
         return Integer.parseInt(split[1]) == 8 && Integer.parseInt(split1[0]) == 0
-            && Integer.parseInt(split1[1]) >= 282;
+            && Integer.parseInt(split1[1]) >= 282 && isBellsoftJre;
     }
 
     private void loadWebContent() {
@@ -234,6 +235,7 @@ public class AppController extends BaseController {
             } catch (MalformedURLException e) {
                 e.printStackTrace();
                 Platform.runLater(() ->  {
+                    textInfo.setStyle("-fx-text-fill: black;");
                     setTextInfo(getRes().getString("processing_updating_files_error"));
                     showErrorImage();
                     enableStartProgram();
@@ -243,6 +245,7 @@ public class AppController extends BaseController {
             }
             return;
         }
+        textInfo.setStyle("-fx-text-fill: black;");
         setTextInfo(getRes().getString("downloading_files"));
         disableUpdateAndStartProgram();
         showVersonCheckIndicator();
