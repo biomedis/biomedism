@@ -34,6 +34,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.stage.Stage;
 import kotlin.Unit;
@@ -229,11 +230,11 @@ public class SocialClient implements BiomedisFilesExportManager {
       throws ServerProblemException, RequestClientException, NeedAuthByLogin {
     try {
       tokenHolder.processToken();
-      isAuth.set(tokenHolder.hasToken());
-      System.out.println(
-          "Проверка сохраненного токена " + tokenHolder.hasToken() + " isAuth = " + isAuth);
+      boolean hasToken = tokenHolder.hasToken();
+      Platform.runLater(() -> isAuth.set(hasToken));
+
     } catch (NeedAuthByLogin e) {
-      isAuth.set(false);
+      Platform.runLater(() -> isAuth.set(false));
       throw e;
     }
   }

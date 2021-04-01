@@ -262,6 +262,8 @@ class AccountController : BaseController() {
         }
     }
 
+    private var currentSessionId:Long=-2L
+
     private fun loadSessions() {
         val result: Result<List<ActiveSession>> = BlockingAction.actionResult(controllerWindow) {
             accountClient.allTokens()
@@ -276,7 +278,7 @@ class AccountController : BaseController() {
             log.error("", result.error)
             return
         }
-
+        currentSessionId = SocialClient.INSTANCE.token.get().id
         sessionListSource.clear()
         sessionListSource.addAll(result.value)
         removeAllBtn.isDisable = sessionListObs.isEmpty()
@@ -284,7 +286,7 @@ class AccountController : BaseController() {
 
     private val sessionListSource: ObservableList<ActiveSession> = FXCollections.observableArrayList()
     private val sessionListObs: FilteredList<ActiveSession> = FilteredList(sessionListSource) {
-        it.id != SocialClient.INSTANCE.token.map { token -> token.id }.orElse(-2)
+        it.id != currentSessionId
     }
 
     private fun initTokensList() {
@@ -636,8 +638,9 @@ class AccountController : BaseController() {
     }
 
     fun deleteAllSessions(actionEvent: ActionEvent) {
+
         val result = BlockingAction.actionNoResult(controllerWindow) {
-            val forDelete = sessionListObs.toList()//исключаем текущую
+            val forDelete = sessionListObs.toList()
             forDelete.forEach {
                 accountClient.deleteToken(it.id)
                 sessionListSource.remove(it)
