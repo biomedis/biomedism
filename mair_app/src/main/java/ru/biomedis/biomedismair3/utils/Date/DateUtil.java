@@ -14,6 +14,7 @@ import java.time.format.DateTimeParseException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.ResourceBundle;
+import java.util.TimeZone;
 
 /**
  * Helper functions for handling dates.
@@ -26,6 +27,8 @@ public class DateUtil {
     private static final String DATE_PATTERN = "dd.MM.yyyy";
     private static final String DATE_TIME_PATTERN = "dd.MM.yyyy HH:mm:ss";
     private static final String DATE_TIME_PATTERN_WITHOUT_SEC = "dd.MM.yyyy HH:mm";
+    public static final TimeZone timeZone = Calendar.getInstance().getTimeZone();
+
 
     /** The date formatter. */
     private static final DateTimeFormatter DATE_FORMATTER = 

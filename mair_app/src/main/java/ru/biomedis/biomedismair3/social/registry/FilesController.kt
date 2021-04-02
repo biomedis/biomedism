@@ -736,6 +736,16 @@ class FilesController : BaseController(), TabHolder.Selected, TabHolder.Detached
         val files = fileChooser.showOpenMultipleDialog(controllerWindow)
 
         val filesSize = files.map{it.length()}.reduce { acc, l -> acc+l }/1000000F
+        if(filesSize > 100) {
+            showWarningDialog(
+                "Загрузка файлов",
+                "Слишком большой файл",
+                "Допустимо загружать файлы размером не более 100Мб",
+                controllerWindow,
+                Modality.WINDOW_MODAL
+            )
+            return
+        }
         if(filesSize > storageValue.get().availableVolume){
             showWarningDialog(
                 "Загрузка файлов",

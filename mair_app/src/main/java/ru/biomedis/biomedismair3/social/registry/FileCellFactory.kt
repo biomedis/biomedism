@@ -11,6 +11,7 @@ import ru.biomedis.biomedismair3.social.remote_client.dto.FileData
 import ru.biomedis.biomedismair3.social.remote_client.dto.IFileItem
 import java.io.IOException
 import java.text.SimpleDateFormat
+import java.util.*
 
 /**
  * Принимает FileData и DirectoryData
@@ -125,6 +126,7 @@ class FileCellFactory(val linkAction:(String, AccessVisibilityType)->Unit, val d
         }
 
         init {
+            dateFormat.timeZone = Calendar.getInstance().timeZone
             loadFXML()
             redLinkBtn.setOnAction {
                 if(item is FileData) linkAction((item as FileData).privateLink, item.accessType)
