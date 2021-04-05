@@ -34,6 +34,15 @@ $(document).ready(function () {
 })
 
 
+function addMessages(messages){
+  for (var m of messages) {
+    if (m.out) addMessageOutcome(m.msg, m.msgId, false);
+    else addMessageIncoming(m.msg, m.msgId, false);
+  }
+
+  scrollBottom();
+}
+
 function addMessageOutcome(htmlMsg, msgId, scroll){
   $("#content")
   .append(fillTemplateString(out_msg_tpl, {htmlMsg:htmlMsg, msgId:msgId}));

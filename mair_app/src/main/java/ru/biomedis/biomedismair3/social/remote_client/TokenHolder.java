@@ -49,7 +49,7 @@ class TokenHolder {
         throw new NeedAuthByLogin();
       }
     }
-    log.info("Token expired at "+ token.map(t->t.getExpired().toString()).orElse("----"));
+
   }
 
   public String getAccessToken(){
@@ -70,8 +70,17 @@ class TokenHolder {
       throws ServerProblemException, NeedAuthByLogin, RequestClientException {
 
     if(token.isExpired()){
+      log.info("Token expired at "+ token.getExpired().toString());
       try{
-        setToken(Optional.of(loginClient.refreshToken(token.getRefreshToken())));
+        Token newToken = loginClient.refreshToken(token.getRefreshToken());
+        if(newToken==null){
+          log.info("!!!!!!!! Получен нулевой ответ от сервера loginClient.refreshToken()==null");
+//          //токен не стираем в базе, это сделает setToken, если не кинуть тут исключение.
+//          //происхождение null тут не понятно. Если это изменение приведет к невозможности входа тк повторный запрос опять тут упадет
+//          //то стоит вернуть и искать проблему дальше
+//          throw new Exception("Response from server in null. Expected token");
+        }
+        setToken(Optional.of(newToken));
         return this.token.get().getAccessToken();
       }catch (Exception e){
         if(e instanceof ApiError) {
@@ -90,7 +99,10 @@ class TokenHolder {
   protected void setToken(Optional<Token> token){
     this.token = token;
     if(token.isPresent()) tokenRepository.saveToken(token.get());
-    else tokenRepository.clearToken();
+    else {
+      tokenRepository.clearToken();
+    }
+
   }
 
   /**

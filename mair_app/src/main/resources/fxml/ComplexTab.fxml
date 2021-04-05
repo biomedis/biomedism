@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox fx:id="root" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="8.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.TherapyTabs.Complex.ComplexController">
+<VBox fx:id="root" alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" spacing="8.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.TherapyTabs.Complex.ComplexController">
    <children>
       <HBox maxWidth="1.7976931348623157E308" spacing="5.0">
          <children>
@@ -30,7 +30,10 @@
                      </HBox.margin>
                   </Label>
 
-                  <Spinner fx:id="bundlesSpinner" minWidth="60.0" prefWidth="60.0" />
+                  <Spinner fx:id="bundlesSpinner" maxWidth="70.0" minWidth="70.0" prefWidth="70.0">
+                     <HBox.margin>
+                        <Insets left="2.0" />
+                     </HBox.margin></Spinner>
                   <VBox fx:id="bundlesBtnPan" spacing="3.0">
                      <children>
                         <Button fx:id="btnOkBundles" contentDisplay="CENTER" ellipsisString="" maxHeight="16.0" maxWidth="16.0" minHeight="16.0" minWidth="16.0" mnemonicParsing="false" prefHeight="16.0" prefWidth="16.0" />

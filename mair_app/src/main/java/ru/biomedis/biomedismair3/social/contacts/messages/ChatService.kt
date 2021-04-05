@@ -1,5 +1,6 @@
 package ru.biomedis.biomedismair3.social.contacts.messages
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.vladsch.flexmark.html.HtmlRenderer
 import com.vladsch.flexmark.parser.Parser
 import com.vladsch.flexmark.util.ast.Node
@@ -148,22 +149,27 @@ class ChatService(
                 log.error("Ошибка получения обновленных сообщений", it.error)
                 showErrorhandler("загрузка сообщений чата", "Не удалось получить сообщения")
             } else {
-                var cnt=0
-                it.value.forEach { msg ->
-                    cnt++
-                    if (msg.from == contactUser) Platform.runLater {
-                        addMessageIncomming(markdownToHtml(msg.message), msg.id, false)
-                    }
-                    else Platform.runLater {
-                        addMessageOutcome(markdownToHtml(msg.message), msg.id, false)
-                    }
-                    if(cnt==it.value.size) {
-                        initMessagesLoaded.value = true
-                        scrollChatToBottom()
-                    }
-
+               // var cnt=0
+                Platform.runLater {
+                    addMessages(it.value, contactUser)
+                    initMessagesLoaded.value = true
                 }
-                if(cnt==0) initMessagesLoaded.value = true
+//                it.value.forEach { msg ->
+//                    cnt++
+//                    if (msg.from == contactUser) Platform.runLater {
+//                        addMessageIncomming(markdownToHtml(msg.message), msg.id, false)
+//                    }
+//                    else Platform.runLater {
+//                        addMessageOutcome(markdownToHtml(msg.message), msg.id, false)
+//                    }
+//                    if(cnt==it.value.size) {
+//                        initMessagesLoaded.value = true
+//                        scrollChatToBottom()
+//                    }
+//
+//                }
+                //if(cnt==0)
+
             }
 
         }
@@ -353,6 +359,31 @@ class ChatService(
 
     private fun editMessage(msg: String, id: Long) {
         messagesEngine.executeScript("editMessage($id,'${clearContent(msg)}')")
+    }
+
+    private data class HtmlMessageDto(val msg: String, val msgId: Long, val isOut: Boolean)
+
+    private fun addMessages(messages: List<MessageDto>, contactUser: Long){
+        val result = mutableListOf<HtmlMessageDto>()
+        messages.forEach {
+            result.add(HtmlMessageDto(
+                clearContent(markdownToHtml(it.message)),
+                it.id,
+                it.from != contactUser))
+        }
+        val mapper = ObjectMapper()
+        val json = mapper.writeValueAsString(result)
+        val script="""
+            var msgs = JSON.parse('$json');
+            addMessages(msgs);
+        """.trimIndent()
+//        val script="""
+//           addMessages('$json');
+//           """.trimIndent()
+
+        println(script)
+        messagesEngine.executeScript(script)
+
     }
 
     private fun addMessageIncomming(msg: String, msgId: Long, scroll: Boolean = true) {

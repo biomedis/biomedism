@@ -79,7 +79,7 @@ class SocialPanelController : BaseController(), SocialPanelAPI {
 
         SocialClient.INSTANCE.isAuthProperty.addListener{
             _,oldV, newV->
-
+            //не сработает(тк по умолчанию итак false в свойстве) если при запуске проги сразу вход не удастся, но это и не так важно при этом
             if (oldV == newV) return@addListener
             if (newV) showLogout() else showLogin()
             if(newV){
