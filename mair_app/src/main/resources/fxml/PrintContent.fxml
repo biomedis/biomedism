@@ -2,21 +2,51 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.web.WebView?>
 
-<BorderPane fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.121" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.Dialogs.PrintController">
+<BorderPane fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="500.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ru.biomedis.biomedismair3.Dialogs.PrintController">
    <center>
       <WebView fx:id="webView" prefHeight="490.0" prefWidth="590.0" BorderPane.alignment="CENTER" />
    </center>
    <top>
       <VBox spacing="8.0" BorderPane.alignment="CENTER">
          <children>
+            <Label text="Отступы на стренице в мм:" />
+            <HBox alignment="CENTER_LEFT" maxWidth="1.7976931348623157E308" spacing="5.0">
+               <children>
+                  <Label text="%from_above" HBox.hgrow="NEVER" />
+                  <Spinner fx:id="topPaddingSpinner" editable="false" prefWidth="70.0" HBox.hgrow="NEVER" />
+
+                  <Label text="%on_right" HBox.hgrow="NEVER">
+                     <HBox.margin>
+                        <Insets left="8.0" />
+                     </HBox.margin>
+                  </Label>
+                  <Spinner fx:id="rightPaddingSpinner" editable="false" prefWidth="70.0" HBox.hgrow="NEVER" />
+
+                  <Label text="%from_below" HBox.hgrow="NEVER">
+                     <HBox.margin>
+                        <Insets left="8.0" />
+                     </HBox.margin>
+                  </Label>
+                  <Spinner fx:id="bottomPaddingSpinner" editable="false" prefWidth="70.0" HBox.hgrow="NEVER" />
+
+                  <Label text="%left" HBox.hgrow="NEVER">
+                     <HBox.margin>
+                        <Insets left="8.0" />
+                     </HBox.margin>
+                  </Label>
+                  <Spinner fx:id="leftPaddingSpinner" editable="false" prefWidth="70.0" HBox.hgrow="NEVER" />
+               </children>
+            </HBox>
             <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onPrint" text="%app.menu.print" />
             <HBox alignment="CENTER_LEFT" spacing="8.0">
                <children>
@@ -28,6 +58,7 @@
                         <Insets left="10.0" />
                      </HBox.margin></Label>
                   <ChoiceBox fx:id="fontSize" onAction="#choiceAction" />
+                  <CheckBox fx:id="hideLastCol" text="%app.print.hide_last_col"  onAction="#choiceAction" />
                </children>
             </HBox>
          </children>

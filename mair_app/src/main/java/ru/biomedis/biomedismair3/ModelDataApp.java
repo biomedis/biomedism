@@ -9,6 +9,7 @@ import com.mpatric.mp3agic.Mp3File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
 import lombok.extern.slf4j.Slf4j;
 import ru.biomedis.biomedismair3.JPAControllers.*;
 import ru.biomedis.biomedismair3.JPAControllers.exceptions.NonexistentEntityException;
@@ -491,6 +492,27 @@ public class ModelDataApp implements TokenRepository, EmailListRepository {
             optionsDAO.edit(programOptions);
         }else createOption(name,value);
 
+    }
+
+
+    public void savePrintPadding(int top, int right, int bottom, int left){
+        try {
+            updateOption("print_paddings", String.format("%d;%d;%d;%d", top, right, bottom, left));
+        } catch (Exception e) {
+            createOption("print_paddings",String.format("%d;%d;%d;%d", top, right, bottom, left));
+            throw new RuntimeException("Опция token не существует", e);
+        }
+    }
+
+    public Insets loadPrintPadding(){
+        try {
+            String printPaddingsOptionValue = getOption("print_paddings");
+            String[] splitValues = printPaddingsOptionValue.split(";");
+            return new Insets(Integer.parseInt(splitValues[0]),Integer.parseInt(splitValues[1]),Integer.parseInt(splitValues[2]),Integer.parseInt(splitValues[3]));
+        } catch (Exception e) {
+            createOption("print_paddings","5;5;5;10");
+            return Insets.EMPTY;
+        }
     }
     /*************/
 
