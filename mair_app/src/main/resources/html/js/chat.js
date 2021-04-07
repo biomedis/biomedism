@@ -1,6 +1,9 @@
 var converter;
 var out_msg_tpl="";
 var in_msg_tpl="";
+var lastId=-1;
+var hasNotMessages=false;
+var inLoadingProcess=false;
 
 $(document).ready(function () {
   out_msg_tpl = $('#msg_item_tpl_outcome').text();
@@ -31,6 +34,20 @@ $(document).ready(function () {
 
  javaConnector.loadInitMessages();
 
+var jwindow = $(window);
+  $('body').bind('mousewheel', function(e){
+    if(e.originalEvent.wheelDelta /120 > 0) {
+
+      if(jwindow.scrollTop() == 0 && !hasNotMessages) {
+        $("#content").prepend("<p class='loaded_msg' style='text-align: center;margin:10px;'>Загрузка...</p>")
+        inLoadingProcess=true;
+        javaConnector.loadMessages(lastId);
+
+      }
+    }
+
+  });
+
 })
 
 
@@ -39,8 +56,25 @@ function addMessages(messages){
     if (m.out) addMessageOutcome(m.msg, m.msgId, false);
     else addMessageIncoming(m.msg, m.msgId, false);
   }
+  if(messages.length!=0) {
+
+    lastId= messages[0].msgId;
+  }else hasNotMessages=true;
 
   scrollBottom();
+}
+
+function addPrevMessages(messages){
+  if(messages.length!=0){
+    for (var i=messages.length-1;i>=0;i--) {
+      if (messages[i].out) addMessageOutcomePre(messages[i].msg, messages[i].msgId);
+      else addMessageIncomingPre(messages[i].msg, messages[i].msgId);
+    }
+    lastId= messages[0].msgId;
+  }else hasNotMessages=true;
+
+  inLoadingProcess=false;
+  $("#content .loaded_msg").remove();
 }
 
 function addMessageOutcome(htmlMsg, msgId, scroll){
@@ -53,6 +87,17 @@ function addMessageIncoming(htmlMsg, msgId, scroll){
   $("#content")
   .append(fillTemplateString(in_msg_tpl, {htmlMsg:htmlMsg, msgId:msgId}));
   if(scroll)scrollBottom();
+}
+
+function addMessageOutcomePre(htmlMsg, msgId){
+  $("#content")
+  .prepend(fillTemplateString(out_msg_tpl, {htmlMsg:htmlMsg, msgId:msgId}));
+}
+
+function addMessageIncomingPre(htmlMsg, msgId){
+  $("#content")
+  .prepend(fillTemplateString(in_msg_tpl, {htmlMsg:htmlMsg, msgId:msgId}));
+
 }
 
 function editMessage(msgId, htmlMsg ){

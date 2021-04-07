@@ -14,17 +14,18 @@ class MessagesLoader(val contactUser: Long) {
         return messages[id]
     }
 
-    fun loadMessages(contactUser: Long): CompletableFuture<Result<MutableList<MessageDto>>> =  AsyncAction.actionResult {
-            SocialClient.INSTANCE.contactsClient.getNextMessagesFromUser(contactUser, -1, 20)
-        }.thenApply {
-            if(!it.isError) {
-                synchronized(messages){
-                    it.value.forEach {
-                            msg->
-                        messages[msg.id]=msg
-                    }
+
+    fun loadMessages(contactUser: Long, fromId: Long, count: Int): CompletableFuture<Result<MutableList<MessageDto>>> =  AsyncAction.actionResult {
+        SocialClient.INSTANCE.contactsClient.getNextMessagesFromUser(contactUser, fromId, count)
+    }.thenApply {
+        if(!it.isError) {
+            synchronized(messages){
+                it.value.forEach {
+                        msg->
+                    messages[msg.id]=msg
                 }
             }
+        }
         it
     }
 
@@ -34,5 +35,9 @@ class MessagesLoader(val contactUser: Long) {
 
     fun addMessage(msg: MessageDto){
         messages[msg.id] = msg
+    }
+
+    fun clear(){
+        messages.clear()
     }
 }

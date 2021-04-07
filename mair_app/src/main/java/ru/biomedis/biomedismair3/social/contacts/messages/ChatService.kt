@@ -24,6 +24,7 @@ import java.io.File
 import java.util.*
 import java.util.function.Consumer
 
+private const val MESSAGES_BATCH_SIZE=15
 /**
  * Сервис работы с чатом.
  * Когда окно закрывается нужно вызвать removeHandlers()
@@ -64,8 +65,9 @@ class ChatService(
         javaConnector = JavaConnector(
             editAction = this::editMsgAction,
             deleteAction = this::deleteMsgAction,
-            loadMessages = this::loadMessages,
-            linkClick = this::onLinkClick
+            loadMessages = {loadMessages(-1,MESSAGES_BATCH_SIZE)},
+            linkClick = this::onLinkClick,
+            loadMessagesFrom = {fromId->loadMessages(fromId,MESSAGES_BATCH_SIZE)}
         )
         fun initEditor(
             htmlPath: String,
@@ -143,37 +145,23 @@ class ChatService(
         linkClick(href)
     }
 
-    private fun loadMessages() {
-        messagesLoader.loadMessages(contactUser).thenAccept {
+    private fun loadMessages(fromId: Long, count: Int) {
+        messagesLoader.loadMessages(contactUser, fromId, count).thenAccept {
             if (it.isError) {
                 log.error("Ошибка получения обновленных сообщений", it.error)
                 showErrorhandler("загрузка сообщений чата", "Не удалось получить сообщения")
             } else {
-               // var cnt=0
+
                 Platform.runLater {
-                    addMessages(it.value, contactUser)
+                    addMessages(it.value, contactUser, fromId != -1L)
                     initMessagesLoaded.value = true
                 }
-//                it.value.forEach { msg ->
-//                    cnt++
-//                    if (msg.from == contactUser) Platform.runLater {
-//                        addMessageIncomming(markdownToHtml(msg.message), msg.id, false)
-//                    }
-//                    else Platform.runLater {
-//                        addMessageOutcome(markdownToHtml(msg.message), msg.id, false)
-//                    }
-//                    if(cnt==it.value.size) {
-//                        initMessagesLoaded.value = true
-//                        scrollChatToBottom()
-//                    }
-//
-//                }
-                //if(cnt==0)
 
             }
 
         }
     }
+
 
     fun removeHandlers() {
         SocialClient.INSTANCE.removeDeletedMessagesHandler(addDeletedMessagesHandler)
@@ -363,7 +351,7 @@ class ChatService(
 
     private data class HtmlMessageDto(val msg: String, val msgId: Long, val isOut: Boolean)
 
-    private fun addMessages(messages: List<MessageDto>, contactUser: Long){
+    private fun addMessages(messages: List<MessageDto>, contactUser: Long, prepend: Boolean){
         val result = mutableListOf<HtmlMessageDto>()
         messages.forEach {
             result.add(HtmlMessageDto(
@@ -373,18 +361,15 @@ class ChatService(
         }
         val mapper = ObjectMapper()
         val json = mapper.writeValueAsString(result)
+        val func = if(prepend) "addPrevMessages" else "addMessages"
         val script="""
             var msgs = JSON.parse('$json');
-            addMessages(msgs);
+            $func(msgs);
         """.trimIndent()
-//        val script="""
-//           addMessages('$json');
-//           """.trimIndent()
-
-        println(script)
         messagesEngine.executeScript(script)
 
     }
+
 
     private fun addMessageIncomming(msg: String, msgId: Long, scroll: Boolean = true) {
         messagesEngine.executeScript("addMessageIncoming('${clearContent(msg)}', '$msgId','$scroll')")
@@ -414,7 +399,8 @@ class ChatService(
         val editAction: (Long) -> Unit,
         val deleteAction: (Long) -> Unit,
         val loadMessages: () -> Unit,
-        val linkClick:(String)->Unit
+        val linkClick:(String)->Unit,
+        val loadMessagesFrom: (Long) -> Unit
     ) {
         fun deleteMsg(id: Long) {
             deleteAction(id)
@@ -430,8 +416,17 @@ class ChatService(
 
         }
 
+        fun loadMessages(fromId: Long) {
+            loadMessagesFrom(fromId)
+
+        }
+
         fun onLinkClick(href: String){
             linkClick(href)
         }
+    }
+
+    fun clear(){
+        messagesLoader.clear()
     }
 }
