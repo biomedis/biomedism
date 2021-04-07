@@ -115,7 +115,6 @@ public class AppController extends BaseController {
             setTextInfo(getRes().getString("define_version_program_error"));
             showErrorImage();
         }
-
     }
 
 

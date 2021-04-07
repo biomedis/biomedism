@@ -147,7 +147,7 @@ public class App extends Application {
     public void start(Stage stage) throws Exception {
 
         mainWindow=stage;
-        starterVersion = new Version(1,6,0);
+        starterVersion = new Version(1,7,0);
 
         openPersisenceContext();//откроем контекст работы с БД
 
@@ -261,7 +261,6 @@ public class App extends Application {
             closeAppListeners.stream().forEach(listeners->listeners.onClose());
             WebHelper.getWebHelper().close();
         });
-
 
         stage.show();
 
@@ -409,6 +408,8 @@ public class App extends Application {
             command.add("-Xms400m");
             command.add("-Xmx1024m");
             command.add("-Dstarter.version="+getStarterVersion().toString());
+            if(System.getProperty("java.net.preferIPv4Stack")!=null)command.add("-Djava.net.preferIPv4Stack=true");
+            if(System.getProperty("java.net.preferIPv6Addresses")!=null)command.add("-Djava.net.preferIPv6Addresses=false");
             command.add("-jar");
             command.add(new File(currentJar.getParentFile(),"dist.jar").getAbsolutePath());
 
