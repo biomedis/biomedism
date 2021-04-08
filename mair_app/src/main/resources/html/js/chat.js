@@ -32,13 +32,14 @@ $(document).ready(function () {
     javaConnector.onLinkClick($(this).attr("href"));
   });
 
+  inLoadingProcess=true;
  javaConnector.loadInitMessages();
 
 var jwindow = $(window);
   $('body').bind('mousewheel', function(e){
     if(e.originalEvent.wheelDelta /120 > 0) {
 
-      if(jwindow.scrollTop() == 0 && !hasNotMessages) {
+      if(jwindow.scrollTop() == 0 && !hasNotMessages && !inLoadingProcess) {
         $("#content").prepend("<p class='loaded_msg' style='text-align: center;margin:10px;'>Загрузка...</p>")
         inLoadingProcess=true;
         javaConnector.loadMessages(lastId);
@@ -60,7 +61,7 @@ function addMessages(messages){
 
     lastId= messages[0].msgId;
   }else hasNotMessages=true;
-
+  inLoadingProcess=false;
   scrollBottom();
 }
 

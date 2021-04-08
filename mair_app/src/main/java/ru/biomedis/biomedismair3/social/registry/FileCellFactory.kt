@@ -23,7 +23,7 @@ class FileCellFactory(val linkAction:(String, AccessVisibilityType)->Unit, val d
     }
 
     class TaskCell(val linkAction:(String, AccessVisibilityType)->Unit, val downloadAction: (FileData)->Unit) : ListCell<IFileItem>() {
-        private  val dateFormat = SimpleDateFormat("dd.MM.yyyy hh:mm")
+        private  val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm")
         @FXML
         private lateinit var name: Label
         @FXML

@@ -74,7 +74,7 @@ class StoryCellFactory private constructor(
         @FXML
         private lateinit var fullContent: Hyperlink
 
-        private val dateFormat = SimpleDateFormat("dd.MM.yyyy hh:mm")
+        private val dateFormat = SimpleDateFormat("dd.MM.yyyy HH:mm")
 
         private fun loadFXML() {
             try {
@@ -104,6 +104,7 @@ class StoryCellFactory private constructor(
                 } else {
                     loadBox.isVisible = false
                     title.text = item.title
+
                     date.text = dateFormat.format(item.created)
                     image.image = imageFromBase64(item.image)
                     description.text = item.description
@@ -116,7 +117,7 @@ class StoryCellFactory private constructor(
 
 
         init {
-            dateFormat.timeZone = Calendar.getInstance().timeZone
+            dateFormat.timeZone = TimeZone.getTimeZone("Europe/Moscow")//TimeZone.getTimeZone("Etc/UTC")//Calendar.getInstance().timeZone
             loadFXML()
             editBtn.setOnAction { editAction(item) }
             deleteBtn.setOnAction { deleteAction(item) }

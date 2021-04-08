@@ -65,9 +65,7 @@ public class App extends Application {
       }
 
   private String getSocialAPIURL() {
-
     return (isDeveloped() || isIDEStarted())?"http://localhost:8080":socialAPIURL;
-
   }
 
   /**
