@@ -1,0 +1,7 @@
+<?xml version="1.1" encoding="UTF-8" ?>
+<Update date="31.03.2020">
+    <Action type="Move">
+        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_14_13/dist.jar" dst="assets"/>
+        <File url="http://www.biomedis.ru/doc/b_mair/updater/win/files/4_14_13/version.txt" dst="assets"/>
+    </Action>
+</Update>
